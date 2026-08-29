@@ -1,0 +1,76 @@
+RewriteEngine On
+RewriteBase /schoolprojectt/SmartStudyProV2.3/
+
+Options -MultiViews
+
+RewriteCond %{THE_REQUEST} \s/+schoolprojectt/SmartStudyProV2\.3/index\.php(?:[?\s]|$) [NC]
+RewriteRule ^index\.php$ /schoolprojectt/SmartStudyProV2.3/ [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+schoolprojectt/SmartStudyProV2\.3/about\.php(?:[?\s]|$) [NC]
+RewriteRule ^about\.php$ /schoolprojectt/SmartStudyProV2.3/about [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+schoolprojectt/SmartStudyProV2\.3/admin\.php(?:[?\s]|$) [NC]
+RewriteRule ^admin\.php$ /schoolprojectt/SmartStudyProV2.3/admin [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+schoolprojectt/SmartStudyProV2\.3/booking\.php(?:[?\s]|$) [NC]
+RewriteRule ^booking\.php$ /schoolprojectt/SmartStudyProV2.3/booking [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+schoolprojectt/SmartStudyProV2\.3/cart\.php(?:[?\s]|$) [NC]
+RewriteRule ^cart\.php$ /schoolprojectt/SmartStudyProV2.3/cart [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+schoolprojectt/SmartStudyProV2\.3/checkout\.php(?:[?\s]|$) [NC]
+RewriteRule ^checkout\.php$ /schoolprojectt/SmartStudyProV2.3/checkout [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+schoolprojectt/SmartStudyProV2\.3/contact\.php(?:[?\s]|$) [NC]
+RewriteRule ^contact\.php$ /schoolprojectt/SmartStudyProV2.3/contact [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+schoolprojectt/SmartStudyProV2\.3/course-details\.php(?:[?\s]|$) [NC]
+RewriteRule ^course-details\.php$ /schoolprojectt/SmartStudyProV2.3/course-details [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+schoolprojectt/SmartStudyProV2\.3/courses\.php(?:[?\s]|$) [NC]
+RewriteRule ^courses\.php$ /schoolprojectt/SmartStudyProV2.3/courses [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+schoolprojectt/SmartStudyProV2\.3/login\.php(?:[?\s]|$) [NC]
+RewriteRule ^login\.php$ /schoolprojectt/SmartStudyProV2.3/login [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+schoolprojectt/SmartStudyProV2\.3/product-details\.php(?:[?\s]|$) [NC]
+RewriteRule ^product-details\.php$ /schoolprojectt/SmartStudyProV2.3/product-details [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+schoolprojectt/SmartStudyProV2\.3/products\.php(?:[?\s]|$) [NC]
+RewriteRule ^products\.php$ /schoolprojectt/SmartStudyProV2.3/products [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+schoolprojectt/SmartStudyProV2\.3/profile\.php(?:[?\s]|$) [NC]
+RewriteRule ^profile\.php$ /schoolprojectt/SmartStudyProV2.3/profile [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+schoolprojectt/SmartStudyProV2\.3/register\.php(?:[?\s]|$) [NC]
+RewriteRule ^register\.php$ /schoolprojectt/SmartStudyProV2.3/register [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+schoolprojectt/SmartStudyProV2\.3/reset\.php(?:[?\s]|$) [NC]
+RewriteRule ^reset\.php$ /schoolprojectt/SmartStudyProV2.3/reset [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+schoolprojectt/SmartStudyProV2\.3/stream\.php(?:[?\s]|$) [NC]
+RewriteRule ^stream\.php$ /schoolprojectt/SmartStudyProV2.3/stream [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+schoolprojectt/SmartStudyProV2\.3/study\.php(?:[?\s]|$) [NC]
+RewriteRule ^study\.php$ /schoolprojectt/SmartStudyProV2.3/study [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+schoolprojectt/SmartStudyProV2\.3/test\.php(?:[?\s]|$) [NC]
+RewriteRule ^test\.php$ /schoolprojectt/SmartStudyProV2.3/test [R=301,L]
+
+RewriteRule ^about/?$ about.php [L,QSA]
+RewriteRule ^admin/?$ admin.php [L,QSA]
+RewriteRule ^booking/?$ booking.php [L,QSA]
+RewriteRule ^cart/?$ cart.php [L,QSA]
+RewriteRule ^checkout/?$ checkout.php [L,QSA]
+RewriteRule ^contact/?$ contact.php [L,QSA]
+RewriteRule ^course-details/?$ course-details.php [L,QSA]
+RewriteRule ^courses/?$ courses.php [L,QSA]
+RewriteRule ^login/?$ login.php [L,QSA]
+RewriteRule ^product-details/?$ product-details.php [L,QSA]
+RewriteRule ^products/?$ products.php [L,QSA]
+RewriteRule ^profile/?$ profile.php [L,QSA]
+RewriteRule ^register/?$ register.php [L,QSA]
+RewriteRule ^reset/?$ reset.php [L,QSA]
+RewriteRule ^stream/?$ stream.php [L,QSA]
+RewriteRule ^study/?$ study.php [L,QSA]
+RewriteRule ^test/?$ test.php [L,QSA]

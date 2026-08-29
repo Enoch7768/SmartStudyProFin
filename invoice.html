@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice_FW-2026-004_Edward_Kavanja</title>
+    <link rel="shortcut icon" href="logo.png" type="image/x-icon">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap');
+
+        :root {
+            --fuze-cyan: #00e5ff; 
+            --fuze-dark: #0a0e14; 
+            --fuze-white: #ffffff;
+            --text-gray: #a4b0be;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 40px 20px;
+            color: var(--fuze-dark);
+        }
+
+        .invoice-container {
+            max-width: 850px;
+            margin: auto;
+            background: var(--fuze-white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .brand-header {
+            background-color: var(--fuze-dark);
+            color: var(--fuze-white);
+            padding: 50px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 5px solid var(--fuze-cyan);
+        }
+
+        .logo-area img {
+            height: 80px;
+            margin-bottom: 10px;
+        }
+
+        .company-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            letter-spacing: 3px;
+            margin: 0;
+        }
+
+        .company-name span { color: var(--fuze-cyan); }
+
+        .invoice-meta { text-align: right; }
+        .invoice-meta h2 { 
+            font-family: 'Orbitron', sans-serif; 
+            color: var(--fuze-cyan); 
+            margin: 0; 
+            font-size: 32px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            padding: 40px;
+            gap: 20px;
+            background: #fafafa;
+        }
+
+        .section-title {
+            color: var(--fuze-cyan);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .info-content p { margin: 2px 0; font-size: 16px; font-weight: 500; }
+
+        .table-section { padding: 0 40px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        thead th {
+            text-align: left;
+            padding: 15px;
+            background: #f1f2f6;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        tbody td {
+            padding: 20px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .item-name { font-weight: 700; font-size: 18px; color: var(--fuze-dark); }
+        .item-desc { font-size: 14px; color: var(--text-gray); display: block; margin-top: 5px; }
+
+        .summary-wrapper {
+            padding: 40px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .summary-box { width: 320px; }
+        .summary-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 16px;
+        }
+
+        .grand-total {
+            background: var(--fuze-dark);
+            color: var(--fuze-cyan);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+        }
+
+        .footer-terms {
+            background: #f9f9f9;
+            padding: 40px;
+            border-top: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        .payment-methods {
+            border-left: 3px solid var(--fuze-cyan);
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        .print-btn {
+            display: block;
+            width: fit-content;
+            margin: 30px auto;
+            background: var(--fuze-dark);
+            color: var(--fuze-cyan);
+            padding: 15px 40px;
+            border: 2px solid var(--fuze-cyan);
+            border-radius: 50px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .print-btn:hover {
+            background: var(--fuze-cyan);
+            color: var(--fuze-dark);
+        }
+
+        @media print {
+            .print-btn { display: none; }
+            body { padding: 0; background: white; }
+            .invoice-container { box-shadow: none; border-radius: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="invoice-container">
+        <header class="brand-header">
+            <div class="logo-area">
+                <img src="logo.png" alt="FuzeWeb Logo" onerror="this.src='https://via.placeholder.com/80x80/00e5ff/ffffff?text=FW'">
+                <h1 class="company-name">FUZE<span>WEB</span></h1>
+                <p style="font-size: 12px; letter-spacing: 2px; color: var(--fuze-cyan);">WEB DEVELOPMENT COMPANY</p>
+            </div>
+            <div class="invoice-meta">
+                <h2>INVOICE</h2>
+                <p>#FW-2026-004</p>
+                <p>Date: Feb 2, 2026</p>
+            </div>
+        </header>
+
+        <div class="info-grid">
+            <div class="info-content">
+                <div class="section-title">Developer Details</div>
+                <p><strong>Enoch Muhimbisa</strong></p>
+                <p>Founder and Lead Developer, FuzeWeb Technology</p>
+                <p>Kitagobwa, Kampala, UG</p>
+                <p>+256 772 964 158</p>
+            </div>
+            <div class="info-content" style="text-align: right;">
+                <div class="section-title">Billed To</div>
+                <p><strong>Edward Kavanja</strong></p>
+                <p>SmartStudyPro Project</p>
+                <p>Kampala, Uganda</p>
+                <p>Project ID: SSP-2026</p>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <table>
+            <thead>
+                <tr>
+                <th>SERVICE DESCRIPTION</th>
+                <th class="text-right">SUBTOTAL (UGX)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                <td>
+                    <span class="item-name">E-Commerce Platform Development</span>
+                    <span class="item-desc">Full-stack architecture including PHP backend, SQLite database optimization, shopping cart functionality, and automated digital fulfillment system.</span>
+                </td>
+                <td class="text-right amount">1,000,000</td>
+                </tr>
+                <tr>
+                <td>
+                    <span class="item-name">Payment Gateway Integration</span>
+                    <span class="item-desc">Secure API implementation and configuration for DPO Pay mobile money processing.</span>
+                </td>
+                <td class="text-right amount">500,000</td>
+                </tr>
+                <tr>
+                <td>
+                    <span class="item-name">Content Management System Integration</span>
+                    <span class="item-desc">Cockpit CMS implementation with administrative dashboard for streamlined product and content management.</span>
+                </td>
+                <td class="text-right amount">800,000</td>
+                </tr>
+                <tr>
+                <td>
+                    <span class="item-name">Web Hosting & Deployment</span>
+                    <span class="item-desc">Production server setup, deployment configuration, and website publication.</span>
+                </td>
+                <td class="text-right amount">200,000</td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
+
+        <div class="summary-wrapper">
+            <div class="summary-box">
+                <div class="summary-line">
+                    <span>Gross Total:</span>
+                    <span>2,500,000</span>
+                </div>
+                <div class="summary-line" style="color: #2ecc71;">
+                    <span>Project Discount:</span>
+                    <span>- 1,000,000</span>
+                </div>
+                <div class="summary-line grand-total">
+                    <span>TOTAL DUE:</span>
+                    <span>1,500,000 /-</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-terms">
+            <div class="payment-methods">
+                <div class="section-title">Payment Instructions</div>
+                <p><strong>Mobile Money:</strong> +256 772 964 158 (Sarah Kakooza)</p>
+            </div>
+                <div class="payment-methods">
+                <div class="section-title">Payment Reference</div>
+                <p>Please include "SmartStudyPro" as the reference when transferring funds via mobile money.</p>
+            </div>
+        </div>
+         <div class="payment-methods">
+                <div class="section-title">Disclaimer</div>
+                <p>Please provide a yearly payment of 200,000 UGX for website hosting, and domain management, and SSL certificates. <br> First year is included in price.</p>
+            </div>
+    </div>
+
+    <button id="printBtn" class="print-btn">GENERATE PDF DOCUMENT</button>
+
+
+    <script>
+        // Place the script here at the end so it "sees" the button above it
+        document.getElementById('printBtn').addEventListener('click', function() {
+            window.print();
+        });
+    </script>
+
+</body>
+</html>

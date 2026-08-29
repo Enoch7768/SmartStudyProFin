@@ -1,0 +1,13 @@
+{
+    "require": {
+        "cockpit-hq/cockpit": "2.10",
+        "phpmailer/phpmailer": "^6.8"
+    },
+    "config": {
+        "policy": {
+            "advisories": {
+                "block": false
+            }
+        }
+    }
+}

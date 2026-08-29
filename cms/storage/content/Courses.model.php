@@ -1,0 +1,122 @@
+<?php
+ return [
+  'name' => 'Courses',
+  'label' => 'Courses',
+  'info' => 'Courses',
+  'type' => 'collection',
+  'fields' => [
+    0 => [
+      'name' => 'Title',
+      'type' => 'text',
+      'label' => 'Course Title',
+      'info' => 'Please input the title for your course.',
+      'group' => 'Courses',
+      'i18n' => false,
+      'required' => false,
+      'multiple' => false,
+      'meta' => [
+      ],
+      'opts' => [
+        'multiline' => false,
+        'showCount' => true,
+        'readonly' => false,
+        'placeholder' => NULL,
+        'minlength' => NULL,
+        'maxlength' => NULL,
+        'list' => NULL,
+      ],
+    ],
+    1 => [
+      'name' => 'Description',
+      'type' => 'wysiwyg',
+      'label' => 'Course Description',
+      'info' => 'Please input the description for your course.',
+      'group' => 'Courses',
+      'i18n' => false,
+      'required' => false,
+      'multiple' => false,
+      'meta' => [
+      ],
+      'opts' => [
+      ],
+    ],
+    2 => [
+      'name' => 'Price',
+      'type' => 'text',
+      'label' => 'Course Price',
+      'info' => 'Please input the price for your course ',
+      'group' => 'Courses',
+      'i18n' => false,
+      'required' => false,
+      'multiple' => false,
+      'meta' => [
+      ],
+      'opts' => [
+        'multiline' => false,
+        'showCount' => true,
+        'readonly' => false,
+        'placeholder' => NULL,
+        'minlength' => NULL,
+        'maxlength' => NULL,
+        'list' => NULL,
+      ],
+    ],
+    3 => [
+      'name' => 'Category',
+      'type' => 'text',
+      'label' => 'Course Category',
+      'info' => 'Please input the category for your course',
+      'group' => 'Courses',
+      'i18n' => false,
+      'required' => false,
+      'multiple' => false,
+      'meta' => [
+      ],
+      'opts' => [
+        'multiline' => false,
+        'showCount' => true,
+        'readonly' => false,
+        'placeholder' => NULL,
+        'minlength' => NULL,
+        'maxlength' => NULL,
+        'list' => NULL,
+      ],
+    ],
+    4 => [
+      'name' => 'Image',
+      'type' => 'asset',
+      'label' => 'Course Image',
+      'info' => 'Please upload your desired image for your course',
+      'group' => 'Courses',
+      'i18n' => false,
+      'required' => false,
+      'multiple' => false,
+      'meta' => [
+      ],
+      'opts' => [
+      ],
+    ],
+    5 => [
+      'name' => 'Content',
+      'type' => 'wysiwyg',
+      'label' => 'Course Content',
+      'info' => 'This is for the long text inside the course-details page.',
+      'group' => 'Courses',
+      'i18n' => false,
+      'required' => false,
+      'multiple' => false,
+      'meta' => [
+      ],
+      'opts' => [
+      ],
+    ],
+  ],
+  'preview' => [
+  ],
+  'group' => 'Courses',
+  'meta' => NULL,
+  '_created' => 1769537951,
+  '_modified' => 1769538111,
+  'color' => NULL,
+  'revisions' => false,
+];
