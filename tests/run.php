@@ -73,6 +73,9 @@ try {
     if (($studentProfile['name'] ?? '') !== 'Updated Student' || ($studentProfile['preferred_theme'] ?? '') !== 'dark') throw new RuntimeException('Student profile update failed.');
     $accounts->changePassword($studentId, 'a-strong-student-password', 'a-new-strong-student-password');
     if (!Auth::attempt($pdo, 'student@example.test', 'a-new-strong-student-password')) throw new RuntimeException('Password change did not update the credential.');
+    $accounts->changePassword($studentId, 'a-new-strong-student-password', 'a-third-strong-student-password');
+    if (Auth::user($pdo) !== null) throw new RuntimeException('A password change did not invalidate the previous session.');
+    if (!Auth::attempt($pdo, 'student@example.test', 'a-third-strong-student-password')) throw new RuntimeException('A new login after session invalidation failed.');
     Auth::logout();
     $resetToken = $accounts->createResetToken('student@example.test');
     if (!is_string($resetToken) || strlen($resetToken) !== 64) throw new RuntimeException('Password reset token creation failed.');
