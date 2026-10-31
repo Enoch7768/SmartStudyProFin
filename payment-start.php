@@ -37,7 +37,7 @@ try {
     $result = $provider === 'paypal'
         ? $gateway->startPayPal($payment, $order, $base . '/payment-return.php?provider=paypal', $base . '/payment-return.php?provider=cancel')
         : ($provider === 'dpo'
-            ? $gateway->startDpo($payment, $order, $base . '/payment-return.php?provider=dpo', $base . '/payment-return.php?provider=dpo')
+            ? $gateway->startDpo($payment, $order, $base . '/dpo-webhook.php', $base . '/payment-return.php?provider=dpo')
             : throw new RuntimeException('Choose PayPal or DPO.'));
     $service->updateProviderReference((int) $payment['id'], $result['id'], $result['status'], $result['metadata']);
     $approval = parse_url((string) $result['approve_url']);
