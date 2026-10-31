@@ -68,7 +68,7 @@ try {
         $reinstallRejected = true;
     }
     if (!$reinstallRejected) throw new RuntimeException('Installer allowed a second first-run installation.');
-    echo "PASS SQLite migrations and idempotency\nPASS role and permission assignment\nPASS login throttling and valid authentication\nPASS case-insensitive email uniqueness\nPASS foreign-key cascade\n";
+    echo "PASS SQLite migrations and idempotency\nPASS role and permission assignment\nPASS login throttling and valid authentication\nPASS case-insensitive email uniqueness\nPASS foreign-key cascade\nPASS private first-run installation and lock\n";
 } finally {
     foreach (glob($temporary . '/*') ?: [] as $file) {
         if (is_file($file)) unlink($file);
