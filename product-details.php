@@ -1,65 +1,34 @@
-<?php 
-require_once 'cms-init.php'; 
+<?php
+declare(strict_types=1);
 
-$product = null;
-$contact = null;
+require_once __DIR__ . '/bootstrap/app.php';
+
+$pdo = \App\Core\Database::connect();
+$content = new \App\Cms\PublicContent($pdo);
 $productId = $_GET['id'] ?? $_GET['_id'] ?? null;
+$product = $content->product(is_string($productId) || is_int($productId) ? $productId : null);
+$contact = $content->contact();
 
-if (function_exists('cockpit')) {
-    if ($productId) {
-        try {
-            $product = cockpit('content')->findOne('Products', ['_id' => $productId]);
+if (!$product) http_response_code(404);
 
-            if (!$product) {
-                $items = cockpit('content')->items('Products', ['filter' => ['_id' => $productId]]);
-                if (!empty($items)) {
-                    $product = $items[0];
-                }
-            }
+$displayTitle = $product['Title'] ?? 'Product Details';
+$displayPrice = $product['Price'] ?? '0';
+$displayDesc = $product['Description'] ?? 'No description available.';
+$productType = $product['ProductType'] ?? 'Online';
+$category = $product['Category'] ?? 'General';
 
-            if (!$product) {
-                $allProducts = cockpit('content')->items('Products');
-                foreach ($allProducts as $p) {
-                    if (isset($p['_id']) && $p['_id'] == $productId) {
-                        $product = $p;
-                        break;
-                    }
-                }
-            }
-        } catch (Exception $e) {
-            $product = null;
-        }
-    }
+$phone = $contact['phone'];
+$email = $contact['email'];
+$address = strip_tags($contact['address']);
 
-    try {
-        $contact = cockpit('content')->findOne('ContactDetails') 
-                ?? cockpit('content')->item('ContactDetails');
-    } catch (Exception $e) {
-        $contact = null;
-    }
-}
+$imgData = $product['Image'] ?? null;
+$imgUrl = $imgData['url'] ?? 'assets/img/course-details-tab-1.png';
+$filePath = '';
 
-$displayTitle = $product['Title'] ?? $product['title'] ?? 'Product Details';
-$displayPrice = $product['Price'] ?? $product['price'] ?? '0';
-$displayDesc  = $product['Description'] ?? $product['description'] ?? 'No description available.';
-$productType  = $product['ProductType'] ?? $product['producttype'] ?? 'Online'; 
-$category     = $product['Category'] ?? $product['category'] ?? 'General';
-
-$phone   = $contact['phone'] ?? '+256 704 416250';
-$email   = $contact['email'] ?? 'smartstudypro36@gmail.com';
-$address = strip_tags($contact['address'] ?? 'Kampala, Uganda');
-
-$imgData = $product['Image'] ?? $product['image'] ?? null;
-$imgUrl = !empty($imgData['path']) 
-          ? '/schoolprojectt/SmartStudyProV2.3/cms/storage/uploads' . $imgData['path'] 
-          : 'assets/img/course-details-tab-1.png';
-
-$filePath = $product['ProductFile']['path'] ?? $product['productfile']['path'] ?? '';
-
-$seoTitle       = $product['SEO-Title'] ?? $product['seo_title'] ?? ($displayTitle . " | SmartStudyPro Store");
-$seoDescription = $product['SEO-Description'] ?? $product['seo_description'] ?? substr(strip_tags($displayDesc), 0, 160);
-$siteUrl        = "https://smartstudypro.com";
-$fullImgUrl     = $siteUrl . $imgUrl;
+$seoTitle = $product['SEO-Title'] ?? ($displayTitle . ' | SmartStudyPro Store');
+$seoDescription = $product['SEO-Description'] ?? substr(strip_tags($displayDesc), 0, 160);
+$siteUrl = 'https://smartstudypro.com';
+$fullImgUrl = str_starts_with($imgUrl, 'http') ? $imgUrl : $siteUrl . '/' . ltrim($imgUrl, '/');
 ?>
 
 <!DOCTYPE html>

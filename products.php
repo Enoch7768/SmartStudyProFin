@@ -1,26 +1,20 @@
-<?php 
-require_once 'cms-init.php'; 
+<?php
+declare(strict_types=1);
 
-$products = [];
-$contact = null;
+require_once __DIR__ . '/bootstrap/app.php';
 
-try {
-    if (function_exists('cockpit')) {
-        $products = cockpit('content')->items('Products');
-        $contact = cockpit('content')->item('ContactDetails');
-    }
-} catch (Exception $e) {
-    $products = [];
-    $contact = null;
-}
+$pdo = \App\Core\Database::connect();
+$content = new \App\Cms\PublicContent($pdo);
+$products = $content->products();
+$contact = $content->contact();
 
-$phone   = $contact['phone'] ?? '+256 704 416250';
-$email   = $contact['email'] ?? 'smartstudypro36@gmail.com';
-$address = strip_tags($contact['address'] ?? 'Kampala, Uganda');
+$phone = $contact['phone'];
+$email = $contact['email'];
+$address = strip_tags($contact['address']);
 
-$seoTitle       = 'Educational Products & Learning Materials | SmartStudyPro';
+$seoTitle = 'Educational Products & Learning Materials | SmartStudyPro';
 $seoDescription = 'Browse physical and digital learning materials, holiday packages, and study resources from SmartStudyPro in Uganda.';
-$siteUrl        = "https://smartstudypro.com";
+$siteUrl = 'https://smartstudypro.com';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -299,8 +293,8 @@ $siteUrl        = "https://smartstudypro.com";
                 <div class="ssp-course-card w-100 d-flex flex-column">
                   <?php 
                     $pImgData = $product['Image'] ?? $product['image'] ?? null;
-                    $pImg = !empty($pImgData['path']) 
-                            ? '/schoolprojectt/SmartStudyProV2.3/cms/storage/uploads'.$pImgData['path'] 
+                    $pImg = !empty($pImgData['url']) 
+                            ? $pImgData['url'] 
                             : 'assets/img/course-1.jpg'; 
                   ?>
                   <div class="position-relative">

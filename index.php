@@ -1,29 +1,21 @@
-<?php 
-require_once 'cms-init.php'; 
+<?php
+declare(strict_types=1);
 
-$home = null;
-$courses = [];
-$contact = null;
+require_once __DIR__ . '/bootstrap/app.php';
 
-try {
-    if (function_exists('cockpit')) {
-        $home = cockpit('content')->item('HomePage'); 
-        $courses = cockpit('content')->items('Courses');
-        $contact = cockpit('content')->item('ContactDetails');
-    }
-} catch (Exception $e) {
-    $home = null; 
-    $courses = [];
-    $contact = null;
-}
+$pdo = \App\Core\Database::connect();
+$content = new \App\Cms\PublicContent($pdo);
+$home = $content->home();
+$courses = $content->courses();
+$contact = $content->contact();
 
-$phone   = $contact['phone'] ?? '+256 704 416250';
-$email   = $contact['email'] ?? 'smartstudypro36@gmail.com';
-$address = strip_tags($contact['address'] ?? 'Kampala, Uganda');
+$phone = $contact['phone'];
+$email = $contact['email'];
+$address = strip_tags($contact['address']);
 
-$seoTitle       = $home['SEO-Title'] ?? $home['Title'] ?? 'SmartStudyPro | Study Made Simple, Success Made Sure';
+$seoTitle = $home['SEO-Title'] ?? ($home['Hero-Title'] ?: 'SmartStudyPro | Study Made Simple, Success Made Sure');
 $seoDescription = $home['SEO-Description'] ?? 'Empowering students in Uganda with innovative learning solutions, professional courses, and academic guidance.';
-$siteUrl        = "https://smartstudypro.com"; 
+$siteUrl = 'https://smartstudypro.com';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -479,8 +471,8 @@ $siteUrl        = "https://smartstudypro.com";
 
     <?php 
       $hImgData = $home['Hero-Image'] ?? $home['Image'] ?? null;
-      $heroImg = !empty($hImgData['path']) 
-                 ? '/schoolprojectt/SmartStudyProV2.3/cms/storage/uploads'.$hImgData['path'] 
+      $heroImg = !empty($hImgData['url']) 
+                 ? $hImgData['url'] 
                  : 'assets/img/IMG-20241120-WA0018.jpg';
     ?>
     <section id="hero" class="ssp-hero" style="background-image: url('<?= $heroImg ?>');">
@@ -579,8 +571,8 @@ $siteUrl        = "https://smartstudypro.com";
                 <div class="ssp-course-card w-100 d-flex flex-column">
                   <?php 
                     $cImgData = $course['Image'] ?? $course['image'] ?? null;
-                    $cImg = !empty($cImgData['path']) 
-                            ? '/schoolprojectt/SmartStudyProV2.3/cms/storage/uploads'.$cImgData['path'] 
+                    $cImg = !empty($cImgData['url']) 
+                            ? $cImgData['url'] 
                             : 'assets/img/course-1.jpg'; 
                   ?>
                   <div class="position-relative">

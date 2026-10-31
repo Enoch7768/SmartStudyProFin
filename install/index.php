@@ -14,7 +14,7 @@ use App\Core\Security;
 
 if (Installer::isInstalled()) {
     if (($_GET['installed'] ?? '') === '1') {
-        echo '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Installation complete</title><body style="font:16px system-ui;max-width:620px;margin:12vh auto;padding:24px;color:#182033"><h1>SmartStudyPro is installed</h1><p>Your administrator account and private database are ready. The installer is now locked.</p><p>Continue with the application sign-in once the identity interface is enabled.</p></body></html>';
+        echo '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Installation complete</title><body style="font:16px system-ui;max-width:620px;margin:12vh auto;padding:24px;color:#182033"><h1>SmartStudyPro is installed</h1><p>Your administrator account and private database are ready. The installer is now locked.</p><p>Open the <a href="../admin/cms.php">native SmartStudyPro content manager</a> to manage your website.</p></body></html>';
         exit;
     }
     http_response_code(404);

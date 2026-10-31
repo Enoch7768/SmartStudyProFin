@@ -1,7 +1,9 @@
 <?php
 
-require_once 'cms-init.php';
+require_once __DIR__ . '/bootstrap/app.php';
 require_once 'auth.php';
+
+$content = new \App\Cms\PublicContent(\App\Core\Database::connect());
 
 if(!isset($_COOKIE['user_id'])) {
     $user_id = bin2hex(random_bytes(16));
@@ -31,22 +33,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $courseId  = $_POST['course_id']  ?? null;
     $productId = $_POST['product_id'] ?? null;
 
-    if (!isset($error) && $courseId && function_exists('cockpit')) {
-        $course = cockpit('content')->item('Courses', ['_id' => $courseId]);
+    if (!isset($error) && $courseId) {
+        $course = $content->course((string) $courseId);
         if ($course) {
-            $service  = $course['Title'] ?? $service;
-            $price    = number_format((float) ($course['Price'] ?? 0), 2, '.', '');
-            $filePath = ''; 
+            $service = $course['Title'];
+            $price = number_format((float) $course['Price'], 2, '.', '');
+            $filePath = '';
         } else {
             $error = "The selected course could not be found.";
         }
-    } elseif (!isset($error) && $productId && function_exists('cockpit')) {
-        $product = cockpit('content')->item('Products', ['_id' => $productId]);
+    } elseif (!isset($error) && $productId) {
+        $product = $content->product((string) $productId);
         if ($product) {
-            $service  = $product['Title'] ?? $service;
-            $price    = number_format((float) ($product['Price'] ?? 0), 2, '.', '');
-            $realFile = $product['ProductFile']['path'] ?? '';
-            $filePath = $realFile ? ltrim(str_replace(['..', '\\'], '', (string) $realFile), '/') : '';
+            $service = $product['Title'];
+            $price = number_format((float) $product['Price'], 2, '.', '');
+            $filePath = '';
         } else {
             $error = "The selected product could not be found.";
         }

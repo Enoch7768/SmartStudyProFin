@@ -1,34 +1,25 @@
-<?php 
-require_once 'cms-init.php'; 
+<?php
+declare(strict_types=1);
 
-$about = null;
-$contact = null;
+require_once __DIR__ . '/bootstrap/app.php';
 
-try {
-    if (function_exists('cockpit')) {
-        $about = cockpit('content')->item('AboutPage'); 
-        $contact = cockpit('content')->item('ContactDetails');
-    }
-} catch (Exception $e) {
-    $about = null; 
-    $contact = null;
-}
+$pdo = \App\Core\Database::connect();
+$content = new \App\Cms\PublicContent($pdo);
+$about = $content->about();
+$contact = $content->contact();
 
-$displayTitle = $about['Main-Title'] ?? 'About Us';
-$displayDesc  = $about['Story-Text'] ?? 'SmartStudyPro is dedicated to providing high-quality educational resources, personalized tutoring, and modern learning solutions across Uganda.';
+$displayTitle = $about['Main-Title'] ?: 'About Us';
+$displayDesc = $about['Story-Text'] ?: 'SmartStudyPro is dedicated to providing high-quality educational resources, personalized tutoring, and modern learning solutions across Uganda.';
+$aboutImgData = $about['About-Image'];
+$aboutImg = isset($aboutImgData['url']) ? '/' . ltrim($aboutImgData['url'], '/') : 'assets/img/20240102_164438.jpg';
 
-$aboutImgData = $about['About-Image'] ?? null;
-$aboutImg = !empty($aboutImgData['path']) 
-            ? '/schoolprojectt/SmartStudyProV2.3/cms/storage/uploads'.$aboutImgData['path'] 
-            : 'assets/img/20240102_164438.jpg';
+$phone = $contact['phone'];
+$email = $contact['email'];
+$address = strip_tags($contact['address']);
 
-$phone   = $contact['phone'] ?? '+256 704 416250';
-$email   = $contact['email'] ?? 'smartstudypro36@gmail.com';
-$address = strip_tags($contact['address'] ?? 'Kampala, Uganda');
-
-$seoTitle       = $about['SEO-Title'] ?? 'About Us | SmartStudyPro Uganda';
-$seoDescription = $about['SEO-Description'] ?? strip_tags($displayDesc);
-$siteUrl        = "https://smartstudypro.com";
+$seoTitle = 'About Us | SmartStudyPro Uganda';
+$seoDescription = strip_tags($displayDesc);
+$siteUrl = 'https://smartstudypro.com';
 ?>
 <!DOCTYPE html>
 <html lang="en">
