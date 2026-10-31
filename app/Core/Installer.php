@@ -30,8 +30,8 @@ final class Installer
 
     public static function databaseIsPrivate(): bool
     {
-        $storage = rtrim(str_replace('\\\\', '/', (string) Config::get('storage.path')), '/');
-        $database = str_replace('\\\\', '/', (string) Config::get('database.path'));
+        $storage = rtrim(str_replace('\\', '/', (string) Config::get('storage.path')), '/');
+        $database = str_replace('\\', '/', (string) Config::get('database.path'));
         if ($storage === '' || !str_starts_with($database, $storage . '/')) return false;
         $storageReal = realpath($storage);
         $databaseDirectory = realpath(dirname($database));
