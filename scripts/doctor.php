@@ -13,9 +13,10 @@ $checks = Installer::requirements();
 $storage = (string) Config::get('storage.path');
 $checks['Storage path configured'] = $storage !== '';
 $checks['Storage outside public web root'] = Installer::storageIsPrivate($application['root']);
+$checks['Database inside private storage'] = Installer::databaseIsPrivate();
 $checks['Storage directory writable'] = is_dir($storage) ? is_writable($storage) : is_writable(dirname($storage));
 $checks['Installation lock present'] = Installer::isInstalled();
-if ($checks['PDO SQLite'] && $checks['Storage path configured'] && $checks['Storage outside public web root'] && $checks['Storage directory writable']) {
+if ($checks['PDO SQLite'] && $checks['Storage path configured'] && $checks['Storage outside public web root'] && $checks['Database inside private storage'] && $checks['Storage directory writable']) {
     try {
         $pdo = Database::connect();
         $checks['Database connection'] = true;
