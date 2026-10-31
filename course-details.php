@@ -24,7 +24,7 @@ $seoDescription = $course['SEO-Description'] ?? strip_tags($course['Description'
 $siteUrl = 'https://smartstudypro.com';
 
 $cImgData = $course['Image'] ?? null;
-$ogImage = $cImgData['url'] ?? ($siteUrl . '/assets/img/course-1.jpg');
+$ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/') : $siteUrl . '/assets/img/course-1.jpg';
 ?>
 
 <!DOCTYPE html>
