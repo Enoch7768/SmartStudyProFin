@@ -23,7 +23,7 @@ if (!mkdir($temporary, 0700, true)) throw new RuntimeException('Could not create
 try {
     $pdo = Database::connect($temporary . '/test.sqlite');
     $migrationPath = dirname(__DIR__) . '/database/migrations';
-    if (Migrator::run($pdo, $migrationPath) !== ['001_identity', '002_cms_content', '003_student_identity', '004_learning_engine', '005_lesson_resources_quiz_settings']) throw new RuntimeException('Foundation and CMS migrations did not run.');
+    if (Migrator::run($pdo, $migrationPath) !== ['001_identity', '002_cms_content', '003_student_identity', '004_learning_engine', '005_lesson_resources_quiz_settings', '006_commerce_payments']) throw new RuntimeException('Foundation and CMS migrations did not run.');
     if (Migrator::run($pdo, $migrationPath) !== []) throw new RuntimeException('Migrations are not idempotent.');
     $now = gmdate('Y-m-d H:i:s');
     $insert = $pdo->prepare('INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES (:name, :email, :password_hash, :status, :created_at, :updated_at)');
@@ -90,6 +90,29 @@ try {
 
     $productId = $content->save('products', null, ['title'=>'Study Guide','description_html'=>'Guide','price_ugx'=>'10000','category'=>'Books','product_type'=>'physical','status'=>'published']);
     if (!$content->find('products', $productId)) throw new RuntimeException('Product creation failed.');
+    $digitalAsset = $pdo->prepare("INSERT INTO media_assets (storage_path, original_name, mime_type, file_size, checksum_sha256, alt_text, visibility, uploaded_by, created_at) VALUES ('media/store/guide.pdf', 'guide.pdf', 'application/pdf', 100, 'digital-checksum', 'Digital guide', 'private', :user_id, :created_at)");
+    $digitalAsset->execute(['user_id' => $userId, 'created_at' => $now]);
+    $digitalAssetId = (int) $pdo->lastInsertId();
+    $paidCourseId = $content->save('courses', null, ['title'=>'Secure Checkout Course','description_html'=>'Paid course','content_html'=>'Course content','price_ugx'=>'25000','category'=>'Technology','status'=>'published']);
+    $digitalProductId = $content->save('products', null, ['title'=>'Digital Study Guide','description_html'=>'Downloadable guide','price_ugx'=>'10000','category'=>'Books','product_type'=>'online','product_file_media_id'=>$digitalAssetId,'status'=>'published']);
+    $commerce = new CommerceService($pdo);
+    $order = $commerce->createOrder($userId, [['type'=>'course','id'=>$paidCourseId,'quantity'=>1], ['type'=>'product','id'=>$digitalProductId,'quantity'=>1]]);
+    if ((int) $order['total_ugx'] !== 35000 || count($order['items']) !== 2) throw new RuntimeException('Order creation did not calculate authoritative catalogue prices.');
+    $payment = $commerce->createPayment((int) $order['id'], $userId, 'dpo');
+    $commerce->updateProviderReference((int) $payment['id'], 'dpo-test-token', 'CREATED', ['company_ref'=>$order['public_id']]);
+    $wrongAmountRejected = false;
+    try { $commerce->confirmPayment((int) $payment['id'], 'dpo', 'dpo-test-token', 'approval-1', 34999, 'UGX', 'COMPLETED', 'dpo-test-event'); } catch (RuntimeException) { $wrongAmountRejected = true; }
+    if (!$wrongAmountRejected || $commerce->order((int) $order['id'], $userId)['status'] !== 'pending' || $learning->hasAccess($userId, $paidCourseId)) throw new RuntimeException('An unmatching payment incorrectly granted purchase access.');
+    if (!$commerce->confirmPayment((int) $payment['id'], 'dpo', 'dpo-test-token', 'approval-1', 35000, 'UGX', 'COMPLETED', 'dpo-test-event')) throw new RuntimeException('A matching verified payment did not complete the order.');
+    if ($commerce->confirmPayment((int) $payment['id'], 'dpo', 'dpo-test-token', 'approval-1', 35000, 'UGX', 'COMPLETED', 'dpo-test-event')) throw new RuntimeException('A duplicate payment confirmation was not idempotent.');
+    $paidOrder = $commerce->order((int) $order['id'], $userId);
+    if ($paidOrder['status'] !== 'paid' || !$learning->hasAccess($userId, $paidCourseId)) throw new RuntimeException('A verified course purchase did not activate enrolment.');
+    $download = $commerce->purchasedFile($userId, (int) $paidOrder['items'][1]['id']);
+    if (!$download || $download['storage_path'] !== 'media/store/guide.pdf') throw new RuntimeException('A paid digital product did not receive a secure file entitlement.');
+    if ($commerce->purchasedFile($outsideUserId, (int) $paidOrder['items'][1]['id']) !== null) throw new RuntimeException('A different user accessed a purchased digital product.');
+    $unpaidOrder = $commerce->createOrder($outsideUserId, [['type'=>'product','id'=>$productId,'quantity'=>1]]);
+    if ((int) $unpaidOrder['total_ugx'] !== 10000 || $unpaidOrder['status'] !== 'pending') throw new RuntimeException('Order ownership or pending status was not enforced.');
+
     $public = new PublicContent($pdo);
     if (count($public->courses()) !== 1 || ($public->course((string) $courseId)['Title'] ?? '') !== 'Foundations of Science' || ($public->course('foundations-of-science')['Title'] ?? '') !== 'Foundations of Science') throw new RuntimeException('Published course public read mapping failed.');
     if (($public->product((string) $productId)['ProductType'] ?? '') !== 'Physical' || count($public->products()) !== 1) throw new RuntimeException('Published product public read mapping failed.');
