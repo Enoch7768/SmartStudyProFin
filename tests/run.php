@@ -72,7 +72,6 @@ try {
     $quizQuestionCount = count($quizData['questions']);
     $quizOptions = $quizData['questions'][0]['options'] ?? [];
     if ($quizQuestionCount !== 1 || $quizOptions !== array('Study of nature', 'A sport')) throw new RuntimeException('Quiz question bank returned invalid options.');
-    $quizResult = $learning->submitQuiz($userId, $courseId, $lessonId, [(string) $questionId => 'Study of nature']);
     $submittedAnswers = [];
     $submittedAnswers[(string) $questionId] = 'Study of nature';
     $quizResult = $learning->submitQuiz($userId, $courseId, $lessonId, $submittedAnswers);
