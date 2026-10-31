@@ -9,6 +9,7 @@ on:
       - phase-3-identity-student-portal
       - phase-4-learning-engine
       - phase-5-commerce-payments
+      - phase-6-ai-learning-assistant
   pull_request:
     branches:
       - main
@@ -37,3 +38,5 @@ jobs:
         run: php -l media.php
       - name: Test SQLite migrations, identity and CMS
         run: php tests/run.php
+      - name: Test AI assistant retrieval and privacy
+        run: php tests/assistant.php
