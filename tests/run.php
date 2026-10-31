@@ -137,7 +137,11 @@ try {
     Auth::logout();
 
     $accounts = new AccountService($pdo);
-    $studentId = $accounts->register('Test Student', 'student@example.test', 'a-strong-student-password');
+    $studentId = $accounts->register('Test Student', 'student@example.test', 'a-strong-student-password', ['terms' => '1.0.0', 'privacy' => '1.0.0'], '127.0.0.1', 'test-agent');
+    $acceptances = $pdo->prepare('SELECT document, version, ip_hash, user_agent_hash FROM user_legal_acceptances WHERE user_id = :user_id ORDER BY document');
+    $acceptances->execute(['user_id' => $studentId]);
+    $acceptedDocuments = $acceptances->fetchAll();
+    if (count($acceptedDocuments) !== 2 || $acceptedDocuments[0]['document'] !== 'privacy' || $acceptedDocuments[1]['document'] !== 'terms' || $acceptedDocuments[0]['version'] !== '1.0.0' || $acceptedDocuments[0]['ip_hash'] !== hash('sha256', '127.0.0.1') || $acceptedDocuments[0]['user_agent_hash'] !== hash('sha256', 'test-agent')) throw new RuntimeException('Versioned legal acceptance records were not stored securely.');
     if (!Auth::hasRole($pdo, $studentId, 'student') || Auth::hasRole($pdo, $studentId, 'administrator')) throw new RuntimeException('Student registration assigned an incorrect role.');
     $studentProfile = $accounts->profile($studentId);
     if (($studentProfile['email'] ?? '') !== 'student@example.test') throw new RuntimeException('Student profile retrieval failed.');
