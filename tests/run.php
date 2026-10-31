@@ -56,6 +56,14 @@ try {
     if (!Installer::storageIsPrivate($root) || !Installer::databaseIsPrivate()) throw new RuntimeException('Installer accepted an unsafe storage path.');
     Installer::install($root, 'Fresh Administrator', 'fresh-admin@example.test', 'a-very-strong-install-password');
     if (!Installer::isInstalled()) throw new RuntimeException('Installer did not create its lock.');
+    Config::load($root);
+    if (!Installer::applicationKeyIsValid()) throw new RuntimeException('The generated application key was not loaded.');
+    if ((fileperms($privateStorage . '/app.key') & 0777) !== 0600 || (fileperms($privateStorage . '/installed.lock') & 0777) !== 0600) throw new RuntimeException('Private key and install lock permissions are unsafe.');
+    putenv('DB_PATH=' . $temporary . '/outside.sqlite');
+    Config::load($root);
+    if (Installer::databaseIsPrivate()) throw new RuntimeException('Installer accepted a database path outside private storage.');
+    putenv('DB_PATH=' . $privateStorage . '/installed.sqlite');
+    Config::load($root);
     $installedDb = Database::connect();
     $admin = $installedDb->query("SELECT id, password_hash FROM users WHERE email = 'fresh-admin@example.test'")->fetch();
     if (!$admin || !password_verify('a-very-strong-install-password', $admin['password_hash'])) throw new RuntimeException('Installer did not create the administrator securely.');
