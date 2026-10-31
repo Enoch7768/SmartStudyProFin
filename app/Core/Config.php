@@ -56,6 +56,7 @@ final class Config
                 'dpo_endpoint' => (string) $read('DPO_ENDPOINT', 'https://secure.3gdirectpay.com/API/v6/'),
                 'dpo_checkout_url' => (string) $read('DPO_CHECKOUT_URL', 'https://secure.3gdirectpay.com/payv2.php'),
                 'dpo_service_type' => (string) $read('DPO_SERVICE_TYPE', '5525'),
+                'demo_allowed' => filter_var($read('DEMO_PAYMENTS_ALLOWED', 'false'), FILTER_VALIDATE_BOOL),
             ],
             'storage' => ['path' => $storage],
             'database' => ['path' => $database],

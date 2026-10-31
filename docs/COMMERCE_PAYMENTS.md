@@ -35,3 +35,11 @@ DPO is configured for UGX. The server creates a hosted-checkout token, verifies 
 - PHP cURL is required for provider API calls. PHP SimpleXML is additionally required for DPO XML responses.
 
 This release covers one-time course and product orders. Automated refunds, coupon campaigns, recurring subscriptions, tax, and physical-shipping fulfilment are not enabled in this phase. The live provider credentials, merchant account configuration, DPO service type, PayPal conversion setup, webhook registration, and end-to-end sandbox/live transactions must be verified by the site owner before launch.
+
+## Simulated demo payments
+
+Demo payments are a separate, non-provider flow. They never call PayPal or DPO and never create a live provider payment record. They are available only when the server sets `DEMO_PAYMENTS_ALLOWED=true`, `APP_ENV` is exactly `local`, `development` or `staging`, and an administrator enables Demo payment mode in Administration → Orders and payments. Production is hard-blocked even if the database setting is enabled.
+
+The checkout offers simulated success, failure and cancellation. A successful simulation marks the order paid and activates course enrolments; failed attempts leave the order pending; cancelled attempts cancel the order. Every simulation is stored separately in `demo_payment_events` and labelled DEMO in student and administrator order history. No real money moves and no provider is contacted.
+
+Keep `DEMO_PAYMENTS_ALLOWED=false` in production. Use PayPal Sandbox and DPO's test environment to test actual gateway integrations.
