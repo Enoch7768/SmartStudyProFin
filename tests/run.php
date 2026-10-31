@@ -15,6 +15,7 @@ use App\Core\Database;
 use App\Core\Installer;
 use App\Core\Migrator;
 use App\Cms\ContentRepository;
+use App\Cms\PublicContent;
 
 $temporary = sys_get_temp_dir() . '/ssp-test-' . bin2hex(random_bytes(8));
 if (!mkdir($temporary, 0700, true)) throw new RuntimeException('Could not create test storage.');
@@ -43,7 +44,7 @@ try {
     $productId = $content->save('products', null, ['title'=>'Study Guide','description_html'=>'Guide','price_ugx'=>'10000','category'=>'Books','product_type'=>'physical','status'=>'published']);
     if (!$content->find('products', $productId)) throw new RuntimeException('Product creation failed.');
     $public = new PublicContent($pdo);
-    if (count($public->courses()) !== 1 || ($public->course((string) $courseId)['Title'] ?? '') !== 'Foundations of Science') throw new RuntimeException('Published course public read mapping failed.');
+    if (count($public->courses()) !== 1 || ($public->course((string) $courseId)['Title'] ?? '') !== 'Foundations of Science' || ($public->course('foundations-of-science')['Title'] ?? '') !== 'Foundations of Science') throw new RuntimeException('Published course public read mapping failed.');
     if (($public->product((string) $productId)['ProductType'] ?? '') !== 'Physical' || count($public->products()) !== 1) throw new RuntimeException('Published product public read mapping failed.');
 
     $content->savePage('home', ['title'=>'Learn with purpose','subtitle'=>'SmartStudyPro','body_html'=>'Home content','status'=>'published']);
