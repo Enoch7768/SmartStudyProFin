@@ -21,7 +21,7 @@ final class Auth
         $attempts->execute(['email_hash' => $emailHash, 'ip_hash' => $ipHash, 'cutoff' => $cutoff]);
         if ((int) $attempts->fetchColumn() >= 8) return false;
 
-        $statement = $pdo->prepare('SELECT id, password_hash, status FROM users WHERE email = :email COLLATE NOCASE LIMIT 1');
+        $statement = $pdo->prepare('SELECT id, password_hash, status, auth_version FROM users WHERE email = :email COLLATE NOCASE LIMIT 1');
         $statement->execute(['email' => $email]);
         $user = $statement->fetch();
         if (!$user || $user['status'] !== 'active' || empty($user['password_hash']) || !password_verify($password, $user['password_hash'])) {
@@ -32,6 +32,7 @@ final class Auth
 
         Session::regenerate();
         $_SESSION['user_id'] = (int) $user['id'];
+        $_SESSION['auth_version'] = (int) $user['auth_version'];
         $now = gmdate('Y-m-d H:i:s');
         $update = $pdo->prepare('UPDATE users SET last_login_at = :last_login_at, updated_at = :updated_at WHERE id = :id');
         $update->execute(['last_login_at' => $now, 'updated_at' => $now, 'id' => $user['id']]);
@@ -45,10 +46,15 @@ final class Auth
         Session::start();
         $id = filter_var($_SESSION['user_id'] ?? null, FILTER_VALIDATE_INT);
         if (!$id) return null;
-        $statement = $pdo->prepare('SELECT id, name, email, avatar_url, status, email_verified_at FROM users WHERE id = :id LIMIT 1');
+        $statement = $pdo->prepare('SELECT id, name, email, avatar_url, status, email_verified_at, auth_version FROM users WHERE id = :id LIMIT 1');
         $statement->execute(['id' => $id]);
         $user = $statement->fetch();
-        return $user && $user['status'] === 'active' ? $user : null;
+        if (!$user || $user['status'] !== 'active') return null;
+        if (!isset($_SESSION['auth_version']) || (int) $_SESSION['auth_version'] !== (int) $user['auth_version']) {
+            Session::destroy();
+            return null;
+        }
+        return $user;
     }
 
     public static function hasRole(PDO $pdo, int $userId, string $role): bool
