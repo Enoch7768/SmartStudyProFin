@@ -37,6 +37,7 @@ jobs:
         run: |
           mkdir -p dist/package
           git archive "$GITHUB_SHA" | tar --exclude='cms' --exclude='db' --exclude='tests' --exclude='.github' --exclude='transcripts' --exclude='uploads/avatars/*' --exclude='database/bookings.db' --exclude='database/bookings.sqlite' --exclude='Income Statement and distribution.xlsx' --exclude='Readme.txt' -x -C dist/package
+          git archive "$GITHUB_SHA" uploads/avatars/.htaccess | tar -x -C dist/package
           mkdir -p dist/package/uploads/avatars
           touch dist/package/uploads/avatars/.gitkeep
           VERSION="${GITHUB_REF_NAME}"
