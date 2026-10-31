@@ -63,7 +63,8 @@ try {
     if (count($learning->dashboard($userId)['bookmarks']) !== 1) throw new RuntimeException('Lesson bookmark did not persist.');
     $quizData = $learning->quizQuestions($userId, $courseId, $lessonId);
     App\Core\Session::start();
-    $_SESSION['quiz_started_' . $lessonId] = time() - 400;
+    $quizTimerKey = 'quiz_started_' . $lessonId;
+    $_SESSION[$quizTimerKey] = time() - 400;
     $expiredQuizRejected = false;
     try { $learning->submitQuiz($userId, $courseId, $lessonId, []); } catch (RuntimeException) { $expiredQuizRejected = true; }
     if (!$expiredQuizRejected) throw new RuntimeException('An expired timed quiz was accepted.');
