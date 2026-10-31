@@ -7,6 +7,7 @@
 - OpenSSL
 - JSON
 - Fileinfo
+- PHP mail transport or an external mail service for password recovery
 - Apache with rewrite support for the current compatibility entry point
 
 ## Prepare the application
@@ -20,6 +21,10 @@
 7. Open /install/ over HTTPS and create the first administrator account.
 
 The installer creates the SQLite database, applies versioned migrations, generates a private application key, creates the administrator account, and writes an installation lock. It does not create a default account or sample customer data.
+
+## Account email
+
+Set `APP_MAIL_FROM` to a valid sender address and configure the hosting provider's PHP mail transport or SMTP relay. Password recovery always returns the same public response whether or not an account exists. Reset links are single-use and expire after 30 minutes. If mail delivery is unavailable, password recovery emails will not be delivered; configure and test mail delivery before launch.
 
 ## Private storage
 
