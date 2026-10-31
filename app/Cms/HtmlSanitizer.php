@@ -29,20 +29,26 @@ final class HtmlSanitizer
     {
         if (strlen($html) > 524288) throw new RuntimeException('Formatted content cannot exceed 512 KB.');
         if ($html === '') return '';
-        if (!class_exists(DOMDocument::class)) return htmlspecialchars(strip_tags($html), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        if (!class_exists(DOMDocument::class)) return self::fallback($html);
 
         $document = new DOMDocument('1.0', 'UTF-8');
         $previous = libxml_use_internal_errors(true);
         $loaded = $document->loadHTML('<?xml encoding="UTF-8"><div id="ssp-content-root">' . $html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NONET);
         libxml_clear_errors();
         libxml_use_internal_errors($previous);
-        if (!$loaded) return htmlspecialchars(strip_tags($html), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        if (!$loaded) return self::fallback($html);
         $root = (new DOMXPath($document))->query('//*[@id="ssp-content-root"]')?->item(0);
-        if (!$root) return htmlspecialchars(strip_tags($html), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        if (!$root) return self::fallback($html);
         self::sanitizeChildren($root);
         $result = '';
         foreach ($root->childNodes as $child) $result .= $document->saveHTML($child);
         return $result;
+    }
+
+    private static function fallback(string $html): string
+    {
+        $html = preg_replace('#<(script|style|iframe|object|embed|svg|math|template|form|audio|video)\\b[^>]*>.*?</\\1\\s*>#is', '', $html) ?? '';
+        return htmlspecialchars(strip_tags($html), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
     private static function sanitizeChildren(DOMNode $parent): void
