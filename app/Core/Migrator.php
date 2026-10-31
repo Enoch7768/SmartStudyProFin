@@ -13,7 +13,7 @@ final class Migrator
     {
         $files = glob(rtrim($directory, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '*.php') ?: [];
         sort($files, SORT_STRING);
-        $exists = (bool) $pdo->query(\"SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_migrations'\")->fetchColumn();
+        $exists = (bool) $pdo->query("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_migrations'")->fetchColumn();
         $applied = $exists ? array_fill_keys($pdo->query('SELECT version FROM schema_migrations')->fetchAll(PDO::FETCH_COLUMN), true) : [];
         $pending = [];
         foreach ($files as $file) {
