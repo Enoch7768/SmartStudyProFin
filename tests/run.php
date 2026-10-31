@@ -115,15 +115,15 @@ try {
     if ((int) $unpaidOrder['total_ugx'] !== 10000 || $unpaidOrder['status'] !== 'pending') throw new RuntimeException('Order ownership or pending status was not enforced.');
 
     $public = new PublicContent($pdo);
-    if (count($public->courses()) !== 1 || ($public->course((string) $courseId)['Title'] ?? '') !== 'Foundations of Science' || ($public->course('foundations-of-science')['Title'] ?? '') !== 'Foundations of Science') throw new RuntimeException('Published course public read mapping failed.');
-    if (($public->product((string) $productId)['ProductType'] ?? '') !== 'Physical' || count($public->products()) !== 1) throw new RuntimeException('Published product public read mapping failed.');
+    if (count($public->courses()) !== 2 || ($public->course((string) $courseId)['Title'] ?? '') !== 'Foundations of Science' || ($public->course('foundations-of-science')['Title'] ?? '') !== 'Foundations of Science') throw new RuntimeException('Published course public read mapping failed.');
+    if (($public->product((string) $productId)['ProductType'] ?? '') !== 'Physical' || count($public->products()) !== 2) throw new RuntimeException('Published product public read mapping failed.');
 
     $content->savePage('home', ['title'=>'Learn with purpose','subtitle'=>'SmartStudyPro','body_html'=>'Home content','status'=>'published']);
     if (($content->page('home')['title'] ?? '') !== 'Learn with purpose') throw new RuntimeException('CMS page editing failed.');
     $content->saveSettings(['contact.phone'=>'+256700000000','contact.email'=>'hello@example.test','contact.address'=>'Kampala']);
     if (($content->settings()['contact.phone'] ?? '') !== '+256700000000') throw new RuntimeException('CMS settings editing failed.');
     $content->delete('courses', $courseId);
-    if ((int) $pdo->query('SELECT COUNT(*) FROM cms_chapters')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM cms_lessons')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM cms_quiz_questions')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM course_enrolments')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM lesson_progress')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM lesson_bookmarks')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM quiz_attempts')->fetchColumn() !== 0) throw new RuntimeException('Course deletion did not cascade to learning records.');
+    if ((int) $pdo->query('SELECT COUNT(*) FROM cms_chapters')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM cms_lessons')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM cms_quiz_questions')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM course_enrolments WHERE course_id = ' . $courseId)->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM lesson_progress WHERE course_id = ' . $courseId)->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM lesson_bookmarks')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM quiz_attempts')->fetchColumn() !== 0) throw new RuntimeException('Course deletion did not cascade to learning records.');
 
     for ($attempt = 0; $attempt < 8; $attempt++) {
         if (Auth::attempt($pdo, 'admin@example.test', 'incorrect-password')) throw new RuntimeException('Incorrect password was accepted.');
