@@ -467,7 +467,7 @@ $siteUrl = 'https://smartstudypro.com';
     </div>
   </header>
 
-  <main class="main">
+  <main id="main-content" class="main">
 
     <?php 
       $hImgData = $home['Hero-Image'] ?? $home['Image'] ?? null;
