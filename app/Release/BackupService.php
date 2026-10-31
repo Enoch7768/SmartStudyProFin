@@ -38,6 +38,7 @@ final class BackupService
         $backupRoot = $storage . '/backups';
         if (is_link($backupRoot)) throw new RuntimeException('The backup directory cannot be a symbolic link.');
         if (!is_dir($backupRoot) && !mkdir($backupRoot, 0700, true) && !is_dir($backupRoot)) throw new RuntimeException('The private backup directory could not be created.');
+        chmod($backupRoot, 0700);
         $backupRootReal = realpath($backupRoot);
         if ($backupRootReal === false || !str_starts_with($backupRootReal, $storage . DIRECTORY_SEPARATOR)) throw new RuntimeException('The backup directory is not private.');
 
@@ -106,6 +107,7 @@ final class BackupService
             $check = new PDO('sqlite:' . $databasePath, null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
             $integrity = (string) $check->query('PRAGMA integrity_check')->fetchColumn();
             if ($integrity !== 'ok') throw new RuntimeException('The SQLite backup did not pass its integrity check.');
+            if ($check->query('PRAGMA foreign_key_check')->fetch()) throw new RuntimeException('The SQLite backup contains a foreign key violation.');
             if (!is_file($directory . '/app.key') || !hash_equals($this->applicationKey, trim((string) file_get_contents($directory . '/app.key')))) throw new RuntimeException('The backed-up application key does not match.');
             return ['valid' => true, 'message' => 'Backup integrity and file checksums passed.', 'file_count' => $verified, 'created_at' => (string) ($manifest['created_at'] ?? '')];
         } catch (\Throwable $exception) {
