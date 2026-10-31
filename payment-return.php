@@ -27,7 +27,8 @@ try {
         $rate = max(1, (int) Config::get('payments.paypal_ugx_per_usd', 3700));
         $expectedUsd = number_format(((int) $payment['total_ugx']) / $rate, 2, '.', '');
         if ($capture['order_status'] !== 'COMPLETED' || $capture['capture_status'] !== 'COMPLETED' || $capture['currency'] !== 'USD' || $capture['amount'] !== $expectedUsd || $capture['capture_id'] === '') throw new RuntimeException('PayPal has not confirmed the exact expected amount.');
-        $success = $service->confirmPayment((int) $payment['id'], 'paypal', $reference, $capture['capture_id'], (int) $payment['total_ugx'], 'UGX', 'COMPLETED', 'capture-' . $capture['capture_id']);
+        $service->confirmPayment((int) $payment['id'], 'paypal', $reference, $capture['capture_id'], (int) $payment['total_ugx'], 'UGX', 'COMPLETED', 'capture-' . $capture['capture_id']);
+        $success = ($service->providerPayment('paypal', $reference)['status'] ?? '') === 'paid';
     } elseif ($provider === 'dpo') {
         $token = (string) ($_GET['TransactionToken'] ?? $_GET['transToken'] ?? '');
         $companyRef = (string) ($_GET['CompanyRef'] ?? '');
@@ -37,13 +38,18 @@ try {
         $verified = (new PaymentGateway())->verifyDpo($token, $companyRef);
         $amount = (int) round((float) $verified['amount']);
         if ($verified['result'] !== '000' || !in_array($verified['fraud_alert'], ['000', '001'], true) || $verified['company_ref'] !== $companyRef || $verified['currency'] !== 'UGX' || $amount !== (int) $payment['total_ugx'] || $verified['approval'] === '') throw new RuntimeException('DPO did not verify the exact order amount and currency.');
-        $success = $service->confirmPayment((int) $payment['id'], 'dpo', $token, $verified['approval'], $amount, 'UGX', 'COMPLETED', 'dpo-' . $token);
+        $service->confirmPayment((int) $payment['id'], 'dpo', $token, $verified['approval'], $amount, 'UGX', 'COMPLETED', 'dpo-' . $token);
+        $success = ($service->providerPayment('dpo', $companyRef)['status'] ?? '') === 'paid';
     } elseif ($provider === 'cancel') {
         $message = 'Payment was cancelled. Your order has not been paid and no course access has been granted.';
     } else {
         throw new RuntimeException('Unknown payment return.');
     }
-    if ($success || ($provider !== 'cancel' && isset($payment) && $payment['status'] === 'paid')) $message = 'Payment confirmed. Your purchase is now available in your account.';
+    if ($success) {
+        App\\Core\\Session::start();
+        unset($_SESSION['ssp_cart']);
+        $message = 'Payment confirmed. Your purchase is now available in your account.';
+    }
 } catch (Throwable $exception) {
     error_log('Payment return verification failed: ' . $exception->getMessage());
     if ($exception instanceof RuntimeException) $message = $exception->getMessage();
