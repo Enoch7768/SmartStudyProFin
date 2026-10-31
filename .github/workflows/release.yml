@@ -33,6 +33,11 @@ jobs:
           php tests/assistant.php
           php tests/recognition.php
           php tests/operations.php
+          php tests/content-security.php
+          php tests/performance.php
+          php tests/security.php
+          node --check assets/js/main.js
+          node tests/main-js.test.cjs
       - name: Build clean deployment package
         run: |
           mkdir -p dist/package
