@@ -162,6 +162,8 @@ try {
     }
     if (!$duplicateRejected) throw new RuntimeException('Case-insensitive email uniqueness failed.');
     $pdo->exec("INSERT INTO password_reset_tokens (user_id, token_hash, expires_at, created_at) VALUES ($userId, 'test-hash', '2099-01-01 00:00:00', '$now')");
+    $pdo->exec('DELETE FROM payments WHERE order_id IN (SELECT id FROM orders WHERE user_id = ' . $userId . ')');
+    $pdo->exec('DELETE FROM orders WHERE user_id = ' . $userId);
     $pdo->exec('DELETE FROM users WHERE id = ' . $userId);
     if ((int) $pdo->query("SELECT COUNT(*) FROM password_reset_tokens WHERE token_hash = 'test-hash'")->fetchColumn() !== 0) throw new RuntimeException('Foreign-key cascade failed.');
     $root = dirname(__DIR__);
