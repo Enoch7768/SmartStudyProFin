@@ -12,7 +12,7 @@ final class ContentRepository
     private const TABLES = [
         'courses' => ['cms_courses', ['title', 'slug', 'description_html', 'content_html', 'price_ugx', 'category', 'image_media_id', 'seo_title', 'seo_description', 'status', 'sort_order']],
         'chapters' => ['cms_chapters', ['course_id', 'title', 'sort_order']],
-        'lessons' => ['cms_lessons', ['chapter_id', 'title', 'content_html', 'video_url', 'video_media_id', 'sort_order', 'status']],
+        'lessons' => ['cms_lessons', ['chapter_id', 'title', 'content_html', 'video_url', 'video_media_id', 'resource_media_id', 'resource_title', 'quiz_time_limit_minutes', 'quiz_pass_mark', 'sort_order', 'status']],
         'questions' => ['cms_quiz_questions', ['lesson_id', 'content', 'question', 'options_json', 'correct_answer', 'sort_order']],
         'products' => ['cms_products', ['title', 'slug', 'description_html', 'price_ugx', 'category', 'image_media_id', 'product_type', 'product_file_media_id', 'status', 'sort_order']]
     ];
@@ -48,7 +48,7 @@ final class ContentRepository
         foreach ($allowed as $field) {
             if (!array_key_exists($field, $input)) continue;
             $value = $input[$field];
-            if (in_array($field, ['price_ugx', 'sort_order', 'course_id', 'chapter_id', 'lesson_id', 'image_media_id', 'video_media_id', 'product_file_media_id'], true)) {
+            if (in_array($field, ['price_ugx', 'sort_order', 'course_id', 'chapter_id', 'lesson_id', 'image_media_id', 'video_media_id', 'product_file_media_id', 'resource_media_id', 'quiz_time_limit_minutes', 'quiz_pass_mark'], true)) {
                 $value = $value === '' || $value === null ? null : filter_var($value, FILTER_VALIDATE_INT);
                 if ($value === false || ($value !== null && $value < 0)) throw new RuntimeException('A numeric field contains an invalid value.');
             }
