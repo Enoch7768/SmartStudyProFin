@@ -54,6 +54,25 @@ final class PaymentGateway
         return ['order_status' => (string) ($result['status'] ?? ''), 'capture_id' => (string) ($capture['id'] ?? ''), 'capture_status' => (string) ($capture['status'] ?? ''), 'currency' => (string) ($capture['amount']['currency_code'] ?? ''), 'amount' => (string) ($capture['amount']['value'] ?? '')];
     }
 
+    public function verifyPayPalWebhook(array $headers, array $event): bool
+    {
+        $webhookId = (string) Config::get('payments.paypal_webhook_id');
+        if ($webhookId === '') return false;
+        $base = Config::get('payments.paypal_mode') === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
+        $payload = [
+            'auth_algo' => $headers['paypal-auth-algo'] ?? '',
+            'cert_url' => $headers['paypal-cert-url'] ?? '',
+            'transmission_id' => $headers['paypal-transmission-id'] ?? '',
+            'transmission_sig' => $headers['paypal-transmission-sig'] ?? '',
+            'transmission_time' => $headers['paypal-transmission-time'] ?? '',
+            'webhook_id' => $webhookId,
+            'webhook_event' => $event
+        ];
+        foreach (['auth_algo', 'cert_url', 'transmission_id', 'transmission_sig', 'transmission_time'] as $key) if ($payload[$key] === '') return false;
+        $result = $this->request($base . '/v1/notifications/verify-webhook-signature', 'POST', ['Authorization: Bearer ' . $this->paypalToken(), 'Content-Type: application/json'], json_encode($payload, JSON_THROW_ON_ERROR));
+        return ($result['verification_status'] ?? '') === 'SUCCESS';
+    }
+
     public function startDpo(array $payment, array $order, string $backUrl, string $redirectUrl): array
     {
         $companyToken = (string) Config::get('payments.dpo_company_token');
