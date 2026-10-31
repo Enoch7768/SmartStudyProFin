@@ -31,7 +31,7 @@ $seoDescription = 'Continue your courses, review progress, bookmarks and quiz re
 <body>
 <?php include __DIR__ . '/nav.php'; ?>
 <main class="container py-5">
-<section class="welcome mb-4"><div class="eyebrow">Your learning space</div><h1 class="h2 mb-2">Keep your momentum, <?= Security::escape($user['name']) ?>.</h1><p class="mb-0 text-white-50">Pick up where you left off and keep moving towards your learning goals.</p></section>
+<section class="welcome mb-4"><div class="eyebrow">Your learning space</div><h1 class="h2 mb-2">Keep your momentum, <?= Security::escape($user['name']) ?>.</h1><p class="mb-3 text-white-50">Pick up where you left off and keep moving towards your learning goals.</p><a class="btn-main" href="assistant.php">Ask your AI learning tutor <i class="bi bi-arrow-right"></i></a></section>
 <div class="row g-3 mb-5"><div class="col-md-4"><div class="metric"><div class="muted">Enrolled courses</div><strong><?= count($dashboard['enrolled']) ?></strong></div></div><div class="col-md-4"><div class="metric"><div class="muted">Lessons completed</div><strong><?= $totalCompletedLessons ?></strong></div></div><div class="col-md-4"><div class="metric"><div class="muted">Courses completed</div><strong><?= $completedCourses ?></strong></div></div></div>
 <div class="d-flex justify-content-between align-items-end mb-3"><div><div class="eyebrow">Your classroom</div><h2 class="h3 mb-0">My courses</h2></div><a href="courses.php" class="fw-bold text-decoration-none">Explore courses <i class="bi bi-arrow-right"></i></a></div>
 <div class="row g-3 mb-5">

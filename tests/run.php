@@ -24,7 +24,7 @@ if (!mkdir($temporary, 0700, true)) throw new RuntimeException('Could not create
 try {
     $pdo = Database::connect($temporary . '/test.sqlite');
     $migrationPath = dirname(__DIR__) . '/database/migrations';
-    if (Migrator::run($pdo, $migrationPath) !== ['001_identity', '002_cms_content', '003_student_identity', '004_learning_engine', '005_lesson_resources_quiz_settings', '006_commerce_payments']) throw new RuntimeException('Foundation and CMS migrations did not run.');
+    if (Migrator::run($pdo, $migrationPath) !== ['001_identity', '002_cms_content', '003_student_identity', '004_learning_engine', '005_lesson_resources_quiz_settings', '006_commerce_payments', '007_ai_learning_assistant']) throw new RuntimeException('Foundation and CMS migrations did not run.');
     if (Migrator::run($pdo, $migrationPath) !== []) throw new RuntimeException('Migrations are not idempotent.');
     $now = gmdate('Y-m-d H:i:s');
     $insert = $pdo->prepare('INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES (:name, :email, :password_hash, :status, :created_at, :updated_at)');
