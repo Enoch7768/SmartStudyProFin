@@ -48,7 +48,9 @@ try {
     $learning->enrolFreeCourse($userId, $courseId);
     if (!$learning->hasAccess($userId, $courseId)) throw new RuntimeException('Free course enrolment did not grant access.');
     $outline = $learning->outline($userId, $courseId);
-    if (count($outline) !== 1 || count($outline[0]['lessons']) !== 1) throw new RuntimeException('Learning course outline did not load.');
+    $firstChapter = reset($outline);
+    $outlineLessons = $firstChapter['lessons'];
+    if (count($outline) !== 1 || count($outlineLessons) !== 1) throw new RuntimeException('Learning course outline did not load.');
     $assetInsert = $pdo->prepare("INSERT INTO media_assets (storage_path, original_name, mime_type, file_size, checksum_sha256, alt_text, visibility, uploaded_by, created_at) VALUES (:path, 'lesson.pdf', 'application/pdf', 10, 'test-checksum', 'Lesson PDF', 'private', :user_id, :created_at)');
     $assetInsert->execute(['path' => 'media/test/lesson.pdf', 'user_id' => $userId, 'created_at' => $now]);
     $resourceId = (int) $pdo->lastInsertId();
@@ -60,7 +62,9 @@ try {
     $learning->startLesson($userId, $courseId, $lessonId);
     $learning->updatePosition($userId, $courseId, $lessonId, 95);
     $learning->toggleBookmark($userId, $courseId, $lessonId);
-    if (count($learning->dashboard($userId)['bookmarks']) !== 1) throw new RuntimeException('Lesson bookmark did not persist.');
+    $learningDashboard = $learning->dashboard($userId);
+    $savedBookmarks = $learningDashboard['bookmarks'];
+    if (count($savedBookmarks) !== 1) throw new RuntimeException('Lesson bookmark did not persist.');
     $quizData = $learning->quizQuestions($userId, $courseId, $lessonId);
     App\Core\Session::start();
     $quizTimerKey = 'quiz_started_' . $lessonId;
@@ -74,7 +78,11 @@ try {
     $quizResult = $learning->submitQuiz($userId, $courseId, $lessonId, $submittedAnswers);
     if (count($learning->attempts($userId, $lessonId)) !== 1) throw new RuntimeException('Quiz attempt history was not saved.');
     $learning->completeLesson($userId, $courseId, $lessonId);
-    if ($learning->outline($userId, $courseId)[0]['lessons'][0]['progress_status'] !== 'completed') throw new RuntimeException('Lesson completion did not persist.');
+    $completedOutline = $learning->outline($userId, $courseId);
+    $completedChapter = reset($completedOutline);
+    $completedLessons = $completedChapter['lessons'];
+    $completedLesson = reset($completedLessons);
+    if (($completedLesson['progress_status'] ?? '') !== 'completed') throw new RuntimeException('Lesson completion did not persist.');
     $pdo->exec("UPDATE cms_courses SET price_ugx = 25000 WHERE id = " . $courseId);
     $paidCourseRejected = false;
     try { $learning->enrolFreeCourse($userId, $courseId); } catch (RuntimeException) { $paidCourseRejected = true; }
