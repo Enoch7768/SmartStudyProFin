@@ -46,7 +46,7 @@ try {
         throw new RuntimeException('Unknown payment return.');
     }
     if ($success) {
-        App\\Core\\Session::start();
+        \App\Core\Session::start();
         unset($_SESSION['ssp_cart']);
         $message = 'Payment confirmed. Your purchase is now available in your account.';
     }
