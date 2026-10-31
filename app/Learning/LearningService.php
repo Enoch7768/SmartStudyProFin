@@ -194,7 +194,7 @@ final class LearningService
 
     public function media(int $userId, int $mediaId): ?array
     {
-        $statement = $this->pdo->prepare("SELECT m.*, ch.course_id FROM media_assets m INNER JOIN cms_lessons l ON (l.video_media_id = m.id OR l.resource_media_id = m.id) INNER JOIN cms_chapters ch ON ch.id = l.chapter_id INNER JOIN course_enrolments e ON e.course_id = ch.course_id INNER JOIN cms_courses c ON c.id = ch.course_id WHERE m.id = :media_id AND e.user_id = :user_id AND e.status IN ('active', 'completed') AND l.status = 'published' AND c.status = 'published' LIMIT 1");
+        $statement = $this->pdo->prepare("SELECT m.*, ch.course_id FROM media_assets m INNER JOIN cms_lessons l ON (l.video_media_id = m.id OR l.resource_media_id = m.id) INNER JOIN cms_chapters ch ON ch.id = l.chapter_id INNER JOIN course_enrolments e ON e.course_id = ch.course_id INNER JOIN cms_courses c ON c.id = ch.course_id WHERE m.id = :media_id AND e.user_id = :user_id AND e.status IN ('active', 'completed') AND l.status = 'published' AND c.status = 'published' AND m.visibility = 'private' LIMIT 1");
         $statement->execute(['media_id' => $mediaId, 'user_id' => $userId]);
         return $statement->fetch() ?: null;
     }
