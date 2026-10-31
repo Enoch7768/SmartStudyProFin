@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\\Identity;
+namespace App\Identity;
 
 use PDO;
 use RuntimeException;
@@ -34,9 +34,9 @@ final class AccountService
             $profile->execute(['user_id' => $userId, 'created_at' => $now, 'updated_at' => $now]);
             $this->pdo->commit();
             return $userId;
-        } catch (\\Throwable $exception) {
+        } catch (\Throwable $exception) {
             if ($this->pdo->inTransaction()) $this->pdo->rollBack();
-            if ($exception instanceof \\PDOException && str_contains(strtolower($exception->getMessage()), 'unique')) throw new RuntimeException('That email address is already registered.');
+            if ($exception instanceof \PDOException && str_contains(strtolower($exception->getMessage()), 'unique')) throw new RuntimeException('That email address is already registered.');
             throw $exception;
         }
     }
@@ -66,7 +66,7 @@ final class AccountService
             $profile = $this->pdo->prepare("INSERT INTO student_profiles (user_id, phone, location, bio, preferred_theme, created_at, updated_at) VALUES (:user_id, :phone, :location, :bio, :theme, :created_at, :updated_at) ON CONFLICT(user_id) DO UPDATE SET phone = excluded.phone, location = excluded.location, bio = excluded.bio, preferred_theme = excluded.preferred_theme, updated_at = excluded.updated_at");
             $profile->execute(['user_id' => $userId, 'phone' => $phone, 'location' => $location, 'bio' => $bio, 'theme' => $theme, 'created_at' => $now, 'updated_at' => $now]);
             $this->pdo->commit();
-        } catch (\\Throwable $exception) {
+        } catch (\Throwable $exception) {
             if ($this->pdo->inTransaction()) $this->pdo->rollBack();
             throw $exception;
         }
@@ -116,7 +116,7 @@ final class AccountService
             $insert->execute(['user_id' => $userId, 'token_hash' => hash('sha256', $token), 'expires_at' => gmdate('Y-m-d H:i:s', time() + 1800), 'created_at' => $now]);
             $this->pdo->commit();
             return $token;
-        } catch (\\Throwable $exception) {
+        } catch (\Throwable $exception) {
             if ($this->pdo->inTransaction()) $this->pdo->rollBack();
             throw $exception;
         }
@@ -145,7 +145,7 @@ final class AccountService
             $used->execute(['used_at' => $now, 'user_id' => $record['user_id']]);
             $this->pdo->commit();
             return true;
-        } catch (\\Throwable $exception) {
+        } catch (\Throwable $exception) {
             if ($this->pdo->inTransaction()) $this->pdo->rollBack();
             throw $exception;
         }
