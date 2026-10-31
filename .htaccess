@@ -2,7 +2,7 @@ Options -Indexes -MultiViews
 RewriteEngine On
 
 RewriteRule ^(?:app|bootstrap|config|database|scripts|tests|storage|cms|docs)(?:/|$) - [F,L,NC]
-RewriteRule (^|/)\\.(?!well-known(?:/|$)) - [F,L,NC]
+RewriteRule (^|/)\.(?!well-known(?:/|$)) - [F,L,NC]
 
 <FilesMatch "^(\.env|composer\.(json|lock)|phpunit\.xml|\.gitignore)$">
     Require all denied
@@ -38,3 +38,4 @@ RewriteRule ^register/?$ register.php [L,QSA]
 RewriteRule ^reset/?$ reset.php [L,QSA]
 RewriteRule ^stream/?$ stream.php [L,QSA]
 RewriteRule ^study/?$ study.php [L,QSA]
+RewriteRule ^refunds/?$ refunds.php [L,QSA]
