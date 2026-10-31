@@ -116,7 +116,7 @@ final class HtmlSanitizer
     private static function safeUrl(string $value, bool $allowMailto): bool
     {
         if ($value === '' || preg_match('/[\x00-\x20\x7f]/', $value)) return false;
-        if (str_starts_with($value, '//') || str_contains($value, '\\\\')) return false;
+        if (str_starts_with($value, '//') || str_contains($value, '\\')) return false;
         $scheme = parse_url($value, PHP_URL_SCHEME);
         if ($scheme === null) return true;
         $allowed = $allowMailto ? ['https', 'http', 'mailto', 'tel'] : ['https'];
