@@ -41,6 +41,29 @@ final class RecognitionService
         }
     }
 
+    public function recordCourseEnrollment(int $userId, int $courseId): void
+    {
+        $statement = $this->pdo->prepare("SELECT c.title FROM course_enrolments e INNER JOIN cms_courses c ON c.id = e.course_id WHERE e.user_id = :user_id AND e.course_id = :course_id AND e.status IN ('active', 'completed') AND c.status = 'published' LIMIT 1");
+        $statement->execute(['user_id' => $userId, 'course_id' => $courseId]);
+        $title = $statement->fetchColumn();
+        if ($title === false) return;
+        $this->notify($userId, 'course-enrolled:' . $courseId, 'course', 'Course added to your learning', 'You are enrolled in ' . $title . '. Your lessons are ready when you are.', 'study.php?course_id=' . $courseId);
+    }
+
+    public function recordQuizResult(int $userId, array $result, int $courseId, int $lessonId): void
+    {
+        $attemptId = (int) ($result['attempt_id'] ?? 0);
+        if ($attemptId < 1) return;
+        $statement = $this->pdo->prepare('SELECT l.title AS lesson_title, c.title AS course_title FROM quiz_attempts q INNER JOIN cms_lessons l ON l.id = q.lesson_id INNER JOIN cms_courses c ON c.id = q.course_id WHERE q.id = :attempt_id AND q.user_id = :user_id AND q.course_id = :course_id AND q.lesson_id = :lesson_id LIMIT 1');
+        $statement->execute(['attempt_id' => $attemptId, 'user_id' => $userId, 'course_id' => $courseId, 'lesson_id' => $lessonId]);
+        $attempt = $statement->fetch();
+        if (!$attempt) return;
+        $passed = (bool) ($result['passed'] ?? false);
+        $title = $passed ? 'Quiz passed' : 'Quiz attempt saved';
+        $message = $passed ? 'You passed ' . $attempt['lesson_title'] . ' in ' . $attempt['course_title'] . ' with ' . (int) ($result['score'] ?? 0) . '%.' : 'Your latest attempt for ' . $attempt['lesson_title'] . ' has been saved. Keep practising and try again.';
+        $this->notify($userId, 'quiz-attempt:' . $attemptId, 'assessment', $title, $message, 'study.php?course_id=' . $courseId . '&lesson_id=' . $lessonId);
+    }
+
     public function notifications(int $userId, int $limit = 30): array
     {
         $limit = max(1, min($limit, 100));
