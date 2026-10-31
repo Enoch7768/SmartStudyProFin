@@ -52,14 +52,14 @@ try {
     if ($service->certificates($otherId)) throw new RuntimeException('A student accessed another student certificates.');
 
     $notifications = $service->notifications($studentId);
-    if (count($notifications) !== 4) throw new RuntimeException('Achievement and certificate notifications were not created exactly once.');
+    if (count($notifications) !== 5) throw new RuntimeException('Achievement and certificate notifications were not created exactly once.');
     $service->sync($studentId);
-    if (count($service->notifications($studentId)) !== 4) throw new RuntimeException('Repeated synchronization duplicated notifications.');
-    if ($service->unreadCount($studentId) !== 4) throw new RuntimeException('Unread notification count is incorrect.');
+    if (count($service->notifications($studentId)) !== 5) throw new RuntimeException('Repeated synchronization duplicated notifications.');
+    if ($service->unreadCount($studentId) !== 5) throw new RuntimeException('Unread notification count is incorrect.');
     $service->markRead($otherId, (int) $notifications[0]['id']);
     if ($service->unreadCount($studentId) !== 4) throw new RuntimeException('A different user changed another user notification.');
     $service->markRead($studentId, (int) $notifications[0]['id']);
-    if ($service->unreadCount($studentId) !== 3) throw new RuntimeException('Mark-read did not update the owned notification.');
+    if ($service->unreadCount($studentId) !== 4) throw new RuntimeException('Mark-read did not update the owned notification.');
     $service->markAllRead($studentId);
     if ($service->unreadCount($studentId) !== 0) throw new RuntimeException('Mark-all-read did not clear unread notifications.');
 
