@@ -150,7 +150,7 @@
 
     <div class="d-flex align-items-center gap-2 gap-sm-3">
       <button type="button" id="theme-toggle" class="header-icon-link fs-5" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
-        <i id="theme-toggle-icon" class="bi bi-moon-fill"></i>
+        <i id="theme-toggle-icon" class="bi bi-moon-fill" aria-hidden="true"></i>
       </button>
 
       <a href="cart.php" class="header-icon-link fs-5 text-decoration-none" title="Shopping Cart" aria-label="Shopping cart">
@@ -160,7 +160,7 @@
       <a href="notifications.php" class="header-icon-link fs-5 text-decoration-none" title="Notifications" aria-label="Notifications"><i class="bi bi-bell"></i></a>
 
       <a href="profile.php" class="header-icon-link fs-5 text-decoration-none" title="My Profile" aria-label="My profile">
-        <i class="bi bi-person-circle"></i>
+        <i class="bi bi-person-circle" aria-hidden="true"></i>
       </a>
 
       <a class="btn-ssp-primary d-none d-sm-inline-block text-decoration-none ms-1 ms-sm-2" href="courses.php">Explore Courses</a>
