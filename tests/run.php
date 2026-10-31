@@ -10,7 +10,9 @@ if (!extension_loaded('pdo_sqlite')) {
 require dirname(__DIR__) . '/bootstrap/app.php';
 
 use App\Core\Auth;
+use App\Core\Config;
 use App\Core\Database;
+use App\Core\Installer;
 use App\Core\Migrator;
 
 $temporary = sys_get_temp_dir() . '/ssp-test-' . bin2hex(random_bytes(8));
@@ -48,6 +50,12 @@ try {
     if ((int) $pdo->query("SELECT COUNT(*) FROM password_reset_tokens WHERE token_hash = 'test-hash'")->fetchColumn() !== 0) throw new RuntimeException('Foreign-key cascade failed.');
     echo "PASS SQLite migrations and idempotency\nPASS role and permission assignment\nPASS login throttling and valid authentication\nPASS case-insensitive email uniqueness\nPASS foreign-key cascade\n";
 } finally {
-    foreach (glob($temporary . '/*') ?: [] as $file) if (is_file($file)) unlink($file);
+    foreach (glob($temporary . '/*') ?: [] as $file) {
+        if (is_file($file)) unlink($file);
+        if (is_dir($file)) {
+            foreach (glob($file . '/*') ?: [] as $child) if (is_file($child)) unlink($child);
+            rmdir($file);
+        }
+    }
     rmdir($temporary);
 }
