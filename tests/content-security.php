@@ -11,8 +11,12 @@ $output = HtmlSanitizer::clean($input);
 foreach (['<script', '<iframe', 'onclick=', 'javascript:', 'data:image', 'alert('] as $forbidden) {
     if (stripos($output, $forbidden) !== false) throw new RuntimeException('Unsafe rich content survived sanitization: ' . $forbidden);
 }
-if (!str_contains($output, '<strong>formatted text</strong>') || !str_contains($output, '<em>nested text</em>')) throw new RuntimeException('Safe rich text formatting was not preserved.');
-if (!str_contains($output, 'href="https://example.com"') || !str_contains($output, 'rel="noopener noreferrer"')) throw new RuntimeException('Safe external links were not preserved securely.');
+if (class_exists(DOMDocument::class)) {
+    if (!str_contains($output, '<strong>formatted text</strong>') || !str_contains($output, '<em>nested text</em>')) throw new RuntimeException('Safe rich text formatting was not preserved.');
+    if (!str_contains($output, 'href="https://example.com"') || !str_contains($output, 'rel="noopener noreferrer"')) throw new RuntimeException('Safe external links were not preserved securely.');
+} else {
+    if (!str_contains($output, 'Keep') || str_contains($output, '<strong')) throw new RuntimeException('The safe no-DOM fallback did not degrade to plain text.');
+}
 if (strlen($output) > 524288) throw new RuntimeException('Sanitized content exceeded its size limit.');
 
 $oversized = false;
