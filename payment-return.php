@@ -23,23 +23,31 @@ try {
         $reference = (string) ($_GET['token'] ?? '');
         $payment = $reference !== '' ? $service->providerPayment('paypal', $reference) : null;
         if (!$payment || (int) $payment['user_id'] !== (int) $user['id']) throw new RuntimeException('This PayPal order could not be matched to your account.');
+        if ($payment['status'] === 'paid') {
+            $success = true;
+        } else {
         $capture = (new PaymentGateway())->capturePayPal($reference);
         $rate = max(1, (int) Config::get('payments.paypal_ugx_per_usd', 3700));
         $expectedUsd = number_format(((int) $payment['total_ugx']) / $rate, 2, '.', '');
         if ($capture['order_status'] !== 'COMPLETED' || $capture['capture_status'] !== 'COMPLETED' || $capture['currency'] !== 'USD' || $capture['amount'] !== $expectedUsd || $capture['capture_id'] === '') throw new RuntimeException('PayPal has not confirmed the exact expected amount.');
         $service->confirmPayment((int) $payment['id'], 'paypal', $reference, $capture['capture_id'], (int) $payment['total_ugx'], 'UGX', 'COMPLETED', 'capture-' . $capture['capture_id']);
         $success = ($service->providerPayment('paypal', $reference)['status'] ?? '') === 'paid';
+        }
     } elseif ($provider === 'dpo') {
         $token = (string) ($_GET['TransactionToken'] ?? $_GET['transToken'] ?? '');
         $companyRef = (string) ($_GET['CompanyRef'] ?? '');
         if ($token === '' || $companyRef === '') throw new RuntimeException('DPO did not return the required transaction reference.');
         $payment = $service->providerPayment('dpo', $companyRef);
         if (!$payment || (int) $payment['user_id'] !== (int) $user['id'] || !hash_equals((string) $payment['provider_order_id'], $token)) throw new RuntimeException('This DPO transaction could not be matched to your account.');
+        if ($payment['status'] === 'paid') {
+            $success = true;
+        } else {
         $verified = (new PaymentGateway())->verifyDpo($token, $companyRef);
         $amount = (int) round((float) $verified['amount']);
         if ($verified['result'] !== '000' || !in_array($verified['fraud_alert'], ['000', '001'], true) || $verified['company_ref'] !== $companyRef || $verified['currency'] !== 'UGX' || $amount !== (int) $payment['total_ugx'] || $verified['approval'] === '') throw new RuntimeException('DPO did not verify the exact order amount and currency.');
         $service->confirmPayment((int) $payment['id'], 'dpo', $token, $verified['approval'], $amount, 'UGX', 'COMPLETED', 'dpo-' . $token);
         $success = ($service->providerPayment('dpo', $companyRef)['status'] ?? '') === 'paid';
+        }
     } elseif ($provider === 'cancel') {
         $message = 'Payment was cancelled. Your order has not been paid and no course access has been granted.';
     } else {
