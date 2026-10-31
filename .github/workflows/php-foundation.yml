@@ -1,0 +1,31 @@
+name: PHP foundation checks
+
+on:
+  push:
+    branches:
+      - main
+      - phase-1-secure-foundation
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  foundation:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.1', '8.3']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_sqlite, sqlite3, fileinfo, openssl
+          coverage: none
+      - name: Lint foundation PHP
+        run: find app bootstrap database install scripts tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Test security and routing
+        run: php tests/unit.php
+      - name: Test SQLite migrations and identity
+        run: php tests/run.php

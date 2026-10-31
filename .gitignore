@@ -1,0 +1,14 @@
+.env
+/config/local.php
+/vendor/
+/node_modules/
+/storage/*.sqlite
+/storage/*.sqlite-*
+/storage/*.db
+/storage/*.db-*
+/storage/*.key
+/storage/*.lock
+/storage/logs/
+/storage/cache/
+/storage/sessions/
+/storage/backups/
