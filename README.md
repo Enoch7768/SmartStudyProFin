@@ -55,7 +55,7 @@ Run PHP lint, unit, SQLite integration, assistant, recognition, operations, cont
 
 This repository is proprietary software. Public visibility is not permission to copy, modify, redistribute, sublicense, host or resell the source code. The developer retains ownership of original project code and custom implementation, subject to third-party licences and client-supplied materials. The client receives only the limited usage rights set out in the signed project agreement and EULA.md.
 
-Website users should review TERMS_OF_USE.md, PRIVACY_POLICY.md, COOKIE_NOTICE.md and ACCESSIBILITY.md. These documents are also available through the website's legal pages.
+Website users should review TERMS_OF_USE.md, PRIVACY_POLICY.md, COOKIE_NOTICE.md, REFUNDS_POLICY.md and ACCESSIBILITY.md. These documents are also available through the website's legal pages.
 
 The legal documents are implementation drafts and must be reviewed against the signed client agreement, actual data-controller identity, hosting/provider arrangements and applicable law before production launch.
 
