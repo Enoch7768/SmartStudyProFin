@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Learning;
 
+use App\Core\Session;
 use PDO;
 use RuntimeException;
 
@@ -47,7 +48,7 @@ final class LearningService
     public function outline(int $userId, int $courseId): array
     {
         if (!$this->hasAccess($userId, $courseId)) throw new RuntimeException('You are not enrolled in this course.');
-        $statement = $this->pdo->prepare("SELECT ch.id AS chapter_id, ch.title AS chapter_title, l.id AS lesson_id, l.title AS lesson_title, l.status AS lesson_status, l.video_media_id, l.video_url, COALESCE(lp.status, 'not_started') AS progress_status, COALESCE(lp.last_position_seconds, 0) AS last_position_seconds, CASE WHEN b.id IS NULL THEN 0 ELSE 1 END AS bookmarked FROM cms_chapters ch LEFT JOIN cms_lessons l ON l.chapter_id = ch.id AND l.status = 'published' LEFT JOIN lesson_progress lp ON lp.lesson_id = l.id AND lp.user_id = :progress_user LEFT JOIN lesson_bookmarks b ON b.lesson_id = l.id AND b.user_id = :bookmark_user WHERE ch.course_id = :course_id ORDER BY ch.sort_order, ch.id, l.sort_order, l.id");
+        $statement = $this->pdo->prepare("SELECT ch.id AS chapter_id, ch.title AS chapter_title, l.id AS lesson_id, l.title AS lesson_title, l.status AS lesson_status, l.video_media_id, l.video_url, l.resource_media_id, l.resource_title, COALESCE(lp.status, 'not_started') AS progress_status, COALESCE(lp.last_position_seconds, 0) AS last_position_seconds, CASE WHEN b.id IS NULL THEN 0 ELSE 1 END AS bookmarked FROM cms_chapters ch LEFT JOIN cms_lessons l ON l.chapter_id = ch.id AND l.status = 'published' LEFT JOIN lesson_progress lp ON lp.lesson_id = l.id AND lp.user_id = :progress_user LEFT JOIN lesson_bookmarks b ON b.lesson_id = l.id AND b.user_id = :bookmark_user WHERE ch.course_id = :course_id ORDER BY ch.sort_order, ch.id, l.sort_order, l.id");
         $statement->execute(['progress_user' => $userId, 'bookmark_user' => $userId, 'course_id' => $courseId]);
         $chapters = [];
         foreach ($statement->fetchAll() as $row) {
@@ -60,6 +61,8 @@ final class LearningService
                 'last_position_seconds' => (int) $row['last_position_seconds'],
                 'bookmarked' => (bool) $row['bookmarked'],
                 'video_media_id' => $row['video_media_id'] === null ? null : (int) $row['video_media_id'],
+                'resource_media_id' => $row['resource_media_id'] === null ? null : (int) $row['resource_media_id'],
+                'resource_title' => $row['resource_title'],
                 'video_url' => $row['video_url']
             ];
         }
@@ -120,6 +123,17 @@ final class LearningService
     public function submitQuiz(int $userId, int $courseId, int $lessonId, array $answers): array
     {
         if (!$this->lesson($userId, $courseId, $lessonId)) throw new RuntimeException('This lesson is not available.');
+        $lesson = $this->lesson($userId, $courseId, $lessonId);
+        $timeLimit = (int) ($lesson['quiz_time_limit_minutes'] ?? 0);
+        $passMark = (int) ($lesson['quiz_pass_mark'] ?? 70);
+        Session::start();
+        $timerKey = 'quiz_started_' . $lessonId;
+        $startedAt = (int) ($_SESSION[$timerKey] ?? time());
+        if (!isset($_SESSION[$timerKey])) $_SESSION[$timerKey] = $startedAt;
+        if ($timeLimit > 0 && time() - $startedAt > ($timeLimit * 60) + 10) {
+            unset($_SESSION[$timerKey]);
+            throw new RuntimeException('Your quiz time has expired. Reload the lesson to begin a new attempt.');
+        }
         $statement = $this->pdo->prepare('SELECT id, question, options_json, correct_answer FROM cms_quiz_questions WHERE lesson_id = :lesson_id ORDER BY sort_order, id');
         $statement->execute(['lesson_id' => $lessonId]);
         $questions = $statement->fetchAll();
@@ -142,19 +156,26 @@ final class LearningService
         $score = (int) round(($correct / $total) * 100);
         $now = gmdate('Y-m-d H:i:s');
         $insert = $this->pdo->prepare('INSERT INTO quiz_attempts (user_id, course_id, lesson_id, answers_json, question_count, correct_count, score_percent, passed, started_at, submitted_at) VALUES (:user_id, :course_id, :lesson_id, :answers_json, :question_count, :correct_count, :score_percent, :passed, :started_at, :submitted_at)');
-        $insert->execute(['user_id' => $userId, 'course_id' => $courseId, 'lesson_id' => $lessonId, 'answers_json' => json_encode($storedAnswers, JSON_THROW_ON_ERROR), 'question_count' => $total, 'correct_count' => $correct, 'score_percent' => $score, 'passed' => $score >= 70 ? 1 : 0, 'started_at' => $now, 'submitted_at' => $now]);
-        return ['attempt_id' => (int) $this->pdo->lastInsertId(), 'total' => $total, 'correct' => $correct, 'score' => $score, 'passed' => $score >= 70, 'review' => $review];
+        $insert->execute(['user_id' => $userId, 'course_id' => $courseId, 'lesson_id' => $lessonId, 'answers_json' => json_encode($storedAnswers, JSON_THROW_ON_ERROR), 'question_count' => $total, 'correct_count' => $correct, 'score_percent' => $score, 'passed' => $score >= $passMark ? 1 : 0, 'started_at' => $now, 'submitted_at' => $now]);
+        unset($_SESSION[$timerKey]);
+        return ['attempt_id' => (int) $this->pdo->lastInsertId(), 'total' => $total, 'correct' => $correct, 'score' => $score, 'passed' => $score >= $passMark, 'pass_mark' => $passMark, 'review' => $review];
     }
 
     public function quizQuestions(int $userId, int $courseId, int $lessonId): array
     {
         if (!$this->lesson($userId, $courseId, $lessonId)) throw new RuntimeException('This lesson is not available.');
+        $lesson = $this->lesson($userId, $courseId, $lessonId);
+        if (!$lesson) throw new RuntimeException('This lesson is not available.');
+        Session::start();
+        $timerKey = 'quiz_started_' . $lessonId;
+        if (!isset($_SESSION[$timerKey])) $_SESSION[$timerKey] = time();
         $statement = $this->pdo->prepare('SELECT id, question, options_json FROM cms_quiz_questions WHERE lesson_id = :lesson_id ORDER BY sort_order, id');
         $statement->execute(['lesson_id' => $lessonId]);
-        return array_map(static function (array $row): array {
+        $questions = array_map(static function (array $row): array {
             $options = json_decode((string) $row['options_json'], true);
             return ['id' => (int) $row['id'], 'question' => $row['question'], 'options' => is_array($options) ? $options : []];
         }, $statement->fetchAll());
+        return ['questions' => $questions, 'time_limit_minutes' => (int) $lesson['quiz_time_limit_minutes'], 'pass_mark' => (int) $lesson['quiz_pass_mark'], 'started_at' => (int) $_SESSION[$timerKey]];
     }
 
     public function dashboard(int $userId): array
@@ -172,7 +193,7 @@ final class LearningService
 
     public function media(int $userId, int $mediaId): ?array
     {
-        $statement = $this->pdo->prepare("SELECT m.* FROM media_assets m INNER JOIN cms_lessons l ON l.video_media_id = m.id INNER JOIN cms_chapters ch ON ch.id = l.chapter_id INNER JOIN course_enrolments e ON e.course_id = ch.course_id WHERE m.id = :media_id AND e.user_id = :user_id AND e.status IN ('active', 'completed') AND l.status = 'published' LIMIT 1");
+        $statement = $this->pdo->prepare("SELECT m.*, ch.course_id FROM media_assets m INNER JOIN cms_lessons l ON (l.video_media_id = m.id OR l.resource_media_id = m.id) INNER JOIN cms_chapters ch ON ch.id = l.chapter_id INNER JOIN course_enrolments e ON e.course_id = ch.course_id INNER JOIN cms_courses c ON c.id = ch.course_id WHERE m.id = :media_id AND e.user_id = :user_id AND e.status IN ('active', 'completed') AND l.status = 'published' AND c.status = 'published' LIMIT 1");
         $statement->execute(['media_id' => $mediaId, 'user_id' => $userId]);
         return $statement->fetch() ?: null;
     }
