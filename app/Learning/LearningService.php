@@ -40,7 +40,7 @@ final class LearningService
 
     public function hasAccess(int $userId, int $courseId): bool
     {
-        $statement = $this->pdo->prepare("SELECT 1 FROM course_enrolments e INNER JOIN cms_courses c ON c.id = e.course_id WHERE e.user_id = :user_id AND e.course_id = :course_id AND e.status IN ('active', 'completed') AND c.status = 'published' LIMIT 1");
+        $statement = $this->pdo->prepare("SELECT 1 FROM course_enrolments e INNER JOIN cms_courses c ON c.id = e.course_id WHERE e.user_id = :user_id AND e.course_id = :course_id AND e.status IN ('active', 'completed') AND c.status = 'published' AND m.visibility = 'private' LIMIT 1");
         $statement->execute(['user_id' => $userId, 'course_id' => $courseId]);
         return (bool) $statement->fetchColumn();
     }
@@ -124,12 +124,13 @@ final class LearningService
     {
         if (!$this->lesson($userId, $courseId, $lessonId)) throw new RuntimeException('This lesson is not available.');
         $lesson = $this->lesson($userId, $courseId, $lessonId);
+        if (!$lesson) throw new RuntimeException('This lesson is not available.');
         $timeLimit = (int) ($lesson['quiz_time_limit_minutes'] ?? 0);
         $passMark = (int) ($lesson['quiz_pass_mark'] ?? 70);
         Session::start();
         $timerKey = 'quiz_started_' . $lessonId;
-        $startedAt = (int) ($_SESSION[$timerKey] ?? time());
-        if (!isset($_SESSION[$timerKey])) $_SESSION[$timerKey] = $startedAt;
+        if (!isset($_SESSION[$timerKey])) throw new RuntimeException('Your quiz session expired. Reload the lesson to start a new attempt.');
+        $startedAt = (int) $_SESSION[$timerKey];
         if ($timeLimit > 0 && time() - $startedAt > ($timeLimit * 60) + 10) {
             unset($_SESSION[$timerKey]);
             throw new RuntimeException('Your quiz time has expired. Reload the lesson to begin a new attempt.');
@@ -156,7 +157,7 @@ final class LearningService
         $score = (int) round(($correct / $total) * 100);
         $now = gmdate('Y-m-d H:i:s');
         $insert = $this->pdo->prepare('INSERT INTO quiz_attempts (user_id, course_id, lesson_id, answers_json, question_count, correct_count, score_percent, passed, started_at, submitted_at) VALUES (:user_id, :course_id, :lesson_id, :answers_json, :question_count, :correct_count, :score_percent, :passed, :started_at, :submitted_at)');
-        $insert->execute(['user_id' => $userId, 'course_id' => $courseId, 'lesson_id' => $lessonId, 'answers_json' => json_encode($storedAnswers, JSON_THROW_ON_ERROR), 'question_count' => $total, 'correct_count' => $correct, 'score_percent' => $score, 'passed' => $score >= $passMark ? 1 : 0, 'started_at' => $now, 'submitted_at' => $now]);
+        $insert->execute(['user_id' => $userId, 'course_id' => $courseId, 'lesson_id' => $lessonId, 'answers_json' => json_encode($storedAnswers, JSON_THROW_ON_ERROR), 'question_count' => $total, 'correct_count' => $correct, 'score_percent' => $score, 'passed' => $score >= $passMark ? 1 : 0, 'started_at' => gmdate('Y-m-d H:i:s', $startedAt), 'submitted_at' => $now]);
         unset($_SESSION[$timerKey]);
         return ['attempt_id' => (int) $this->pdo->lastInsertId(), 'total' => $total, 'correct' => $correct, 'score' => $score, 'passed' => $score >= $passMark, 'pass_mark' => $passMark, 'review' => $review];
     }
@@ -184,7 +185,7 @@ final class LearningService
         $enrolled = array_values(array_filter($courses, static fn (array $course): bool => in_array($course['enrolment_status'], ['active', 'completed'], true)));
         $recent = $this->pdo->prepare("SELECT lp.course_id, lp.lesson_id, l.title AS lesson_title, c.title AS course_title, lp.updated_at FROM lesson_progress lp INNER JOIN cms_lessons l ON l.id = lp.lesson_id INNER JOIN cms_courses c ON c.id = lp.course_id WHERE lp.user_id = :user_id AND lp.status = 'started' ORDER BY lp.updated_at DESC LIMIT 8");
         $recent->execute(['user_id' => $userId]);
-        $bookmarks = $this->pdo->prepare('SELECT b.lesson_id, l.title AS lesson_title, ch.course_id, c.title AS course_title FROM lesson_bookmarks b INNER JOIN cms_lessons l ON l.id = b.lesson_id INNER JOIN cms_chapters ch ON ch.id = l.chapter_id INNER JOIN cms_courses c ON c.id = ch.course_id WHERE b.user_id = :user_id ORDER BY b.created_at DESC LIMIT 8');
+        $bookmarks = $this->pdo->prepare('SELECT b.lesson_id, l.title AS lesson_title, ch.course_id, c.title AS course_title FROM lesson_bookmarks b INNER JOIN cms_lessons l ON l.id = b.lesson_id INNER JOIN cms_chapters ch ON ch.id = l.chapter_id INNER JOIN cms_courses c ON c.id = ch.course_id WHERE b.user_id = :user_id AND c.status = 'published' AND EXISTS (SELECT 1 FROM course_enrolments e WHERE e.user_id = b.user_id AND e.course_id = ch.course_id AND e.status IN ('active', 'completed')) ORDER BY b.created_at DESC LIMIT 8');
         $bookmarks->execute(['user_id' => $userId]);
         $attempts = $this->pdo->prepare('SELECT qa.id, qa.score_percent, qa.passed, qa.submitted_at, l.title AS lesson_title, c.title AS course_title FROM quiz_attempts qa INNER JOIN cms_lessons l ON l.id = qa.lesson_id INNER JOIN cms_courses c ON c.id = qa.course_id WHERE qa.user_id = :user_id ORDER BY qa.submitted_at DESC LIMIT 8');
         $attempts->execute(['user_id' => $userId]);
