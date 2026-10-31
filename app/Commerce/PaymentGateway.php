@@ -124,15 +124,10 @@ final class PaymentGateway
         if (!function_exists('simplexml_load_string')) throw new RuntimeException('The PHP SimpleXML extension is required for DPO payments.');
         $companyToken = (string) Config::get('payments.dpo_company_token');
         if ($companyToken === '') throw new RuntimeException('DPO has not been configured by the administrator.');
-        $base = rtrim((string) Config::get('payments.dpo_endpoint', 'https://secure.3gdirectpay.com/API/v6/'), '/');
+        $base = $this->dpoEndpoint();
         $xml = '<API3G><CompanyToken>' . htmlspecialchars($companyToken, ENT_XML1) . '</CompanyToken><Request>verifyToken</Request><TransactionToken>' . htmlspecialchars($token, ENT_XML1) . '</TransactionToken><CompanyRef>' . htmlspecialchars($companyRef, ENT_XML1) . '</CompanyRef></API3G>';
         $response = $this->request($base, 'POST', ['Content-Type: application/xml; charset=utf-8', 'Accept: application/xml'], $xml);
-        $raw = (string) ($response['raw'] ?? '');
-        $parsed = [];
-        if ($raw !== '') {
-            $xmlResult = simplexml_load_string($raw);
-            if ($xmlResult !== false) $parsed = json_decode(json_encode($xmlResult), true) ?: [];
-        }
+        $parsed = $this->parseDpoResponse((string) ($response['raw'] ?? ''));
         return ['result' => (string) ($parsed['Result'] ?? ''), 'amount' => (string) ($parsed['TransactionAmount'] ?? ''), 'currency' => (string) ($parsed['TransactionCurrency'] ?? ''), 'approval' => (string) ($parsed['TransactionApproval'] ?? ''), 'company_ref' => (string) ($parsed['CompanyRef'] ?? $companyRef), 'fraud_alert' => (string) ($parsed['FraudAlert'] ?? '')];
     }
 }
