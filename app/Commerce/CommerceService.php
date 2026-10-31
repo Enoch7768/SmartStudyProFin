@@ -22,6 +22,7 @@ final class CommerceService
         $user = $userQuery->fetch();
         if (!$user) throw new RuntimeException('Your account is not available for checkout.');
         $items = [];
+        $seen = [];
         $subtotal = 0;
         foreach ($cart as $entry) {
             $type = (string) ($entry['type'] ?? '');
@@ -29,6 +30,9 @@ final class CommerceService
             $quantity = filter_var($entry['quantity'] ?? 1, FILTER_VALIDATE_INT);
             if (!in_array($type, ['course', 'product'], true) || !$id || !$quantity || $quantity < 1 || $quantity > 20) throw new RuntimeException('A cart item is invalid.');
             if ($type === 'course' && $quantity !== 1) throw new RuntimeException('A course can only be purchased once per order.');
+            $cartKey = $type . ':' . $id;
+            if (isset($seen[$cartKey])) throw new RuntimeException('The same item cannot appear more than once in an order.');
+            $seen[$cartKey] = true;
             $table = $type === 'course' ? 'cms_courses' : 'cms_products';
             $query = $this->pdo->prepare("SELECT id, title, price_ugx" . ($type === 'product' ? ", product_type, product_file_media_id" : "") . " FROM {$table} WHERE id = :id AND status = 'published'");
             $query->execute(['id' => $id]);
