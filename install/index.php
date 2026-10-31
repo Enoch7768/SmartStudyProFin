@@ -24,7 +24,8 @@ if (Installer::isInstalled()) {
 $errors = [];
 $requirements = Installer::requirements();
 $storagePrivate = Installer::storageIsPrivate($application['root']);
-$allPassed = !in_array(false, $requirements, true) && $storagePrivate;
+$databasePrivate = Installer::databaseIsPrivate();
+$allPassed = !in_array(false, $requirements, true) && $storagePrivate && $databasePrivate;
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if (!Security::verifyCsrf($_POST['_csrf'] ?? null)) {
@@ -60,12 +61,12 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 <section class="intro"><div><div class="mark">SmartStudy<span>Pro</span></div><div class="tag">Secure first-time setup</div><h1>Your learning platform starts here.</h1><p>Prepare your private database and create the first administrator account. No default passwords or demo accounts are installed.</p></div><div style="font-size:12px;color:#b9bee8">SmartStudyPro · Private installation</div></section>
 <section class="panel"><h2>Application setup</h2><p class="sub">Check your server, then create your administrator account.</p>
 <?php foreach ($errors as $error): ?><div class="alert"><?= Security::escape($error) ?></div><?php endforeach; ?>
-<div class="checks"><?php foreach ($requirements as $label => $passed): ?><div class="check"><span class="dot<?= $passed ? ' ok' : '' ?>"></span><?= Security::escape($label) ?></div><?php endforeach; ?><div class="check"><span class="dot<?= $storagePrivate ? ' ok' : '' ?>"></span>Private storage outside web root</div></div>
+<div class="checks"><?php foreach ($requirements as $label => $passed): ?><div class="check"><span class="dot<?= $passed ? ' ok' : '' ?>"></span><?= Security::escape($label) ?></div><?php endforeach; ?><div class="check"><span class="dot<?= $storagePrivate ? ' ok' : '' ?>"></span>Private storage outside web root</div><div class="check"><span class="dot<?= $databasePrivate ? ' ok' : '' ?>"></span>Database inside private storage</div></div>
 <form method="post" autocomplete="off"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>">
 <div class="field"><label for="name">Administrator name</label><input id="name" name="name" maxlength="120" required></div>
 <div class="field"><label for="email">Administrator email</label><input id="email" name="email" type="email" maxlength="254" required></div>
 <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" minlength="12" autocomplete="new-password" required></div>
 <div class="field"><label for="password_confirmation">Confirm password</label><input id="password_confirmation" name="password_confirmation" type="password" minlength="12" autocomplete="new-password" required></div>
 <button type="submit"<?= $allPassed ? '' : ' disabled' ?>>Install SmartStudyPro</button></form>
-<p class="fine">Use HTTPS for installation. Set APP_STORAGE_PATH to a writable directory outside the public web root. The application will not create public demo accounts.</p>
+<p class="fine">Use HTTPS for installation. Set APP_STORAGE_PATH outside the public web root and DB_PATH inside that private directory. The application will not create public demo accounts.</p>
 </section></main></body></html>
