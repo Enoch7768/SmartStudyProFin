@@ -156,6 +156,8 @@
         <i class="bi bi-bag"></i>
       </a>
 
+      <a href="notifications.php" class="header-icon-link fs-5 text-decoration-none" title="Notifications" aria-label="Notifications"><i class="bi bi-bell"></i></a>
+
       <a href="profile.php" class="header-icon-link fs-5 text-decoration-none" title="My Profile">
         <i class="bi bi-person-circle"></i>
       </a>
