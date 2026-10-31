@@ -48,6 +48,11 @@ try {
     if (!$learning->hasAccess($userId, $courseId)) throw new RuntimeException('Free course enrolment did not grant access.');
     $outline = $learning->outline($userId, $courseId);
     if (count($outline) !== 1 || count($outline[0]['lessons']) !== 1) throw new RuntimeException('Learning course outline did not load.');
+    $assetInsert = $pdo->prepare("INSERT INTO media_assets (storage_path, original_name, mime_type, file_size, checksum_sha256, alt_text, visibility, uploaded_by, created_at) VALUES (:path, 'lesson.pdf', 'application/pdf', 10, 'test-checksum', 'Lesson PDF', 'private', :user_id, :created_at)');
+    $assetInsert->execute(['path' => 'media/test/lesson.pdf', 'user_id' => $userId, 'created_at' => $now]);
+    $resourceId = (int) $pdo->lastInsertId();
+    $content->save('lessons', $lessonId, ['resource_media_id' => $resourceId, 'resource_title' => 'Science notes', 'quiz_time_limit_minutes' => 5, 'quiz_pass_mark' => 75]);
+    if (!$learning->media($userId, $resourceId)) throw new RuntimeException('An enrolled student could not resolve their private lesson resource.');
     $learning->startLesson($userId, $courseId, $lessonId);
     $learning->updatePosition($userId, $courseId, $lessonId, 95);
     $learning->toggleBookmark($userId, $courseId, $lessonId);
