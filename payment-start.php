@@ -40,7 +40,11 @@ try {
             ? $gateway->startDpo($payment, $order, $base . '/payment-return.php?provider=dpo', $base . '/payment-return.php?provider=dpo')
             : throw new RuntimeException('Choose PayPal or DPO.'));
     $service->updateProviderReference((int) $payment['id'], $result['id'], $result['status'], $result['metadata']);
-    Security::redirect($result['approve_url']);
+    $approval = parse_url((string) $result['approve_url']);
+    $allowedHosts = $provider === 'paypal' ? ['www.paypal.com', 'www.sandbox.paypal.com'] : ['secure.3gdirectpay.com'];
+    if (!is_array($approval) || strtolower((string) ($approval['scheme'] ?? '')) !== 'https' || !in_array(strtolower((string) ($approval['host'] ?? '')), $allowedHosts, true)) throw new RuntimeException('The payment provider returned an untrusted approval URL.');
+    header('Location: ' . $result['approve_url'], true, 303);
+    exit;
 } catch (Throwable $exception) {
     error_log('Payment start failed: ' . $exception->getMessage());
     http_response_code(503);
