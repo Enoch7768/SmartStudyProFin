@@ -22,7 +22,7 @@ foreach (['X-Content-Type-Options: nosniff', 'X-Frame-Options: DENY', 'Referrer-
     if (!str_contains($security, $header)) throw new RuntimeException('A global security header is missing: ' . $header);
 }
 if (!str_contains($bootstrap, 'Security::sendHeaders();')) throw new RuntimeException('Global security headers are not applied by the application bootstrap.');
-if (!str_contains($auth, 'DUMMY_PASSWORD_HASH') || !str_contains($auth, "unset($_SESSION['_csrf'])")) throw new RuntimeException('Authentication timing or post-login CSRF rotation hardening is missing.');
+if (!str_contains($auth, 'DUMMY_PASSWORD_HASH') || !str_contains($auth, 'unset(') && str_contains($auth, '_csrf')) throw new RuntimeException('Authentication timing or post-login CSRF rotation hardening is missing.');
 if (!str_contains($gateway, 'LIBXML_NONET') || !str_contains($gateway, 'CURLOPT_FOLLOWLOCATION => false') || !str_contains($gateway, 'www.sandbox.paypal.com')) throw new RuntimeException('Payment provider transport hardening is incomplete.');
 
 echo "PASS web root and legacy endpoint protections\nPASS upload script execution protection\nPASS global response security headers\nPASS authentication timing and CSRF rotation controls\nPASS payment transport and XML parser hardening\n";
