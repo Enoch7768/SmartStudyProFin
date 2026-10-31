@@ -53,6 +53,11 @@ final class Installer
         return preg_match('/^[a-f0-9]{64}$/i', (string) Config::get('app.key')) === 1;
     }
 
+    public static function applicationKeyIsValid(): bool
+    {
+        return preg_match('/^[a-f0-9]{64}$/i', (string) Config::get('app.key')) === 1;
+    }
+
     public static function requirements(): array
     {
         return [
