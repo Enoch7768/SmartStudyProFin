@@ -48,11 +48,11 @@ final class PublicContent
         $statement->execute();
         $page = $statement->fetch() ?: [];
         return [
-            'Hero-Title' => $page['title'] ?? '',
-            'Hero-Subtitle' => $page['subtitle'] ?? '',
+            'Hero-Title' => ($page['title'] ?? '') !== '' ? $page['title'] : null,
+            'Hero-Subtitle' => ($page['subtitle'] ?? '') !== '' ? $page['subtitle'] : null,
             'Description' => $page['body_html'] ?? '',
             'Hero-Image' => $this->image($page['hero_media_id'] ?? null),
-            'Title' => $page['title'] ?? ''
+            'Title' => ($page['title'] ?? '') !== '' ? $page['title'] : null
         ];
     }
 
