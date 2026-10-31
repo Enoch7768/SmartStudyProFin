@@ -46,7 +46,7 @@ try {
     $pdo->exec("INSERT INTO password_reset_tokens (user_id, token_hash, expires_at, created_at) VALUES ($userId, 'test-hash', '2099-01-01 00:00:00', '$now')");
     $pdo->exec('DELETE FROM users WHERE id = ' . $userId);
     if ((int) $pdo->query("SELECT COUNT(*) FROM password_reset_tokens WHERE token_hash = 'test-hash'")->fetchColumn() !== 0) throw new RuntimeException('Foreign-key cascade failed.');
-    echo "PASS SQLite migrations and idempotency\nPASS role assignment\nPASS case-insensitive email uniqueness\nPASS foreign-key cascade\n";
+    echo "PASS SQLite migrations and idempotency\nPASS role and permission assignment\nPASS login throttling and valid authentication\nPASS case-insensitive email uniqueness\nPASS foreign-key cascade\n";
 } finally {
     foreach (glob($temporary . '/*') ?: [] as $file) if (is_file($file)) unlink($file);
     rmdir($temporary);
