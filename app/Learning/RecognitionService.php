@@ -86,7 +86,7 @@ final class RecognitionService
     {
         $code = strtoupper(trim($code));
         if (!preg_match('/^[A-F0-9]{24}$/', $code)) return null;
-        $statement = $this->pdo->prepare("SELECT cert.verification_code, cert.issued_at, c.title AS course_title, u.name AS learner_name FROM certificates cert INNER JOIN cms_courses c ON c.id = cert.course_id INNER JOIN users u ON u.id = cert.user_id WHERE cert.verification_code = :code AND c.status = 'published' LIMIT 1");
+        $statement = $this->pdo->prepare("SELECT cert.verification_code, cert.issued_at, c.title AS course_title, u.name AS learner_name FROM certificates cert INNER JOIN cms_courses c ON c.id = cert.course_id INNER JOIN users u ON u.id = cert.user_id WHERE cert.verification_code = :code LIMIT 1");
         $statement->execute(['code' => $code]);
         return $statement->fetch() ?: null;
     }
