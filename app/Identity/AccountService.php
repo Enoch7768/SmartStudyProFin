@@ -13,7 +13,7 @@ final class AccountService
     {
     }
 
-    public function register(string $name, string $email, string $password): int
+    public function register(string $name, string $email, string $password, array $legalAcceptances = [], string $ip = '', string $userAgent = ''): int
     {
         $name = trim($name);
         $email = strtolower(trim($email));
@@ -32,6 +32,11 @@ final class AccountService
             if ($role->rowCount() !== 1) throw new RuntimeException('The student role is not available.');
             $profile = $this->pdo->prepare('INSERT INTO student_profiles (user_id, created_at, updated_at) VALUES (:user_id, :created_at, :updated_at)');
             $profile->execute(['user_id' => $userId, 'created_at' => $now, 'updated_at' => $now]);
+            foreach ($legalAcceptances as $document => $version) {
+                if (!in_array($document, ['terms', 'privacy'], true) || !is_string($version) || $version === '' || strlen($version) > 32) throw new RuntimeException('The legal acceptance details are invalid.');
+                $acceptance = $this->pdo->prepare('INSERT INTO user_legal_acceptances (user_id, document, version, accepted_at, ip_hash, user_agent_hash) VALUES (:user_id, :document, :version, :accepted_at, :ip_hash, :user_agent_hash)');
+                $acceptance->execute(['user_id' => $userId, 'document' => $document, 'version' => $version, 'accepted_at' => $now, 'ip_hash' => $ip === '' ? null : hash('sha256', $ip), 'user_agent_hash' => $userAgent === '' ? null : hash('sha256', $userAgent)]);
+            }
             $this->pdo->commit();
             return $userId;
         } catch (\Throwable $exception) {
