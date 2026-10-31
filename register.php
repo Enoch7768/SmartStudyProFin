@@ -41,11 +41,11 @@ $siteUrl = 'https://smartstudypro.com';
 <head>
   <script>
     (function() {
-      const savedTheme = localStorage.getItem('ssp-theme');
-      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      }
+      try {
+        const savedTheme = localStorage.getItem('ssp-theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) document.documentElement.setAttribute('data-theme', 'dark');
+      } catch (error) {}
     })();
   </script>
   <meta charset="utf-8">
@@ -292,23 +292,23 @@ $siteUrl = 'https://smartstudypro.com';
         <form method="POST">
           <input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>">
           <div class="mb-3">
-            <label class="form-label small fw-semibold ssp-form-label">Full Name</label>
-            <input type="text" name="name" class="form-control rounded-3 py-2" placeholder="John Doe" value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" required>
+            <label for="register-name" class="form-label small fw-semibold ssp-form-label">Full Name</label>
+            <input id="register-name" type="text" name="name" maxlength="120" autocomplete="name" class="form-control rounded-3 py-2" placeholder="John Doe" value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" required>
           </div>
 
           <div class="mb-3">
-            <label class="form-label small fw-semibold ssp-form-label">Email Address</label>
-            <input type="email" name="email" class="form-control rounded-3 py-2" placeholder="name@example.com" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
+            <label for="register-email" class="form-label small fw-semibold ssp-form-label">Email Address</label>
+            <input id="register-email" type="email" name="email" maxlength="254" autocomplete="email" class="form-control rounded-3 py-2" placeholder="name@example.com" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
           </div>
           
           <div class="mb-3">
-            <label class="form-label small fw-semibold ssp-form-label">Password</label>
-            <input type="password" name="password" class="form-control rounded-3 py-2" placeholder="••••••••" minlength="12" required>
+            <label for="register-password" class="form-label small fw-semibold ssp-form-label">Password</label>
+            <input id="register-password" type="password" name="password" autocomplete="new-password" maxlength="1024" class="form-control rounded-3 py-2" placeholder="••••••••" minlength="12" required>
           </div>
 
           <div class="mb-4">
-            <label class="form-label small fw-semibold ssp-form-label">Confirm Password</label>
-            <input type="password" name="confirm_password" class="form-control rounded-3 py-2" placeholder="••••••••" minlength="8" required>
+            <label for="register-confirm-password" class="form-label small fw-semibold ssp-form-label">Confirm Password</label>
+            <input id="register-confirm-password" type="password" name="confirm_password" autocomplete="new-password" maxlength="1024" class="form-control rounded-3 py-2" placeholder="••••••••" minlength="12" required>
           </div>
           
           <button type="submit" class="btn-ssp-primary w-100 py-2 fs-6">Create Account</button>
