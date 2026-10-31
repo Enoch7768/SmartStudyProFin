@@ -17,14 +17,18 @@ $checks['Database inside private storage'] = Installer::databaseIsPrivate();
 $checks['Storage directory writable'] = is_dir($storage) ? is_writable($storage) : is_writable(dirname($storage));
 $checks['Installation lock present'] = Installer::isInstalled();
 if ($checks['PDO SQLite'] && $checks['Storage path configured'] && $checks['Storage outside public web root'] && $checks['Database inside private storage'] && $checks['Storage directory writable']) {
-    try {
-        $pdo = Database::connect();
-        $checks['Database connection'] = true;
-        Migrator::run($pdo, $application['root'] . '/database/migrations');
-        $checks['Database migrations'] = true;
-    } catch (Throwable $exception) {
-        $checks['Database connection and migrations'] = false;
-        fwrite(STDERR, $exception->getMessage() . PHP_EOL);
+    $databasePath = (string) Config::get('database.path');
+    $checks['Database file exists'] = is_file($databasePath);
+    if ($checks['Database file exists']) {
+        try {
+            $pdo = Database::connect();
+            $checks['Database connection'] = true;
+            $migrationStatus = Migrator::status($pdo, $application['root'] . '/database/migrations');
+            $checks['Database migrations current'] = count($migrationStatus['pending']) === 0;
+        } catch (Throwable $exception) {
+            $checks['Database connection and migration status'] = false;
+            fwrite(STDERR, $exception->getMessage() . PHP_EOL);
+        }
     }
 }
 $failed = false;
