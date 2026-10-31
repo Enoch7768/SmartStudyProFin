@@ -37,9 +37,20 @@ final class Installer
         $databaseDirectory = realpath(dirname($database));
         if ($storageReal !== false && $databaseDirectory !== false) {
             $storageReal = rtrim($storageReal, DIRECTORY_SEPARATOR);
-            return $databaseDirectory === $storageReal || str_starts_with($databaseDirectory, $storageReal . DIRECTORY_SEPARATOR);
+            $directoryIsPrivate = $databaseDirectory === $storageReal || str_starts_with($databaseDirectory, $storageReal . DIRECTORY_SEPARATOR);
+            if (!$directoryIsPrivate || is_link($database)) return false;
+            if (file_exists($database)) {
+                $databaseReal = realpath($database);
+                return $databaseReal !== false && str_starts_with($databaseReal, $storageReal . DIRECTORY_SEPARATOR);
+            }
+            return true;
         }
         return true;
+    }
+
+    public static function applicationKeyIsValid(): bool
+    {
+        return preg_match('/^[a-f0-9]{64}$/i', (string) Config::get('app.key')) === 1;
     }
 
     public static function requirements(): array
@@ -60,17 +71,23 @@ final class Installer
         foreach (self::requirements() as $label => $passed) if (!$passed) throw new RuntimeException('Server requirement failed: ' . $label);
         $name = trim($name);
         $email = trim($email);
-        if ($name === '' || strlen($name) > 480 || !filter_var($email, FILTER_VALIDATE_EMAIL)) throw new RuntimeException('Enter a valid administrator name and email address.');
-        if (strlen($password) < 12) throw new RuntimeException('The administrator password must contain at least 12 characters.');
+        if ($name === '' || strlen($name) > 480 || strlen($email) > 254 || !filter_var($email, FILTER_VALIDATE_EMAIL)) throw new RuntimeException('Enter a valid administrator name and email address.');
+        if (strlen($password) < 12 || strlen($password) > 1024) throw new RuntimeException('The administrator password must contain at least 12 characters.');
         $storage = (string) Config::get('storage.path');
         if ($storage === '' || !self::storageIsPrivate($root)) throw new RuntimeException('Set APP_STORAGE_PATH to a writable directory outside the public web root.');
         if (!is_dir($storage) && !mkdir($storage, 0700, true) && !is_dir($storage)) throw new RuntimeException('The private storage directory could not be created.');
         chmod($storage, 0700);
         if (!self::databaseIsPrivate()) throw new RuntimeException('Set DB_PATH to a SQLite file inside APP_STORAGE_PATH.');
         $keyPath = $storage . '/app.key';
-        if (!is_file($keyPath)) {
+        if (is_file($keyPath)) {
+            $storedKey = trim((string) file_get_contents($keyPath));
+            if (preg_match('/^[a-f0-9]{64}$/i', $storedKey) !== 1) throw new RuntimeException('The stored application key is invalid.');
+        } else {
+            $configuredKey = (string) Config::get('app.key');
+            if ($configuredKey !== '' && preg_match('/^[a-f0-9]{64}$/i', $configuredKey) !== 1) throw new RuntimeException('APP_KEY must contain exactly 64 hexadecimal characters.');
             $temporary = $keyPath . '.tmp-' . bin2hex(random_bytes(4));
-            if (file_put_contents($temporary, bin2hex(random_bytes(32)), LOCK_EX) === false || !rename($temporary, $keyPath)) {
+            $newKey = $configuredKey !== '' ? $configuredKey : bin2hex(random_bytes(32));
+            if (file_put_contents($temporary, $newKey, LOCK_EX) === false || !rename($temporary, $keyPath)) {
                 @unlink($temporary);
                 throw new RuntimeException('The application key could not be saved.');
             }
