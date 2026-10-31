@@ -6,7 +6,7 @@ Security fixes are prioritised for the latest deployed release and the current d
 
 ## Reporting a vulnerability
 
-Do not open a public issue for an exploitable vulnerability. Email smartstudypro36@gmail.com with a concise description, affected page or component, safe reproduction steps, potential impact and practical mitigation.
+Do not open a public issue for an exploitable vulnerability. Report it privately through the security contact listed in the signed project agreement. If no separate security contact has been supplied, use the private support contact published by the site operator, currently smartstudypro36@gmail.com. Include a concise description, affected page or component, safe reproduction steps, potential impact and practical mitigation.
 
 Do not include passwords, API keys, payment credentials, production database files, student records or other personal data.
 
