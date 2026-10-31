@@ -15,6 +15,12 @@ final class RecognitionService
 
     public function sync(int $userId): void
     {
+        $enrolments = $this->pdo->prepare("SELECT e.course_id, c.title FROM course_enrolments e INNER JOIN cms_courses c ON c.id = e.course_id WHERE e.user_id = :user_id AND e.status IN ('active', 'completed') AND c.status = 'published'");
+        $enrolments->execute(['user_id' => $userId]);
+        foreach ($enrolments->fetchAll() as $enrolment) {
+            $courseId = (int) $enrolment['course_id'];
+            $this->notify($userId, 'course-enrolled:' . $courseId, 'course', 'Course added to your learning', 'You are enrolled in ' . $enrolment['title'] . '. Your lessons are ready when you are.', 'study.php?course_id=' . $courseId);
+        }
         $stats = $this->stats($userId);
         $catalog = $this->pdo->query('SELECT id, slug, name, description, threshold, metric FROM achievements ORDER BY id')->fetchAll();
         $now = gmdate('Y-m-d H:i:s');
