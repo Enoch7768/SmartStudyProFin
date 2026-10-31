@@ -42,3 +42,6 @@ Back up the complete private storage directory before upgrades or manual databas
 ## Releases and recovery
 
 See [release, update and backup operations](RELEASES_UPDATES_BACKUPS.md) for versioned deployment packages, administrator migration controls, backup verification and recovery instructions. The application version is recorded in VERSION. Release tags use the vMAJOR.MINOR.PATCH format.
+
+
+See [production hardening and validation](PRODUCTION_HARDENING.md) for the security controls, performance indexes, accessibility improvements and staging checklist.
