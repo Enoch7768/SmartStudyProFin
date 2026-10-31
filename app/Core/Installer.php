@@ -28,6 +28,20 @@ final class Installer
         return $candidate !== $documentRoot && !str_starts_with($candidate, $documentRoot . DIRECTORY_SEPARATOR);
     }
 
+    public static function databaseIsPrivate(): bool
+    {
+        $storage = rtrim(str_replace('\\\\', '/', (string) Config::get('storage.path')), '/');
+        $database = str_replace('\\\\', '/', (string) Config::get('database.path'));
+        if ($storage === '' || !str_starts_with($database, $storage . '/')) return false;
+        $storageReal = realpath($storage);
+        $databaseDirectory = realpath(dirname($database));
+        if ($storageReal !== false && $databaseDirectory !== false) {
+            $storageReal = rtrim($storageReal, DIRECTORY_SEPARATOR);
+            return $databaseDirectory === $storageReal || str_starts_with($databaseDirectory, $storageReal . DIRECTORY_SEPARATOR);
+        }
+        return true;
+    }
+
     public static function requirements(): array
     {
         return [
@@ -52,6 +66,7 @@ final class Installer
         if ($storage === '' || !self::storageIsPrivate($root)) throw new RuntimeException('Set APP_STORAGE_PATH to a writable directory outside the public web root.');
         if (!is_dir($storage) && !mkdir($storage, 0700, true) && !is_dir($storage)) throw new RuntimeException('The private storage directory could not be created.');
         chmod($storage, 0700);
+        if (!self::databaseIsPrivate()) throw new RuntimeException('Set DB_PATH to a SQLite file inside APP_STORAGE_PATH.');
         $keyPath = $storage . '/app.key';
         if (!is_file($keyPath)) {
             $temporary = $keyPath . '.tmp-' . bin2hex(random_bytes(4));
