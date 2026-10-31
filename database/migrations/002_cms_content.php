@@ -1,0 +1,25 @@
+<?php
+
+declare(strict_types=1);
+
+return static function (PDO $pdo): void {
+    $pdo->exec("CREATE TABLE cms_courses (id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT NOT NULL UNIQUE, title TEXT NOT NULL, description_html TEXT NOT NULL DEFAULT '', content_html TEXT NOT NULL DEFAULT '', price_ugx INTEGER NOT NULL DEFAULT 0 CHECK (price_ugx >= 0), category TEXT NOT NULL DEFAULT '', image_media_id INTEGER, seo_title TEXT NOT NULL DEFAULT '', seo_description TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')), sort_order INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, FOREIGN KEY (image_media_id) REFERENCES media_assets(id) ON DELETE SET NULL)");
+    $pdo->exec("CREATE TABLE cms_chapters (id INTEGER PRIMARY KEY AUTOINCREMENT, course_id INTEGER NOT NULL, title TEXT NOT NULL, sort_order INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, FOREIGN KEY (course_id) REFERENCES cms_courses(id) ON DELETE CASCADE)");
+    $pdo->exec("CREATE TABLE cms_lessons (id INTEGER PRIMARY KEY AUTOINCREMENT, chapter_id INTEGER NOT NULL, title TEXT NOT NULL, content_html TEXT NOT NULL DEFAULT '', video_url TEXT NOT NULL DEFAULT '', video_media_id INTEGER, sort_order INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')), created_at TEXT NOT NULL, updated_at TEXT NOT NULL, FOREIGN KEY (chapter_id) REFERENCES cms_chapters(id) ON DELETE CASCADE, FOREIGN KEY (video_media_id) REFERENCES media_assets(id) ON DELETE SET NULL)");
+    $pdo->exec("CREATE TABLE cms_quiz_questions (id INTEGER PRIMARY KEY AUTOINCREMENT, lesson_id INTEGER NOT NULL, content TEXT NOT NULL DEFAULT '', question TEXT NOT NULL, options_json TEXT NOT NULL, correct_answer TEXT NOT NULL, sort_order INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, FOREIGN KEY (lesson_id) REFERENCES cms_lessons(id) ON DELETE CASCADE)");
+    $pdo->exec("CREATE TABLE cms_products (id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT NOT NULL UNIQUE, title TEXT NOT NULL, description_html TEXT NOT NULL DEFAULT '', price_ugx INTEGER NOT NULL DEFAULT 0 CHECK (price_ugx >= 0), category TEXT NOT NULL DEFAULT '', image_media_id INTEGER, product_type TEXT NOT NULL DEFAULT 'physical' CHECK (product_type IN ('online', 'physical')), product_file_media_id INTEGER, status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')), sort_order INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, FOREIGN KEY (image_media_id) REFERENCES media_assets(id) ON DELETE SET NULL, FOREIGN KEY (product_file_media_id) REFERENCES media_assets(id) ON DELETE SET NULL)");
+    $pdo->exec("CREATE TABLE cms_pages (id INTEGER PRIMARY KEY AUTOINCREMENT, page_key TEXT NOT NULL UNIQUE, title TEXT NOT NULL DEFAULT '', subtitle TEXT NOT NULL DEFAULT '', body_html TEXT NOT NULL DEFAULT '', hero_media_id INTEGER, status TEXT NOT NULL DEFAULT 'published' CHECK (status IN ('draft', 'published')), updated_at TEXT NOT NULL, FOREIGN KEY (hero_media_id) REFERENCES media_assets(id) ON DELETE SET NULL)");
+    $pdo->exec("CREATE TABLE cms_settings (setting_key TEXT PRIMARY KEY, setting_value TEXT NOT NULL DEFAULT '', updated_at TEXT NOT NULL)");
+    $pdo->exec("CREATE TABLE media_assets (id INTEGER PRIMARY KEY AUTOINCREMENT, storage_path TEXT NOT NULL UNIQUE, original_name TEXT NOT NULL, mime_type TEXT NOT NULL, file_size INTEGER NOT NULL CHECK (file_size >= 0), checksum_sha256 TEXT NOT NULL, alt_text TEXT NOT NULL DEFAULT '', visibility TEXT NOT NULL DEFAULT 'private' CHECK (visibility IN ('public', 'private')), uploaded_by INTEGER, created_at TEXT NOT NULL, FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE SET NULL)");
+    $pdo->exec('CREATE INDEX idx_cms_courses_status_order ON cms_courses(status, sort_order, id)');
+    $pdo->exec('CREATE INDEX idx_cms_chapters_course_order ON cms_chapters(course_id, sort_order, id)');
+    $pdo->exec('CREATE INDEX idx_cms_lessons_chapter_order ON cms_lessons(chapter_id, sort_order, id)');
+    $pdo->exec('CREATE INDEX idx_cms_quiz_lesson_order ON cms_quiz_questions(lesson_id, sort_order, id)');
+    $pdo->exec('CREATE INDEX idx_cms_products_status_order ON cms_products(status, sort_order, id)');
+    $pdo->exec('CREATE INDEX idx_media_visibility ON media_assets(visibility, id)');
+    $now = gmdate('Y-m-d H:i:s');
+    $page = $pdo->prepare("INSERT INTO cms_pages (page_key, title, subtitle, body_html, status, updated_at) VALUES (:page_key, '', '', '', 'published', :updated_at)");
+    foreach (['home', 'about'] as $key) $page->execute(['page_key' => $key, 'updated_at' => $now]);
+    $settings = $pdo->prepare('INSERT INTO cms_settings (setting_key, setting_value, updated_at) VALUES (:setting_key, :setting_value, :updated_at)');
+    foreach (['contact.phone' => '+256 704 416250', 'contact.email' => 'smartstudypro36@gmail.com', 'contact.address' => 'Kampala, Uganda'] as $key => $value) $settings->execute(['setting_key' => $key, 'setting_value' => $value, 'updated_at' => $now]);
+};
