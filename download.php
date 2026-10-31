@@ -38,6 +38,6 @@ header('Content-Length: ' . filesize($path));
 header('Content-Disposition: attachment; filename="' . $name . '"');
 header('X-Content-Type-Options: nosniff');
 header('Cache-Control: private, no-store');
-fpassthru($handle);
+if ($method !== 'HEAD') fpassthru($handle);
 fclose($handle);
 exit;
