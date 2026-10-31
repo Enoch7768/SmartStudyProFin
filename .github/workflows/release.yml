@@ -36,14 +36,9 @@ jobs:
       - name: Build clean deployment package
         run: |
           mkdir -p dist/package
-          git archive "$GITHUB_SHA" | tar -x -C dist/package
-          rm -rf dist/package/.github dist/package/tests dist/package/cms dist/package/db dist/package/transcripts
-          find dist/package/database -maxdepth 1 -type f \( -name '*.db' -o -name '*.sqlite' -o -name '*.sqlite3' \) -delete
-          if [ -d dist/package/uploads/avatars ]; then find dist/package/uploads/avatars -type f -delete; fi
+          git archive "$GITHUB_SHA" | tar --exclude='cms' --exclude='db' --exclude='tests' --exclude='.github' --exclude='transcripts' --exclude='uploads/avatars/*' --exclude='database/bookings.db' --exclude='database/bookings.sqlite' --exclude='Income Statement and distribution.xlsx' --exclude='Readme.txt' -x -C dist/package
           mkdir -p dist/package/uploads/avatars
           touch dist/package/uploads/avatars/.gitkeep
-          if [ -d dist/package/storage ]; then find dist/package/storage -mindepth 1 -maxdepth 1 ! -name '.htaccess' ! -name 'index.html' -exec rm -rf {} +; fi
-          rm -f dist/package/.env dist/package/config/local.php "dist/package/Income Statement and distribution.xlsx" dist/package/Readme.txt
           VERSION="${GITHUB_REF_NAME}"
           cd dist/package
           zip -qr "../smartstudypro-${VERSION}.zip" .
