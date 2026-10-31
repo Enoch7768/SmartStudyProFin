@@ -56,6 +56,10 @@ final class ContentRepository
             if ($field === 'slug') $value = $this->slug((string) $value);
             if ($field === 'price_ugx' && $value === null) $value = 0;
             if ($field === 'sort_order' && $value === null) $value = 0;
+            if ($field === 'quiz_time_limit_minutes' && $value === null) $value = 0;
+            if ($field === 'quiz_pass_mark' && $value === null) $value = 70;
+            if ($field === 'quiz_time_limit_minutes' && $value > 180) throw new RuntimeException('Quiz time limit cannot exceed 180 minutes.');
+            if ($field === 'quiz_pass_mark' && ($value < 1 || $value > 100)) throw new RuntimeException('Quiz pass mark must be between 1 and 100.');
             if ($field === 'options_json') {
                 $options = is_array($value) ? $value : json_decode((string) $value, true);
                 if (!is_array($options) || count($options) < 2 || count($options) > 10) throw new RuntimeException('A quiz question needs between 2 and 10 options.');
