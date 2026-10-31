@@ -46,3 +46,18 @@ jobs:
         run: php tests/recognition.php
       - name: Test backups and release operations
         run: php tests/operations.php
+      - name: Validate release workflow and package contents
+        run: |
+          ruby -e "require 'yaml'; YAML.load_file('.github/workflows/release.yml')"
+          mkdir -p /tmp/smartstudypro-release-check
+          git archive HEAD | tar --exclude='cms' --exclude='db' --exclude='tests' --exclude='.github' --exclude='transcripts' --exclude='uploads/avatars/*' --exclude='database/bookings.db' --exclude='database/bookings.sqlite' --exclude='Income Statement and distribution.xlsx' --exclude='Readme.txt' -x -C /tmp/smartstudypro-release-check
+          mkdir -p /tmp/smartstudypro-release-check/uploads/avatars
+          touch /tmp/smartstudypro-release-check/uploads/avatars/.gitkeep
+          test -f /tmp/smartstudypro-release-check/VERSION
+          test -f /tmp/smartstudypro-release-check/install/index.php
+          test -f /tmp/smartstudypro-release-check/database/migrations/008_notifications_recognition_analytics.php
+          test ! -e /tmp/smartstudypro-release-check/cms
+          test ! -e /tmp/smartstudypro-release-check/db
+          test ! -e /tmp/smartstudypro-release-check/database/bookings.db
+          test ! -e /tmp/smartstudypro-release-check/tests
+          test -f /tmp/smartstudypro-release-check/uploads/avatars/.gitkeep
