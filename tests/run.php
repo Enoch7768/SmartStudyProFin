@@ -14,13 +14,14 @@ use App\Core\Config;
 use App\Core\Database;
 use App\Core\Installer;
 use App\Core\Migrator;
+use App\Cms\ContentRepository;
 
 $temporary = sys_get_temp_dir() . '/ssp-test-' . bin2hex(random_bytes(8));
 if (!mkdir($temporary, 0700, true)) throw new RuntimeException('Could not create test storage.');
 try {
     $pdo = Database::connect($temporary . '/test.sqlite');
     $migrationPath = dirname(__DIR__) . '/database/migrations';
-    if (Migrator::run($pdo, $migrationPath) !== ['001_identity']) throw new RuntimeException('Initial migration did not run.');
+    if (Migrator::run($pdo, $migrationPath) !== ['001_identity', '002_cms_content']) throw new RuntimeException('Foundation and CMS migrations did not run.');
     if (Migrator::run($pdo, $migrationPath) !== []) throw new RuntimeException('Migrations are not idempotent.');
     $now = gmdate('Y-m-d H:i:s');
     $insert = $pdo->prepare('INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES (:name, :email, :password_hash, :status, :created_at, :updated_at)');
@@ -31,6 +32,23 @@ try {
     $assign->execute(['user_id' => $userId, 'role_id' => $roleId, 'assigned_at' => $now]);
     if (!Auth::hasRole($pdo, $userId, 'administrator')) throw new RuntimeException('Role assignment failed.');
     if (!Auth::hasPermission($pdo, $userId, 'manage_users')) throw new RuntimeException('Permission assignment failed.');
+    $content = new ContentRepository($pdo);
+    $courseId = $content->save('courses', null, ['title'=>'Foundations of Science','description_html'=>'Intro','content_html'=>'Course body','price_ugx'=>'25000','category'=>'Science','status'=>'published','sort_order'=>'1']);
+    $course = $content->find('courses', $courseId);
+    if (!$course || $course['slug'] !== 'foundations-of-science' || (int) $course['price_ugx'] !== 25000) throw new RuntimeException('Course creation or slug generation failed.');
+    $chapterId = $content->save('chapters', null, ['course_id'=>$courseId,'title'=>'Introduction','sort_order'=>'1']);
+    $lessonId = $content->save('lessons', null, ['chapter_id'=>$chapterId,'title'=>'First lesson','content_html'=>'Lesson text','video_url'=>'','sort_order'=>'1','status'=>'published']);
+    $questionId = $content->save('questions', null, ['lesson_id'=>$lessonId,'content'=>'Lesson quiz','question'=>'What is science?','options_json'=>['Study of nature','A sport'],'correct_answer'=>'Study of nature','sort_order'=>'1']);
+    if (!$content->find('questions', $questionId)) throw new RuntimeException('Quiz question creation failed.');
+    $productId = $content->save('products', null, ['title'=>'Study Guide','description_html'=>'Guide','price_ugx'=>'10000','category'=>'Books','product_type'=>'physical','status'=>'published']);
+    if (!$content->find('products', $productId)) throw new RuntimeException('Product creation failed.');
+    $content->savePage('home', ['title'=>'Learn with purpose','subtitle'=>'SmartStudyPro','body_html'=>'Home content','status'=>'published']);
+    if (($content->page('home')['title'] ?? '') !== 'Learn with purpose') throw new RuntimeException('CMS page editing failed.');
+    $content->saveSettings(['contact.phone'=>'+256700000000','contact.email'=>'hello@example.test','contact.address'=>'Kampala']);
+    if (($content->settings()['contact.phone'] ?? '') !== '+256700000000') throw new RuntimeException('CMS settings editing failed.');
+    $content->delete('courses', $courseId);
+    if ((int) $pdo->query('SELECT COUNT(*) FROM cms_chapters')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM cms_lessons')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM cms_quiz_questions')->fetchColumn() !== 0) throw new RuntimeException('Course deletion did not cascade to learning content.');
+
     for ($attempt = 0; $attempt < 8; $attempt++) {
         if (Auth::attempt($pdo, 'admin@example.test', 'incorrect-password')) throw new RuntimeException('Incorrect password was accepted.');
     }
@@ -76,7 +94,7 @@ try {
         $reinstallRejected = true;
     }
     if (!$reinstallRejected) throw new RuntimeException('Installer allowed a second first-run installation.');
-    echo "PASS SQLite migrations and idempotency\nPASS role and permission assignment\nPASS login throttling and valid authentication\nPASS case-insensitive email uniqueness\nPASS foreign-key cascade\nPASS private first-run installation and lock\n";
+    echo "PASS SQLite migrations and idempotency\nPASS role and permission assignment\nPASS login throttling and valid authentication\nPASS case-insensitive email uniqueness\nPASS foreign-key cascade\nPASS private first-run installation and lock\nPASS native CMS content, quiz, page and settings CRUD\nPASS CMS relational cascade integrity\n";
 } finally {
     foreach (glob($temporary . '/*') ?: [] as $file) {
         if (is_file($file)) unlink($file);
