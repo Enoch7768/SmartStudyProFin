@@ -1,26 +1,20 @@
-<?php 
-require_once 'cms-init.php'; 
+<?php
+declare(strict_types=1);
 
-$courses = [];
-$contact = null;
+require_once __DIR__ . '/bootstrap/app.php';
 
-try {
-    if (function_exists('cockpit')) {
-        $courses = cockpit('content')->items('Courses');
-        $contact = cockpit('content')->item('ContactDetails');
-    }
-} catch (Exception $e) {
-    $courses = [];
-    $contact = null;
-}
+$pdo = \App\Core\Database::connect();
+$content = new \App\Cms\PublicContent($pdo);
+$courses = $content->courses();
+$contact = $content->contact();
 
-$phone   = $contact['phone'] ?? '+256 704 416250';
-$email   = $contact['email'] ?? 'smartstudypro36@gmail.com';
-$address = strip_tags($contact['address'] ?? 'Kampala, Uganda');
+$phone = $contact['phone'];
+$email = $contact['email'];
+$address = strip_tags($contact['address']);
 
-$seoTitle       = 'Professional Courses in Uganda | SmartStudyPro';
+$seoTitle = 'Professional Courses in Uganda | SmartStudyPro';
 $seoDescription = 'Browse our catalog of expert-led courses. From ICT and Science to professional skill development, find the right path for your future at SmartStudyPro.';
-$siteUrl        = "https://smartstudypro.com";
+$siteUrl = 'https://smartstudypro.com';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -251,8 +245,8 @@ $siteUrl        = "https://smartstudypro.com";
                 <div class="course-item w-100">
                   <?php 
                     $cImgData = $course['Image'] ?? $course['image'] ?? null;
-                    $cImg = !empty($cImgData['path']) 
-                            ? '/schoolprojectt/SmartStudyProV2.3/cms/storage/uploads'.$cImgData['path'] 
+                    $cImg = !empty($cImgData['url']) 
+                            ? $cImgData['url'] 
                             : 'assets/img/course-1.jpg'; 
                   ?>
                   <img src="<?= $cImg ?>" class="img-fluid" style="height: 200px; object-fit: cover;" alt="<?= htmlspecialchars($course['Title'] ?? 'Course') ?>">
