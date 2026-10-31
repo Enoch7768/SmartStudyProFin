@@ -97,6 +97,9 @@ try {
     $paidCourseId = $content->save('courses', null, ['title'=>'Secure Checkout Course','description_html'=>'Paid course','content_html'=>'Course content','price_ugx'=>'25000','category'=>'Technology','status'=>'published']);
     $digitalProductId = $content->save('products', null, ['title'=>'Digital Study Guide','description_html'=>'Downloadable guide','price_ugx'=>'10000','category'=>'Books','product_type'=>'online','product_file_media_id'=>$digitalAssetId,'status'=>'published']);
     $commerce = new CommerceService($pdo);
+    $duplicateCartRejected = false;
+    try { $commerce->createOrder($userId, [['type'=>'course','id'=>$paidCourseId,'quantity'=>1], ['type'=>'course','id'=>$paidCourseId,'quantity'=>1]]); } catch (RuntimeException) { $duplicateCartRejected = true; }
+    if (!$duplicateCartRejected) throw new RuntimeException('Duplicate cart lines were accepted.');
     $order = $commerce->createOrder($userId, [['type'=>'course','id'=>$paidCourseId,'quantity'=>1], ['type'=>'product','id'=>$digitalProductId,'quantity'=>1]]);
     if ((int) $order['total_ugx'] !== 35000 || count($order['items']) !== 2) throw new RuntimeException('Order creation did not calculate authoritative catalogue prices.');
     $payment = $commerce->createPayment((int) $order['id'], $userId, 'dpo');
