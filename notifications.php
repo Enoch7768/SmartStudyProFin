@@ -36,7 +36,7 @@ $seoTitle = 'Notifications | SmartStudyPro';
 </head>
 <body>
 <?php include __DIR__ . '/nav.php'; ?>
-<main class="container py-5" style="max-width:900px">
+<main id="main-content" class="container py-5" style="max-width:900px">
 <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4"><div><div class="small fw-bold text-uppercase mb-1" style="color:var(--orange)">Your updates</div><h1 class="h2 mb-1">Notifications</h1><p class="muted mb-0"><?= $unread ?> unread notification<?= $unread === 1 ? '' : 's' ?></p></div><?php if ($unread > 0): ?><form method="post"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>"><input type="hidden" name="action" value="read_all"><button class="btn-main" type="submit">Mark all as read</button></form><?php endif; ?></div>
 <?php if ($error): ?><div class="alert alert-danger"><?= Security::escape($error) ?></div><?php endif; ?>
 <div class="panel"><div class="d-grid gap-3">
