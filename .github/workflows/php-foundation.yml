@@ -12,6 +12,7 @@ on:
       - phase-6-ai-learning-assistant
       - phase-7-recognition-analytics
       - phase-8-release-operations
+      - phase-9-production-hardening
   pull_request:
     branches:
       - main
@@ -51,6 +52,8 @@ jobs:
           node-version: '20'
       - name: Validate browser JavaScript
         run: node --check assets/js/main.js && node tests/main-js.test.cjs
+      - name: Test CMS rich-text sanitization
+        run: php tests/content-security.php
       - name: Validate release workflow and package contents
         run: |
           ruby -e "require 'yaml'; YAML.load_file('.github/workflows/release.yml')"
