@@ -23,7 +23,7 @@ if (!mkdir($temporary, 0700, true)) throw new RuntimeException('Could not create
 try {
     $pdo = Database::connect($temporary . '/test.sqlite');
     $migrationPath = dirname(__DIR__) . '/database/migrations';
-    if (Migrator::run($pdo, $migrationPath) !== ['001_identity', '002_cms_content', '003_student_identity']) throw new RuntimeException('Foundation and CMS migrations did not run.');
+    if (Migrator::run($pdo, $migrationPath) !== ['001_identity', '002_cms_content', '003_student_identity', '004_learning_engine', '005_lesson_resources_quiz_settings']) throw new RuntimeException('Foundation and CMS migrations did not run.');
     if (Migrator::run($pdo, $migrationPath) !== []) throw new RuntimeException('Migrations are not idempotent.');
     $now = gmdate('Y-m-d H:i:s');
     $insert = $pdo->prepare('INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES (:name, :email, :password_hash, :status, :created_at, :updated_at)');
@@ -42,6 +42,52 @@ try {
     $lessonId = $content->save('lessons', null, ['chapter_id'=>$chapterId,'title'=>'First lesson','content_html'=>'Lesson text','video_url'=>'','sort_order'=>'1','status'=>'published']);
     $questionId = $content->save('questions', null, ['lesson_id'=>$lessonId,'content'=>'Lesson quiz','question'=>'What is science?','options_json'=>['Study of nature','A sport'],'correct_answer'=>'Study of nature','sort_order'=>'1']);
     if (!$content->find('questions', $questionId)) throw new RuntimeException('Quiz question creation failed.');
+    $pdo->exec("UPDATE cms_courses SET price_ugx = 0 WHERE id = " . $courseId);
+    $learning = new App\Learning\LearningService($pdo);
+    if ($learning->hasAccess($userId, $courseId)) throw new RuntimeException('A student gained access before enrolment.');
+    $learning->enrolFreeCourse($userId, $courseId);
+    if (!$learning->hasAccess($userId, $courseId)) throw new RuntimeException('Free course enrolment did not grant access.');
+    $outline = $learning->outline($userId, $courseId);
+    $firstChapter = reset($outline);
+    $outlineLessons = $firstChapter['lessons'];
+    if (count($outline) !== 1 || count($outlineLessons) !== 1) throw new RuntimeException('Learning course outline did not load.');
+    $assetInsert = $pdo->prepare("INSERT INTO media_assets (storage_path, original_name, mime_type, file_size, checksum_sha256, alt_text, visibility, uploaded_by, created_at) VALUES (:path, 'lesson.pdf', 'application/pdf', 10, 'test-checksum', 'Lesson PDF', 'private', :user_id, :created_at)");
+    $assetInsert->execute(['path' => 'media/test/lesson.pdf', 'user_id' => $userId, 'created_at' => $now]);
+    $resourceId = (int) $pdo->lastInsertId();
+    $content->save('lessons', $lessonId, ['resource_media_id' => $resourceId, 'resource_title' => 'Science notes', 'quiz_time_limit_minutes' => 5, 'quiz_pass_mark' => 75]);
+    if (!$learning->media($userId, $resourceId)) throw new RuntimeException('An enrolled student could not resolve their private lesson resource.');
+    $insert->execute(['name' => 'Outside Student', 'email' => 'outside@example.test', 'password_hash' => password_hash('another-strong-password', PASSWORD_DEFAULT), 'status' => 'active', 'created_at' => $now, 'updated_at' => $now]);
+    $outsideUserId = (int) $pdo->lastInsertId();
+    if ($learning->hasAccess($outsideUserId, $courseId) || $learning->media($outsideUserId, $resourceId) !== null) throw new RuntimeException('A different student accessed another student course resource.');
+    $learning->startLesson($userId, $courseId, $lessonId);
+    $learning->updatePosition($userId, $courseId, $lessonId, 95);
+    $learning->toggleBookmark($userId, $courseId, $lessonId);
+    $learningDashboard = $learning->dashboard($userId);
+    $savedBookmarks = $learningDashboard['bookmarks'];
+    if (count($savedBookmarks) !== 1) throw new RuntimeException('Lesson bookmark did not persist.');
+    $quizData = $learning->quizQuestions($userId, $courseId, $lessonId);
+    App\Core\Session::start();
+    $quizTimerKey = 'quiz_started_' . $lessonId;
+    $_SESSION[$quizTimerKey] = time() - 400;
+    $expiredQuizRejected = false;
+    try { $learning->submitQuiz($userId, $courseId, $lessonId, []); } catch (RuntimeException) { $expiredQuizRejected = true; }
+    if (!$expiredQuizRejected) throw new RuntimeException('An expired timed quiz was accepted.');
+    $quizData = $learning->quizQuestions($userId, $courseId, $lessonId);
+    $submittedAnswers = [];
+    $submittedAnswers[$questionId] = 'Study of nature';
+    $quizResult = $learning->submitQuiz($userId, $courseId, $lessonId, $submittedAnswers);
+    if (count($learning->attempts($userId, $lessonId)) !== 1) throw new RuntimeException('Quiz attempt history was not saved.');
+    $learning->completeLesson($userId, $courseId, $lessonId);
+    $completedOutline = $learning->outline($userId, $courseId);
+    $completedChapter = reset($completedOutline);
+    $completedLessons = $completedChapter['lessons'];
+    $completedLesson = reset($completedLessons);
+    if (($completedLesson['progress_status'] ?? '') !== 'completed') throw new RuntimeException('Lesson completion did not persist.');
+    $pdo->exec("UPDATE cms_courses SET price_ugx = 25000 WHERE id = " . $courseId);
+    $paidCourseRejected = false;
+    try { $learning->enrolFreeCourse($userId, $courseId); } catch (RuntimeException) { $paidCourseRejected = true; }
+    if (!$paidCourseRejected) throw new RuntimeException('A paid course was incorrectly enrolled as free.');
+
     $productId = $content->save('products', null, ['title'=>'Study Guide','description_html'=>'Guide','price_ugx'=>'10000','category'=>'Books','product_type'=>'physical','status'=>'published']);
     if (!$content->find('products', $productId)) throw new RuntimeException('Product creation failed.');
     $public = new PublicContent($pdo);
@@ -53,7 +99,7 @@ try {
     $content->saveSettings(['contact.phone'=>'+256700000000','contact.email'=>'hello@example.test','contact.address'=>'Kampala']);
     if (($content->settings()['contact.phone'] ?? '') !== '+256700000000') throw new RuntimeException('CMS settings editing failed.');
     $content->delete('courses', $courseId);
-    if ((int) $pdo->query('SELECT COUNT(*) FROM cms_chapters')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM cms_lessons')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM cms_quiz_questions')->fetchColumn() !== 0) throw new RuntimeException('Course deletion did not cascade to learning content.');
+    if ((int) $pdo->query('SELECT COUNT(*) FROM cms_chapters')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM cms_lessons')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM cms_quiz_questions')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM course_enrolments')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM lesson_progress')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM lesson_bookmarks')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM quiz_attempts')->fetchColumn() !== 0) throw new RuntimeException('Course deletion did not cascade to learning records.');
 
     for ($attempt = 0; $attempt < 8; $attempt++) {
         if (Auth::attempt($pdo, 'admin@example.test', 'incorrect-password')) throw new RuntimeException('Incorrect password was accepted.');

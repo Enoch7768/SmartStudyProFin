@@ -12,7 +12,7 @@ final class ContentRepository
     private const TABLES = [
         'courses' => ['cms_courses', ['title', 'slug', 'description_html', 'content_html', 'price_ugx', 'category', 'image_media_id', 'seo_title', 'seo_description', 'status', 'sort_order']],
         'chapters' => ['cms_chapters', ['course_id', 'title', 'sort_order']],
-        'lessons' => ['cms_lessons', ['chapter_id', 'title', 'content_html', 'video_url', 'video_media_id', 'sort_order', 'status']],
+        'lessons' => ['cms_lessons', ['chapter_id', 'title', 'content_html', 'video_url', 'video_media_id', 'resource_media_id', 'resource_title', 'quiz_time_limit_minutes', 'quiz_pass_mark', 'sort_order', 'status']],
         'questions' => ['cms_quiz_questions', ['lesson_id', 'content', 'question', 'options_json', 'correct_answer', 'sort_order']],
         'products' => ['cms_products', ['title', 'slug', 'description_html', 'price_ugx', 'category', 'image_media_id', 'product_type', 'product_file_media_id', 'status', 'sort_order']]
     ];
@@ -48,7 +48,7 @@ final class ContentRepository
         foreach ($allowed as $field) {
             if (!array_key_exists($field, $input)) continue;
             $value = $input[$field];
-            if (in_array($field, ['price_ugx', 'sort_order', 'course_id', 'chapter_id', 'lesson_id', 'image_media_id', 'video_media_id', 'product_file_media_id'], true)) {
+            if (in_array($field, ['price_ugx', 'sort_order', 'course_id', 'chapter_id', 'lesson_id', 'image_media_id', 'video_media_id', 'product_file_media_id', 'resource_media_id', 'quiz_time_limit_minutes', 'quiz_pass_mark'], true)) {
                 $value = $value === '' || $value === null ? null : filter_var($value, FILTER_VALIDATE_INT);
                 if ($value === false || ($value !== null && $value < 0)) throw new RuntimeException('A numeric field contains an invalid value.');
             }
@@ -56,6 +56,10 @@ final class ContentRepository
             if ($field === 'slug') $value = $this->slug((string) $value);
             if ($field === 'price_ugx' && $value === null) $value = 0;
             if ($field === 'sort_order' && $value === null) $value = 0;
+            if ($field === 'quiz_time_limit_minutes' && $value === null) $value = 0;
+            if ($field === 'quiz_pass_mark' && $value === null) $value = 70;
+            if ($field === 'quiz_time_limit_minutes' && $value > 180) throw new RuntimeException('Quiz time limit cannot exceed 180 minutes.');
+            if ($field === 'quiz_pass_mark' && ($value < 1 || $value > 100)) throw new RuntimeException('Quiz pass mark must be between 1 and 100.');
             if ($field === 'options_json') {
                 $options = is_array($value) ? $value : json_decode((string) $value, true);
                 if (!is_array($options) || count($options) < 2 || count($options) > 10) throw new RuntimeException('A quiz question needs between 2 and 10 options.');
@@ -64,6 +68,10 @@ final class ContentRepository
                 $value = json_encode($options, JSON_THROW_ON_ERROR);
             }
             $data[$field] = $value;
+        }
+        if ($type === 'questions' && isset($data['options_json'], $data['correct_answer'])) {
+            $options = json_decode((string) $data['options_json'], true);
+            if (!is_array($options) || !in_array(trim((string) $data['correct_answer']), $options, true)) throw new RuntimeException('The correct answer must match one of the question options exactly.');
         }
         if ($type === 'courses' || $type === 'products') {
             $data['slug'] = $this->uniqueSlug($table, (string) ($data['slug'] ?? $data['title'] ?? ''), $id);

@@ -121,7 +121,7 @@ $seoDescription = 'Manage your SmartStudyPro account and student profile.';
 <section class="account-card p-4">
 <div class="eyebrow">Your learning</div><h2 class="h4 mb-2">Student portal</h2>
 <p class="meta mb-3">Your new account is ready. Course enrolments, lesson progress, bookmarks and learning history will appear here as the learning engine is migrated in Phase 4.</p>
-<a href="courses.php" class="btn btn-outline-primary rounded-pill fw-semibold px-3">Explore courses <i class="bi bi-arrow-right ms-1"></i></a>
+<div class="d-flex flex-wrap gap-2"><a href="learning.php" class="btn btn-outline-primary rounded-pill fw-semibold px-3">Open my learning <i class="bi bi-arrow-right ms-1"></i></a><a href="courses.php" class="btn btn-outline-secondary rounded-pill fw-semibold px-3">Explore courses</a></div>
 </section>
 
 <section class="d-flex justify-content-between align-items-center mt-4 px-2">
