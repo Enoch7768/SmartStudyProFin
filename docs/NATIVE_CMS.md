@@ -30,4 +30,4 @@ Uploads are stored below the private storage directory, not in a public upload f
 
 ## Current migration boundary
 
-This phase adds the native CMS schema, admin interface, repository, and media handling. Public website pages still use legacy Cockpit calls while their read paths are migrated and visually verified. Keep the Cockpit runtime and existing media assets until that public-page migration is complete. No existing Cockpit records are imported because the old database contents are not available to the project owner.
+This phase adds the native CMS schema, admin interface, repository, and media handling. Home, About, Courses, Course Details, Products, Product Details, Contact, and booking item validation now read from the native SQLite CMS. The study portal and quiz grading still depend on the legacy Cockpit learning-content structure and are scheduled for the learning-engine migration. Keep the Cockpit runtime and original media assets until that migration is complete. No existing Cockpit records are imported because the old database contents are not available to the project owner.
