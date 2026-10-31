@@ -274,7 +274,7 @@ $siteUrl = 'https://smartstudypro.com';
 
   <?php include 'nav.php'; ?>
 
-  <main class="main py-5 d-flex align-items-center min-vh-100">
+  <main id="main-content" class="main py-5 d-flex align-items-center min-vh-100">
     <div class="container d-flex justify-content-center" data-aos="fade-up">
       
       <div class="ssp-auth-card p-4 p-md-5">
