@@ -1,23 +1,18 @@
-<?php 
-require_once 'cms-init.php'; 
+<?php
+declare(strict_types=1);
 
-$contact = null;
+require_once __DIR__ . '/bootstrap/app.php';
 
-try {
-    if (function_exists('cockpit')) {
-        $contact = cockpit('content')->item('ContactDetails'); 
-    }
-} catch (Exception $e) {
-    $contact = null; 
-}
+$content = new \App\Cms\PublicContent(\App\Core\Database::connect());
+$contact = $content->contact();
 
-$phone   = !empty($contact['phone'])   ? strip_tags($contact['phone'])   : '+256 704 416250';
-$email   = !empty($contact['email'])   ? strip_tags($contact['email'])   : 'smartstudypro36@gmail.com';
-$address = !empty($contact['address']) ? strip_tags($contact['address']) : 'Kampala, Uganda';
+$phone = strip_tags($contact['phone']);
+$email = strip_tags($contact['email']);
+$address = strip_tags($contact['address']);
 
-$seoTitle       = 'Contact Us | SmartStudyPro Uganda';
+$seoTitle = 'Contact Us | SmartStudyPro Uganda';
 $seoDescription = 'Get in touch with SmartStudyPro for inquiries about our online courses, private tutoring, and educational packages in Kampala, Uganda.';
-$siteUrl        = "https://smartstudypro.com";
+$siteUrl = 'https://smartstudypro.com';
 ?>
 <!DOCTYPE html>
 <html lang="en">
