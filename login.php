@@ -42,11 +42,11 @@ $siteUrl = 'https://smartstudypro.com';
 <head>
   <script>
     (function() {
-      const savedTheme = localStorage.getItem('ssp-theme');
-      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      }
+      try {
+        const savedTheme = localStorage.getItem('ssp-theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) document.documentElement.setAttribute('data-theme', 'dark');
+      } catch (error) {}
     })();
   </script>
   <meta charset="utf-8">
@@ -300,16 +300,16 @@ $siteUrl = 'https://smartstudypro.com';
 
         <form method="POST">
           <input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>">
-          <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirect) ?>">
+          <input type="hidden" name="redirect" value="<?= Security::escape($redirect) ?>">
           
           <div class="mb-3">
-            <label class="form-label small fw-semibold ssp-form-label">Email Address</label>
-            <input type="email" name="email" class="form-control rounded-3 py-2" placeholder="name@example.com" required>
+            <label for="login-email" class="form-label small fw-semibold ssp-form-label">Email Address</label>
+            <input id="login-email" type="email" name="email" autocomplete="username" maxlength="254" class="form-control rounded-3 py-2" placeholder="name@example.com" required>
           </div>
           
           <div class="mb-4">
-            <label class="form-label small fw-semibold ssp-form-label">Password</label>
-            <input type="password" name="password" class="form-control rounded-3 py-2" placeholder="••••••••" required>
+            <label for="login-password" class="form-label small fw-semibold ssp-form-label">Password</label>
+            <input id="login-password" type="password" name="password" autocomplete="current-password" maxlength="1024" class="form-control rounded-3 py-2" placeholder="••••••••" required>
           </div>
           
           <button type="submit" name="login" class="btn-ssp-primary w-100 py-2 fs-6">Sign In</button>
