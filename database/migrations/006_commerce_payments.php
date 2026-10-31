@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+return static function (PDO $pdo): void {
+    $pdo->exec("CREATE TABLE orders (id INTEGER PRIMARY KEY AUTOINCREMENT, public_id TEXT NOT NULL UNIQUE, user_id INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'cancelled', 'refunded', 'partially_refunded')), currency TEXT NOT NULL DEFAULT 'UGX' CHECK (currency = 'UGX'), subtotal_ugx INTEGER NOT NULL CHECK (subtotal_ugx >= 0), total_ugx INTEGER NOT NULL CHECK (total_ugx >= 0), customer_name TEXT NOT NULL, customer_email TEXT NOT NULL, created_at TEXT NOT NULL, paid_at TEXT, updated_at TEXT NOT NULL, FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT)");
+    $pdo->exec("CREATE TABLE order_items (id INTEGER PRIMARY KEY AUTOINCREMENT, order_id INTEGER NOT NULL, item_type TEXT NOT NULL CHECK (item_type IN ('course', 'product')), item_id INTEGER NOT NULL, item_title TEXT NOT NULL, product_type TEXT, product_file_media_id INTEGER, unit_price_ugx INTEGER NOT NULL CHECK (unit_price_ugx >= 0), quantity INTEGER NOT NULL CHECK (quantity BETWEEN 1 AND 20), line_total_ugx INTEGER NOT NULL CHECK (line_total_ugx >= 0), created_at TEXT NOT NULL, FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE, FOREIGN KEY (product_file_media_id) REFERENCES media_assets(id) ON DELETE SET NULL)");
+    $pdo->exec("CREATE TABLE payments (id INTEGER PRIMARY KEY AUTOINCREMENT, order_id INTEGER NOT NULL, provider TEXT NOT NULL CHECK (provider IN ('paypal', 'dpo')), provider_order_id TEXT, provider_transaction_id TEXT, idempotency_key TEXT NOT NULL UNIQUE, amount_ugx INTEGER NOT NULL CHECK (amount_ugx >= 0), currency TEXT NOT NULL DEFAULT 'UGX' CHECK (currency = 'UGX'), status TEXT NOT NULL DEFAULT 'created' CHECK (status IN ('created', 'pending', 'paid', 'failed', 'cancelled', 'refunded')), provider_status TEXT NOT NULL DEFAULT '', metadata_json TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL, updated_at TEXT NOT NULL, paid_at TEXT, FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE RESTRICT)");
+    $pdo->exec("CREATE UNIQUE INDEX idx_payments_provider_order ON payments(provider, provider_order_id) WHERE provider_order_id IS NOT NULL");
+    $pdo->exec("CREATE UNIQUE INDEX idx_payments_provider_tx ON payments(provider, provider_transaction_id) WHERE provider_transaction_id IS NOT NULL");
+    $pdo->exec("CREATE INDEX idx_orders_user_created ON orders(user_id, created_at DESC)");
+    $pdo->exec("CREATE INDEX idx_orders_status_created ON orders(status, created_at DESC)");
+    $pdo->exec("CREATE INDEX idx_order_items_order ON order_items(order_id, id)");
+    $pdo->exec("CREATE TABLE payment_events (id INTEGER PRIMARY KEY AUTOINCREMENT, provider TEXT NOT NULL CHECK (provider IN ('paypal', 'dpo')), provider_event_id TEXT NOT NULL, payment_id INTEGER, payload_hash TEXT NOT NULL, signature_verified INTEGER NOT NULL CHECK (signature_verified IN (0, 1)), processed INTEGER NOT NULL DEFAULT 0 CHECK (processed IN (0, 1)), received_at TEXT NOT NULL, processed_at TEXT, UNIQUE(provider, provider_event_id), FOREIGN KEY (payment_id) REFERENCES payments(id) ON DELETE SET NULL)");
+    $pdo->exec("CREATE TABLE refunds (id INTEGER PRIMARY KEY AUTOINCREMENT, payment_id INTEGER NOT NULL, provider_refund_id TEXT, amount_ugx INTEGER NOT NULL CHECK (amount_ugx > 0), reason TEXT NOT NULL DEFAULT '', status TEXT NOT NULL CHECK (status IN ('pending', 'succeeded', 'failed')), created_at TEXT NOT NULL, FOREIGN KEY (payment_id) REFERENCES payments(id) ON DELETE RESTRICT)");
+    $pdo->exec('CREATE INDEX idx_payment_events_payment ON payment_events(payment_id, received_at)');
+    $pdo->exec('CREATE INDEX idx_refunds_payment ON refunds(payment_id, created_at)');
+};
