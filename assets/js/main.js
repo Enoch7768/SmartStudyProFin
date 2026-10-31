@@ -27,7 +27,7 @@
     }
   }
 
-  if (mobileNavToggleBtn) {
+  if (mobileNavToggleBtn && body) {
     mobileNavToggleBtn.addEventListener('click', function() {
       setMobileNav(!body.classList.contains('mobile-nav-active'));
     });
@@ -71,20 +71,23 @@
 
   if (scrollTop) scrollTop.addEventListener('click', function(event) {
     event.preventDefault();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const reducedMotion = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
   });
 
   window.addEventListener('load', toggleScrollTop);
   document.addEventListener('scroll', toggleScrollTop, { passive: true });
 
-  if (typeof AOS !== 'undefined' && AOS && typeof AOS.init === 'function') {
+  const reducedMotion = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!reducedMotion && typeof AOS !== 'undefined' && AOS && typeof AOS.init === 'function') {
     window.addEventListener('load', function() {
       AOS.init({ duration: 600, easing: 'ease-in-out', once: true, mirror: false });
     });
   }
 
-  if (typeof GLightbox === 'function') GLightbox({ selector: '.glightbox' });
-  if (typeof PureCounter === 'function') new PureCounter();
+  if (!reducedMotion && typeof GLightbox === 'function') GLightbox({ selector: '.glightbox' });
+  if (!reducedMotion && typeof PureCounter === 'function') new PureCounter();
 
   function initSwiper() {
     if (typeof Swiper !== 'function') return;
