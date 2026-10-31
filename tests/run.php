@@ -48,6 +48,26 @@ try {
     $pdo->exec("INSERT INTO password_reset_tokens (user_id, token_hash, expires_at, created_at) VALUES ($userId, 'test-hash', '2099-01-01 00:00:00', '$now')");
     $pdo->exec('DELETE FROM users WHERE id = ' . $userId);
     if ((int) $pdo->query("SELECT COUNT(*) FROM password_reset_tokens WHERE token_hash = 'test-hash'")->fetchColumn() !== 0) throw new RuntimeException('Foreign-key cascade failed.');
+    $root = dirname(__DIR__);
+    $privateStorage = $temporary . '/private';
+    putenv('APP_STORAGE_PATH=' . $privateStorage);
+    putenv('DB_PATH=' . $privateStorage . '/installed.sqlite');
+    Config::load($root);
+    if (!Installer::storageIsPrivate($root) || !Installer::databaseIsPrivate()) throw new RuntimeException('Installer accepted an unsafe storage path.');
+    Installer::install($root, 'Fresh Administrator', 'fresh-admin@example.test', 'a-very-strong-install-password');
+    if (!Installer::isInstalled()) throw new RuntimeException('Installer did not create its lock.');
+    $installedDb = Database::connect();
+    $admin = $installedDb->query("SELECT id, password_hash FROM users WHERE email = 'fresh-admin@example.test'")->fetch();
+    if (!$admin || !password_verify('a-very-strong-install-password', $admin['password_hash'])) throw new RuntimeException('Installer did not create the administrator securely.');
+    if (!Auth::hasRole($installedDb, (int) $admin['id'], 'administrator')) throw new RuntimeException('Installer did not assign the administrator role.');
+    if (strlen(trim((string) file_get_contents($privateStorage . '/app.key'))) !== 64) throw new RuntimeException('Installer did not generate a valid application key.');
+    $reinstallRejected = false;
+    try {
+        Installer::install($root, 'Second Admin', 'second-admin@example.test', 'another-strong-password');
+    } catch (RuntimeException) {
+        $reinstallRejected = true;
+    }
+    if (!$reinstallRejected) throw new RuntimeException('Installer allowed a second first-run installation.');
     echo "PASS SQLite migrations and idempotency\nPASS role and permission assignment\nPASS login throttling and valid authentication\nPASS case-insensitive email uniqueness\nPASS foreign-key cascade\n";
 } finally {
     foreach (glob($temporary . '/*') ?: [] as $file) {
