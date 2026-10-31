@@ -26,8 +26,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                 $service->updateProfile((int) $user['id'], (string) ($_POST['name'] ?? ''), (string) ($_POST['phone'] ?? ''), (string) ($_POST['location'] ?? ''), (string) ($_POST['bio'] ?? ''), (string) ($_POST['preferred_theme'] ?? 'system'));
                 $success = 'Your profile has been updated.';
             } elseif ($action === 'password') {
-                $service->changePassword((int) $user['id'], (string) ($_POST['current_password'] ?? ''), (string) ($_POST['new_password'] ?? ''));
-                App\Core\Session::regenerate();
+                $newPassword = (string) ($_POST['new_password'] ?? '');
+                $service->changePassword((int) $user['id'], (string) ($_POST['current_password'] ?? ''), $newPassword);
+                if (!Auth::attempt($pdo, (string) $user['email'], $newPassword)) throw new RuntimeException('Your password changed. Please sign in again.');
                 $success = 'Your password has been changed. Other password reset links have been invalidated.';
             }
         } catch (Throwable $exception) {
