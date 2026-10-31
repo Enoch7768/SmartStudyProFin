@@ -44,6 +44,7 @@ try {
     if (!$content->find('questions', $questionId)) throw new RuntimeException('Quiz question creation failed.');
     $pdo->exec("UPDATE cms_courses SET price_ugx = 0 WHERE id = " . $courseId);
     $learning = new App\Learning\LearningService($pdo);
+    if ($learning->hasAccess($userId, $courseId)) throw new RuntimeException('A student gained access before enrolment.');
     $learning->enrolFreeCourse($userId, $courseId);
     if (!$learning->hasAccess($userId, $courseId)) throw new RuntimeException('Free course enrolment did not grant access.');
     $outline = $learning->outline($userId, $courseId);
@@ -53,10 +54,19 @@ try {
     $resourceId = (int) $pdo->lastInsertId();
     $content->save('lessons', $lessonId, ['resource_media_id' => $resourceId, 'resource_title' => 'Science notes', 'quiz_time_limit_minutes' => 5, 'quiz_pass_mark' => 75]);
     if (!$learning->media($userId, $resourceId)) throw new RuntimeException('An enrolled student could not resolve their private lesson resource.');
+    $insert->execute(['name' => 'Outside Student', 'email' => 'outside@example.test', 'password_hash' => password_hash('another-strong-password', PASSWORD_DEFAULT), 'status' => 'active', 'created_at' => $now, 'updated_at' => $now]);
+    $outsideUserId = (int) $pdo->lastInsertId();
+    if ($learning->hasAccess($outsideUserId, $courseId) || $learning->media($outsideUserId, $resourceId) !== null) throw new RuntimeException('A different student accessed another student course resource.');
     $learning->startLesson($userId, $courseId, $lessonId);
     $learning->updatePosition($userId, $courseId, $lessonId, 95);
     $learning->toggleBookmark($userId, $courseId, $lessonId);
     if (count($learning->dashboard($userId)['bookmarks']) !== 1) throw new RuntimeException('Lesson bookmark did not persist.');
+    $quizData = $learning->quizQuestions($userId, $courseId, $lessonId);
+    App\\Core\\Session::start();
+    $_SESSION['quiz_started_' . $lessonId] = time() - 400;
+    $expiredQuizRejected = false;
+    try { $learning->submitQuiz($userId, $courseId, $lessonId, []); } catch (RuntimeException) { $expiredQuizRejected = true; }
+    if (!$expiredQuizRejected) throw new RuntimeException('An expired timed quiz was accepted.');
     $quizData = $learning->quizQuestions($userId, $courseId, $lessonId);
     if (count($quizData['questions']) !== 1 || $quizData['questions'][0]['options'] !== ['Study of nature', 'A sport']) throw new RuntimeException('Quiz question bank returned invalid options.');
     $quizResult = $learning->submitQuiz($userId, $courseId, $lessonId, [(string) $questionId => 'Study of nature']);
