@@ -9,10 +9,12 @@ return static function (PDO $pdo): void {
     $pdo->exec("CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT NOT NULL COLLATE NOCASE UNIQUE, password_hash TEXT, google_subject TEXT UNIQUE, avatar_url TEXT, status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'suspended', 'pending')), email_verified_at TEXT, last_login_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)");
     $pdo->exec("CREATE TABLE user_roles (user_id INTEGER NOT NULL, role_id INTEGER NOT NULL, assigned_at TEXT NOT NULL, PRIMARY KEY (user_id, role_id), FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE, FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE RESTRICT)");
     $pdo->exec("CREATE TABLE password_reset_tokens (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, token_hash TEXT NOT NULL UNIQUE, expires_at TEXT NOT NULL, used_at TEXT, created_at TEXT NOT NULL, FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE)");
+    $pdo->exec("CREATE TABLE login_attempts (id INTEGER PRIMARY KEY AUTOINCREMENT, email_hash TEXT NOT NULL, ip_hash TEXT NOT NULL, attempted_at TEXT NOT NULL)");
     $pdo->exec("CREATE TABLE audit_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, actor_user_id INTEGER, action TEXT NOT NULL, entity_type TEXT, entity_id TEXT, details_json TEXT, ip_address TEXT, created_at TEXT NOT NULL, FOREIGN KEY (actor_user_id) REFERENCES users(id) ON DELETE SET NULL)");
     $pdo->exec('CREATE INDEX idx_users_status ON users(status)');
     $pdo->exec('CREATE INDEX idx_password_reset_user_expiry ON password_reset_tokens(user_id, expires_at)');
     $pdo->exec('CREATE INDEX idx_audit_logs_created_at ON audit_logs(created_at)');
+    $pdo->exec('CREATE INDEX idx_login_attempts_lookup ON login_attempts(email_hash, ip_hash, attempted_at)');
     $now = gmdate('Y-m-d H:i:s');
     $role = $pdo->prepare('INSERT INTO roles (name, slug, created_at) VALUES (:name, :slug, :created_at)');
     $role->execute(['name' => 'Administrator', 'slug' => 'administrator', 'created_at' => $now]);
