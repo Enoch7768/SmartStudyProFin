@@ -69,9 +69,11 @@ try {
     try { $learning->submitQuiz($userId, $courseId, $lessonId, []); } catch (RuntimeException) { $expiredQuizRejected = true; }
     if (!$expiredQuizRejected) throw new RuntimeException('An expired timed quiz was accepted.');
     $quizData = $learning->quizQuestions($userId, $courseId, $lessonId);
-    $quizQuestionCount = count($quizData['questions']);
-    $quizOptions = $quizData['questions'][0]['options'] ?? [];
-    if ($quizQuestionCount !== 1 || $quizOptions !== array('Study of nature', 'A sport')) throw new RuntimeException('Quiz question bank returned invalid options.');
+    $quizQuestions = $quizData["questions"];
+    $quizQuestionCount = count($quizQuestions);
+    $firstQuizQuestion = reset($quizQuestions);
+    $quizOptions = $firstQuizQuestion["options"];
+    if ($quizQuestionCount !== 1 || $quizOptions !== array("Study of nature", "A sport")) throw new RuntimeException('Quiz question bank returned invalid options.');
     $submittedAnswers = [];
     $submittedAnswers[(string) $questionId] = 'Study of nature';
     $quizResult = $learning->submitQuiz($userId, $courseId, $lessonId, $submittedAnswers);
