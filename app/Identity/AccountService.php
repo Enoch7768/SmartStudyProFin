@@ -17,7 +17,7 @@ final class AccountService
     {
         $name = trim($name);
         $email = strtolower(trim($email));
-        if ($name === '' || mb_strlen($name) > 120) throw new RuntimeException('Enter a name between 1 and 120 characters.');
+        if ($name === '' || strlen($name) > 120) throw new RuntimeException('Enter a name between 1 and 120 characters.');
         if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 254) throw new RuntimeException('Enter a valid email address.');
         if (strlen($password) < 12 || strlen($password) > 1024) throw new RuntimeException('Use a password with at least 12 characters.');
 
@@ -54,8 +54,8 @@ final class AccountService
         $phone = trim($phone);
         $location = trim($location);
         $bio = trim($bio);
-        if ($name === '' || mb_strlen($name) > 120) throw new RuntimeException('Enter a name between 1 and 120 characters.');
-        if (strlen($phone) > 40 || mb_strlen($location) > 120 || mb_strlen($bio) > 500) throw new RuntimeException('One or more profile fields are too long.');
+        if ($name === '' || strlen($name) > 120) throw new RuntimeException('Enter a name between 1 and 120 characters.');
+        if (strlen($phone) > 40 || strlen($location) > 120 || strlen($bio) > 500) throw new RuntimeException('One or more profile fields are too long.');
         if (!in_array($theme, ['system', 'light', 'dark'], true)) throw new RuntimeException('Choose a valid theme preference.');
         $now = gmdate('Y-m-d H:i:s');
         $this->pdo->beginTransaction();
