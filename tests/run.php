@@ -70,7 +70,7 @@ try {
     if (!$expiredQuizRejected) throw new RuntimeException('An expired timed quiz was accepted.');
     $quizData = $learning->quizQuestions($userId, $courseId, $lessonId);
     $submittedAnswers = [];
-    $submittedAnswers[(string) $questionId] = 'Study of nature';
+    $submittedAnswers[$questionId] = 'Study of nature';
     $quizResult = $learning->submitQuiz($userId, $courseId, $lessonId, $submittedAnswers);
     if (count($learning->attempts($userId, $lessonId)) !== 1) throw new RuntimeException('Quiz attempt history was not saved.');
     $learning->completeLesson($userId, $courseId, $lessonId);
