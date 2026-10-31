@@ -10,6 +10,7 @@ if (!extension_loaded('pdo_sqlite')) {
 require dirname(__DIR__) . '/bootstrap/app.php';
 
 use App\Core\Auth;
+use App\Identity\AccountService;
 use App\Core\Config;
 use App\Core\Database;
 use App\Core\Installer;
