@@ -56,6 +56,8 @@ jobs:
         run: php tests/content-security.php
       - name: Validate production SQLite query plans
         run: php tests/performance.php
+      - name: Test production security configuration
+        run: php tests/security.php
       - name: Validate release workflow and package contents
         run: |
           ruby -e "require 'yaml'; YAML.load_file('.github/workflows/release.yml')"
