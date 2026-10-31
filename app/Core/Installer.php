@@ -82,6 +82,8 @@ final class Installer
         if (is_file($keyPath)) {
             $storedKey = trim((string) file_get_contents($keyPath));
             if (preg_match('/^[a-f0-9]{64}$/i', $storedKey) !== 1) throw new RuntimeException('The stored application key is invalid.');
+            $configuredKey = (string) Config::get('app.key');
+            if ($configuredKey !== '' && !hash_equals($storedKey, $configuredKey)) throw new RuntimeException('APP_KEY does not match the stored application key.');
         } else {
             $configuredKey = (string) Config::get('app.key');
             if ($configuredKey !== '' && preg_match('/^[a-f0-9]{64}$/i', $configuredKey) !== 1) throw new RuntimeException('APP_KEY must contain exactly 64 hexadecimal characters.');
