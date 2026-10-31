@@ -35,6 +35,8 @@ try {
     $verified = $service->verify($created['id']);
     if (!$verified['valid'] || (int) $verified['file_count'] !== 4) throw new RuntimeException('A complete backup did not verify.');
     if (count($service->all()) !== 1) throw new RuntimeException('Backup listing did not return the created backup.');
+    $backupPdo = new PDO('sqlite:' . $storage . '/backups/' . $created['id'] . '/database.sqlite');
+    if ($backupPdo->query('SELECT value FROM sample_records')->fetchColumn() !== 'preserved data') throw new RuntimeException('The database snapshot did not preserve committed records.');
 
     $backupMedia = $storage . '/backups/' . $created['id'] . '/media/2026/10/lesson.pdf';
     file_put_contents($backupMedia, 'tampered media');
