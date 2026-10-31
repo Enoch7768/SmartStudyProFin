@@ -254,6 +254,7 @@ $ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/
               <h3 class="text-center mb-4 fw-bold" style="color: var(--ssp-navy);">Reservation Form</h3>
               
               <form action="booking.php" method="post">
+                  <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
                   <input type="hidden" name="course_id" value="<?= htmlspecialchars($courseId) ?>">
                   <input type="hidden" name="price" value="<?= htmlspecialchars($displayPrice) ?>">
                   <input type="hidden" name="service" value="<?= htmlspecialchars($displayTitle) ?>">
