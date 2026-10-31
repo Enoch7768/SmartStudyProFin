@@ -69,6 +69,10 @@ final class ContentRepository
             }
             $data[$field] = $value;
         }
+        if ($type === 'questions' && isset($data['options_json'], $data['correct_answer'])) {
+            $options = json_decode((string) $data['options_json'], true);
+            if (!is_array($options) || !in_array(trim((string) $data['correct_answer']), $options, true)) throw new RuntimeException('The correct answer must match one of the question options exactly.');
+        }
         if ($type === 'courses' || $type === 'products') {
             $data['slug'] = $this->uniqueSlug($table, (string) ($data['slug'] ?? $data['title'] ?? ''), $id);
         }
