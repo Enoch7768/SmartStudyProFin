@@ -133,6 +133,13 @@ final class CommerceService
         }
     }
 
+    public function providerPayment(string $provider, string $reference): ?array
+    {
+        $query = $this->pdo->prepare('SELECT p.*, o.id AS order_id, o.public_id, o.user_id, o.total_ugx, o.currency AS order_currency, o.status AS order_status FROM payments p INNER JOIN orders o ON o.id = p.order_id WHERE p.provider = :provider AND (p.provider_order_id = :reference OR o.public_id = :reference) ORDER BY p.id DESC LIMIT 1');
+        $query->execute(['provider' => $provider, 'reference' => $reference]);
+        return $query->fetch() ?: null;
+    }
+
     public function history(int $userId): array
     {
         $query = $this->pdo->prepare('SELECT id, public_id, status, currency, total_ugx, created_at, paid_at FROM orders WHERE user_id = :user_id ORDER BY id DESC LIMIT 50');
