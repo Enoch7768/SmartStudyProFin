@@ -14,5 +14,6 @@ spl_autoload_register(static function (string $class): void {
     if (is_file($path)) require $path;
 });
 Config::load($root);
+Security::sendHeaders();
 Session::start();
 return ['root' => $root, 'config' => Config::all()];
