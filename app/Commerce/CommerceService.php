@@ -123,7 +123,7 @@ final class CommerceService
             }
             if ($payment['order_status'] !== 'pending' || !in_array($payment['status'], ['created', 'pending'], true)) throw new RuntimeException('This order is no longer awaiting payment.');
             $now = gmdate('Y-m-d H:i:s');
-            $event = $this->pdo->prepare('INSERT INTO payment_events (provider, provider_event_id, payment_id, payload_hash, signature_verified, processed, received_at, processed_at) VALUES (:provider, :event, :payment_id, :hash, 1, 1, :received, :processed)');
+            $event = $this->pdo->prepare('INSERT INTO payment_events (provider, provider_event_id, payment_id, payload_hash, provider_verified, processed, received_at, processed_at) VALUES (:provider, :event, :payment_id, :hash, 1, 1, :received, :processed)');
             $event->execute(['provider' => $provider, 'event' => $eventId, 'payment_id' => $paymentId, 'hash' => hash('sha256', $providerReference . '|' . $transactionReference . '|' . $amount . '|' . $currency), 'received' => $now, 'processed' => $now]);
             $update = $this->pdo->prepare("UPDATE payments SET status = 'paid', provider_transaction_id = :transaction_id, provider_status = :provider_status, paid_at = :paid_at, updated_at = :updated_at WHERE id = :id");
             $update->execute(['transaction_id' => $transactionReference, 'provider_status' => $providerStatus, 'paid_at' => $now, 'updated_at' => $now, 'id' => $paymentId]);
