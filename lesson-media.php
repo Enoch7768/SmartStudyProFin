@@ -76,7 +76,7 @@ if ($handle === false) {
 }
 fseek($handle, $start);
 $remaining = $end - $start + 1;
-while ($remaining > 0 && !feof($handle)) {
+while ($method !== 'HEAD' && $remaining > 0 && !feof($handle)) {
     $chunk = fread($handle, min(8192, $remaining));
     if ($chunk === false || $chunk === '') break;
     echo $chunk;
@@ -84,4 +84,3 @@ while ($remaining > 0 && !feof($handle)) {
     flush();
 }
 fclose($handle);
-if ($method === 'HEAD') exit;
