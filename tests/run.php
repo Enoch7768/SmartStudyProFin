@@ -11,6 +11,7 @@ require dirname(__DIR__) . '/bootstrap/app.php';
 
 use App\Core\Auth;
 use App\Identity\AccountService;
+use App\Identity\LegalAcceptanceService;
 use App\Core\Config;
 use App\Core\Database;
 use App\Core\Installer;
@@ -142,6 +143,10 @@ try {
     $acceptances->execute(['user_id' => $studentId]);
     $acceptedDocuments = $acceptances->fetchAll();
     if (count($acceptedDocuments) !== 2 || $acceptedDocuments[0]['document'] !== 'privacy' || $acceptedDocuments[1]['document'] !== 'terms' || $acceptedDocuments[0]['version'] !== '1.0.0' || $acceptedDocuments[0]['ip_hash'] !== hash('sha256', '127.0.0.1') || $acceptedDocuments[0]['user_agent_hash'] !== hash('sha256', 'test-agent')) throw new RuntimeException('Versioned legal acceptance records were not stored securely.');
+    $legalAcceptance = new LegalAcceptanceService($pdo);
+    if (!$legalAcceptance->hasCurrentAcceptance($studentId) || $legalAcceptance->hasCurrentAcceptance($userId)) throw new RuntimeException('Current legal acceptance was not checked correctly.');
+    $legalAcceptance->acceptCurrent($userId, '127.0.0.2', 'admin-test-agent');
+    if (!$legalAcceptance->hasCurrentAcceptance($userId)) throw new RuntimeException('An existing account could not accept current legal versions.');
     if (!Auth::hasRole($pdo, $studentId, 'student') || Auth::hasRole($pdo, $studentId, 'administrator')) throw new RuntimeException('Student registration assigned an incorrect role.');
     $studentProfile = $accounts->profile($studentId);
     if (($studentProfile['email'] ?? '') !== 'student@example.test') throw new RuntimeException('Student profile retrieval failed.');
