@@ -34,6 +34,16 @@ final class CommerceService
             $query->execute(['id' => $id]);
             $item = $query->fetch();
             if (!$item) throw new RuntimeException('A cart item is no longer available.');
+            if ($type === 'course') {
+                $access = $this->pdo->prepare("SELECT 1 FROM course_enrolments WHERE user_id = :user_id AND course_id = :course_id AND status IN ('active', 'completed') LIMIT 1");
+                $access->execute(['user_id' => $userId, 'course_id' => $id]);
+                if ($access->fetchColumn()) throw new RuntimeException('You already have access to this course.');
+            }
+            if ($type === 'product' && ($item['product_type'] ?? '') === 'online') {
+                $asset = $this->pdo->prepare("SELECT id FROM media_assets WHERE id = :id AND visibility = 'private' AND mime_type = 'application/pdf'");
+                $asset->execute(['id' => (int) $item['product_file_media_id']]);
+                if (!$asset->fetchColumn()) throw new RuntimeException('The digital product file must be a private PDF in the media library.');
+            }
             $price = (int) $item['price_ugx'];
             if ($price < 0 || $price > 1000000000) throw new RuntimeException('A product price is invalid.');
             if ($type === 'product' && ($item['product_type'] ?? '') === 'online' && empty($item['product_file_media_id'])) throw new RuntimeException('This digital product is not configured for delivery yet.');
