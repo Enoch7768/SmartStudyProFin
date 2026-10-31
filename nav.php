@@ -141,6 +141,9 @@
         <li><a href="courses.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'courses.php') ? 'active' : '' ?>">Courses</a></li>
         <li><a href="learning.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'learning.php') ? 'active' : '' ?>">My Learning</a></li>
         <li><a href="assistant.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'assistant.php') ? 'active' : '' ?>">AI Tutor</a></li>
+        <li><a href="notifications.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'notifications.php') ? 'active' : '' ?>">Notifications</a></li>
+        <li><a href="achievements.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'achievements.php') ? 'active' : '' ?>">Achievements</a></li>
+        <li><a href="certificates.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'certificates.php') ? 'active' : '' ?>">Certificates</a></li>
         <li><a href="products.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'products.php') ? 'active' : '' ?>">Products</a></li>
         <li><a href="contact.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'contact.php') ? 'active' : '' ?>">Contact</a></li>
       </ul>
