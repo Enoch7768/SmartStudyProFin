@@ -42,9 +42,9 @@ final class Config
                 'timezone' => (string) $read('APP_TIMEZONE', 'Africa/Kampala'),
                 'key' => (string) $read('APP_KEY', $local['app_key'] ?? $storedKey),
                 'environment' => (string) $read('APP_ENV', 'production'),
-            'mail' => ['from' => (string) $read('APP_MAIL_FROM', 'no-reply@smartstudypro.com')],
                 'debug' => filter_var($read('APP_DEBUG', 'false'), FILTER_VALIDATE_BOOL),
             ],
+            'mail' => ['from' => (string) $read('APP_MAIL_FROM', 'no-reply@smartstudypro.com')],
             'storage' => ['path' => $storage],
             'database' => ['path' => $database],
         ];
