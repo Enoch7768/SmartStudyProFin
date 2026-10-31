@@ -40,7 +40,7 @@ final class LearningService
 
     public function hasAccess(int $userId, int $courseId): bool
     {
-        $statement = $this->pdo->prepare("SELECT 1 FROM course_enrolments e INNER JOIN cms_courses c ON c.id = e.course_id WHERE e.user_id = :user_id AND e.course_id = :course_id AND e.status IN ('active', 'completed') AND c.status = 'published' AND m.visibility = 'private' LIMIT 1");
+        $statement = $this->pdo->prepare("SELECT 1 FROM course_enrolments e INNER JOIN cms_courses c ON c.id = e.course_id WHERE e.user_id = :user_id AND e.course_id = :course_id AND e.status IN ('active', 'completed') AND c.status = 'published' LIMIT 1");
         $statement->execute(['user_id' => $userId, 'course_id' => $courseId]);
         return (bool) $statement->fetchColumn();
     }
