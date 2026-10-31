@@ -10,6 +10,7 @@ if (!extension_loaded('pdo_sqlite')) {
 require dirname(__DIR__) . '/bootstrap/app.php';
 
 use App\Core\Auth;
+use App\Identity\AccountService;
 use App\Core\Config;
 use App\Core\Database;
 use App\Core\Installer;
@@ -22,7 +23,7 @@ if (!mkdir($temporary, 0700, true)) throw new RuntimeException('Could not create
 try {
     $pdo = Database::connect($temporary . '/test.sqlite');
     $migrationPath = dirname(__DIR__) . '/database/migrations';
-    if (Migrator::run($pdo, $migrationPath) !== ['001_identity', '002_cms_content']) throw new RuntimeException('Foundation and CMS migrations did not run.');
+    if (Migrator::run($pdo, $migrationPath) !== ['001_identity', '002_cms_content', '003_student_identity']) throw new RuntimeException('Foundation and CMS migrations did not run.');
     if (Migrator::run($pdo, $migrationPath) !== []) throw new RuntimeException('Migrations are not idempotent.');
     $now = gmdate('Y-m-d H:i:s');
     $insert = $pdo->prepare('INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES (:name, :email, :password_hash, :status, :created_at, :updated_at)');
@@ -61,6 +62,28 @@ try {
     $pdo->exec('DELETE FROM login_attempts');
     if (!Auth::attempt($pdo, 'admin@example.test', 'a-strong-test-password')) throw new RuntimeException('Valid login was rejected.');
     Auth::logout();
+
+    $accounts = new AccountService($pdo);
+    $studentId = $accounts->register('Test Student', 'student@example.test', 'a-strong-student-password');
+    if (!Auth::hasRole($pdo, $studentId, 'student') || Auth::hasRole($pdo, $studentId, 'administrator')) throw new RuntimeException('Student registration assigned an incorrect role.');
+    $studentProfile = $accounts->profile($studentId);
+    if (($studentProfile['email'] ?? '') !== 'student@example.test') throw new RuntimeException('Student profile retrieval failed.');
+    $accounts->updateProfile($studentId, 'Updated Student', '+256700000000', 'Kampala', 'Learning every day', 'dark');
+    $studentProfile = $accounts->profile($studentId);
+    if (($studentProfile['name'] ?? '') !== 'Updated Student' || ($studentProfile['preferred_theme'] ?? '') !== 'dark') throw new RuntimeException('Student profile update failed.');
+    $accounts->changePassword($studentId, 'a-strong-student-password', 'a-new-strong-student-password');
+    if (!Auth::attempt($pdo, 'student@example.test', 'a-new-strong-student-password')) throw new RuntimeException('Password change did not update the credential.');
+    $accounts->changePassword($studentId, 'a-new-strong-student-password', 'a-third-strong-student-password');
+    if (Auth::user($pdo) !== null) throw new RuntimeException('A password change did not invalidate the previous session.');
+    if (!Auth::attempt($pdo, 'student@example.test', 'a-third-strong-student-password')) throw new RuntimeException('A new login after session invalidation failed.');
+    Auth::logout();
+    $resetToken = $accounts->createResetToken('student@example.test');
+    if (!is_string($resetToken) || strlen($resetToken) !== 64) throw new RuntimeException('Password reset token creation failed.');
+    if (!$accounts->resetPassword($resetToken, 'a-reset-strong-student-password')) throw new RuntimeException('Valid password reset token was rejected.');
+    if ($accounts->resetPassword($resetToken, 'another-reset-strong-password')) throw new RuntimeException('Password reset token was reusable.');
+    if (!Auth::attempt($pdo, 'student@example.test', 'a-reset-strong-student-password')) throw new RuntimeException('Password reset did not update the credential.');
+    Auth::logout();
+    if (!$accounts->allowResetRequest('student@example.test', '127.0.0.1') || !$accounts->allowResetRequest('student@example.test', '127.0.0.1') || !$accounts->allowResetRequest('student@example.test', '127.0.0.1') || $accounts->allowResetRequest('student@example.test', '127.0.0.1')) throw new RuntimeException('Password reset request throttling failed.');
     $duplicateRejected = false;
     try {
         $insert->execute(['name' => 'Duplicate', 'email' => 'ADMIN@example.test', 'password_hash' => null, 'status' => 'active', 'created_at' => $now, 'updated_at' => $now]);

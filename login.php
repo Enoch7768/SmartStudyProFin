@@ -1,41 +1,40 @@
 <?php
-require_once 'auth.php';
 
-if (is_logged_in()) {
-    header("Location: profile.php");
-    exit;
-}
+declare(strict_types=1);
 
-$redirect = $_GET['redirect'] ?? 'profile.php';
+require __DIR__ . '/bootstrap/app.php';
+
+use App\Core\Auth;
+use App\Core\Database;
+use App\Core\Security;
+
+$pdo = Database::connect();
+if (Auth::user($pdo)) Security::redirect('profile.php');
+$redirect = trim((string) ($_GET['redirect'] ?? 'profile.php'));
+if ($redirect === '' || str_starts_with($redirect, '//') || preg_match('/^[a-z][a-z0-9+.-]*:/i', $redirect) || str_contains($redirect, chr(92)) || str_contains($redirect, chr(10)) || str_contains($redirect, chr(13))) $redirect = 'profile.php';
 $error = null;
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-
-    if ($email === '' || $password === '') {
-        $error = "Please enter your email and password.";
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+    if (!Security::verifyCsrf($_POST['_csrf'] ?? null)) {
+        $error = 'Your session expired. Refresh the page and try again.';
     } else {
-        $stmt = auth_db()->prepare("SELECT * FROM users WHERE email = :email");
-        $stmt->execute([':email' => $email]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($user && !empty($user['password_hash']) && password_verify($password, $user['password_hash'])) {
-            login_user($user);
-            header("Location: " . ($_POST['redirect'] ?: 'profile.php'));
-            exit;
+        $email = trim((string) ($_POST['email'] ?? ''));
+        $password = (string) ($_POST['password'] ?? '');
+        if ($email === '' || $password === '') {
+            $error = 'Enter your email address and password.';
+        } elseif (!Auth::attempt($pdo, $email, $password)) {
+            $error = 'Invalid email or password, or too many attempts. Please try again later.';
+        } else {
+            $userId = (int) ($_SESSION['user_id'] ?? 0);
+            Security::redirect(Auth::hasRole($pdo, $userId, 'administrator') ? 'admin/cms.php' : $redirect);
         }
-        $error = "Invalid email or password.";
     }
 }
-
-$phone   = '+256 704 416250';
+$phone = '+256 704 416250';
 $emailContact = 'smartstudypro36@gmail.com';
 $address = 'Kampala, Uganda';
-
-$seoTitle       = 'Sign In | SmartStudyPro';
+$seoTitle = 'Sign In | SmartStudyPro';
 $seoDescription = 'Sign in to access your SmartStudyPro account, view your courses, and manage your learning.';
-$siteUrl        = "https://smartstudypro.com";
+$siteUrl = 'https://smartstudypro.com';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -69,8 +68,6 @@ $siteUrl        = "https://smartstudypro.com";
   <link href="assets/vendor/aos/aos.css" rel="stylesheet">
   <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
   <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
-
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <style>
     :root {
@@ -293,14 +290,7 @@ $siteUrl        = "https://smartstudypro.com";
           </div>
         <?php endif; ?>
 
-        <div class="d-flex justify-content-center mb-3">
-          <div id="g_id_onload"
-               data-client_id="<?= htmlspecialchars(GOOGLE_CLIENT_ID) ?>"
-               data-callback="handleGoogleCredential"
-               data-auto_prompt="false">
-          </div>
-          <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-text="signin_with" data-size="large" data-width="320"></div>
-        </div>
+        <p class="text-center small text-muted mb-3">Sign in securely with your SmartStudyPro account.</p>
 
         <div class="d-flex align-items-center my-3">
           <hr class="flex-grow-1 text-muted opacity-25">
@@ -309,6 +299,7 @@ $siteUrl        = "https://smartstudypro.com";
         </div>
 
         <form method="POST">
+          <input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>">
           <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirect) ?>">
           
           <div class="mb-3">
@@ -324,6 +315,7 @@ $siteUrl        = "https://smartstudypro.com";
           <button type="submit" name="login" class="btn-ssp-primary w-100 py-2 fs-6">Sign In</button>
         </form>
 
+        <p class="text-center small mb-3"><a href="reset.php" class="text-decoration-none fw-semibold" style="color: var(--ssp-orange);">Forgot your password?</a></p>
         <p class="text-center small text-muted mt-4 mb-0">
           Don't have an account? <a href="register.php" class="fw-bold text-decoration-none" style="color: var(--ssp-orange);">Create one</a>
         </p>
@@ -392,23 +384,6 @@ $siteUrl        = "https://smartstudypro.com";
   <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="assets/vendor/aos/aos.js"></script>
   <script src="assets/js/main.js"></script>
-
-  <script>
-    function handleGoogleCredential(response) {
-      fetch('google-auth.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'credential=' + encodeURIComponent(response.credential) +
-              '&redirect=' + encodeURIComponent(<?= json_encode($redirect) ?>)
-      }).then(r => r.json()).then(data => {
-        if (data.success) {
-          window.location.href = data.redirect || 'profile.php';
-        } else {
-          alert(data.message || 'Google sign-in failed. Please try again.');
-        }
-      }).catch(() => alert('Google sign-in failed. Please try again.'));
-    }
-  </script>
 
 </body>
 </html>

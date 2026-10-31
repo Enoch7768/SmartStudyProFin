@@ -44,6 +44,7 @@ final class Config
                 'environment' => (string) $read('APP_ENV', 'production'),
                 'debug' => filter_var($read('APP_DEBUG', 'false'), FILTER_VALIDATE_BOOL),
             ],
+            'mail' => ['from' => (string) $read('APP_MAIL_FROM', 'no-reply@smartstudypro.com')],
             'storage' => ['path' => $storage],
             'database' => ['path' => $database],
         ];
