@@ -75,7 +75,13 @@ final class LearningService
         $statement = $this->pdo->prepare("SELECT l.*, ch.course_id FROM cms_lessons l INNER JOIN cms_chapters ch ON ch.id = l.chapter_id WHERE l.id = :lesson_id AND ch.course_id = :course_id AND l.status = 'published' LIMIT 1");
         $statement->execute(['lesson_id' => $lessonId, 'course_id' => $courseId]);
         $lesson = $statement->fetch();
-        return $lesson ?: null;
+        if (!$lesson) return null;
+        $videoUrl = trim((string) $lesson['video_url']);
+        $parts = $videoUrl !== '' ? parse_url($videoUrl) : false;
+        $host = is_array($parts) ? strtolower((string) ($parts['host'] ?? '')) : '';
+        $allowedHosts = ['youtube.com', 'www.youtube.com', 'youtu.be', 'www.youtu.be', 'vimeo.com', 'www.vimeo.com', 'player.vimeo.com'];
+        if (!is_array($parts) || strtolower((string) ($parts['scheme'] ?? '')) !== 'https' || !in_array($host, $allowedHosts, true)) $lesson['video_url'] = '';
+        return $lesson;
     }
 
     public function startLesson(int $userId, int $courseId, int $lessonId): void
