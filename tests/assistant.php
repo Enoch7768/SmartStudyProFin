@@ -34,7 +34,7 @@ try {
     $courseId = $content->save('courses', null, ['title'=>'Foundations of Biology','description_html'=>'Biology course','content_html'=>'','price_ugx'=>'0','category'=>'Science','status'=>'published','sort_order'=>'1']);
     $chapterId = $content->save('chapters', null, ['course_id'=>$courseId,'title'=>'Cell structure','sort_order'=>'1']);
     $lessonId = $content->save('lessons', null, ['chapter_id'=>$chapterId,'title'=>'The cell membrane','content_html'=>'The cell membrane controls the movement of substances into and out of the cell. Diffusion moves particles from a region of higher concentration to a region of lower concentration.','video_url'=>'','sort_order'=>'1','status'=>'published']);
-    $pdo->prepare("INSERT INTO course_enrolments (user_id, course_id, status, source, enrolled_at, updated_at) VALUES (:user_id, :course_id, 'active', 'free', :now, :now)")->execute(['user_id'=>$studentId,'course_id'=>$courseId,'now'=>$now]);
+    $pdo->prepare("INSERT INTO course_enrolments (user_id, course_id, status, source, enrolled_at, updated_at) VALUES (:user_id, :course_id, 'active', 'free', :enrolled_at, :updated_at)")->execute(['user_id'=>$studentId,'course_id'=>$courseId,'enrolled_at'=>$now,'updated_at'=>$now]);
 
     $assistant = new AssistantService($pdo, '');
     $sources = $assistant->retrieve($studentId, 'How does diffusion move particles?');
