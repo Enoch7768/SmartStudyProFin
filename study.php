@@ -36,6 +36,7 @@ if ($course && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $action = (string) ($_POST['action'] ?? '');
             if ($action === 'enrol') {
                 $service->enrolFreeCourse($userId, $courseId);
+                (new RecognitionService($pdo))->recordCourseEnrollment($userId, $courseId);
                 Security::redirect('study.php?course_id=' . $courseId);
             } elseif ($action === 'complete') {
                 $service->completeLesson($userId, $courseId, $lessonId);
@@ -50,6 +51,7 @@ if ($course && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                 exit;
             } elseif ($action === 'quiz') {
                 $result = $service->submitQuiz($userId, $courseId, $lessonId, is_array($_POST['answers'] ?? null) ? $_POST['answers'] : []);
+                (new RecognitionService($pdo))->recordQuizResult($userId, $result, $courseId, $lessonId);
                 $notice = 'Your quiz has been graded and the attempt saved.';
             } else {
                 throw new RuntimeException('Unknown learning action.');
