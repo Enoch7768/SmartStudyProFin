@@ -50,7 +50,7 @@ final class PublicContent
         return [
             'Hero-Title' => ($page['title'] ?? '') !== '' ? $page['title'] : null,
             'Hero-Subtitle' => ($page['subtitle'] ?? '') !== '' ? $page['subtitle'] : null,
-            'Description' => $page['body_html'] ?? '',
+            'Description' => HtmlSanitizer::clean((string) ($page['body_html'] ?? '')),
             'Hero-Image' => $this->image($page['hero_media_id'] ?? null),
             'Title' => ($page['title'] ?? '') !== '' ? $page['title'] : null
         ];
@@ -63,7 +63,7 @@ final class PublicContent
         $page = $statement->fetch() ?: [];
         return [
             'Main-Title' => $page['title'] ?? '',
-            'Story-Text' => $page['body_html'] ?? '',
+            'Story-Text' => HtmlSanitizer::clean((string) ($page['body_html'] ?? '')),
             'About-Image' => $this->image($page['hero_media_id'] ?? null)
         ];
     }
@@ -85,8 +85,8 @@ final class PublicContent
         return [
             '_id' => (int) $row['id'],
             'Title' => $row['title'],
-            'Description' => $row['description_html'],
-            'Content' => $row['content_html'],
+            'Description' => HtmlSanitizer::clean((string) $row['description_html']),
+            'Content' => HtmlSanitizer::clean((string) $row['content_html']),
             'Price' => (int) $row['price_ugx'],
             'Category' => $row['category'],
             'Image' => $this->image($row['image_media_id']),
