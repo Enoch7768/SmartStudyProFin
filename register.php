@@ -8,6 +8,7 @@ use App\Core\Auth;
 use App\Core\Database;
 use App\Core\Security;
 use App\Identity\AccountService;
+use App\Identity\LegalAcceptanceService;
 
 $pdo = Database::connect();
 if (Auth::user($pdo)) Security::redirect('profile.php');
@@ -21,7 +22,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             if (!hash_equals($password, (string) ($_POST['confirm_password'] ?? ''))) throw new RuntimeException('The passwords do not match.');
             if (($_POST['accept_terms'] ?? '') !== '1' || ($_POST['accept_privacy'] ?? '') !== '1') throw new RuntimeException('You must agree to the Terms of Use and acknowledge the Privacy Policy to create an account.');
             $service = new AccountService($pdo);
-            $service->register((string) ($_POST['name'] ?? ''), (string) ($_POST['email'] ?? ''), $password, ['terms' => '1.0.0', 'privacy' => '1.0.0'], (string) ($_SERVER['REMOTE_ADDR'] ?? ''), (string) ($_SERVER['HTTP_USER_AGENT'] ?? ''));
+            $service->register((string) ($_POST['name'] ?? ''), (string) ($_POST['email'] ?? ''), $password, LegalAcceptanceService::VERSIONS, (string) ($_SERVER['REMOTE_ADDR'] ?? ''), (string) ($_SERVER['HTTP_USER_AGENT'] ?? ''));
             if (!Auth::attempt($pdo, (string) ($_POST['email'] ?? ''), $password)) throw new RuntimeException('Your account was created. Please sign in.');
             Security::redirect('profile.php');
         } catch (Throwable $exception) {
