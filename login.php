@@ -7,6 +7,7 @@ require __DIR__ . '/bootstrap/app.php';
 use App\Core\Auth;
 use App\Core\Database;
 use App\Core\Security;
+use App\Identity\LegalAcceptanceService;
 
 $pdo = Database::connect();
 if (Auth::user($pdo)) Security::redirect('profile.php');
@@ -25,7 +26,12 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $error = 'Invalid email or password, or too many attempts. Please try again later.';
         } else {
             $userId = (int) ($_SESSION['user_id'] ?? 0);
-            Security::redirect(Auth::hasRole($pdo, $userId, 'administrator') ? 'admin/cms.php' : $redirect);
+            $destination = Auth::hasRole($pdo, $userId, 'administrator') ? 'admin/cms.php' : $redirect;
+            if (!(new LegalAcceptanceService($pdo))->hasCurrentAcceptance($userId)) {
+                $_SESSION['legal_redirect'] = $destination;
+                Security::redirect('legal-consent.php');
+            }
+            Security::redirect($destination);
         }
     }
 }
