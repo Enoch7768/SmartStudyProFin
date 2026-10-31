@@ -48,7 +48,7 @@ final class HtmlSanitizer
     private static function fallback(string $html): string
     {
         $html = preg_replace('#<(script|style|iframe|object|embed|svg|math|template|form|audio|video)\\b[^>]*>.*?</\\1\\s*>#is', '', $html) ?? '';
-        return htmlspecialchars(strip_tags($html), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        return htmlspecialchars(html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
     private static function sanitizeChildren(DOMNode $parent): void
@@ -116,10 +116,10 @@ final class HtmlSanitizer
     private static function safeUrl(string $value, bool $allowMailto): bool
     {
         if ($value === '' || preg_match('/[\x00-\x20\x7f]/', $value)) return false;
-        if (str_starts_with($value, '//') || str_starts_with($value, '\\\\')) return false;
+        if (str_starts_with($value, '//') || str_contains($value, '\\\\')) return false;
         $scheme = parse_url($value, PHP_URL_SCHEME);
         if ($scheme === null) return true;
-        $allowed = $allowMailto ? ['https', 'http', 'mailto', 'tel'] : ['https', 'http'];
+        $allowed = $allowMailto ? ['https', 'http', 'mailto', 'tel'] : ['https'];
         return in_array(strtolower((string) $scheme), $allowed, true);
     }
 }
