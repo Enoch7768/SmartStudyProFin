@@ -1,64 +1,30 @@
-<?php 
-require_once 'cms-init.php'; 
+<?php
+declare(strict_types=1);
 
-$course = null;
-$contact = null;
+require_once __DIR__ . '/bootstrap/app.php';
+
+$pdo = \App\Core\Database::connect();
+$content = new \App\Cms\PublicContent($pdo);
 $courseId = $_GET['id'] ?? $_GET['_id'] ?? null;
+$course = $content->course(is_string($courseId) || is_int($courseId) ? $courseId : null);
+$contact = $content->contact();
 
-if (function_exists('cockpit')) {
-    if ($courseId) {
-        try {
-            // Method 1: Standard Cockpit v2 findOne
-            $course = cockpit('content')->findOne('Courses', ['_id' => $courseId]);
-            
-            // Method 2: Cockpit v2 items array filter fallback
-            if (!$course) {
-                $items = cockpit('content')->items('Courses', ['filter' => ['_id' => $courseId]]);
-                if (!empty($items)) {
-                    $course = $items[0];
-                }
-            }
+if (!$course) http_response_code(404);
 
-            // Method 3: Loose match fallback
-            if (!$course) {
-                $allCourses = cockpit('content')->items('Courses');
-                foreach ($allCourses as $c) {
-                    if (isset($c['_id']) && $c['_id'] == $courseId) {
-                        $course = $c;
-                        break;
-                    }
-                }
-            }
-        } catch (Exception $e) {
-            $course = null;
-        }
-    }
-
-    try {
-        $contact = cockpit('content')->findOne('ContactDetails') 
-                ?? cockpit('content')->item('ContactDetails');
-    } catch (Exception $e) {
-        $contact = null;
-    }
-}
-
-$displayTitle    = $course['Title'] ?? 'Course Details';
-$displayPrice    = $course['Price'] ?? '0';
+$displayTitle = $course['Title'] ?? 'Course Details';
+$displayPrice = $course['Price'] ?? '0';
 $displaySubtitle = $course['Subtitle'] ?? 'Master your skills with Expert Instructors | Comprehensive Training for All Levels';
 
-$phone   = $contact['phone'] ?? '+256 704 416250';
-$email   = $contact['email'] ?? 'smartstudypro36@gmail.com';
-$address = strip_tags($contact['address'] ?? 'Kampala, Uganda');
+$phone = $contact['phone'];
+$email = $contact['email'];
+$address = strip_tags($contact['address']);
 
-$seoTitle       = $course['SEO-Title'] ?? ($displayTitle . " | Course at SmartStudyPro");
-$seoDescription = $course['SEO-Description'] ?? (strip_tags($course['Description'] ?? $displaySubtitle));
-$siteUrl        = "https://smartstudypro.com";
+$seoTitle = $course['SEO-Title'] ?? ($displayTitle . ' | Course at SmartStudyPro');
+$seoDescription = $course['SEO-Description'] ?? strip_tags($course['Description'] ?? $displaySubtitle);
+$siteUrl = 'https://smartstudypro.com';
 
-// Image for Social Media (OG Image)
-$cImgData = $course['Image'] ?? $course['image'] ?? null;
-$ogImage  = !empty($cImgData['path']) 
-            ? $siteUrl . '/schoolprojectt/SmartStudyProV2.3/cms/storage/uploads' . $cImgData['path'] 
-            : $siteUrl . '/assets/img/course-1.jpg';
+$cImgData = $course['Image'] ?? null;
+$ogImage = $cImgData['url'] ?? ($siteUrl . '/assets/img/course-1.jpg');
 ?>
 
 <!DOCTYPE html>
