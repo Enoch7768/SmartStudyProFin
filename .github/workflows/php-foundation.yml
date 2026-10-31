@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - phase-1-secure-foundation
+      - phase-2-native-php-cms
   pull_request:
     branches:
       - main
@@ -24,8 +25,10 @@ jobs:
           extensions: pdo_sqlite, sqlite3, fileinfo, openssl
           coverage: none
       - name: Lint foundation PHP
-        run: find app bootstrap database install scripts tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+        run: find app admin bootstrap database install scripts tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l
       - name: Test security and routing
         run: php tests/unit.php
-      - name: Test SQLite migrations and identity
+      - name: Lint media endpoint
+        run: php -l media.php
+      - name: Test SQLite migrations, identity and CMS
         run: php tests/run.php
