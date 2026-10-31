@@ -64,7 +64,10 @@ $outline = $hasAccess ? $service->outline($userId, $courseId) : [];
 $lessons = [];
 foreach ($outline as $chapter) foreach ($chapter['lessons'] as $lesson) $lessons[] = $lesson;
 if ($hasAccess && $lessonId === 0 && $lessons) {
-    $next = current(array_filter($lessons, static fn (array $lesson): bool => $lesson['progress_status'] !== 'completed'));
+    $next = null;
+    foreach ($lessons as $candidate) {
+        if ($candidate['progress_status'] !== 'completed') { $next = $candidate; break; }
+    }
     $lessonId = (int) ($next['id'] ?? $lessons[0]['id']);
 }
 $lesson = $hasAccess && $lessonId > 0 ? $service->lesson($userId, $courseId, $lessonId) : null;
