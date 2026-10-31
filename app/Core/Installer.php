@@ -79,11 +79,13 @@ final class Installer
         chmod($storage, 0700);
         if (!self::databaseIsPrivate()) throw new RuntimeException('Set DB_PATH to a SQLite file inside APP_STORAGE_PATH.');
         $keyPath = $storage . '/app.key';
+        if (is_link($keyPath)) throw new RuntimeException('The application key cannot be a symbolic link.');
         if (is_file($keyPath)) {
             $storedKey = trim((string) file_get_contents($keyPath));
             if (preg_match('/^[a-f0-9]{64}$/i', $storedKey) !== 1) throw new RuntimeException('The stored application key is invalid.');
             $configuredKey = (string) Config::get('app.key');
             if ($configuredKey !== '' && !hash_equals($storedKey, $configuredKey)) throw new RuntimeException('APP_KEY does not match the stored application key.');
+            chmod($keyPath, 0600);
         } else {
             $configuredKey = (string) Config::get('app.key');
             if ($configuredKey !== '' && preg_match('/^[a-f0-9]{64}$/i', $configuredKey) !== 1) throw new RuntimeException('APP_KEY must contain exactly 64 hexadecimal characters.');
