@@ -4,13 +4,13 @@
 **Effective date:** 31 October 2026  
 **Status:** Client execution draft — not effective until completed and signed by both parties.
 
-This agreement records the limited right to use the SmartStudyPro website software. It is between the developer who created and supplies the software (the Developer or Licensor) and the client identified in the signed project/development agreement (the Client or Licensee).
+This agreement records the limited right to use the SmartStudyPro website software. It is between FuzeWeb Technology Uganda (the Developer or Licensor; its full registered legal name and service address must be stated in the signed agreement) and the client identified in the signed project/development agreement (the Client or Licensee).
 
 The legal names, service addresses, notice emails, licensed domain, support scope, fees and signatures must be confirmed in the project agreement. This online copy is a reference copy and does not replace the signed agreement.
 
 ## 1. Ownership and reservation of rights
 
-The Developer retains all right, title, interest and intellectual-property rights in the original software and developer-created materials, including source code, architecture, database structure, custom modules, workflows, integrations, design implementation, documentation, updates and derivative works. All rights not expressly licensed to the Client are reserved by the Developer.
+FuzeWeb Technology Uganda, as Developer, retains all right, title, interest and intellectual-property rights in the original software and developer-created materials, including source code, architecture, database structure, custom modules, workflows, integrations, design implementation, documentation, updates and derivative works. All rights not expressly licensed to the Client are reserved by the Developer.
 
 The Client does not purchase or acquire ownership of the software, source code, underlying platform, reusable components, development methods or intellectual property merely by paying development, setup, hosting, maintenance or support fees.
 
@@ -83,7 +83,8 @@ This licence and the signed project agreement form the agreement between the par
 ## 11. Execution
 
 **Developer / Licensor**  
-Legal name: To be completed in the signed project agreement  
+Trading name: FuzeWeb Technology Uganda  
+Full registered legal name and service address: To be confirmed in the signed project agreement  
 Authorised representative: ____________________  
 Signature: ____________________  
 Date: ____________________
