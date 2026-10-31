@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\\Identity;
+namespace App\Identity;
 
-use App\\Core\\Config;
+use App\Core\Config;
 
 final class PasswordResetMailer
 {
