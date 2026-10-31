@@ -29,6 +29,8 @@ try {
     $studentId = (int) $pdo->lastInsertId();
     $insert->execute(['name' => 'Other Student', 'email' => 'other-recognition@example.test', 'password_hash' => password_hash('another-strong-password', PASSWORD_DEFAULT), 'status' => 'active', 'created_at' => $now, 'updated_at' => $now]);
     $otherId = (int) $pdo->lastInsertId();
+    $studentRoleId = (int) $pdo->query("SELECT id FROM roles WHERE slug = 'student'")->fetchColumn();
+    $pdo->prepare('INSERT INTO user_roles (user_id, role_id, assigned_at) VALUES (:user_id, :role_id, :assigned_at)')->execute(['user_id' => $studentId, 'role_id' => $studentRoleId, 'assigned_at' => $now]);
 
     $content = new ContentRepository($pdo);
     $courseId = $content->save('courses', null, ['title' => 'Applied Mathematics', 'description_html' => 'Mathematics', 'content_html' => '', 'price_ugx' => '0', 'category' => 'Science', 'status' => 'published', 'sort_order' => '1']);
@@ -57,14 +59,14 @@ try {
     if (count($service->notifications($studentId)) !== 5) throw new RuntimeException('Repeated synchronization duplicated notifications.');
     if ($service->unreadCount($studentId) !== 5) throw new RuntimeException('Unread notification count is incorrect.');
     $service->markRead($otherId, (int) $notifications[0]['id']);
-    if ($service->unreadCount($studentId) !== 4) throw new RuntimeException('A different user changed another user notification.');
+    if ($service->unreadCount($studentId) !== 5) throw new RuntimeException('A different user changed another user notification.');
     $service->markRead($studentId, (int) $notifications[0]['id']);
     if ($service->unreadCount($studentId) !== 4) throw new RuntimeException('Mark-read did not update the owned notification.');
     $service->markAllRead($studentId);
     if ($service->unreadCount($studentId) !== 0) throw new RuntimeException('Mark-all-read did not clear unread notifications.');
 
     $analytics = $service->analytics();
-    if ((int) $analytics['summary']['enrolments'] !== 1 || (int) $analytics['summary']['completions'] !== 1 || (int) $analytics['summary']['certificates'] !== 1) throw new RuntimeException('Aggregate learning analytics are inconsistent.');
+    if ((int) $analytics['summary']['students'] !== 1 || (int) $analytics['summary']['enrolments'] !== 1 || (int) $analytics['summary']['completions'] !== 1 || (int) $analytics['summary']['certificates'] !== 1) throw new RuntimeException('Aggregate learning analytics are inconsistent.');
     echo "PASS phase 7 migration and idempotency\nPASS activity-based achievements\nPASS unique certificate issue and verification\nPASS private certificate and notification ownership\nPASS idempotent notifications and read state\nPASS aggregate learning analytics\n";
 } finally {
     foreach (glob($temporary . '/*') ?: [] as $file) if (is_file($file)) unlink($file);
