@@ -7,6 +7,7 @@ require __DIR__ . '/bootstrap/app.php';
 use App\Core\Auth;
 use App\Core\Database;
 use App\Core\Security;
+use App\Identity\LegalAcceptanceService;
 
 $pdo = Database::connect();
 if (Auth::user($pdo)) Security::redirect('profile.php');
@@ -25,7 +26,12 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $error = 'Invalid email or password, or too many attempts. Please try again later.';
         } else {
             $userId = (int) ($_SESSION['user_id'] ?? 0);
-            Security::redirect(Auth::hasRole($pdo, $userId, 'administrator') ? 'admin/cms.php' : $redirect);
+            $destination = Auth::hasRole($pdo, $userId, 'administrator') ? 'admin/cms.php' : $redirect;
+            if (!(new LegalAcceptanceService($pdo))->hasCurrentAcceptance($userId)) {
+                $_SESSION['legal_redirect'] = $destination;
+                Security::redirect('legal-consent.php');
+            }
+            Security::redirect($destination);
         }
     }
 }
@@ -42,11 +48,11 @@ $siteUrl = 'https://smartstudypro.com';
 <head>
   <script>
     (function() {
-      const savedTheme = localStorage.getItem('ssp-theme');
-      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      }
+      try {
+        const savedTheme = localStorage.getItem('ssp-theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) document.documentElement.setAttribute('data-theme', 'dark');
+      } catch (error) {}
     })();
   </script>
   <meta charset="utf-8">
@@ -274,7 +280,7 @@ $siteUrl = 'https://smartstudypro.com';
 
   <?php include 'nav.php'; ?>
 
-  <main class="main py-5 d-flex align-items-center min-vh-100">
+  <main id="main-content" class="main py-5 d-flex align-items-center min-vh-100">
     <div class="container d-flex justify-content-center" data-aos="fade-up">
       
       <div class="ssp-auth-card p-4 p-md-5">
@@ -300,16 +306,16 @@ $siteUrl = 'https://smartstudypro.com';
 
         <form method="POST">
           <input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>">
-          <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirect) ?>">
+          <input type="hidden" name="redirect" value="<?= Security::escape($redirect) ?>">
           
           <div class="mb-3">
-            <label class="form-label small fw-semibold ssp-form-label">Email Address</label>
-            <input type="email" name="email" class="form-control rounded-3 py-2" placeholder="name@example.com" required>
+            <label for="login-email" class="form-label small fw-semibold ssp-form-label">Email Address</label>
+            <input id="login-email" type="email" name="email" autocomplete="username" maxlength="254" class="form-control rounded-3 py-2" placeholder="name@example.com" required>
           </div>
           
           <div class="mb-4">
-            <label class="form-label small fw-semibold ssp-form-label">Password</label>
-            <input type="password" name="password" class="form-control rounded-3 py-2" placeholder="••••••••" required>
+            <label for="login-password" class="form-label small fw-semibold ssp-form-label">Password</label>
+            <input id="login-password" type="password" name="password" autocomplete="current-password" maxlength="1024" class="form-control rounded-3 py-2" placeholder="••••••••" required>
           </div>
           
           <button type="submit" name="login" class="btn-ssp-primary w-100 py-2 fs-6">Sign In</button>
@@ -374,6 +380,14 @@ $siteUrl = 'https://smartstudypro.com';
     </div>
 
     <div class="container text-center border-top border-secondary pt-3 mt-3 opacity-75 small">
+      <div class="small mb-3 d-flex flex-wrap justify-content-center gap-3">
+        <a href="privacy.php" class="text-light opacity-75 text-decoration-none">Privacy</a>
+        <a href="terms.php" class="text-light opacity-75 text-decoration-none">Terms of Use</a>
+        <a href="cookies.php" class="text-light opacity-75 text-decoration-none">Cookies</a>
+        <a href="refunds.php" class="text-light opacity-75 text-decoration-none">Refunds</a>
+        <a href="accessibility.php" class="text-light opacity-75 text-decoration-none">Accessibility</a>
+        <a href="eula.php" class="text-light opacity-75 text-decoration-none">Client Software Licence</a>
+      </div>
       <p class="mb-0">&copy; <?= date('Y') ?> <strong>SmartStudyPro</strong>. All Rights Reserved. Empowering Education in Uganda.</p>
     </div>
   </footer>

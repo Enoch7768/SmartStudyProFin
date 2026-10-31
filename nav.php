@@ -127,6 +127,7 @@
   }
 </style>
 
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header id="header" class="header ssp-header d-flex align-items-center sticky-top py-2" style="z-index: 10000;">
   <div class="container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
     
@@ -134,7 +135,7 @@
       <img src="Smart_Study_Logo_Fin-removebg-preview.png" alt="SmartStudyPro Logo" height="48" class="img-fluid" style="max-height: 48px;">
     </a>
 
-    <nav id="navmenu" class="navmenu">
+    <nav id="navmenu" class="navmenu" aria-label="Main navigation">
       <ul>
         <li><a href="index.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'active' : '' ?>">Home</a></li>
         <li><a href="about.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'about.php') ? 'active' : '' ?>">About Us</a></li>
@@ -144,22 +145,22 @@
         <li><a href="products.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'products.php') ? 'active' : '' ?>">Products</a></li>
         <li><a href="contact.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'contact.php') ? 'active' : '' ?>">Contact</a></li>
       </ul>
-      <i class="mobile-nav-toggle d-xl-none bi bi-list fs-2 ms-3 ms-sm-4 p-1"></i>
+      <button type="button" class="mobile-nav-toggle d-xl-none border-0 bg-transparent ms-3 ms-sm-4 p-1" aria-label="Open navigation" aria-controls="navmenu" aria-expanded="false"><i class="bi bi-list fs-2" aria-hidden="true"></i></button>
     </nav>
 
     <div class="d-flex align-items-center gap-2 gap-sm-3">
       <button type="button" id="theme-toggle" class="header-icon-link fs-5" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
-        <i id="theme-toggle-icon" class="bi bi-moon-fill"></i>
+        <i id="theme-toggle-icon" class="bi bi-moon-fill" aria-hidden="true"></i>
       </button>
 
-      <a href="cart.php" class="header-icon-link fs-5 text-decoration-none" title="Shopping Cart">
+      <a href="cart.php" class="header-icon-link fs-5 text-decoration-none" title="Shopping Cart" aria-label="Shopping cart">
         <i class="bi bi-bag"></i>
       </a>
 
       <a href="notifications.php" class="header-icon-link fs-5 text-decoration-none" title="Notifications" aria-label="Notifications"><i class="bi bi-bell"></i></a>
 
-      <a href="profile.php" class="header-icon-link fs-5 text-decoration-none" title="My Profile">
-        <i class="bi bi-person-circle"></i>
+      <a href="profile.php" class="header-icon-link fs-5 text-decoration-none" title="My Profile" aria-label="My profile">
+        <i class="bi bi-person-circle" aria-hidden="true"></i>
       </a>
 
       <a class="btn-ssp-primary d-none d-sm-inline-block text-decoration-none ms-1 ms-sm-2" href="courses.php">Explore Courses</a>
@@ -176,6 +177,7 @@
     if (!toggleBtn || !toggleIcon) return;
 
     function updateIcon(isDark) {
+      toggleBtn.setAttribute('aria-pressed', String(isDark));
       if (isDark) {
         toggleIcon.classList.remove('bi-moon-fill');
         toggleIcon.classList.add('bi-sun-fill');
@@ -185,18 +187,20 @@
       }
     }
 
-    const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+    let savedTheme = null;
+    try { savedTheme = localStorage.getItem('ssp-theme'); } catch (error) {}
+    const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark' || savedTheme === 'dark';
     updateIcon(isDarkMode);
 
     toggleBtn.addEventListener('click', () => {
       const currentTheme = document.documentElement.getAttribute('data-theme');
       if (currentTheme === 'dark') {
         document.documentElement.removeAttribute('data-theme');
-        localStorage.setItem('ssp-theme', 'light');
+        try { localStorage.setItem('ssp-theme', 'light'); } catch (error) {}
         updateIcon(false);
       } else {
         document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('ssp-theme', 'dark');
+        try { localStorage.setItem('ssp-theme', 'dark'); } catch (error) {}
         updateIcon(true);
       }
     });

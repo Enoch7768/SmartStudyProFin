@@ -6,6 +6,18 @@ namespace App\Core;
 
 final class Security
 {
+    public static function sendHeaders(): void
+    {
+        if (headers_sent()) return;
+        header('X-Content-Type-Options: nosniff');
+        header('X-Frame-Options: DENY');
+        header('Referrer-Policy: strict-origin-when-cross-origin');
+        header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
+        header('X-Permitted-Cross-Domain-Policies: none');
+        header('Cross-Origin-Opener-Policy: same-origin-allow-popups');
+        if (self::secureRequest()) header('Strict-Transport-Security: max-age=31536000');
+    }
+
     public static function csrfToken(): string
     {
         Session::start();
@@ -30,5 +42,10 @@ final class Security
         if ($path === '' || str_starts_with($path, '//') || preg_match('/^[a-z][a-z0-9+.-]*:/i', $path) || preg_match('/[\r\n\\\\]/', $path)) $path = '/';
         header('Location: ' . $path, true, 303);
         exit;
+    }
+
+    private static function secureRequest(): bool
+    {
+        return !empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off';
     }
 }

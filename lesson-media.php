@@ -33,16 +33,32 @@ if (!$base || !$file || !str_starts_with($file, $base . DIRECTORY_SEPARATOR) || 
     http_response_code(404);
     exit('Resource not found.');
 }
+$method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+if (!in_array($method, ['GET', 'HEAD'], true)) {
+    header('Allow: GET, HEAD');
+    http_response_code(405);
+    exit;
+}
 $size = filesize($file);
 $start = 0;
 $end = $size - 1;
 $status = 200;
-if (isset($_SERVER['HTTP_RANGE']) && preg_match('/bytes=(\d*)-(\d*)/', (string) $_SERVER['HTTP_RANGE'], $matches)) {
-    if ($matches[1] === '' && $matches[2] !== '') {
+if (isset($_SERVER['HTTP_RANGE'])) {
+    if (!preg_match('/^bytes=(\\d*)-(\\d*)$/D', trim((string) $_SERVER['HTTP_RANGE']), $matches) || ($matches[1] === '' && $matches[2] === '')) {
+        header('Content-Range: bytes */' . $size);
+        http_response_code(416);
+        exit;
+    }
+    if ($matches[1] === '') {
         $length = min((int) $matches[2], $size);
+        if ($length < 1) {
+            header('Content-Range: bytes */' . $size);
+            http_response_code(416);
+            exit;
+        }
         $start = $size - $length;
     } else {
-        $start = $matches[1] === '' ? 0 : (int) $matches[1];
+        $start = (int) $matches[1];
         $end = $matches[2] === '' ? $end : min((int) $matches[2], $end);
     }
     if ($start > $end || $start >= $size) {
@@ -65,7 +81,7 @@ if ($handle === false) {
 }
 fseek($handle, $start);
 $remaining = $end - $start + 1;
-while ($remaining > 0 && !feof($handle)) {
+while ($method !== 'HEAD' && $remaining > 0 && !feof($handle)) {
     $chunk = fread($handle, min(8192, $remaining));
     if ($chunk === false || $chunk === '') break;
     echo $chunk;

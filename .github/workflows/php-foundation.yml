@@ -12,6 +12,7 @@ on:
       - phase-6-ai-learning-assistant
       - phase-7-recognition-analytics
       - phase-8-release-operations
+      - phase-9-production-hardening
   pull_request:
     branches:
       - main
@@ -33,7 +34,7 @@ jobs:
       - name: Lint foundation PHP
         run: find app admin bootstrap database install scripts tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l
       - name: Lint migrated public pages
-        run: php -l login.php && php -l register.php && php -l logout.php && php -l reset.php && php -l profile.php && php -l admin.php && php -l google-auth.php && php -l learning.php && php -l study.php && php -l lesson-media.php && php -l cart.php && php -l checkout.php && php -l process_payment.php && php -l dpo-webhook.php && php -l payment-start.php && php -l payment-return.php && php -l payment-webhook.php && php -l payment-choice.php && php -l orders.php && php -l admin/orders.php && php -l stream.php && php -l grade-quiz.php && php -l download.php && php -l index.php && php -l courses.php && php -l course-details.php && php -l about.php && php -l products.php && php -l product-details.php && php -l contact.php && php -l booking.php && php -l notifications.php && php -l achievements.php && php -l certificates.php && php -l verify-certificate.php && php -l admin/analytics.php && php -l admin/backups.php && php -l admin/diagnostics.php && php -l admin/updates.php
+        run: php -l login.php && php -l legal-consent.php && php -l register.php && php -l logout.php && php -l reset.php && php -l profile.php && php -l admin.php && php -l google-auth.php && php -l learning.php && php -l study.php && php -l lesson-media.php && php -l cart.php && php -l checkout.php && php -l process_payment.php && php -l dpo-webhook.php && php -l payment-start.php && php -l payment-return.php && php -l payment-webhook.php && php -l payment-choice.php && php -l orders.php && php -l admin/orders.php && php -l stream.php && php -l grade-quiz.php && php -l download.php && php -l index.php && php -l legal.php && php -l privacy.php && php -l terms.php && php -l eula.php && php -l cookies.php && php -l accessibility.php && php -l refunds.php && php -l courses.php && php -l course-details.php && php -l about.php && php -l products.php && php -l product-details.php && php -l contact.php && php -l booking.php && php -l notifications.php && php -l achievements.php && php -l certificates.php && php -l verify-certificate.php && php -l admin/analytics.php && php -l admin/backups.php && php -l admin/diagnostics.php && php -l admin/updates.php
       - name: Test security and routing
         run: php tests/unit.php
       - name: Lint media endpoint
@@ -46,18 +47,35 @@ jobs:
         run: php tests/recognition.php
       - name: Test backups and release operations
         run: php tests/operations.php
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate browser JavaScript
+        run: node --check assets/js/main.js && node tests/main-js.test.cjs
+      - name: Test CMS rich-text sanitization
+        run: php tests/content-security.php
+      - name: Validate production SQLite query plans
+        run: php tests/performance.php
+      - name: Test production security configuration
+        run: php tests/security.php
       - name: Validate release workflow and package contents
         run: |
           ruby -e "require 'yaml'; YAML.load_file('.github/workflows/release.yml')"
           mkdir -p /tmp/smartstudypro-release-check
           git archive HEAD | tar --exclude='cms' --exclude='db' --exclude='tests' --exclude='.github' --exclude='transcripts' --exclude='uploads/avatars/*' --exclude='database/bookings.db' --exclude='database/bookings.sqlite' --exclude='Income Statement and distribution.xlsx' --exclude='Readme.txt' -x -C /tmp/smartstudypro-release-check
+          git archive HEAD uploads/avatars/.htaccess | tar -x -C /tmp/smartstudypro-release-check
           mkdir -p /tmp/smartstudypro-release-check/uploads/avatars
           touch /tmp/smartstudypro-release-check/uploads/avatars/.gitkeep
           test -f /tmp/smartstudypro-release-check/VERSION
           test -f /tmp/smartstudypro-release-check/install/index.php
           test -f /tmp/smartstudypro-release-check/database/migrations/008_notifications_recognition_analytics.php
+          test -f /tmp/smartstudypro-release-check/database/migrations/009_production_indexes.php
+          test -f /tmp/smartstudypro-release-check/database/migrations/010_legal_acceptance.php
+          test -f /tmp/smartstudypro-release-check/PRIVACY_POLICY.md
+          test -f /tmp/smartstudypro-release-check/EULA.md
           test ! -e /tmp/smartstudypro-release-check/cms
           test ! -e /tmp/smartstudypro-release-check/db
           test ! -e /tmp/smartstudypro-release-check/database/bookings.db
           test ! -e /tmp/smartstudypro-release-check/tests
           test -f /tmp/smartstudypro-release-check/uploads/avatars/.gitkeep
+          test -f /tmp/smartstudypro-release-check/uploads/avatars/.htaccess

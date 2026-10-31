@@ -67,7 +67,7 @@ $seoDescription = 'Manage your SmartStudyPro account and student profile.';
 </head>
 <body>
 <?php include __DIR__ . '/nav.php'; ?>
-<main class="container py-5">
+<main id="main-content" class="container py-5">
 <section class="account-hero mb-4">
 <div class="d-flex flex-wrap align-items-center gap-3 position-relative" style="z-index:1">
 <div class="profile-avatar"><?= Security::escape($initials) ?></div>

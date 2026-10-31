@@ -1,13 +1,14 @@
 Options -Indexes -MultiViews
 RewriteEngine On
 
-RewriteRule ^(?:app|bootstrap|config|database|scripts|tests|storage)(?:/|$) - [F,L,NC]
+RewriteRule ^(?:app|bootstrap|config|database|scripts|tests|storage|cms|docs)(?:/|$) - [F,L,NC]
+RewriteRule (^|/)\.(?!well-known(?:/|$)) - [F,L,NC]
 
 <FilesMatch "^(\.env|composer\.(json|lock)|phpunit\.xml|\.gitignore)$">
     Require all denied
 </FilesMatch>
 
-<FilesMatch "\.(sqlite|sqlite3|db|log|key)$">
+<FilesMatch "\.(sqlite|sqlite3|db|log|key|sql|bak|backup|old|orig|swp|zip|tar|gz|dump|sqlite-wal|sqlite-shm|db-wal|db-shm)$">
     Require all denied
 </FilesMatch>
 
@@ -27,9 +28,14 @@ RewriteRule ^login/?$ login.php [L,QSA]
 RewriteRule ^logout/?$ logout.php [L,QSA]
 RewriteRule ^product-details/?$ product-details.php [L,QSA]
 RewriteRule ^products/?$ products.php [L,QSA]
+RewriteRule ^privacy/?$ privacy.php [L,QSA]
+RewriteRule ^terms/?$ terms.php [L,QSA]
+RewriteRule ^cookies/?$ cookies.php [L,QSA]
+RewriteRule ^accessibility/?$ accessibility.php [L,QSA]
+RewriteRule ^eula/?$ eula.php [L,QSA]
 RewriteRule ^profile/?$ profile.php [L,QSA]
 RewriteRule ^register/?$ register.php [L,QSA]
 RewriteRule ^reset/?$ reset.php [L,QSA]
 RewriteRule ^stream/?$ stream.php [L,QSA]
 RewriteRule ^study/?$ study.php [L,QSA]
-RewriteRule ^test/?$ test.php [L,QSA]
+RewriteRule ^refunds/?$ refunds.php [L,QSA]

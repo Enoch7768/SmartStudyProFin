@@ -8,6 +8,7 @@ use App\Core\Auth;
 use App\Core\Database;
 use App\Core\Security;
 use App\Identity\AccountService;
+use App\Identity\LegalAcceptanceService;
 
 $pdo = Database::connect();
 if (Auth::user($pdo)) Security::redirect('profile.php');
@@ -19,8 +20,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         try {
             $password = (string) ($_POST['password'] ?? '');
             if (!hash_equals($password, (string) ($_POST['confirm_password'] ?? ''))) throw new RuntimeException('The passwords do not match.');
+            if (($_POST['accept_terms'] ?? '') !== '1' || ($_POST['accept_privacy'] ?? '') !== '1') throw new RuntimeException('You must agree to the Terms of Use and acknowledge the Privacy Policy to create an account.');
             $service = new AccountService($pdo);
-            $service->register((string) ($_POST['name'] ?? ''), (string) ($_POST['email'] ?? ''), $password);
+            $service->register((string) ($_POST['name'] ?? ''), (string) ($_POST['email'] ?? ''), $password, LegalAcceptanceService::VERSIONS, (string) ($_SERVER['REMOTE_ADDR'] ?? ''), (string) ($_SERVER['HTTP_USER_AGENT'] ?? ''));
             if (!Auth::attempt($pdo, (string) ($_POST['email'] ?? ''), $password)) throw new RuntimeException('Your account was created. Please sign in.');
             Security::redirect('profile.php');
         } catch (Throwable $exception) {
@@ -41,11 +43,11 @@ $siteUrl = 'https://smartstudypro.com';
 <head>
   <script>
     (function() {
-      const savedTheme = localStorage.getItem('ssp-theme');
-      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      }
+      try {
+        const savedTheme = localStorage.getItem('ssp-theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) document.documentElement.setAttribute('data-theme', 'dark');
+      } catch (error) {}
     })();
   </script>
   <meta charset="utf-8">
@@ -273,7 +275,7 @@ $siteUrl = 'https://smartstudypro.com';
 
   <?php include 'nav.php'; ?>
   
-  <main class="main py-5 d-flex align-items-center min-vh-100">
+  <main id="main-content" class="main py-5 d-flex align-items-center min-vh-100">
     <div class="container d-flex justify-content-center" data-aos="fade-up">
       
       <div class="ssp-auth-card p-4 p-md-5">
@@ -292,25 +294,33 @@ $siteUrl = 'https://smartstudypro.com';
         <form method="POST">
           <input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>">
           <div class="mb-3">
-            <label class="form-label small fw-semibold ssp-form-label">Full Name</label>
-            <input type="text" name="name" class="form-control rounded-3 py-2" placeholder="John Doe" value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" required>
+            <label for="register-name" class="form-label small fw-semibold ssp-form-label">Full Name</label>
+            <input id="register-name" type="text" name="name" maxlength="120" autocomplete="name" class="form-control rounded-3 py-2" placeholder="John Doe" value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" required>
           </div>
 
           <div class="mb-3">
-            <label class="form-label small fw-semibold ssp-form-label">Email Address</label>
-            <input type="email" name="email" class="form-control rounded-3 py-2" placeholder="name@example.com" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
+            <label for="register-email" class="form-label small fw-semibold ssp-form-label">Email Address</label>
+            <input id="register-email" type="email" name="email" maxlength="254" autocomplete="email" class="form-control rounded-3 py-2" placeholder="name@example.com" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
           </div>
           
           <div class="mb-3">
-            <label class="form-label small fw-semibold ssp-form-label">Password</label>
-            <input type="password" name="password" class="form-control rounded-3 py-2" placeholder="••••••••" minlength="12" required>
+            <label for="register-password" class="form-label small fw-semibold ssp-form-label">Password</label>
+            <input id="register-password" type="password" name="password" autocomplete="new-password" maxlength="1024" class="form-control rounded-3 py-2" placeholder="••••••••" minlength="12" required>
           </div>
 
           <div class="mb-4">
-            <label class="form-label small fw-semibold ssp-form-label">Confirm Password</label>
-            <input type="password" name="confirm_password" class="form-control rounded-3 py-2" placeholder="••••••••" minlength="8" required>
+            <label for="register-confirm-password" class="form-label small fw-semibold ssp-form-label">Confirm Password</label>
+            <input id="register-confirm-password" type="password" name="confirm_password" autocomplete="new-password" maxlength="1024" class="form-control rounded-3 py-2" placeholder="••••••••" minlength="12" required>
           </div>
           
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="accept-terms" name="accept_terms" value="1" required <?= ($_POST['accept_terms'] ?? '') === '1' ? 'checked' : '' ?>>
+            <label class="form-check-label small" for="accept-terms">I agree to the <a href="terms.php" target="_blank" rel="noopener noreferrer">Terms of Use</a>.</label>
+          </div>
+          <div class="form-check mb-4">
+            <input class="form-check-input" type="checkbox" id="accept-privacy" name="accept_privacy" value="1" required <?= ($_POST['accept_privacy'] ?? '') === '1' ? 'checked' : '' ?>>
+            <label class="form-check-label small" for="accept-privacy">I have read the <a href="privacy.php" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</label>
+          </div>
           <button type="submit" class="btn-ssp-primary w-100 py-2 fs-6">Create Account</button>
         </form>
 
@@ -372,6 +382,14 @@ $siteUrl = 'https://smartstudypro.com';
     </div>
 
     <div class="container text-center border-top border-secondary pt-3 mt-3 opacity-75 small">
+      <div class="small mb-3 d-flex flex-wrap justify-content-center gap-3">
+        <a href="privacy.php" class="text-light opacity-75 text-decoration-none">Privacy</a>
+        <a href="terms.php" class="text-light opacity-75 text-decoration-none">Terms of Use</a>
+        <a href="cookies.php" class="text-light opacity-75 text-decoration-none">Cookies</a>
+        <a href="refunds.php" class="text-light opacity-75 text-decoration-none">Refunds</a>
+        <a href="accessibility.php" class="text-light opacity-75 text-decoration-none">Accessibility</a>
+        <a href="eula.php" class="text-light opacity-75 text-decoration-none">Client Software Licence</a>
+      </div>
       <p class="mb-0">&copy; <?= date('Y') ?> <strong>SmartStudyPro</strong>. All Rights Reserved. Empowering Education in Uganda.</p>
     </div>
   </footer>

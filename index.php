@@ -467,7 +467,7 @@ $siteUrl = 'https://smartstudypro.com';
     </div>
   </header>
 
-  <main class="main">
+  <main id="main-content" class="main">
 
     <?php 
       $hImgData = $home['Hero-Image'] ?? $home['Image'] ?? null;
@@ -663,6 +663,14 @@ $siteUrl = 'https://smartstudypro.com';
     </div>
 
     <div class="container text-center border-top border-secondary pt-3 mt-3 text-white opacity-90 small">
+      <div class="small mb-3 d-flex flex-wrap justify-content-center gap-3">
+        <a href="privacy.php" class="text-white text-decoration-none">Privacy</a>
+        <a href="terms.php" class="text-white text-decoration-none">Terms of Use</a>
+        <a href="cookies.php" class="text-white text-decoration-none">Cookies</a>
+        <a href="refunds.php" class="text-white text-decoration-none">Refunds</a>
+        <a href="accessibility.php" class="text-white text-decoration-none">Accessibility</a>
+        <a href="eula.php" class="text-white text-decoration-none">Client Software Licence</a>
+      </div>
       <p class="mb-0">&copy; <?= date('Y') ?> <strong>SmartStudyPro</strong>. All Rights Reserved. Empowering Education in Uganda.</p>
     </div>
   </footer>

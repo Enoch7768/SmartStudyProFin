@@ -65,7 +65,7 @@ $csrf = Security::csrfToken();
 </head>
 <body>
 <?php include __DIR__ . '/nav.php'; ?>
-<main class="container py-5">
+<main id="main-content" class="container py-5">
 <section class="welcome mb-4"><div class="small fw-bold text-uppercase mb-2" style="color:#ffb36b;letter-spacing:1px">Your course companion</div><h1 class="h2 mb-2">Learn it. Understand it. Apply it.</h1><p class="mb-0">Ask questions about your enrolled courses. Answers are grounded in published lesson notes and include links to their sources.</p></section>
 <div class="assistant-shell">
 <aside class="assistant-panel"><a class="btn btn-outline-primary w-100 mb-3" href="assistant.php">+ New conversation</a><div class="small text-uppercase fw-bold mb-2" style="color:var(--muted)">Recent conversations</div><?php foreach ($conversations as $conversation): ?><a class="conversation-link <?= (int)$conversation['id']===$conversationId?'active':'' ?>" href="assistant.php?conversation_id=<?= (int)$conversation['id'] ?>"><?= Security::escape($conversation['title']) ?></a><?php endforeach; ?><?php if (!$conversations): ?><p class="hint">Your saved conversations will appear here.</p><?php endif; ?><hr><p class="hint mb-0">The assistant can only use lessons in courses you are enrolled in. It will tell you when your course material does not contain an answer.</p></aside>

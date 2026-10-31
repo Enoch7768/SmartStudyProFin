@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Learning;
 
 use App\Core\Session;
+use App\Cms\HtmlSanitizer;
 use PDO;
 use RuntimeException;
 
@@ -25,7 +26,11 @@ final class LearningService
     {
         $statement = $this->pdo->prepare("SELECT * FROM cms_courses WHERE id = :id AND status = 'published' LIMIT 1");
         $statement->execute(['id' => $courseId]);
-        return $statement->fetch() ?: null;
+        $course = $statement->fetch();
+        if (!$course) return null;
+        $course['description_html'] = HtmlSanitizer::clean((string) $course['description_html']);
+        $course['content_html'] = HtmlSanitizer::clean((string) $course['content_html']);
+        return $course;
     }
 
     public function enrolFreeCourse(int $userId, int $courseId): void
@@ -81,6 +86,7 @@ final class LearningService
         $host = is_array($parts) ? strtolower((string) ($parts['host'] ?? '')) : '';
         $allowedHosts = ['youtube.com', 'www.youtube.com', 'youtu.be', 'www.youtu.be', 'vimeo.com', 'www.vimeo.com', 'player.vimeo.com'];
         if (!is_array($parts) || strtolower((string) ($parts['scheme'] ?? '')) !== 'https' || !in_array($host, $allowedHosts, true)) $lesson['video_url'] = '';
+        $lesson['content_html'] = HtmlSanitizer::clean((string) $lesson['content_html']);
         return $lesson;
     }
 

@@ -8,6 +8,7 @@ use PDO;
 
 final class Auth
 {
+    private const DUMMY_PASSWORD_HASH = '$2y$10$2RiD3U9ErL7xv9wKXFnR7.hIWohKGlT6ppRYVtUWCiRqqG4LQr.Ye';
     public static function attempt(PDO $pdo, string $email, string $password): bool
     {
         Session::start();
@@ -24,13 +25,16 @@ final class Auth
         $statement = $pdo->prepare('SELECT id, password_hash, status, auth_version FROM users WHERE email = :email COLLATE NOCASE LIMIT 1');
         $statement->execute(['email' => $email]);
         $user = $statement->fetch();
-        if (!$user || $user['status'] !== 'active' || empty($user['password_hash']) || !password_verify($password, $user['password_hash'])) {
+        $passwordHash = is_array($user) && is_string($user['password_hash'] ?? null) && $user['password_hash'] !== '' ? $user['password_hash'] : self::DUMMY_PASSWORD_HASH;
+        $passwordValid = password_verify($password, $passwordHash);
+        if (!$user || $user['status'] !== 'active' || empty($user['password_hash']) || !$passwordValid) {
             $record = $pdo->prepare('INSERT INTO login_attempts (email_hash, ip_hash, attempted_at) VALUES (:email_hash, :ip_hash, :attempted_at)');
             $record->execute(['email_hash' => $emailHash, 'ip_hash' => $ipHash, 'attempted_at' => gmdate('Y-m-d H:i:s')]);
             return false;
         }
 
         Session::regenerate();
+        unset($_SESSION['_csrf']);
         $_SESSION['user_id'] = (int) $user['id'];
         $_SESSION['auth_version'] = (int) $user['auth_version'];
         $now = gmdate('Y-m-d H:i:s');
@@ -49,11 +53,15 @@ final class Auth
         $statement = $pdo->prepare('SELECT id, name, email, avatar_url, status, email_verified_at, auth_version FROM users WHERE id = :id LIMIT 1');
         $statement->execute(['id' => $id]);
         $user = $statement->fetch();
-        if (!$user || $user['status'] !== 'active') return null;
+        if (!$user || $user['status'] !== 'active') {
+            Session::destroy();
+            return null;
+        }
         if (!isset($_SESSION['auth_version']) || (int) $_SESSION['auth_version'] !== (int) $user['auth_version']) {
             Session::destroy();
             return null;
         }
+        if (!headers_sent()) header('Cache-Control: private, no-store, max-age=0');
         return $user;
     }
 

@@ -1,0 +1,36 @@
+name: Bug report
+description: Report a reproducible problem in SmartStudyPro
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include passwords, API keys, payment details, production database files or personal student/customer data."
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the issue and the expected behaviour.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Open ... 2. Select ... 3. Observe ..."
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "PHP version, browser, device"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant error output
+      description: Redact tokens, emails, identifiers and personal data.
+    validations:
+      required: false

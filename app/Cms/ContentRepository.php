@@ -48,6 +48,7 @@ final class ContentRepository
         foreach ($allowed as $field) {
             if (!array_key_exists($field, $input)) continue;
             $value = $input[$field];
+            if (in_array($field, ['description_html', 'content_html', 'body_html'], true)) $value = HtmlSanitizer::clean((string) $value);
             if (in_array($field, ['price_ugx', 'sort_order', 'course_id', 'chapter_id', 'lesson_id', 'image_media_id', 'video_media_id', 'product_file_media_id', 'resource_media_id', 'quiz_time_limit_minutes', 'quiz_pass_mark'], true)) {
                 $value = $value === '' || $value === null ? null : filter_var($value, FILTER_VALIDATE_INT);
                 if ($value === false || ($value !== null && $value < 0)) throw new RuntimeException('A numeric field contains an invalid value.');
@@ -117,7 +118,7 @@ final class ContentRepository
         $statement->execute([
             'title' => trim((string) ($input['title'] ?? '')),
             'subtitle' => trim((string) ($input['subtitle'] ?? '')),
-            'body_html' => (string) ($input['body_html'] ?? ''),
+            'body_html' => HtmlSanitizer::clean((string) ($input['body_html'] ?? '')),
             'hero_media_id' => ($input['hero_media_id'] ?? '') === '' ? null : (int) $input['hero_media_id'],
             'status' => ($input['status'] ?? 'published') === 'draft' ? 'draft' : 'published',
             'updated_at' => gmdate('Y-m-d H:i:s'),

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Core\Config;
 use App\Core\Session;
+use App\Core\Security;
 
 $root = dirname(__DIR__);
 spl_autoload_register(static function (string $class): void {
@@ -14,5 +15,6 @@ spl_autoload_register(static function (string $class): void {
     if (is_file($path)) require $path;
 });
 Config::load($root);
+Security::sendHeaders();
 Session::start();
 return ['root' => $root, 'config' => Config::all()];

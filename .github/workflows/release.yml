@@ -33,10 +33,16 @@ jobs:
           php tests/assistant.php
           php tests/recognition.php
           php tests/operations.php
+          php tests/content-security.php
+          php tests/performance.php
+          php tests/security.php
+          node --check assets/js/main.js
+          node tests/main-js.test.cjs
       - name: Build clean deployment package
         run: |
           mkdir -p dist/package
           git archive "$GITHUB_SHA" | tar --exclude='cms' --exclude='db' --exclude='tests' --exclude='.github' --exclude='transcripts' --exclude='uploads/avatars/*' --exclude='database/bookings.db' --exclude='database/bookings.sqlite' --exclude='Income Statement and distribution.xlsx' --exclude='Readme.txt' -x -C dist/package
+          git archive "$GITHUB_SHA" uploads/avatars/.htaccess | tar -x -C dist/package
           mkdir -p dist/package/uploads/avatars
           touch dist/package/uploads/avatars/.gitkeep
           VERSION="${GITHUB_REF_NAME}"
