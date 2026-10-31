@@ -26,7 +26,7 @@ jobs:
           coverage: none
       - name: Lint foundation PHP
         run: find app admin bootstrap database install scripts tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l
-      - name: Test security and routing
+      - name: Lint migrated public pages\n        run: php -l index.php && php -l courses.php && php -l course-details.php && php -l about.php && php -l products.php && php -l product-details.php\n      - name: Test security and routing
         run: php tests/unit.php
       - name: Lint media endpoint
         run: php -l media.php
