@@ -314,7 +314,7 @@ $siteUrl = 'https://smartstudypro.com';
           
           <div class="form-check mb-3">
             <input class="form-check-input" type="checkbox" id="accept-terms" name="accept_terms" value="1" required <?= ($_POST['accept_terms'] ?? '') === '1' ? 'checked' : '' ?>>
-            <label class="form-check-label small" for="accept-terms">I agree to the <a href="terms.php" target="_blank" rel="noopener noreferrer">Terms of Use</a> and <a href="eula.php" target="_blank" rel="noopener noreferrer">End-User Licence Agreement</a>.</label>
+            <label class="form-check-label small" for="accept-terms">I agree to the <a href="terms.php" target="_blank" rel="noopener noreferrer">Terms of Use</a>.</label>
           </div>
           <div class="form-check mb-4">
             <input class="form-check-input" type="checkbox" id="accept-privacy" name="accept_privacy" value="1" required <?= ($_POST['accept_privacy'] ?? '') === '1' ? 'checked' : '' ?>>
