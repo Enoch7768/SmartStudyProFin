@@ -19,8 +19,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         try {
             $password = (string) ($_POST['password'] ?? '');
             if (!hash_equals($password, (string) ($_POST['confirm_password'] ?? ''))) throw new RuntimeException('The passwords do not match.');
+            if (($_POST['accept_terms'] ?? '') !== '1' || ($_POST['accept_privacy'] ?? '') !== '1') throw new RuntimeException('You must agree to the Terms of Use and acknowledge the Privacy Policy to create an account.');
             $service = new AccountService($pdo);
-            $service->register((string) ($_POST['name'] ?? ''), (string) ($_POST['email'] ?? ''), $password);
+            $service->register((string) ($_POST['name'] ?? ''), (string) ($_POST['email'] ?? ''), $password, ['terms' => '1.0.0', 'privacy' => '1.0.0'], (string) ($_SERVER['REMOTE_ADDR'] ?? ''), (string) ($_SERVER['HTTP_USER_AGENT'] ?? ''));
             if (!Auth::attempt($pdo, (string) ($_POST['email'] ?? ''), $password)) throw new RuntimeException('Your account was created. Please sign in.');
             Security::redirect('profile.php');
         } catch (Throwable $exception) {
@@ -311,6 +312,14 @@ $siteUrl = 'https://smartstudypro.com';
             <input id="register-confirm-password" type="password" name="confirm_password" autocomplete="new-password" maxlength="1024" class="form-control rounded-3 py-2" placeholder="••••••••" minlength="12" required>
           </div>
           
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="accept-terms" name="accept_terms" value="1" required <?= ($_POST['accept_terms'] ?? '') === '1' ? 'checked' : '' ?>>
+            <label class="form-check-label small" for="accept-terms">I agree to the <a href="terms.php" target="_blank" rel="noopener noreferrer">Terms of Use</a> and <a href="eula.php" target="_blank" rel="noopener noreferrer">End-User Licence Agreement</a>.</label>
+          </div>
+          <div class="form-check mb-4">
+            <input class="form-check-input" type="checkbox" id="accept-privacy" name="accept_privacy" value="1" required <?= ($_POST['accept_privacy'] ?? '') === '1' ? 'checked' : '' ?>>
+            <label class="form-check-label small" for="accept-privacy">I have read the <a href="privacy.php" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</label>
+          </div>
           <button type="submit" class="btn-ssp-primary w-100 py-2 fs-6">Create Account</button>
         </form>
 
