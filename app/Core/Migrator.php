@@ -9,6 +9,20 @@ use RuntimeException;
 
 final class Migrator
 {
+    public static function status(PDO $pdo, string $directory): array
+    {
+        $files = glob(rtrim($directory, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '*.php') ?: [];
+        sort($files, SORT_STRING);
+        $exists = (bool) $pdo->query(\"SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_migrations'\")->fetchColumn();
+        $applied = $exists ? array_fill_keys($pdo->query('SELECT version FROM schema_migrations')->fetchAll(PDO::FETCH_COLUMN), true) : [];
+        $pending = [];
+        foreach ($files as $file) {
+            $version = basename($file, '.php');
+            if (!isset($applied[$version])) $pending[] = $version;
+        }
+        return ['applied' => array_keys($applied), 'pending' => $pending];
+    }
+
     public static function run(PDO $pdo, string $directory): array
     {
         if (!is_dir($directory)) throw new RuntimeException('The migration directory is missing.');
