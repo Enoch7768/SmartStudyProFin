@@ -8,7 +8,7 @@ use PDO;
 
 final class Auth
 {
-    private const DUMMY_PASSWORD_HASH = '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.';
+    private const DUMMY_PASSWORD_HASH = '$2y$10$2RiD3U9ErL7xv9wKXFnR7.hIWohKGlT6ppRYVtUWCiRqqG4LQr.Ye';
     public static function attempt(PDO $pdo, string $email, string $password): bool
     {
         Session::start();
