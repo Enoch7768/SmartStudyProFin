@@ -227,7 +227,7 @@ $siteUrl = 'https://smartstudypro.com';
 <body class="courses-page">
 
  <?php include 'nav.php'; ?>
-  <main class="main">
+  <main id="main-content" class="main">
 
     <div class="ssp-page-title text-center">
       <div class="container" data-aos="fade">
