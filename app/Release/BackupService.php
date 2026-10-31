@@ -123,13 +123,13 @@ final class BackupService
             $manifestPath = $entry->getPathname() . '/manifest.json';
             if (!is_file($manifestPath) || is_link($manifestPath)) continue;
             $manifest = json_decode((string) file_get_contents($manifestPath), true);
-            if (!is_array($manifest)) continue;
+            if (!is_array($manifest) || !is_array($manifest['files'] ?? null)) continue;
             $items[] = [
                 'id' => $entry->getFilename(),
                 'created_at' => (string) ($manifest['created_at'] ?? ''),
                 'version' => (string) ($manifest['application_version'] ?? ''),
                 'file_count' => count($manifest['files'] ?? []),
-                'total_bytes' => array_sum(array_map(static fn (array $file): int => (int) ($file['size'] ?? 0), is_array($manifest['files'] ?? null) ? $manifest['files'] : [])),
+                'total_bytes' => array_sum(array_map(static fn (mixed $file): int => is_array($file) ? (int) ($file['size'] ?? 0) : 0, $manifest['files'])),
             ];
         }
         usort($items, static fn (array $a, array $b): int => strcmp($b['id'], $a['id']));
