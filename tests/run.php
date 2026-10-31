@@ -61,6 +61,25 @@ try {
     $pdo->exec('DELETE FROM login_attempts');
     if (!Auth::attempt($pdo, 'admin@example.test', 'a-strong-test-password')) throw new RuntimeException('Valid login was rejected.');
     Auth::logout();
+
+    $accounts = new AccountService($pdo);
+    $studentId = $accounts->register('Test Student', 'student@example.test', 'a-strong-student-password');
+    if (!Auth::hasRole($pdo, $studentId, 'student') || Auth::hasRole($pdo, $studentId, 'administrator')) throw new RuntimeException('Student registration assigned an incorrect role.');
+    $studentProfile = $accounts->profile($studentId);
+    if (($studentProfile['email'] ?? '') !== 'student@example.test') throw new RuntimeException('Student profile retrieval failed.');
+    $accounts->updateProfile($studentId, 'Updated Student', '+256700000000', 'Kampala', 'Learning every day', 'dark');
+    $studentProfile = $accounts->profile($studentId);
+    if (($studentProfile['name'] ?? '') !== 'Updated Student' || ($studentProfile['preferred_theme'] ?? '') !== 'dark') throw new RuntimeException('Student profile update failed.');
+    $accounts->changePassword($studentId, 'a-strong-student-password', 'a-new-strong-student-password');
+    if (!Auth::attempt($pdo, 'student@example.test', 'a-new-strong-student-password')) throw new RuntimeException('Password change did not update the credential.');
+    Auth::logout();
+    $resetToken = $accounts->createResetToken('student@example.test');
+    if (!is_string($resetToken) || strlen($resetToken) !== 64) throw new RuntimeException('Password reset token creation failed.');
+    if (!$accounts->resetPassword($resetToken, 'a-reset-strong-student-password')) throw new RuntimeException('Valid password reset token was rejected.');
+    if ($accounts->resetPassword($resetToken, 'another-reset-strong-password')) throw new RuntimeException('Password reset token was reusable.');
+    if (!Auth::attempt($pdo, 'student@example.test', 'a-reset-strong-student-password')) throw new RuntimeException('Password reset did not update the credential.');
+    Auth::logout();
+    if (!$accounts->allowResetRequest('student@example.test', '127.0.0.1') || !$accounts->allowResetRequest('student@example.test', '127.0.0.1') || !$accounts->allowResetRequest('student@example.test', '127.0.0.1') || $accounts->allowResetRequest('student@example.test', '127.0.0.1')) throw new RuntimeException('Password reset request throttling failed.');
     $duplicateRejected = false;
     try {
         $insert->execute(['name' => 'Duplicate', 'email' => 'ADMIN@example.test', 'password_hash' => null, 'status' => 'active', 'created_at' => $now, 'updated_at' => $now]);
