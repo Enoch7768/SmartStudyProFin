@@ -282,7 +282,7 @@ $fullImgUrl = str_starts_with($imgUrl, 'http') ? $imgUrl : $siteUrl . '/' . ltri
 
   <?php include 'nav.php'; ?>
 
-  <main class="main">
+  <main id="main-content" class="main">
 
     <div class="page-title-ssp text-center">
       <div class="container" data-aos="fade-up">
