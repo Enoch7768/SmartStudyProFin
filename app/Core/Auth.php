@@ -61,6 +61,7 @@ final class Auth
             Session::destroy();
             return null;
         }
+        if (!headers_sent()) header('Cache-Control: private, no-store, max-age=0');
         return $user;
     }
 
