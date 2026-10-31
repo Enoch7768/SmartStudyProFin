@@ -21,6 +21,8 @@ final class UpdateChecker
                 'header' => "Accept: application/vnd.github+json\r\nUser-Agent: SmartStudyPro-UpdateChecker\r\n",
                 'timeout' => 5,
                 'ignore_errors' => true,
+                'follow_location' => 0,
+                'max_redirects' => 0,
             ],
             'ssl' => ['verify_peer' => true, 'verify_peer_name' => true],
         ]);
