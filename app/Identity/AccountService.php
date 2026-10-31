@@ -79,7 +79,7 @@ final class AccountService
         $statement->execute(['id' => $userId]);
         $hash = $statement->fetchColumn();
         if (!is_string($hash) || $hash === '' || !password_verify($currentPassword, $hash)) throw new RuntimeException('Your current password is incorrect.');
-        $update = $this->pdo->prepare('UPDATE users SET password_hash = :hash, updated_at = :updated_at WHERE id = :id');
+        $update = $this->pdo->prepare('UPDATE users SET password_hash = :hash, auth_version = auth_version + 1, updated_at = :updated_at WHERE id = :id');
         $update->execute(['hash' => password_hash($newPassword, PASSWORD_DEFAULT), 'updated_at' => gmdate('Y-m-d H:i:s'), 'id' => $userId]);
         $tokens = $this->pdo->prepare('UPDATE password_reset_tokens SET used_at = :used_at WHERE user_id = :user_id AND used_at IS NULL');
         $tokens->execute(['used_at' => gmdate('Y-m-d H:i:s'), 'user_id' => $userId]);
@@ -135,7 +135,7 @@ final class AccountService
                 $this->pdo->rollBack();
                 return false;
             }
-            $update = $this->pdo->prepare("UPDATE users SET password_hash = :password_hash, updated_at = :updated_at WHERE id = :user_id AND status = 'active'");
+            $update = $this->pdo->prepare("UPDATE users SET password_hash = :password_hash, auth_version = auth_version + 1, updated_at = :updated_at WHERE id = :user_id AND status = 'active'");
             $update->execute(['password_hash' => password_hash($password, PASSWORD_DEFAULT), 'updated_at' => $now, 'user_id' => $record['user_id']]);
             if ($update->rowCount() !== 1) {
                 $this->pdo->rollBack();
