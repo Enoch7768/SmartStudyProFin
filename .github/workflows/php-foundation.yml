@@ -29,7 +29,7 @@ jobs:
       - name: Lint foundation PHP
         run: find app admin bootstrap database install scripts tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l
       - name: Lint migrated public pages
-        run: php -l login.php && php -l register.php && php -l logout.php && php -l reset.php && php -l profile.php && php -l admin.php && php -l google-auth.php && php -l learning.php && php -l study.php && php -l lesson-media.php && php -l index.php && php -l courses.php && php -l course-details.php && php -l about.php && php -l products.php && php -l product-details.php && php -l contact.php && php -l booking.php
+        run: php -l login.php && php -l register.php && php -l logout.php && php -l reset.php && php -l profile.php && php -l admin.php && php -l google-auth.php && php -l learning.php && php -l study.php && php -l lesson-media.php && php -l stream.php && php -l grade-quiz.php && php -l download.php && php -l index.php && php -l courses.php && php -l course-details.php && php -l about.php && php -l products.php && php -l product-details.php && php -l contact.php && php -l booking.php
       - name: Test security and routing
         run: php tests/unit.php
       - name: Lint media endpoint
