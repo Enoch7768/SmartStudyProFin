@@ -1,50 +1,39 @@
 <?php
-require_once 'auth.php';
 
-if (is_logged_in()) {
-    header("Location: profile.php");
-    exit;
-}
+declare(strict_types=1);
 
+require __DIR__ . '/bootstrap/app.php';
+
+use App\Core\Auth;
+use App\Core\Database;
+use App\Core\Security;
+use App\Identity\AccountService;
+
+$pdo = Database::connect();
+if (Auth::user($pdo)) Security::redirect('profile.php');
 $error = null;
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $confirm = $_POST['confirm_password'] ?? '';
-
-    if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = "Please provide a valid name and email address.";
-    } elseif (strlen($password) < 8) {
-        $error = "Password must be at least 8 characters.";
-    } elseif ($password !== $confirm) {
-        $error = "Passwords do not match.";
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+    if (!Security::verifyCsrf($_POST['_csrf'] ?? null)) {
+        $error = 'Your session expired. Refresh the page and try again.';
     } else {
         try {
-            $stmt = auth_db()->prepare("INSERT INTO users (name, email, password_hash) VALUES (:name, :email, :hash)");
-            $stmt->execute([
-                ':name'  => $name,
-                ':email' => $email,
-                ':hash'  => password_hash($password, PASSWORD_DEFAULT),
-            ]);
-            $userId = auth_db()->lastInsertId();
-            login_user(['id' => $userId]);
-            header("Location: profile.php");
-            exit;
-        } catch (Exception $e) {
-            $error = "That email is already registered, or something went wrong. Please try signing in instead.";
+            $password = (string) ($_POST['password'] ?? '');
+            if (!hash_equals($password, (string) ($_POST['confirm_password'] ?? ''))) throw new RuntimeException('The passwords do not match.');
+            $service = new AccountService($pdo);
+            $service->register((string) ($_POST['name'] ?? ''), (string) ($_POST['email'] ?? ''), $password);
+            if (!Auth::attempt($pdo, (string) ($_POST['email'] ?? ''), $password)) throw new RuntimeException('Your account was created. Please sign in.');
+            Security::redirect('profile.php');
+        } catch (Throwable $exception) {
+            $error = $exception->getMessage();
         }
     }
 }
-
-$phone   = '+256 704 416250';
+$phone = '+256 704 416250';
 $emailContact = 'smartstudypro36@gmail.com';
 $address = 'Kampala, Uganda';
-
-$seoTitle       = 'Create Account | SmartStudyPro';
+$seoTitle = 'Create Account | SmartStudyPro';
 $seoDescription = 'Create your SmartStudyPro account to start learning, access courses, and manage your profile.';
-$siteUrl        = "https://smartstudypro.com";
+$siteUrl = 'https://smartstudypro.com';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -301,6 +290,7 @@ $siteUrl        = "https://smartstudypro.com";
         <?php endif; ?>
 
         <form method="POST">
+          <input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>">
           <div class="mb-3">
             <label class="form-label small fw-semibold ssp-form-label">Full Name</label>
             <input type="text" name="name" class="form-control rounded-3 py-2" placeholder="John Doe" value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" required>
@@ -313,7 +303,7 @@ $siteUrl        = "https://smartstudypro.com";
           
           <div class="mb-3">
             <label class="form-label small fw-semibold ssp-form-label">Password</label>
-            <input type="password" name="password" class="form-control rounded-3 py-2" placeholder="••••••••" minlength="8" required>
+            <input type="password" name="password" class="form-control rounded-3 py-2" placeholder="••••••••" minlength="12" required>
           </div>
 
           <div class="mb-4">
