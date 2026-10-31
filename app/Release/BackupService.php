@@ -93,6 +93,7 @@ final class BackupService
             if ($signature === '' || !hash_equals($expected, $signature)) throw new RuntimeException('The backup manifest signature does not match.');
             $verified = 0;
             foreach ($manifest['files'] as $file) {
+                if (!is_array($file)) throw new RuntimeException('The backup manifest contains an invalid file record.');
                 $relative = (string) ($file['path'] ?? '');
                 if ($relative === '' || str_starts_with($relative, '/') || str_contains($relative, '\\') || preg_match('/(^|\/)\.\.?($|\/)/', $relative) || preg_match('/^[a-zA-Z0-9._\/-]+$/', $relative) !== 1) throw new RuntimeException('The backup contains an unsafe file path.');
                 $path = $directory . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relative);
