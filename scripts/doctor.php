@@ -16,6 +16,7 @@ $checks['Storage outside public web root'] = Installer::storageIsPrivate($applic
 $checks['Database inside private storage'] = Installer::databaseIsPrivate();
 $checks['Storage directory writable'] = is_dir($storage) ? is_writable($storage) : is_writable(dirname($storage));
 $checks['Installation lock present'] = Installer::isInstalled();
+$checks['Application key valid'] = Installer::applicationKeyIsValid();
 if ($checks['PDO SQLite'] && $checks['Storage path configured'] && $checks['Storage outside public web root'] && $checks['Database inside private storage'] && $checks['Storage directory writable']) {
     $databasePath = (string) Config::get('database.path');
     $checks['Database file exists'] = is_file($databasePath);
