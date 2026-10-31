@@ -61,6 +61,7 @@ final class HtmlSanitizer
                 continue;
             }
             if (!in_array($tag, self::ALLOWED_TAGS, true)) {
+                self::sanitizeChildren($node);
                 while ($node->firstChild) $parent->insertBefore($node->firstChild, $node);
                 $parent->removeChild($node);
                 continue;
@@ -102,6 +103,8 @@ final class HtmlSanitizer
             $element->setAttribute('rel', 'noopener noreferrer');
         }
         if ($tag === 'img' && !$element->hasAttribute('src')) $element->parentNode?->removeChild($element);
+        if ($tag === 'img' && !$element->hasAttribute('alt')) $element->setAttribute('alt', '');
+        if ($tag === 'img' && !$element->hasAttribute('loading')) $element->setAttribute('loading', 'lazy');
     }
 
     private static function safeUrl(string $value, bool $allowMailto): bool
