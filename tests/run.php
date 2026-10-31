@@ -28,6 +28,14 @@ try {
     $assign = $pdo->prepare('INSERT INTO user_roles (user_id, role_id, assigned_at) VALUES (:user_id, :role_id, :assigned_at)');
     $assign->execute(['user_id' => $userId, 'role_id' => $roleId, 'assigned_at' => $now]);
     if (!Auth::hasRole($pdo, $userId, 'administrator')) throw new RuntimeException('Role assignment failed.');
+    if (!Auth::hasPermission($pdo, $userId, 'manage_users')) throw new RuntimeException('Permission assignment failed.');
+    for ($attempt = 0; $attempt < 8; $attempt++) {
+        if (Auth::attempt($pdo, 'admin@example.test', 'incorrect-password')) throw new RuntimeException('Incorrect password was accepted.');
+    }
+    if (Auth::attempt($pdo, 'admin@example.test', 'a-strong-test-password')) throw new RuntimeException('Login throttle did not activate.');
+    $pdo->exec('DELETE FROM login_attempts');
+    if (!Auth::attempt($pdo, 'admin@example.test', 'a-strong-test-password')) throw new RuntimeException('Valid login was rejected.');
+    Auth::logout();
     $duplicateRejected = false;
     try {
         $insert->execute(['name' => 'Duplicate', 'email' => 'ADMIN@example.test', 'password_hash' => null, 'status' => 'active', 'created_at' => $now, 'updated_at' => $now]);
