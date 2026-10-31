@@ -21,8 +21,8 @@ final class PublicContent
     public function course(string|int|null $identifier): ?array
     {
         if ($identifier === null || $identifier === '') return null;
-        $statement = $this->pdo->prepare("SELECT * FROM cms_courses WHERE status = 'published' AND (id = :id OR slug = :slug) LIMIT 1");
-        $statement->execute(['id' => ctype_digit((string) $identifier) ? (int) $identifier : -1, 'slug' => (string) $identifier]);
+        $statement = $this->pdo->prepare("SELECT * FROM cms_courses WHERE status = 'published' AND (id = :id_match OR slug = :slug_match) LIMIT 1");
+        $statement->execute(['id_match' => ctype_digit((string) $identifier) ? (int) $identifier : -1, 'slug_match' => (string) $identifier]);
         $row = $statement->fetch();
         return $row ? $this->courseShape($row) : null;
     }
