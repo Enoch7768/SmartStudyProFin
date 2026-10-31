@@ -43,8 +43,13 @@ $size = filesize($file);
 $start = 0;
 $end = $size - 1;
 $status = 200;
-if (isset($_SERVER['HTTP_RANGE']) && preg_match('/bytes=(\d*)-(\d*)/', (string) $_SERVER['HTTP_RANGE'], $matches)) {
-    if ($matches[1] === '' && $matches[2] !== '') {
+if (isset($_SERVER['HTTP_RANGE'])) {
+    if (!preg_match('/^bytes=(\\d*)-(\\d*)$/D', trim((string) $_SERVER['HTTP_RANGE']), $matches) || ($matches[1] === '' && $matches[2] === '')) {
+        header('Content-Range: bytes */' . $size);
+        http_response_code(416);
+        exit;
+    }
+    if ($matches[1] === '') {
         $length = min((int) $matches[2], $size);
         if ($length < 1) {
             header('Content-Range: bytes */' . $size);
@@ -53,7 +58,7 @@ if (isset($_SERVER['HTTP_RANGE']) && preg_match('/bytes=(\d*)-(\d*)/', (string) 
         }
         $start = $size - $length;
     } else {
-        $start = $matches[1] === '' ? 0 : (int) $matches[1];
+        $start = (int) $matches[1];
         $end = $matches[2] === '' ? $end : min((int) $matches[2], $end);
     }
     if ($start > $end || $start >= $size) {
