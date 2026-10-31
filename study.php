@@ -8,6 +8,7 @@ use App\Core\Auth;
 use App\Core\Database;
 use App\Core\Security;
 use App\Learning\LearningService;
+use App\Learning\RecognitionService;
 
 header('Cache-Control: private, no-store');
 $pdo = Database::connect();
@@ -59,6 +60,7 @@ if ($course && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     }
 }
 
+(new RecognitionService($pdo))->sync($userId);
 $hasAccess = $course && $service->hasAccess($userId, $courseId);
 $outline = $hasAccess ? $service->outline($userId, $courseId) : [];
 $lessons = [];
