@@ -11,7 +11,7 @@ $contact = $content->contact();
 $displayTitle = $about['Main-Title'] ?: 'About Us';
 $displayDesc = $about['Story-Text'] ?: 'SmartStudyPro is dedicated to providing high-quality educational resources, personalized tutoring, and modern learning solutions across Uganda.';
 $aboutImgData = $about['About-Image'];
-$aboutImg = $aboutImgData['url'] ?? 'assets/img/20240102_164438.jpg';
+$aboutImg = isset($aboutImgData['url']) ? '/' . ltrim($aboutImgData['url'], '/') : 'assets/img/20240102_164438.jpg';
 
 $phone = $contact['phone'];
 $email = $contact['email'];
