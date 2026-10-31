@@ -39,7 +39,7 @@ Optional integrations require their own credentials: PayPal, DPO and Google Gemi
 7. Disable setup access after installation.
 8. Configure and test payment-provider webhooks and email delivery before accepting live transactions.
 
-See Readme.txt for the existing site-owner guide and docs/INSTALLATION.md for operational deployment details.
+See docs/INSTALLATION.md for installation and deployment details; Readme.txt is retained only as a pointer to current safe operating guidance.
 
 ## Configuration
 
