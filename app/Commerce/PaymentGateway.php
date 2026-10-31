@@ -75,6 +75,7 @@ final class PaymentGateway
 
     public function startDpo(array $payment, array $order, string $backUrl, string $redirectUrl): array
     {
+        if (!function_exists('simplexml_load_string')) throw new RuntimeException('The PHP SimpleXML extension is required for DPO payments.');
         $companyToken = (string) Config::get('payments.dpo_company_token');
         if ($companyToken === '') throw new RuntimeException('DPO has not been configured by the administrator.');
         $base = rtrim((string) Config::get('payments.dpo_endpoint', 'https://secure.3gdirectpay.com/API/v6/'), '/');
@@ -93,6 +94,7 @@ final class PaymentGateway
 
     public function verifyDpo(string $token, string $companyRef): array
     {
+        if (!function_exists('simplexml_load_string')) throw new RuntimeException('The PHP SimpleXML extension is required for DPO payments.');
         $companyToken = (string) Config::get('payments.dpo_company_token');
         if ($companyToken === '') throw new RuntimeException('DPO has not been configured by the administrator.');
         $base = rtrim((string) Config::get('payments.dpo_endpoint', 'https://secure.3gdirectpay.com/API/v6/'), '/');
