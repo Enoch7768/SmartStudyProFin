@@ -45,6 +45,17 @@ final class Config
                 'debug' => filter_var($read('APP_DEBUG', 'false'), FILTER_VALIDATE_BOOL),
             ],
             'mail' => ['from' => (string) $read('APP_MAIL_FROM', 'no-reply@smartstudypro.com')],
+            'payments' => [
+                'paypal_mode' => (string) $read('PAYPAL_MODE', 'sandbox'),
+                'paypal_client_id' => (string) $read('PAYPAL_CLIENT_ID', ''),
+                'paypal_secret' => (string) $read('PAYPAL_SECRET', ''),
+                'paypal_ugx_per_usd' => max(1, (int) $read('PAYPAL_UGX_PER_USD', 3700)),
+                'paypal_webhook_id' => (string) $read('PAYPAL_WEBHOOK_ID', ''),
+                'dpo_company_token' => (string) $read('DPO_COMPANY_TOKEN', ''),
+                'dpo_endpoint' => (string) $read('DPO_ENDPOINT', 'https://secure.3gdirectpay.com/API/v6/'),
+                'dpo_checkout_url' => (string) $read('DPO_CHECKOUT_URL', 'https://secure.3gdirectpay.com/payv2.php'),
+                'dpo_service_type' => (string) $read('DPO_SERVICE_TYPE', '5525'),
+            ],
             'storage' => ['path' => $storage],
             'database' => ['path' => $database],
         ];

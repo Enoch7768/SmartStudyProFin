@@ -313,6 +313,7 @@ $fullImgUrl = str_starts_with($imgUrl, 'http') ? $imgUrl : $siteUrl . '/' . ltri
               <hr class="my-3" style="border-color: var(--ssp-card-border);">
               
               <form action="booking.php" method="post">
+                <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" name="product_id" value="<?= htmlspecialchars($productId) ?>">
                 <input type="hidden" name="item_name" value="<?= htmlspecialchars($displayTitle) ?>">
                 <input type="hidden" name="item_price" value="<?= htmlspecialchars($displayPrice) ?>">

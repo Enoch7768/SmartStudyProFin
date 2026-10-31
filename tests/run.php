@@ -17,13 +17,14 @@ use App\Core\Installer;
 use App\Core\Migrator;
 use App\Cms\ContentRepository;
 use App\Cms\PublicContent;
+use App\Commerce\CommerceService;
 
 $temporary = sys_get_temp_dir() . '/ssp-test-' . bin2hex(random_bytes(8));
 if (!mkdir($temporary, 0700, true)) throw new RuntimeException('Could not create test storage.');
 try {
     $pdo = Database::connect($temporary . '/test.sqlite');
     $migrationPath = dirname(__DIR__) . '/database/migrations';
-    if (Migrator::run($pdo, $migrationPath) !== ['001_identity', '002_cms_content', '003_student_identity', '004_learning_engine', '005_lesson_resources_quiz_settings']) throw new RuntimeException('Foundation and CMS migrations did not run.');
+    if (Migrator::run($pdo, $migrationPath) !== ['001_identity', '002_cms_content', '003_student_identity', '004_learning_engine', '005_lesson_resources_quiz_settings', '006_commerce_payments']) throw new RuntimeException('Foundation and CMS migrations did not run.');
     if (Migrator::run($pdo, $migrationPath) !== []) throw new RuntimeException('Migrations are not idempotent.');
     $now = gmdate('Y-m-d H:i:s');
     $insert = $pdo->prepare('INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES (:name, :email, :password_hash, :status, :created_at, :updated_at)');
@@ -90,16 +91,42 @@ try {
 
     $productId = $content->save('products', null, ['title'=>'Study Guide','description_html'=>'Guide','price_ugx'=>'10000','category'=>'Books','product_type'=>'physical','status'=>'published']);
     if (!$content->find('products', $productId)) throw new RuntimeException('Product creation failed.');
+    $digitalAsset = $pdo->prepare("INSERT INTO media_assets (storage_path, original_name, mime_type, file_size, checksum_sha256, alt_text, visibility, uploaded_by, created_at) VALUES ('media/store/guide.pdf', 'guide.pdf', 'application/pdf', 100, 'digital-checksum', 'Digital guide', 'private', :user_id, :created_at)");
+    $digitalAsset->execute(['user_id' => $userId, 'created_at' => $now]);
+    $digitalAssetId = (int) $pdo->lastInsertId();
+    $paidCourseId = $content->save('courses', null, ['title'=>'Secure Checkout Course','description_html'=>'Paid course','content_html'=>'Course content','price_ugx'=>'25000','category'=>'Technology','status'=>'published']);
+    $digitalProductId = $content->save('products', null, ['title'=>'Digital Study Guide','description_html'=>'Downloadable guide','price_ugx'=>'10000','category'=>'Books','product_type'=>'online','product_file_media_id'=>$digitalAssetId,'status'=>'published']);
+    $commerce = new CommerceService($pdo);
+    $duplicateCartRejected = false;
+    try { $commerce->createOrder($userId, [['type'=>'course','id'=>$paidCourseId,'quantity'=>1], ['type'=>'course','id'=>$paidCourseId,'quantity'=>1]]); } catch (RuntimeException) { $duplicateCartRejected = true; }
+    if (!$duplicateCartRejected) throw new RuntimeException('Duplicate cart lines were accepted.');
+    $order = $commerce->createOrder($userId, [['type'=>'course','id'=>$paidCourseId,'quantity'=>1], ['type'=>'product','id'=>$digitalProductId,'quantity'=>1]]);
+    if ((int) $order['total_ugx'] !== 35000 || count($order['items']) !== 2) throw new RuntimeException('Order creation did not calculate authoritative catalogue prices.');
+    $payment = $commerce->createPayment((int) $order['id'], $userId, 'dpo');
+    $commerce->updateProviderReference((int) $payment['id'], 'dpo-test-token', 'CREATED', ['company_ref'=>$order['public_id']]);
+    $wrongAmountRejected = false;
+    try { $commerce->confirmPayment((int) $payment['id'], 'dpo', 'dpo-test-token', 'approval-1', 34999, 'UGX', 'COMPLETED', 'dpo-test-event'); } catch (RuntimeException) { $wrongAmountRejected = true; }
+    if (!$wrongAmountRejected || $commerce->order((int) $order['id'], $userId)['status'] !== 'pending' || $learning->hasAccess($userId, $paidCourseId)) throw new RuntimeException('An unmatching payment incorrectly granted purchase access.');
+    if (!$commerce->confirmPayment((int) $payment['id'], 'dpo', 'dpo-test-token', 'approval-1', 35000, 'UGX', 'COMPLETED', 'dpo-test-event')) throw new RuntimeException('A matching verified payment did not complete the order.');
+    if ($commerce->confirmPayment((int) $payment['id'], 'dpo', 'dpo-test-token', 'approval-1', 35000, 'UGX', 'COMPLETED', 'dpo-test-event')) throw new RuntimeException('A duplicate payment confirmation was not idempotent.');
+    $paidOrder = $commerce->order((int) $order['id'], $userId);
+    if ($paidOrder['status'] !== 'paid' || !$learning->hasAccess($userId, $paidCourseId)) throw new RuntimeException('A verified course purchase did not activate enrolment.');
+    $download = $commerce->purchasedFile($userId, (int) $paidOrder['items'][1]['id']);
+    if (!$download || $download['storage_path'] !== 'media/store/guide.pdf') throw new RuntimeException('A paid digital product did not receive a secure file entitlement.');
+    if ($commerce->purchasedFile($outsideUserId, (int) $paidOrder['items'][1]['id']) !== null) throw new RuntimeException('A different user accessed a purchased digital product.');
+    $unpaidOrder = $commerce->createOrder($outsideUserId, [['type'=>'product','id'=>$productId,'quantity'=>1]]);
+    if ((int) $unpaidOrder['total_ugx'] !== 10000 || $unpaidOrder['status'] !== 'pending') throw new RuntimeException('Order ownership or pending status was not enforced.');
+
     $public = new PublicContent($pdo);
-    if (count($public->courses()) !== 1 || ($public->course((string) $courseId)['Title'] ?? '') !== 'Foundations of Science' || ($public->course('foundations-of-science')['Title'] ?? '') !== 'Foundations of Science') throw new RuntimeException('Published course public read mapping failed.');
-    if (($public->product((string) $productId)['ProductType'] ?? '') !== 'Physical' || count($public->products()) !== 1) throw new RuntimeException('Published product public read mapping failed.');
+    if (count($public->courses()) !== 2 || ($public->course((string) $courseId)['Title'] ?? '') !== 'Foundations of Science' || ($public->course('foundations-of-science')['Title'] ?? '') !== 'Foundations of Science') throw new RuntimeException('Published course public read mapping failed.');
+    if (($public->product((string) $productId)['ProductType'] ?? '') !== 'Physical' || count($public->products()) !== 2) throw new RuntimeException('Published product public read mapping failed.');
 
     $content->savePage('home', ['title'=>'Learn with purpose','subtitle'=>'SmartStudyPro','body_html'=>'Home content','status'=>'published']);
     if (($content->page('home')['title'] ?? '') !== 'Learn with purpose') throw new RuntimeException('CMS page editing failed.');
     $content->saveSettings(['contact.phone'=>'+256700000000','contact.email'=>'hello@example.test','contact.address'=>'Kampala']);
     if (($content->settings()['contact.phone'] ?? '') !== '+256700000000') throw new RuntimeException('CMS settings editing failed.');
     $content->delete('courses', $courseId);
-    if ((int) $pdo->query('SELECT COUNT(*) FROM cms_chapters')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM cms_lessons')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM cms_quiz_questions')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM course_enrolments')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM lesson_progress')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM lesson_bookmarks')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM quiz_attempts')->fetchColumn() !== 0) throw new RuntimeException('Course deletion did not cascade to learning records.');
+    if ((int) $pdo->query('SELECT COUNT(*) FROM cms_chapters')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM cms_lessons')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM cms_quiz_questions')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM course_enrolments WHERE course_id = ' . $courseId)->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM lesson_progress WHERE course_id = ' . $courseId)->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM lesson_bookmarks')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM quiz_attempts')->fetchColumn() !== 0) throw new RuntimeException('Course deletion did not cascade to learning records.');
 
     for ($attempt = 0; $attempt < 8; $attempt++) {
         if (Auth::attempt($pdo, 'admin@example.test', 'incorrect-password')) throw new RuntimeException('Incorrect password was accepted.');
@@ -138,6 +165,8 @@ try {
     }
     if (!$duplicateRejected) throw new RuntimeException('Case-insensitive email uniqueness failed.');
     $pdo->exec("INSERT INTO password_reset_tokens (user_id, token_hash, expires_at, created_at) VALUES ($userId, 'test-hash', '2099-01-01 00:00:00', '$now')");
+    $pdo->exec('DELETE FROM payments WHERE order_id IN (SELECT id FROM orders WHERE user_id = ' . $userId . ')');
+    $pdo->exec('DELETE FROM orders WHERE user_id = ' . $userId);
     $pdo->exec('DELETE FROM users WHERE id = ' . $userId);
     if ((int) $pdo->query("SELECT COUNT(*) FROM password_reset_tokens WHERE token_hash = 'test-hash'")->fetchColumn() !== 0) throw new RuntimeException('Foreign-key cascade failed.');
     $root = dirname(__DIR__);
