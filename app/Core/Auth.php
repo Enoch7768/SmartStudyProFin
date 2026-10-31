@@ -15,6 +15,8 @@ final class Auth
         $emailHash = hash('sha256', strtolower($email));
         $ipHash = hash('sha256', (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
         $cutoff = gmdate('Y-m-d H:i:s', time() - 900);
+        $prune = $pdo->prepare('DELETE FROM login_attempts WHERE attempted_at < :prune_before');
+        $prune->execute(['prune_before' => gmdate('Y-m-d H:i:s', time() - 86400)]);
         $attempts = $pdo->prepare('SELECT COUNT(*) FROM login_attempts WHERE email_hash = :email_hash AND ip_hash = :ip_hash AND attempted_at >= :cutoff');
         $attempts->execute(['email_hash' => $emailHash, 'ip_hash' => $ipHash, 'cutoff' => $cutoff]);
         if ((int) $attempts->fetchColumn() >= 8) return false;
