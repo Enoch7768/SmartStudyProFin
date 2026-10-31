@@ -37,3 +37,8 @@ Run php scripts/doctor.php when command-line PHP and PDO SQLite are available. T
 ## Database recovery
 
 Back up the complete private storage directory before upgrades or manual database work. Take consistent SQLite backups while writes are controlled. Never delete the database to resolve a schema error; apply a new migration instead.
+
+
+## Releases and recovery
+
+See [release, update and backup operations](RELEASES_UPDATES_BACKUPS.md) for versioned deployment packages, administrator migration controls, backup verification and recovery instructions. The application version is recorded in VERSION. Release tags use the vMAJOR.MINOR.PATCH format.

@@ -1,0 +1,52 @@
+name: Build SmartStudyPro release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_sqlite, sqlite3, fileinfo, openssl
+          coverage: none
+      - name: Validate release version
+        run: |
+          VERSION="$(tr -d '[:space:]' < VERSION)"
+          TAG="${GITHUB_REF_NAME#v}"
+          test "$VERSION" = "$TAG"
+      - name: Run release validation
+        run: |
+          find app admin bootstrap database install scripts tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+          php tests/unit.php
+          php tests/run.php
+          php tests/assistant.php
+          php tests/recognition.php
+          php tests/operations.php
+      - name: Build clean deployment package
+        run: |
+          mkdir -p dist/package
+          git archive "$GITHUB_SHA" | tar --exclude='cms' --exclude='db' --exclude='tests' --exclude='.github' --exclude='transcripts' --exclude='uploads/avatars/*' --exclude='database/bookings.db' --exclude='database/bookings.sqlite' --exclude='Income Statement and distribution.xlsx' --exclude='Readme.txt' -x -C dist/package
+          mkdir -p dist/package/uploads/avatars
+          touch dist/package/uploads/avatars/.gitkeep
+          VERSION="${GITHUB_REF_NAME}"
+          cd dist/package
+          zip -qr "../smartstudypro-${VERSION}.zip" .
+          cd ..
+          sha256sum "smartstudypro-${VERSION}.zip" > "smartstudypro-${VERSION}.zip.sha256"
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dist/smartstudypro-${GITHUB_REF_NAME}.zip
+            dist/smartstudypro-${GITHUB_REF_NAME}.zip.sha256
