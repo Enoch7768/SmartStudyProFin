@@ -127,7 +127,7 @@ final class GoogleIdentityService
         $keys = self::requestJson(self::CERTIFICATES_ENDPOINT, 'GET');
         $key = null;
         foreach (($keys['keys'] ?? []) as $candidate) {
-            if (is_array($candidate) && ($candidate['kid'] ?? null) === $header['kid'] && ($candidate['kty'] ?? null) === 'RSA' && ($candidate['alg'] ?? 'RS256') === 'RS256') {
+            if (is_array($candidate) && ($candidate['kid'] ?? null) === $header['kid'] && ($candidate['kty'] ?? null) === 'RSA' && ($candidate['alg'] ?? 'RS256') === 'RS256' && ($candidate['use'] ?? 'sig') === 'sig') {
                 $key = $candidate;
                 break;
             }
@@ -141,13 +141,12 @@ final class GoogleIdentityService
 
         $audience = $claims['aud'] ?? null;
         $clientId = (string) Config::get('google.client_id');
-        $audienceMatches = is_string($audience) ? hash_equals($clientId, $audience) : (is_array($audience) && in_array($clientId, $audience, true));
+        $audienceMatches = is_string($audience) && hash_equals($clientId, $audience);
         $issuer = $claims['iss'] ?? '';
         $issuedAt = filter_var($claims['iat'] ?? null, FILTER_VALIDATE_INT);
         $expiresAt = filter_var($claims['exp'] ?? null, FILTER_VALIDATE_INT);
         if (!in_array($issuer, ['https://accounts.google.com', 'accounts.google.com'], true)
             || !$audienceMatches
-            || (is_array($audience) && (!is_string($claims['azp'] ?? null) || !hash_equals($clientId, $claims['azp'])))
             || !$issuedAt
             || !$expiresAt
             || $issuedAt > time() + 60
