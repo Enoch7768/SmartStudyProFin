@@ -41,6 +41,7 @@ try {
     }
 
     $content = new ContentRepository($pdo);
+    $courseId = $content->save('courses', null, ['title' => 'Refundable Course', 'description_html' => 'Paid course access test.', 'content_html' => 'Course content.', 'price_ugx' => '10000', 'category' => 'Testing', 'status' => 'published']);
     $productId = $content->save('products', null, ['title' => 'Phase Five Study Pack', 'description_html' => 'A collection of study resources.', 'price_ugx' => '10000', 'category' => 'Study materials', 'product_type' => 'online', 'status' => 'published']);
     $attach = $pdo->prepare('INSERT INTO cms_product_assets (product_id, media_asset_id, asset_role, sort_order, created_at) VALUES (:product_id, :media_id, :role, :sort_order, :created_at)');
     $attach->execute(['product_id' => $productId, 'media_id' => $assets[0], 'role' => 'download', 'sort_order' => 0, 'created_at' => $now]);
@@ -53,24 +54,26 @@ try {
     if (count($product['Files'] ?? []) !== 2 || isset($product['Files'][0]['url'])) throw new RuntimeException('The product page did not expose safe file descriptions without private download URLs.');
 
     $commerce = new CommerceService($pdo);
-    $order = $commerce->createOrder($adminId, [['type' => 'product', 'id' => $productId, 'quantity' => 1]]);
+    $order = $commerce->createOrder($adminId, [['type' => 'product', 'id' => $productId, 'quantity' => 1], ['type' => 'course', 'id' => $courseId, 'quantity' => 1]]);
     $itemId = (int) $order['items'][0]['id'];
-    if ((int) $order['total_ugx'] !== 10000 || (int) $pdo->query('SELECT COUNT(*) FROM order_item_assets WHERE order_item_id = ' . $itemId)->fetchColumn() !== 2) throw new RuntimeException('The order did not snapshot every private product asset.');
+    if ((int) $order['total_ugx'] !== 20000 || (int) $pdo->query('SELECT COUNT(*) FROM order_item_assets WHERE order_item_id = ' . $itemId)->fetchColumn() !== 2) throw new RuntimeException('The order did not snapshot every private product asset.');
     $payment = $commerce->createPayment((int) $order['id'], $adminId, 'dpo');
     $samePayment = $commerce->createPayment((int) $order['id'], $adminId, 'dpo');
     if ((int) $payment['id'] !== (int) $samePayment['id']) throw new RuntimeException('Repeated payment creation did not reuse the active idempotent payment.');
     $commerce->updateProviderReference((int) $payment['id'], 'phase5-dpo-token', 'CREATED', ['company_ref' => $order['public_id']]);
-    if (!$commerce->confirmPayment((int) $payment['id'], 'dpo', 'phase5-dpo-token', 'phase5-approval', 10000, 'UGX', 'COMPLETED', 'phase5-event')) throw new RuntimeException('A verified payment did not complete the purchase.');
+    if (!$commerce->confirmPayment((int) $payment['id'], 'dpo', 'phase5-dpo-token', 'phase5-approval', 20000, 'UGX', 'COMPLETED', 'phase5-event')) throw new RuntimeException('A verified payment did not complete the purchase.');
 
+    $learning = new App\\Learning\\LearningService($pdo);
+    if (!$learning->hasAccess($adminId, $courseId)) throw new RuntimeException('A verified course purchase did not grant course access.');
     $files = $commerce->purchasedFiles($adminId, $itemId);
     if (count($files) !== 2 || $files[0]['original_name'] !== 'guide.pdf' || $files[1]['original_name'] !== 'notes.txt') throw new RuntimeException('Purchased files were not returned in their configured order.');
     if (!$commerce->purchasedAsset($adminId, (int) $files[0]['asset_id']) || $commerce->purchasedAsset($otherUserId, (int) $files[0]['asset_id']) !== null) throw new RuntimeException('A private purchase asset escaped order ownership checks.');
 
     $refunds = new RefundService($pdo);
-    $firstRefund = $refunds->request((int) $order['id'], $adminId, 4000, 'Customer requested a partial refund.');
+    $firstRefund = $refunds->request((int) $order['id'], $adminId, 8000, 'Customer requested a partial refund.');
     $overRefundRejected = false;
     try {
-        $refunds->request((int) $order['id'], $adminId, 6001, 'This must exceed the remaining balance.');
+        $refunds->request((int) $order['id'], $adminId, 12001, 'This must exceed the remaining balance.');
     } catch (RuntimeException) {
         $overRefundRejected = true;
     }
@@ -79,12 +82,13 @@ try {
     $partial = $commerce->order((int) $order['id'], $adminId);
     if (($partial['status'] ?? '') !== 'partially_refunded' || $commerce->purchasedAsset($adminId, (int) $files[0]['asset_id']) === null) throw new RuntimeException('A partial refund did not preserve the remaining paid purchase entitlement.');
 
-    $secondRefund = $refunds->request((int) $order['id'], $adminId, 6000, 'Remaining balance refunded.');
+    $secondRefund = $refunds->request((int) $order['id'], $adminId, 12000, 'Remaining balance refunded.');
     $refunds->resolve($secondRefund, $adminId, 'succeeded', 'DPO-REFUND-002', 'Full balance confirmed in the DPO merchant portal.');
     $finalOrder = $commerce->order((int) $order['id'], $adminId);
     $finalPayment = $commerce->providerPayment('dpo', 'phase5-dpo-token');
     if (($finalOrder['status'] ?? '') !== 'refunded' || ($finalPayment['status'] ?? '') !== 'refunded') throw new RuntimeException('A fully refunded order and payment did not reach refunded status.');
     if ($commerce->purchasedAsset($adminId, (int) $files[0]['asset_id']) !== null) throw new RuntimeException('A fully refunded order retained private download access.');
+    if ($learning->hasAccess($adminId, $courseId)) throw new RuntimeException('A fully refunded course remained accessible without another paid purchase.');
     if (count($refunds->auditTrail($firstRefund)) !== 2 || count($refunds->auditTrail($secondRefund)) !== 2) throw new RuntimeException('Refund requests and provider-confirmed resolutions were not fully audited.');
 
     echo "PASS multi-file product snapshots and secure owner-bound delivery\n";
