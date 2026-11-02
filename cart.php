@@ -12,7 +12,7 @@ use App\Core\Session;
 Session::start();
 $pdo = Database::connect();
 $user = Auth::user($pdo);
-if (!$user) Security::redirect('login.php?redirect=cart.php');
+if (!$user) Security::redirect('/login?redirect=%2Fcart');
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if (!Security::verifyCsrf($_POST['_csrf'] ?? null)) {
         http_response_code(400);
