@@ -5,8 +5,12 @@ require_once __DIR__ . '/bootstrap/app.php';
 
 $pdo = \App\Core\Database::connect();
 $content = new \App\Cms\PublicContent($pdo);
-$productId = $_GET['id'] ?? $_GET['_id'] ?? null;
-$product = $content->product(is_string($productId) || is_int($productId) ? $productId : null);
+$productIdentifier = $_GET['slug'] ?? $_GET['id'] ?? $_GET['_id'] ?? null;
+$product = $content->product(is_string($productIdentifier) || is_int($productIdentifier) ? $productIdentifier : null);
+if ($product && !isset($_GET['slug']) && !headers_sent()) {
+    header('Location: /products/' . rawurlencode((string) $product['slug']), true, 301);
+    exit;
+}
 $contact = $content->contact();
 
 if (!$product) http_response_code(404);
