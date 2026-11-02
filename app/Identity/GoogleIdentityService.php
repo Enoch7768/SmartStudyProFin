@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\\Identity;
+namespace App\Identity;
 
-use App\\Core\\Auth;
-use App\\Core\\Config;
-use App\\Core\\Session;
+use App\Core\Auth;
+use App\Core\Config;
+use App\Core\Session;
 use PDO;
 use RuntimeException;
 
@@ -180,9 +180,9 @@ final class GoogleIdentityService
                 if ($update->rowCount() !== 1) throw new RuntimeException('The Google account could not be connected.');
                 $this->pdo->commit();
                 return $linkUserId;
-            } catch (\\Throwable $exception) {
+            } catch (\Throwable $exception) {
                 if ($this->pdo->inTransaction()) $this->pdo->rollBack();
-                if ($exception instanceof \\PDOException && str_contains(strtolower($exception->getMessage()), 'unique')) throw new RuntimeException('This Google account is already connected to another SmartStudyPro account.');
+                if ($exception instanceof \PDOException && str_contains(strtolower($exception->getMessage()), 'unique')) throw new RuntimeException('This Google account is already connected to another SmartStudyPro account.');
                 throw $exception;
             }
         }
@@ -218,9 +218,9 @@ final class GoogleIdentityService
             }
             $this->pdo->commit();
             return $userId;
-        } catch (\\Throwable $exception) {
+        } catch (\Throwable $exception) {
             if ($this->pdo->inTransaction()) $this->pdo->rollBack();
-            if ($exception instanceof \\PDOException && str_contains(strtolower($exception->getMessage()), 'unique')) throw new RuntimeException('An account already uses this Google identity or email. Sign in and connect Google from your profile.');
+            if ($exception instanceof \PDOException && str_contains(strtolower($exception->getMessage()), 'unique')) throw new RuntimeException('An account already uses this Google identity or email. Sign in and connect Google from your profile.');
             throw $exception;
         }
     }
