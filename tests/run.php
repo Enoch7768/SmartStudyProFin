@@ -126,6 +126,19 @@ try {
     if (($content->page('home')['title'] ?? '') !== 'Learn with purpose') throw new RuntimeException('CMS page editing failed.');
     $content->saveSettings(['contact.phone'=>'+256700000000','contact.email'=>'hello@example.test','contact.address'=>'Kampala']);
     if (($content->settings()['contact.phone'] ?? '') !== '+256700000000') throw new RuntimeException('CMS settings editing failed.');
+    $publicFavicon = $pdo->prepare("INSERT INTO media_assets (storage_path, original_name, mime_type, file_size, checksum_sha256, alt_text, visibility, uploaded_by, created_at) VALUES ('media/public/favicon.png', 'favicon.png', 'image/png', 128, 'favicon-checksum', 'Site favicon', 'public', :user_id, :created_at)");
+    $publicFavicon->execute(['user_id' => $userId, 'created_at' => $now]);
+    $faviconId = (int) $pdo->lastInsertId();
+    $content->saveSettings(['contact.phone'=>'+256700000000','contact.email'=>'hello@example.test','contact.address'=>'Kampala','site.favicon_media_id'=>(string) $faviconId]);
+    if (($content->settings()['site.favicon_media_id'] ?? '') !== (string) $faviconId) throw new RuntimeException('CMS public favicon setting was not saved.');
+    $privateFaviconRejected = false;
+    try { $content->saveSettings(['contact.phone'=>'+256700000000','contact.email'=>'hello@example.test','contact.address'=>'Kampala','site.favicon_media_id'=>(string) $resourceId]); } catch (RuntimeException) { $privateFaviconRejected = true; }
+    if (!$privateFaviconRejected || ($content->settings()['site.favicon_media_id'] ?? '') !== (string) $faviconId) throw new RuntimeException('CMS accepted a private favicon or changed settings after invalid input.');
+    $invalidFaviconRejected = false;
+    try { $content->saveSettings(['contact.phone'=>'+256700000000','contact.email'=>'hello@example.test','contact.address'=>'Kampala','site.favicon_media_id'=>'999999']); } catch (RuntimeException) { $invalidFaviconRejected = true; }
+    if (!$invalidFaviconRejected) throw new RuntimeException('CMS accepted a nonexistent favicon media record.');
+    $content->saveSettings(['contact.phone'=>'+256700000000','contact.email'=>'hello@example.test','contact.address'=>'Kampala','site.favicon_media_id'=>'']);
+    if (($content->settings()['site.favicon_media_id'] ?? 'not-empty') !== '') throw new RuntimeException('CMS could not restore the default favicon.');
     $content->delete('courses', $courseId);
     if ((int) $pdo->query('SELECT COUNT(*) FROM cms_chapters')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM cms_lessons')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM cms_quiz_questions')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM course_enrolments WHERE course_id = ' . $courseId)->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM lesson_progress WHERE course_id = ' . $courseId)->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM lesson_bookmarks')->fetchColumn() !== 0 || (int) $pdo->query('SELECT COUNT(*) FROM quiz_attempts')->fetchColumn() !== 0) throw new RuntimeException('Course deletion did not cascade to learning records.');
 
