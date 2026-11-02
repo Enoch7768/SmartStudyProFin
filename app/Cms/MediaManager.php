@@ -66,8 +66,20 @@ final class MediaManager
         return (int) $this->pdo->lastInsertId();
     }
 
+    public function updateMetadata(int $id, string $altText, string $visibility): void
+    {
+        $query = $this->pdo->prepare('SELECT mime_type FROM media_assets WHERE id = :id LIMIT 1');
+        $query->execute(['id' => $id]);
+        $asset = $query->fetch();
+        if (!$asset) throw new RuntimeException('This media item no longer exists.');
+        if (!in_array($visibility, ['private', 'public'], true)) throw new RuntimeException('Choose a valid visibility setting.');
+        if ($visibility === 'public' && !str_starts_with((string) $asset['mime_type'], 'image/')) throw new RuntimeException('Only image files can be made public.');
+        $update = $this->pdo->prepare('UPDATE media_assets SET alt_text = :alt_text, visibility = :visibility WHERE id = :id');
+        $update->execute(['alt_text' => mb_substr(trim($altText), 0, 240), 'visibility' => $visibility, 'id' => $id]);
+    }
+
     public function all(): array
     {
-        return $this->pdo->query('SELECT id, original_name, mime_type, file_size, alt_text, visibility, created_at FROM media_assets ORDER BY id DESC')->fetchAll();
+        return $this->pdo->query('SELECT m.id, m.original_name, m.mime_type, m.file_size, m.alt_text, m.visibility, m.created_at, u.name AS uploader_name FROM media_assets m LEFT JOIN users u ON u.id = m.uploaded_by ORDER BY m.id DESC')->fetchAll();
     }
 }
