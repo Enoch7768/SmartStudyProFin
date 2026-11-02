@@ -9,6 +9,7 @@ header('X-Frame-Options: DENY');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 header('Cache-Control: no-store, private');
 
+use App\Core\DependencyInstaller;
 use App\Core\Installer;
 use App\Core\Security;
 
@@ -22,7 +23,7 @@ if (Installer::isInstalled()) {
 }
 
 $errors = [];
-$requirements = Installer::requirements();
+$requirements = array_merge(Installer::requirements(), DependencyInstaller::requirements());
 $storagePrivate = Installer::storageIsPrivate($application['root']);
 $databasePrivate = Installer::databaseIsPrivate();
 $allPassed = !in_array(false, $requirements, true) && $storagePrivate && $databasePrivate;
@@ -34,6 +35,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         try {
             $password = (string) ($_POST['password'] ?? '');
             if (!hash_equals($password, (string) ($_POST['password_confirmation'] ?? ''))) throw new RuntimeException('The passwords do not match.');
+            DependencyInstaller::install($application['root']);
             Installer::install($application['root'], (string) ($_POST['name'] ?? ''), (string) ($_POST['email'] ?? ''), $password);
             header('Location: ./?installed=1', true, 303);
             exit;
@@ -59,7 +61,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 <body>
 <main class="shell">
 <section class="intro"><div><div class="mark">SmartStudy<span>Pro</span></div><div class="tag">Secure first-time setup</div><h1>Your learning platform starts here.</h1><p>Prepare your private database and create the first administrator account. No default passwords or demo accounts are installed.</p></div><div style="font-size:12px;color:#b9bee8">SmartStudyPro · Private installation</div></section>
-<section class="panel"><h2>Application setup</h2><p class="sub">Check your server, then create your administrator account.</p>
+<section class="panel"><h2>Application setup</h2><p class="sub">SmartStudyPro installs its locked PHP dependencies into private storage, prepares the database, and creates your administrator account. No Composer or SSH installation is needed.</p>
 <?php foreach ($errors as $error): ?><div class="alert"><?= Security::escape($error) ?></div><?php endforeach; ?>
 <div class="checks"><?php foreach ($requirements as $label => $passed): ?><div class="check"><span class="dot<?= $passed ? ' ok' : '' ?>"></span><?= Security::escape($label) ?></div><?php endforeach; ?><div class="check"><span class="dot<?= $storagePrivate ? ' ok' : '' ?>"></span>Private storage outside web root</div><div class="check"><span class="dot<?= $databasePrivate ? ' ok' : '' ?>"></span>Database inside private storage</div></div>
 <form method="post" autocomplete="off"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>">
@@ -68,5 +70,5 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" minlength="12" autocomplete="new-password" required></div>
 <div class="field"><label for="password_confirmation">Confirm password</label><input id="password_confirmation" name="password_confirmation" type="password" minlength="12" autocomplete="new-password" required></div>
 <button type="submit"<?= $allPassed ? '' : ' disabled' ?>>Install SmartStudyPro</button></form>
-<p class="fine">Use HTTPS for installation. Set APP_STORAGE_PATH outside the public web root and DB_PATH inside that private directory. The application will not create public demo accounts.</p>
+<p class="fine">Use HTTPS. Dependencies and Composer's temporary runtime are stored outside the public web root in APP_STORAGE_PATH. The application source ships without a vendor directory or bundled Composer executable. PHP must permit outbound HTTPS requests and proc_open.</p>
 </section></main></body></html>

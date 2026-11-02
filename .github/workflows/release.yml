@@ -28,6 +28,7 @@ jobs:
       - name: Run release validation
         run: |
           find app admin bootstrap database install scripts tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+          php tests/dependency-installer.php
           php tests/unit.php
           php tests/run.php
           php tests/assistant.php
@@ -41,7 +42,7 @@ jobs:
       - name: Build clean deployment package
         run: |
           mkdir -p dist/package
-          git archive "$GITHUB_SHA" | tar --exclude='cms' --exclude='db' --exclude='tests' --exclude='.github' --exclude='transcripts' --exclude='uploads/avatars/*' --exclude='database/bookings.db' --exclude='database/bookings.sqlite' --exclude='Income Statement and distribution.xlsx' --exclude='Readme.txt' -x -C dist/package
+          git archive "$GITHUB_SHA" | tar --exclude='vendor' --exclude='composer.phar' --exclude='cms' --exclude='db' --exclude='tests' --exclude='.github' --exclude='transcripts' --exclude='uploads/avatars/*' --exclude='database/bookings.db' --exclude='database/bookings.sqlite' --exclude='Income Statement and distribution.xlsx' --exclude='Readme.txt' -x -C dist/package
           git archive "$GITHUB_SHA" uploads/avatars/.htaccess | tar -x -C dist/package
           mkdir -p dist/package/uploads/avatars
           touch dist/package/uploads/avatars/.gitkeep
