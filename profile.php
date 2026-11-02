@@ -8,6 +8,7 @@ use App\Core\Auth;
 use App\Core\Database;
 use App\Core\Security;
 use App\Identity\AccountService;
+use App\Identity\GoogleIdentityService;
 
 $pdo = Database::connect();
 $user = Auth::user($pdo);
