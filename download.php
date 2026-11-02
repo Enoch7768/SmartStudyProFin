@@ -15,8 +15,16 @@ if (!$user) {
     http_response_code(401);
     exit('Sign in to access your purchases.');
 }
-$itemId = filter_var($_GET['item'] ?? null, FILTER_VALIDATE_INT);
-$file = $itemId ? (new CommerceService($pdo))->purchasedFile((int) $user['id'], (int) $itemId) : null;
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+if (!in_array($method, ['GET', 'HEAD'], true)) {
+    http_response_code(405);
+    header('Allow: GET, HEAD');
+    exit;
+}
+$commerce = new CommerceService($pdo);
+$assetId = filter_var($_GET['asset'] ?? null, FILTER_VALIDATE_INT) ?: 0;
+$itemId = filter_var($_GET['item'] ?? null, FILTER_VALIDATE_INT) ?: 0;
+$file = $assetId > 0 ? $commerce->purchasedAsset((int) $user['id'], $assetId) : ($itemId > 0 ? $commerce->purchasedFile((int) $user['id'], $itemId) : null);
 if (!$file) {
     http_response_code(404);
     exit('Purchased file not found.');
