@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 require __DIR__ . '/bootstrap/app.php';
 
+header('Cache-Control: no-store, private');
+header('Referrer-Policy: no-referrer');
+header('X-Content-Type-Options: nosniff');
+
 use App\Core\Auth;
 use App\Core\Database;
 use App\Core\Security;
