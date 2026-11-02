@@ -34,7 +34,16 @@ final class Config
         $database = (string) $read('DB_PATH', $local['database_path'] ?? $storage . '/smartstudypro.sqlite');
         $privateEnv = [];
         $privateEnvFile = $storage . '/.env';
-        if (is_file($privateEnvFile) && is_readable($privateEnvFile) && !is_link($privateEnvFile)) {
+        $documentRoot = realpath(trim((string) ($_SERVER['DOCUMENT_ROOT'] ?? '')) ?: $root);
+        $privateStoragePath = realpath($storage);
+        $privateStorageSafe = $documentRoot !== false
+            && $privateStoragePath !== false
+            && $privateStoragePath !== rtrim($documentRoot, DIRECTORY_SEPARATOR)
+            && !str_starts_with($privateStoragePath . DIRECTORY_SEPARATOR, rtrim($documentRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
+        $privateEnvPermissions = is_file($privateEnvFile) ? fileperms($privateEnvFile) : false;
+        $privateEnvPermissionsSafe = DIRECTORY_SEPARATOR === '\\'
+            || ($privateEnvPermissions !== false && ($privateEnvPermissions & 0077) === 0);
+        if ($privateStorageSafe && $privateEnvPermissionsSafe && is_file($privateEnvFile) && is_readable($privateEnvFile) && !is_link($privateEnvFile)) {
             foreach (file($privateEnvFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
                 $line = trim($line);
                 if ($line === '' || str_starts_with($line, '#') || !str_contains($line, '=')) continue;
