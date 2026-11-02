@@ -13,7 +13,7 @@ The application is designed for conventional PHP hosting with SQLite. It uses se
 - Course enrolment, protected media, lesson progress, bookmarks, quizzes and timed assessments
 - Verifiable certificates, achievements and student notifications
 - Course-grounded AI learning assistance, with Gemini configured server-side
-- UGX commerce, immutable orders, PayPal and DPO payment integrations
+- UGX commerce, immutable receipts, PayPal and DPO payment integrations, audited refunds and secure multi-file digital products
 - Release packaging, safe database migrations, diagnostics and private backups
 - Security controls, accessible navigation and responsive light/dark presentation
 
