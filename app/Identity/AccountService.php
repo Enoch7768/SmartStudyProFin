@@ -48,7 +48,7 @@ final class AccountService
 
     public function profile(int $userId): array
     {
-        $statement = $this->pdo->prepare('SELECT u.id, u.name, u.email, u.avatar_url, u.google_subject, CASE WHEN u.password_hash IS NOT NULL AND u.password_hash <> '' THEN 1 ELSE 0 END AS has_password, u.status, u.email_verified_at, u.created_at, p.phone, p.location, p.bio, p.preferred_theme FROM users u LEFT JOIN student_profiles p ON p.user_id = u.id WHERE u.id = :id LIMIT 1');
+        $statement = $this->pdo->prepare('SELECT u.id, u.name, u.email, u.avatar_url, u.google_subject, CASE WHEN u.password_hash IS NOT NULL AND LENGTH(u.password_hash) > 0 THEN 1 ELSE 0 END AS has_password, u.status, u.email_verified_at, u.created_at, p.phone, p.location, p.bio, p.preferred_theme FROM users u LEFT JOIN student_profiles p ON p.user_id = u.id WHERE u.id = :id LIMIT 1');
         $statement->execute(['id' => $userId]);
         return $statement->fetch() ?: [];
     }
