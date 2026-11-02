@@ -9,10 +9,12 @@ use App\Core\Database;
 use App\Core\Security;
 use App\Identity\AccountService;
 use App\Identity\LegalAcceptanceService;
+use App\Identity\GoogleIdentityService;
 
 $pdo = Database::connect();
 if (Auth::user($pdo)) Security::redirect('profile.php');
-$error = null;
+$error = isset($_GET['google_error']) ? 'Google account creation could not be completed. Try again or use the registration form.' : null;
+$googleConfigured = GoogleIdentityService::isConfigured();
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if (!Security::verifyCsrf($_POST['_csrf'] ?? null)) {
         $error = 'Your session expired. Refresh the page and try again.';
@@ -322,6 +324,9 @@ $siteUrl = 'https://smartstudypro.com';
             <input class="form-check-input" type="checkbox" id="accept-privacy" name="accept_privacy" value="1" required <?= ($_POST['accept_privacy'] ?? '') === '1' ? 'checked' : '' ?>>
             <label class="form-check-label small" for="accept-privacy">I have read the <a href="privacy.php" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</label>
           </div>
+          <?php if ($googleConfigured): ?>
+          <button type="submit" formaction="google-auth.php" formmethod="post" name="action" value="register" class="btn btn-outline-secondary w-100 rounded-3 py-2 fw-semibold mb-3">Continue with Google</button>
+          <?php endif; ?>
           <button type="submit" class="btn-ssp-primary w-100 py-2 fs-6">Create Account</button>
         </form>
 
