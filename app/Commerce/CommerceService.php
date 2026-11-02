@@ -110,27 +110,37 @@ final class CommerceService
     public function createPayment(int $orderId, int $userId, string $provider): array
     {
         if (!in_array($provider, ['paypal', 'dpo'], true)) throw new RuntimeException('Choose a supported payment provider.');
-        $order = $this->order($orderId, $userId);
-        if (!$order || $order['status'] !== 'pending') throw new RuntimeException('This order cannot be paid.');
-        $existing = $this->pdo->prepare("SELECT * FROM payments WHERE order_id = :order_id AND provider = :provider AND status IN ('created', 'pending') ORDER BY id DESC LIMIT 1");
-        $existing->execute(['order_id' => $orderId, 'provider' => $provider]);
-        $payment = $existing->fetch();
-        if ($payment) return $payment;
-        $now = gmdate('Y-m-d H:i:s');
-        $key = bin2hex(random_bytes(24));
-        $insert = $this->pdo->prepare("INSERT INTO payments (order_id, provider, idempotency_key, amount_ugx, currency, status, created_at, updated_at) VALUES (:order_id, :provider, :key, :amount, 'UGX', 'created', :created_at, :updated_at)");
+        $this->pdo->exec('BEGIN IMMEDIATE');
+        $active = true;
         try {
-            $insert->execute(['order_id' => $orderId, 'provider' => $provider, 'key' => $key, 'amount' => (int) $order['total_ugx'], 'created_at' => $now, 'updated_at' => $now]);
-        } catch (\PDOException $exception) {
-            if (!str_contains(strtolower($exception->getMessage()), 'unique')) throw $exception;
+            $order = $this->order($orderId, $userId);
+            if (!$order || $order['status'] !== 'pending') throw new RuntimeException('This order cannot be paid.');
+            $existing = $this->pdo->prepare("SELECT * FROM payments WHERE order_id = :order_id AND provider = :provider AND status IN ('created', 'pending') ORDER BY id DESC LIMIT 1");
             $existing->execute(['order_id' => $orderId, 'provider' => $provider]);
-            $active = $existing->fetch();
-            if ($active) return $active;
+            $payment = $existing->fetch();
+            if ($payment) {
+                $this->pdo->exec('COMMIT');
+                $active = false;
+                return $payment;
+            }
+            $now = gmdate('Y-m-d H:i:s');
+            $insert = $this->pdo->prepare("INSERT INTO payments (order_id, provider, idempotency_key, amount_ugx, currency, status, created_at, updated_at) VALUES (:order_id, :provider, :key, :amount, 'UGX', 'created', :created_at, :updated_at)");
+            $insert->execute(['order_id' => $orderId, 'provider' => $provider, 'key' => bin2hex(random_bytes(24)), 'amount' => (int) $order['total_ugx'], 'created_at' => $now, 'updated_at' => $now]);
+            $query = $this->pdo->prepare('SELECT * FROM payments WHERE id = :id');
+            $query->execute(['id' => (int) $this->pdo->lastInsertId()]);
+            $payment = $query->fetch();
+            $this->pdo->exec('COMMIT');
+            $active = false;
+            return $payment;
+        } catch (Throwable $exception) {
+            if ($active) {
+                try {
+                    $this->pdo->exec('ROLLBACK');
+                } catch (Throwable) {
+                }
+            }
             throw $exception;
         }
-        $query = $this->pdo->prepare('SELECT * FROM payments WHERE id = :id');
-        $query->execute(['id' => (int) $this->pdo->lastInsertId()]);
-        return $query->fetch();
     }
 
     public function updateProviderReference(int $paymentId, string $providerOrderId, string $providerStatus, array $metadata = []): void
