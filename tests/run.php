@@ -198,6 +198,21 @@ try {
     $invalidGoogleTokenRejected = true;
 }
 if (!$invalidGoogleTokenRejected) throw new RuntimeException('A malformed Google identity token was accepted.');
+$automaticLinkRejected = false;
+try {
+    $googleResolve->invoke($googleService, ['sub' => 'unlinked-google-subject', 'email' => 'student@example.test', 'email_verified' => true, 'name' => 'Existing Student'], 'login', 0);
+} catch (RuntimeException) {
+    $automaticLinkRejected = true;
+}
+if (!$automaticLinkRejected) throw new RuntimeException('Google sign-in automatically linked an existing email account.');
+$oauthReplayRejected = false;
+try {
+    $googleService->complete('authorization-code', 'replayed-state');
+} catch (RuntimeException) {
+    $oauthReplayRejected = true;
+}
+if (!$oauthReplayRejected) throw new RuntimeException('A Google OAuth callback without a matching session state was accepted.');
+
 
     $acceptances = $pdo->prepare('SELECT document, version, ip_hash, user_agent_hash FROM user_legal_acceptances WHERE user_id = :user_id ORDER BY document');
     $acceptances->execute(['user_id' => $studentId]);
