@@ -419,12 +419,15 @@ $siteUrl = 'https://smartstudypro.com';
     }
   </style>
   <script>
-    // Immediate inline theme detection to prevent screen flicker
-    const savedTheme = localStorage.getItem('ssp-theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    }
+    (function () {
+      try {
+        const savedTheme = window.localStorage.getItem('ssp-theme');
+        const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch (error) {}
+    })();
   </script>
 </head>
 
@@ -688,33 +691,24 @@ $siteUrl = 'https://smartstudypro.com';
     document.addEventListener('DOMContentLoaded', () => {
       const toggleBtn = document.getElementById('theme-toggle');
       const toggleIcon = document.getElementById('theme-toggle-icon');
+      if (!toggleBtn || !toggleIcon) return;
 
       function updateIcon(isDark) {
-        if (isDark) {
-          toggleIcon.classList.remove('bi-moon-fill');
-          toggleIcon.classList.add('bi-sun-fill');
-        } else {
-          toggleIcon.classList.remove('bi-sun-fill');
-          toggleIcon.classList.add('bi-moon-fill');
-        }
+        toggleBtn.setAttribute('aria-pressed', String(isDark));
+        toggleIcon.classList.toggle('bi-sun-fill', isDark);
+        toggleIcon.classList.toggle('bi-moon-fill', !isDark);
       }
 
-      // Sync icon state on load
-      const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
-      updateIcon(isDarkMode);
+      updateIcon(document.documentElement.getAttribute('data-theme') === 'dark');
 
-      // Handle user click toggle
       toggleBtn.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        if (currentTheme === 'dark') {
-          document.documentElement.removeAttribute('data-theme');
-          localStorage.setItem('ssp-theme', 'light');
-          updateIcon(false);
-        } else {
-          document.documentElement.setAttribute('data-theme', 'dark');
-          localStorage.setItem('ssp-theme', 'dark');
-          updateIcon(true);
-        }
+        const isDark = document.documentElement.getAttribute('data-theme') !== 'dark';
+        document.documentElement.toggleAttribute('data-theme', isDark);
+        if (isDark) document.documentElement.setAttribute('data-theme', 'dark');
+        try {
+          window.localStorage.setItem('ssp-theme', isDark ? 'dark' : 'light');
+        } catch (error) {}
+        updateIcon(isDark);
       });
     });
   </script>
