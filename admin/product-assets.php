@@ -101,7 +101,7 @@ if (isset($_GET['saved'])) $notice = 'Product assets saved.';
 <p class="text-muted"><?= $role === 'gallery' ? 'Select public images shown on the product page.' : 'Select private documents, PDFs, text files, spreadsheets, presentations or image files delivered only after verified payment.' ?></p>
 <div class="row g-3">
 <?php foreach ($assets as $asset):
-$eligible = $role === 'gallery' ? $asset['visibility'] === 'public' && str_starts_with($asset['mime_type'], 'image/') : $asset['visibility'] === 'private';
+$eligible = $role === 'gallery' ? $asset['visibility'] === 'public' && in_array($asset['mime_type'], ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], true) : $asset['visibility'] === 'private';
 if (!$eligible) continue;
 ?>
 <div class="col-md-6 col-xl-4"><label class="border rounded-3 p-3 d-flex gap-2 h-100"><input class="form-check-input mt-1" type="checkbox" name="media_ids[]" value="<?= (int) $asset['id'] ?>" <?= in_array((int) $asset['id'], $selected, true) ? 'checked' : '' ?>><span><strong><?= Security::escape($asset['original_name']) ?></strong><br><small class="text-muted"><?= Security::escape($asset['mime_type']) ?> · <?= number_format((int) $asset['file_size']) ?> bytes</small></span></label></div>
