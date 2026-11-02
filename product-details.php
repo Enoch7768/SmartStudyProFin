@@ -28,6 +28,8 @@ $address = strip_tags($contact['address']);
 
 $imgData = $product['Image'] ?? null;
 $imgUrl = $imgData['url'] ?? 'assets/img/course-details-tab-1.png';
+$gallery = $product['Gallery'] ?? [];
+if (!$gallery && $imgData) $gallery = [['url' => $imgUrl, 'alt' => $displayTitle]];
 $filePath = '';
 
 $seoTitle = $product['SEO-Title'] ?? ($displayTitle . ' | SmartStudyPro Store');
@@ -304,7 +306,7 @@ $fullImgUrl = str_starts_with($imgUrl, 'http') ? $imgUrl : $siteUrl . '/' . ltri
         <div class="row gy-4">
           
           <div class="col-lg-8">
-            <img src="<?= $imgUrl ?>" class="img-fluid rounded-4 shadow-sm mb-4 w-100" style="max-height: 420px; object-fit: cover;" alt="<?= htmlspecialchars($displayTitle) ?>">
+            <?php if ($gallery): ?><div class="row g-3 mb-4"><?php foreach ($gallery as $image): ?><div class="<?= count($gallery) === 1 ? 'col-12' : 'col-sm-6' ?>"><img src="<?= htmlspecialchars($image['url'], ENT_QUOTES, 'UTF-8') ?>" class="img-fluid rounded-4 shadow-sm w-100" style="max-height: 420px; object-fit: cover;" alt="<?= htmlspecialchars($image['alt'] ?: $displayTitle, ENT_QUOTES, 'UTF-8') ?>"></div><?php endforeach; ?></div><?php else: ?><img src="<?= htmlspecialchars($imgUrl, ENT_QUOTES, 'UTF-8') ?>" class="img-fluid rounded-4 shadow-sm mb-4 w-100" style="max-height: 420px; object-fit: cover;" alt="<?= htmlspecialchars($displayTitle, ENT_QUOTES, 'UTF-8') ?>"><?php endif; ?>
             <h3 class="fw-bold mb-3" style="color: var(--ssp-navy);">About this Resource</h3>
             <div class="content text-muted lh-lg">
                 <?= $displayDesc ?>
