@@ -108,6 +108,14 @@ $seoDescription = 'Manage your SmartStudyPro account and student profile.';
 
 <div class="col-lg-5">
 <section class="account-card p-4 p-lg-5 mb-4">
+<div class="eyebrow">Connected accounts</div><h2 class="h4 mb-1">Google sign-in</h2>
+<p class="meta mb-3"><?= !empty($profile['google_subject']) ? 'Your Google account is connected. You can use it to sign in securely.' : 'Connect Google to sign in without entering your password.' ?></p>
+<?php if (empty($profile['google_subject'])): ?>
+<form method="post" action="google-auth.php"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>"><input type="hidden" name="action" value="link"><button class="btn btn-outline-secondary w-100 rounded-3 fw-semibold" type="submit">Connect Google account</button></form>
+<?php else: ?><span class="badge text-bg-success">Google connected</span><?php endif; ?>
+</section>
+
+<section class="account-card p-4 p-lg-5 mb-4">
 <div class="eyebrow">Account security</div><h2 class="h4 mb-1">Change password</h2><p class="meta mb-4">Use at least 12 characters. Your password is stored as a secure hash.</p>
 <form method="post">
 <input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>">
