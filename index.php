@@ -429,6 +429,7 @@ $siteUrl = 'https://smartstudypro.com';
       } catch (error) {}
     })();
   </script>
+<link href="assets/css/device-responsive.css" rel="stylesheet">
 </head>
 
 <body class="index-page">
