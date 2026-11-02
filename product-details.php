@@ -7,6 +7,7 @@ $pdo = \App\Core\Database::connect();
 $content = new \App\Cms\PublicContent($pdo);
 $productIdentifier = $_GET['slug'] ?? $_GET['id'] ?? $_GET['_id'] ?? null;
 $product = $content->product(is_string($productIdentifier) || is_int($productIdentifier) ? $productIdentifier : null);
+$productId = (int) ($product['_id'] ?? 0);
 if ($product && !isset($_GET['slug']) && !headers_sent()) {
     header('Location: /products/' . rawurlencode((string) $product['slug']), true, 301);
     exit;
@@ -56,7 +57,7 @@ $fullImgUrl = str_starts_with($imgUrl, 'http') ? $imgUrl : $siteUrl . '/' . ltri
   <meta name="author" content="SmartStudyPro">
 
   <meta property="og:type" content="product">
-  <meta property="og:url" content="<?= $siteUrl ?>/product-details.php?id=<?= $productId ?>">
+  <meta property="og:url" content="<?= $siteUrl ?>/products/<?= rawurlencode((string) ($product['slug'] ?? '')) ?>">
   <meta property="og:title" content="<?= htmlspecialchars($seoTitle) ?>">
   <meta property="og:description" content="<?= htmlspecialchars($seoDescription) ?>">
   <meta property="og:image" content="<?= $fullImgUrl ?>">
@@ -80,7 +81,7 @@ $fullImgUrl = str_starts_with($imgUrl, 'http') ? $imgUrl : $siteUrl . '/' . ltri
     },
     "offers": {
       "@type": "Offer",
-      "url": "<?= $siteUrl ?>/product-details.php?id=<?= $productId ?>",
+      "url": "<?= $siteUrl ?>/products/<?= rawurlencode((string) ($product['slug'] ?? '')) ?>",
       "priceCurrency": "UGX",
       "price": "<?= $displayPrice ?>",
       "availability": "https://schema.org/InStock"
@@ -317,33 +318,25 @@ $fullImgUrl = str_starts_with($imgUrl, 'http') ? $imgUrl : $siteUrl . '/' . ltri
               <p class="small" style="color: var(--ssp-text-muted);"><i class="bi bi-info-circle me-1"></i> Type: <strong><?= htmlspecialchars($productType) ?></strong></p>
               <hr class="my-3" style="border-color: var(--ssp-card-border);">
               
+              <?php if (strtolower($productType) === 'online'): ?>
+              <form method="post" action="/cart/add">
+                <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
+                <input type="hidden" name="type" value="product">
+                <input type="hidden" name="id" value="<?= $productId ?>">
+                <button type="submit" class="btn-ssp-primary w-100 py-2 mt-2">Add to cart</button>
+              </form>
+              <?php else: ?>
               <form action="booking.php" method="post">
                 <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
-                <input type="hidden" name="product_id" value="<?= htmlspecialchars($productId) ?>">
+                <input type="hidden" name="product_id" value="<?= $productId ?>">
                 <input type="hidden" name="item_name" value="<?= htmlspecialchars($displayTitle) ?>">
                 <input type="hidden" name="item_price" value="<?= htmlspecialchars($displayPrice) ?>">
-                <input type="hidden" name="product_file" value="<?= htmlspecialchars($filePath) ?>">
-                
-                <div class="mb-3">
-                  <label class="form-label small fw-semibold">Full Name</label>
-                  <input type="text" name="name" class="form-control rounded-3" placeholder="John Doe" required>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label small fw-semibold">Email Address</label>
-                  <input type="email" name="email" class="form-control rounded-3" placeholder="example@mail.com" required>
-                </div>
-                
-                <?php if(strtolower($productType) === 'physical'): ?>
-                  <div class="mb-3">
-                    <label class="form-label small fw-semibold">Shipping Address</label>
-                    <textarea name="address" class="form-control rounded-3" rows="2" placeholder="Your delivery address..." required></textarea>
-                  </div>
-                <?php endif; ?>
-
-                <button type="submit" class="btn-ssp-primary w-100 py-2 mt-2">
-                    Add to Cart
-                </button>
+                <div class="mb-3"><label class="form-label small fw-semibold">Full Name</label><input type="text" name="name" class="form-control rounded-3" placeholder="John Doe" required></div>
+                <div class="mb-3"><label class="form-label small fw-semibold">Email Address</label><input type="email" name="email" class="form-control rounded-3" placeholder="example@mail.com" required></div>
+                <div class="mb-3"><label class="form-label small fw-semibold">Shipping Address</label><textarea name="address" class="form-control rounded-3" rows="2" placeholder="Your delivery address..." required></textarea></div>
+                <button type="submit" class="btn-ssp-primary w-100 py-2 mt-2">Request this product</button>
               </form>
+              <?php endif; ?>
             </div>
           </div>
 
