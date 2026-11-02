@@ -78,6 +78,11 @@ Google sign-in uses the server-side OAuth 2.0 authorization-code flow with PKCE.
 ```dotenv
 APP_URL=https://your-domain.example
 GOOGLE_CLIENT_ID=your-google-oauth-client-id
+```
+
+Private storage environment file:
+
+```dotenv
 GOOGLE_CLIENT_SECRET=your-google-oauth-client-secret
 ```
 
