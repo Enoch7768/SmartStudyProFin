@@ -177,6 +177,10 @@ final class GoogleIdentityService
         if ($mode === 'link') {
             $user = Auth::user($this->pdo);
             if (!$user || (int) $user['id'] !== $linkUserId) throw new RuntimeException('Your account session expired. Sign in and try connecting Google again.');
+            $currentIdentity = $this->pdo->prepare('SELECT google_subject FROM users WHERE id = :id');
+            $currentIdentity->execute(['id' => $linkUserId]);
+            $currentSubject = $currentIdentity->fetchColumn();
+            if (is_string($currentSubject) && $currentSubject !== '' && !hash_equals($currentSubject, $subject)) throw new RuntimeException('A Google account is already connected to this profile.');
             $this->pdo->beginTransaction();
             try {
                 $existing = $this->pdo->prepare('SELECT id FROM users WHERE google_subject = :subject LIMIT 1');
