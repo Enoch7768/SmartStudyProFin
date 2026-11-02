@@ -69,6 +69,7 @@ $siteUrl = 'https://smartstudypro.com';
   <link href="assets/vendor/aos/aos.css" rel="stylesheet">
   <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
   <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+  <link href="assets/css/main.css" rel="stylesheet">
 
   <style>
     :root {
@@ -418,54 +419,21 @@ $siteUrl = 'https://smartstudypro.com';
     }
   </style>
   <script>
-    // Immediate inline theme detection to prevent screen flicker
-    const savedTheme = localStorage.getItem('ssp-theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    }
+    (function () {
+      try {
+        const savedTheme = window.localStorage.getItem('ssp-theme');
+        const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch (error) {}
+    })();
   </script>
 </head>
 
 <body class="index-page">
 
-  <header id="header" class="header ssp-header d-flex align-items-center sticky-top py-2">
-    <div class="container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
-      
-      <a href="index.php" class="logo d-flex align-items-center me-auto me-xl-0 text-decoration-none">
-        <img src="Smart_Study_Logo_Fin-removebg-preview.png" alt="SmartStudyPro Logo" height="48" class="img-fluid" style="max-height: 48px;">
-      </a>
-
-      <nav id="navmenu" class="navmenu">
-        <ul>
-          <li><a href="index.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'active' : '' ?>">Home</a></li>
-          <li><a href="about.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'about.php') ? 'active' : '' ?>">About Us</a></li>
-          <li><a href="courses.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'courses.php') ? 'active' : '' ?>">Courses</a></li>
-          <li><a href="products.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'products.php') ? 'active' : '' ?>">Products</a></li>
-          <li><a href="contact.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'contact.php') ? 'active' : '' ?>">Contact</a></li>
-        </ul>
-        <i class="mobile-nav-toggle d-xl-none bi bi-list fs-2 ms-3 ms-sm-4 p-1"></i>
-      </nav>
-
-      <div class="d-flex align-items-center gap-2 gap-sm-3">
-        <!-- Dark Mode Toggle Button -->
-        <button type="button" id="theme-toggle" class="header-icon-link fs-5" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
-          <i id="theme-toggle-icon" class="bi bi-moon-fill"></i>
-        </button>
-
-        <a href="cart.php" class="header-icon-link fs-5 text-decoration-none" title="Shopping Cart">
-          <i class="bi bi-bag"></i>
-        </a>
-
-        <a href="profile.php" class="header-icon-link fs-5 text-decoration-none" title="My Profile">
-          <i class="bi bi-person-circle"></i>
-        </a>
-
-        <a class="btn-ssp-primary d-none d-sm-inline-block text-decoration-none ms-1 ms-sm-2" href="courses.php">Explore Courses</a>
-      </div>
-
-    </div>
-  </header>
+  <?php include __DIR__ . '/nav.php'; ?>
 
   <main id="main-content" class="main">
 
@@ -682,41 +650,7 @@ $siteUrl = 'https://smartstudypro.com';
   <script src="assets/vendor/aos/aos.js"></script>
   <script src="assets/js/main.js"></script>
 
-  <!-- Dark Mode Toggle Script -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const toggleBtn = document.getElementById('theme-toggle');
-      const toggleIcon = document.getElementById('theme-toggle-icon');
 
-      function updateIcon(isDark) {
-        if (isDark) {
-          toggleIcon.classList.remove('bi-moon-fill');
-          toggleIcon.classList.add('bi-sun-fill');
-        } else {
-          toggleIcon.classList.remove('bi-sun-fill');
-          toggleIcon.classList.add('bi-moon-fill');
-        }
-      }
-
-      // Sync icon state on load
-      const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
-      updateIcon(isDarkMode);
-
-      // Handle user click toggle
-      toggleBtn.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        if (currentTheme === 'dark') {
-          document.documentElement.removeAttribute('data-theme');
-          localStorage.setItem('ssp-theme', 'light');
-          updateIcon(false);
-        } else {
-          document.documentElement.setAttribute('data-theme', 'dark');
-          localStorage.setItem('ssp-theme', 'dark');
-          updateIcon(true);
-        }
-      });
-    });
-  </script>
 
 </body>
 </html>

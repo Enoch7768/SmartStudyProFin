@@ -106,3 +106,25 @@ assert.equal(app.body.classList.contains('mobile-nav-active'), false);
 console.log('PASS optional frontend dependencies and missing elements');
 console.log('PASS keyboard-operable mobile navigation and accessible state');
 console.log('PASS escape and link navigation close the mobile menu');
+
+const homepage = fs.readFileSync('index.php', 'utf8');
+const sharedStylesheet = fs.readFileSync('assets/css/main.css', 'utf8');
+assert.match(homepage, /<link href="assets\/css\/main\.css" rel="stylesheet">/);
+assert.match(sharedStylesheet, /:where\(a, button, input, select, textarea, summary, \[tabindex\]\):focus-visible/);
+assert.match(sharedStylesheet, /prefers-reduced-motion: reduce/);
+console.log('PASS homepage loads the shared accessibility stylesheet');
+
+const sharedNavigation = fs.readFileSync('nav.php', 'utf8');
+assert.ok(homepage.includes("include __DIR__ . '/nav.php';"));
+assert.doesNotMatch(homepage, /id="header"/);
+assert.ok(sharedNavigation.includes('href="courses.php">Explore Courses</a>'));
+assert.match(sharedNavigation, /aria-controls="navmenu"/);
+assert.match(sharedNavigation, /aria-expanded="false"/);
+console.log('PASS homepage uses the shared accessible navigation and course entry point');
+
+for (const page of ['index.php', 'about.php', 'contact.php', 'courses.php', 'products.php', 'product-details.php', 'login.php', 'register.php']) {
+  const source = fs.readFileSync(page, 'utf8');
+  assert.ok(source.includes('<link href="assets/css/main.css" rel="stylesheet">'), page + ' must load shared accessibility styles');
+}
+console.log('PASS public pages load shared accessibility and reduced-motion styles');
+
