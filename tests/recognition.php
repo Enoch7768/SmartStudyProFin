@@ -39,6 +39,7 @@ try {
     $pdo->prepare("INSERT INTO course_enrolments (user_id, course_id, status, source, enrolled_at, updated_at) VALUES (:user_id, :course_id, 'completed', 'free', :enrolled_at, :updated_at)")->execute(['user_id' => $studentId, 'course_id' => $courseId, 'enrolled_at' => $now, 'updated_at' => $now]);
     $pdo->prepare("INSERT INTO lesson_progress (user_id, course_id, lesson_id, status, started_at, completed_at, updated_at) VALUES (:user_id, :course_id, :lesson_id, 'completed', :started_at, :completed_at, :updated_at)")->execute(['user_id' => $studentId, 'course_id' => $courseId, 'lesson_id' => $lessonId, 'started_at' => $now, 'completed_at' => $now, 'updated_at' => $now]);
     $pdo->prepare("INSERT INTO quiz_attempts (user_id, course_id, lesson_id, answers_json, question_count, correct_count, score_percent, passed, started_at, submitted_at) VALUES (:user_id, :course_id, :lesson_id, '{}', 1, 1, 100, 1, :started_at, :submitted_at)")->execute(['user_id' => $studentId, 'course_id' => $courseId, 'lesson_id' => $lessonId, 'started_at' => $now, 'submitted_at' => $now]);
+    $attemptId = (int) $pdo->lastInsertId();
 
     $service = new RecognitionService($pdo);
     $service->sync($studentId);
@@ -54,20 +55,25 @@ try {
     if ($service->certificates($otherId)) throw new RuntimeException('A student accessed another student certificates.');
 
     $notifications = $service->notifications($studentId);
-    if (count($notifications) !== 5) throw new RuntimeException('Achievement and certificate notifications were not created exactly once.');
+    if (count($notifications) !== 6) throw new RuntimeException('Course, quiz, achievement and certificate notifications were not created exactly once.');
     $service->sync($studentId);
-    if (count($service->notifications($studentId)) !== 5) throw new RuntimeException('Repeated synchronization duplicated notifications.');
-    if ($service->unreadCount($studentId) !== 5) throw new RuntimeException('Unread notification count is incorrect.');
+    if (count($service->notifications($studentId)) !== 6) throw new RuntimeException('Repeated synchronization duplicated notifications.');
+    if ($service->unreadCount($studentId) !== 6) throw new RuntimeException('Unread notification count is incorrect.');
     $service->markRead($otherId, (int) $notifications[0]['id']);
-    if ($service->unreadCount($studentId) !== 5) throw new RuntimeException('A different user changed another user notification.');
+    if ($service->unreadCount($studentId) !== 6) throw new RuntimeException('A different user changed another user notification.');
     $service->markRead($studentId, (int) $notifications[0]['id']);
-    if ($service->unreadCount($studentId) !== 4) throw new RuntimeException('Mark-read did not update the owned notification.');
+    if ($service->unreadCount($studentId) !== 5) throw new RuntimeException('Mark-read did not update the owned notification.');
     $service->markAllRead($studentId);
     if ($service->unreadCount($studentId) !== 0) throw new RuntimeException('Mark-all-read did not clear unread notifications.');
 
+    $pdo->prepare("INSERT INTO orders (public_id, user_id, status, currency, subtotal_ugx, total_ugx, customer_name, customer_email, created_at, paid_at, updated_at) VALUES ('ORD-RECOGNITION-1', :user_id, 'partially_refunded', 'UGX', 50000, 50000, 'Recognition Student', 'recognition@example.test', :created_at, :paid_at, :updated_at)")->execute(['user_id' => $studentId, 'created_at' => $now, 'paid_at' => $now, 'updated_at' => $now]);
+    $orderId = (int) $pdo->lastInsertId();
+    $pdo->prepare("INSERT INTO payments (order_id, provider, idempotency_key, amount_ugx, currency, status, provider_status, metadata_json, created_at, updated_at, paid_at) VALUES (:order_id, 'paypal', 'recognition-payment-1', 50000, 'UGX', 'paid', 'COMPLETED', '{}', :created_at, :updated_at, :paid_at)")->execute(['order_id' => $orderId, 'created_at' => $now, 'updated_at' => $now, 'paid_at' => $now]);
+    $paymentId = (int) $pdo->lastInsertId();
+    $pdo->prepare("INSERT INTO refunds (payment_id, provider_refund_id, amount_ugx, reason, status, created_at) VALUES (:payment_id, 'recognition-refund-1', 10000, 'Test partial refund', 'succeeded', :created_at)")->execute(['payment_id' => $paymentId, 'created_at' => $now]);
     $analytics = $service->analytics();
-    if ((int) $analytics['summary']['students'] !== 1 || (int) $analytics['summary']['enrolments'] !== 1 || (int) $analytics['summary']['completions'] !== 1 || (int) $analytics['summary']['certificates'] !== 1) throw new RuntimeException('Aggregate learning analytics are inconsistent.');
-    echo "PASS phase 7 migration and idempotency\nPASS activity-based achievements\nPASS unique certificate issue and verification\nPASS private certificate and notification ownership\nPASS idempotent notifications and read state\nPASS aggregate learning analytics\n";
+    if ((int) $analytics['summary']['students'] !== 1 || (int) $analytics['summary']['enrolments'] !== 1 || (int) $analytics['summary']['completions'] !== 1 || (int) $analytics['summary']['certificates'] !== 1 || (int) $analytics['summary']['gross_revenue_ugx'] !== 50000 || (int) $analytics['summary']['refunded_ugx'] !== 10000 || (int) $analytics['summary']['revenue_ugx'] !== 40000) throw new RuntimeException('Aggregate learning analytics or refund-adjusted revenue are inconsistent.');
+    echo "PASS phase 7 migration and idempotency\nPASS activity-based achievements\nPASS unique certificate issue and verification\nPASS private certificate and notification ownership\nPASS idempotent notifications and read state\nPASS aggregate learning analytics and refund-adjusted revenue\n";
 } finally {
     foreach (glob($temporary . '/*') ?: [] as $file) if (is_file($file)) unlink($file);
     @rmdir($temporary);
