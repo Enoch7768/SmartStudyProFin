@@ -306,12 +306,6 @@ $siteUrl = 'https://smartstudypro.com';
           <p class="text-center small text-muted mb-3">Google sign-in is unavailable until OAuth credentials are configured.</p>
         <?php endif; ?>
 
-        <div class="d-flex align-items-center my-3">
-          <hr class="flex-grow-1 text-muted opacity-25">
-          <span class="mx-3 text-muted small fw-semibold">or</span>
-          <hr class="flex-grow-1 text-muted opacity-25">
-        </div>
-
         <form method="POST">
           <input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>">
           <input type="hidden" name="redirect" value="<?= Security::escape($redirect) ?>">
