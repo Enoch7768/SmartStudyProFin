@@ -134,6 +134,12 @@ try {
     $privateFaviconRejected = false;
     try { $content->saveSettings(['contact.phone'=>'+256700000000','contact.email'=>'hello@example.test','contact.address'=>'Kampala','site.favicon_media_id'=>(string) $resourceId]); } catch (RuntimeException) { $privateFaviconRejected = true; }
     if (!$privateFaviconRejected || ($content->settings()['site.favicon_media_id'] ?? '') !== (string) $faviconId) throw new RuntimeException('CMS accepted a private favicon or changed settings after invalid input.');
+    $publicPdf = $pdo->prepare("INSERT INTO media_assets (storage_path, original_name, mime_type, file_size, checksum_sha256, alt_text, visibility, uploaded_by, created_at) VALUES ('media/public/not-a-favicon.pdf', 'document.pdf', 'application/pdf', 128, 'pdf-checksum', 'Document', 'public', :user_id, :created_at)");
+    $publicPdf->execute(['user_id' => $userId, 'created_at' => $now]);
+    $publicPdfId = (int) $pdo->lastInsertId();
+    $publicNonImageRejected = false;
+    try { $content->saveSettings(['contact.phone'=>'+256700000000','contact.email'=>'hello@example.test','contact.address'=>'Kampala','site.favicon_media_id'=>(string) $publicPdfId]); } catch (RuntimeException) { $publicNonImageRejected = true; }
+    if (!$publicNonImageRejected || ($content->settings()['site.favicon_media_id'] ?? '') !== (string) $faviconId) throw new RuntimeException('CMS accepted a public non-image favicon.');
     $invalidFaviconRejected = false;
     try { $content->saveSettings(['contact.phone'=>'+256700000000','contact.email'=>'hello@example.test','contact.address'=>'Kampala','site.favicon_media_id'=>'999999']); } catch (RuntimeException) { $invalidFaviconRejected = true; }
     if (!$invalidFaviconRejected) throw new RuntimeException('CMS accepted a nonexistent favicon media record.');
