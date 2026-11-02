@@ -55,8 +55,13 @@ final class CommerceService
                     if ($legacyAsset) array_unshift($assets, $legacyAsset);
                 }
                 $allowedMimes = ['application/pdf', 'text/plain', 'text/csv', 'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/rtf', 'text/rtf', 'application/vnd.oasis.opendocument.text'];
+                $assetBytes = 0;
                 if (!$assets || count($assets) > 25) throw new RuntimeException('Add at least one private digital file before publishing this product.');
-                foreach ($assets as $asset) if (!in_array($asset['mime_type'], $allowedMimes, true) || (int) $asset['file_size'] < 1) throw new RuntimeException('A digital product contains an unsupported or empty file.');
+                foreach ($assets as $asset) {
+                    if (!in_array($asset['mime_type'], $allowedMimes, true) || (int) $asset['file_size'] < 1) throw new RuntimeException('A digital product contains an unsupported or empty file.');
+                    $assetBytes += (int) $asset['file_size'];
+                    if ($assetBytes > 262144000) throw new RuntimeException('A digital product cannot exceed 250 MB of downloadable files.');
+                }
             }
             $price = (int) $item['price_ugx'];
             if ($price < 0 || $price > 1000000000) throw new RuntimeException('A product price is invalid.');
@@ -114,7 +119,15 @@ final class CommerceService
         $now = gmdate('Y-m-d H:i:s');
         $key = bin2hex(random_bytes(24));
         $insert = $this->pdo->prepare("INSERT INTO payments (order_id, provider, idempotency_key, amount_ugx, currency, status, created_at, updated_at) VALUES (:order_id, :provider, :key, :amount, 'UGX', 'created', :created_at, :updated_at)");
-        $insert->execute(['order_id' => $orderId, 'provider' => $provider, 'key' => $key, 'amount' => (int) $order['total_ugx'], 'created_at' => $now, 'updated_at' => $now]);
+        try {
+            $insert->execute(['order_id' => $orderId, 'provider' => $provider, 'key' => $key, 'amount' => (int) $order['total_ugx'], 'created_at' => $now, 'updated_at' => $now]);
+        } catch (\PDOException $exception) {
+            if (!str_contains(strtolower($exception->getMessage()), 'unique')) throw $exception;
+            $existing->execute(['order_id' => $orderId, 'provider' => $provider]);
+            $active = $existing->fetch();
+            if ($active) return $active;
+            throw $exception;
+        }
         $query = $this->pdo->prepare('SELECT * FROM payments WHERE id = :id');
         $query->execute(['id' => (int) $this->pdo->lastInsertId()]);
         return $query->fetch();
