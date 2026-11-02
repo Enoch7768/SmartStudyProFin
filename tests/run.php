@@ -175,6 +175,9 @@ if ((int) $googleResolve->invoke($googleService, $linkClaims, 'link', $studentId
 $linkedSubject = $pdo->prepare('SELECT google_subject FROM users WHERE id = :id');
 $linkedSubject->execute(['id' => $studentId]);
 if ($linkedSubject->fetchColumn() !== 'google-link-subject') throw new RuntimeException('The Google identity was not linked to the authenticated account.');
+$linkedVerification = $pdo->prepare('SELECT email_verified_at FROM users WHERE id = :id');
+$linkedVerification->execute(['id' => $studentId]);
+if ($linkedVerification->fetchColumn() !== false && $linkedVerification->fetchColumn() !== null) throw new RuntimeException('Linking a different Google email incorrectly verified the account email.');
 $collisionRejected = false;
 try {
     $googleResolve->invoke($googleService, $googleClaims, 'link', $studentId);
