@@ -70,3 +70,23 @@ External contributions are not automatically licensed for inclusion. Read CONTRI
 ## Project status
 
 The project is maintained as a client website and proprietary application. Feature and release status is recorded in the repository's Git history and release notes.
+
+## Google sign-in
+
+Google sign-in uses the server-side OAuth 2.0 authorization-code flow with PKCE. Configure these values in the private server environment or the private `.env` file:
+
+```dotenv
+APP_URL=https://your-domain.example
+GOOGLE_CLIENT_ID=your-google-oauth-client-id
+GOOGLE_CLIENT_SECRET=your-google-oauth-client-secret
+```
+
+In Google Cloud Console, create a Web application OAuth client and add this exact authorized redirect URI:
+
+```
+https://your-domain.example/google-auth.php?action=callback
+```
+
+Enable the OpenID Connect scopes `openid`, `email`, and `profile` through the consent configuration. Keep the client secret private and never commit production credentials. The Google buttons appear only when both credentials and the canonical `APP_URL` are configured.
+
+Existing accounts are not automatically linked by matching email addresses. A user must first sign in with their existing SmartStudyPro credentials and connect Google from their account profile. New Google registrations require acceptance of the Terms of Use and Privacy Policy and are assigned the student role. Administrators keep their existing role when they sign in with a previously linked Google identity.
