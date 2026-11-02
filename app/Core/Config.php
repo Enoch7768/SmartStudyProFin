@@ -45,6 +45,10 @@ final class Config
                 'debug' => filter_var($read('APP_DEBUG', 'false'), FILTER_VALIDATE_BOOL),
             ],
             'mail' => ['from' => (string) $read('APP_MAIL_FROM', 'no-reply@smartstudypro.com')],
+            'google' => [
+                'client_id' => (string) $read('GOOGLE_CLIENT_ID', ''),
+                'client_secret' => (string) $read('GOOGLE_CLIENT_SECRET', ''),
+            ],
             'ai' => ['gemini_api_key' => (string) $read('GEMINI_API_KEY', ''), 'gemini_model' => (string) $read('GEMINI_MODEL', 'gemini-2.5-flash')],
             'payments' => [
                 'paypal_mode' => (string) $read('PAYPAL_MODE', 'sandbox'),
