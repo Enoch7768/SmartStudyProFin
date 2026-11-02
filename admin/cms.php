@@ -37,7 +37,13 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     } elseif (($_POST['action'] ?? '') === 'login') {
         if (Auth::attempt($pdo, (string) ($_POST['email'] ?? ''), (string) ($_POST['password'] ?? ''))) {
             $candidate = Auth::user($pdo);
-            if ($candidate && Auth::hasRole($pdo, (int) $candidate['id'], 'administrator')) Security::redirect('cms.php');
+            if ($candidate && Auth::hasRole($pdo, (int) $candidate['id'], 'administrator')) {
+                if (!(new LegalAcceptanceService($pdo))->hasCurrentAcceptance((int) $candidate['id'])) {
+                    $_SESSION['legal_redirect'] = 'admin/cms.php';
+                    Security::redirect('../legal-consent.php');
+                }
+                Security::redirect('cms.php');
+            }
             Auth::logout();
             $error = 'This account does not have administrator access.';
         } else {
@@ -92,6 +98,10 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 
 $user = Auth::user($pdo);
 $isAdmin = $user && Auth::hasRole($pdo, (int) $user['id'], 'administrator') && Auth::hasPermission($pdo, (int) $user['id'], 'manage_content');
+if ($isAdmin && !(new LegalAcceptanceService($pdo))->hasCurrentAcceptance((int) $user['id'])) {
+    $_SESSION['legal_redirect'] = 'admin/cms.php';
+    Security::redirect('../legal-consent.php');
+}
 if (!$isAdmin):
 ?>
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin sign in · SmartStudyPro</title><link rel="icon" href="../favicon.php"><script src="../assets/js/cms-theme.js"></script><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"><style>
