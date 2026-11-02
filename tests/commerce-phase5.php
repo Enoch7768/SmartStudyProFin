@@ -50,6 +50,7 @@ try {
     $public = new PublicContent($pdo);
     $product = $public->product((string) $productId);
     if (count($product['Gallery'] ?? []) !== 1 || ($product['Gallery'][0]['url'] ?? '') !== 'media.php?id=' . $assets[2]) throw new RuntimeException('The product gallery did not expose only the attached public image.');
+    if (count($product['Files'] ?? []) !== 2 || isset($product['Files'][0]['url'])) throw new RuntimeException('The product page did not expose safe file descriptions without private download URLs.');
 
     $commerce = new CommerceService($pdo);
     $order = $commerce->createOrder($adminId, [['type' => 'product', 'id' => $productId, 'quantity' => 1]]);
