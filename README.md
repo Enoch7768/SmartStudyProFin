@@ -73,7 +73,7 @@ The project is maintained as a client website and proprietary application. Featu
 
 ## Google sign-in
 
-Google sign-in uses the server-side OAuth 2.0 authorization-code flow with PKCE. Configure these values in the private server environment or the private `.env` file:
+Google sign-in uses the server-side OAuth 2.0 authorization-code flow with PKCE. Configure `APP_URL` and `GOOGLE_CLIENT_ID` in the server environment. Store `GOOGLE_CLIENT_SECRET` only in the server environment or in `$APP_STORAGE_PATH/.env`, outside the public web root. Set that private file's permissions to `0600`. Do not put the client secret in the repository or the public application directory:
 
 ```dotenv
 APP_URL=https://your-domain.example
