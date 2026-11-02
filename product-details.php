@@ -283,6 +283,7 @@ $fullImgUrl = str_starts_with($imgUrl, 'http') ? $imgUrl : $siteUrl . '/' . ltri
       color: #FFFFFF;
     }
   </style>
+<link href="assets/css/device-responsive.css" rel="stylesheet">
 </head>
 
 <body>
