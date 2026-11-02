@@ -205,7 +205,7 @@ final class GoogleIdentityService
         $this->pdo->beginTransaction();
         try {
             $insert = $this->pdo->prepare("INSERT INTO users (name, email, password_hash, google_subject, avatar_url, status, email_verified_at, created_at, updated_at) VALUES (:name, :email, NULL, :subject, :avatar, 'active', :verified_at, :created_at, :updated_at)");
-            $insert->execute(['name' => mb_substr($name, 0, 120), 'email' => $email, 'subject' => $subject, 'avatar' => $picture, 'verified_at' => $now, 'created_at' => $now, 'updated_at' => $now]);
+            $insert->execute(['name' => substr($name, 0, 120), 'email' => $email, 'subject' => $subject, 'avatar' => $picture, 'verified_at' => $now, 'created_at' => $now, 'updated_at' => $now]);
             $userId = (int) $this->pdo->lastInsertId();
             $role = $this->pdo->prepare("INSERT INTO user_roles (user_id, role_id, assigned_at) SELECT :user_id, id, :assigned_at FROM roles WHERE slug = 'student'");
             $role->execute(['user_id' => $userId, 'assigned_at' => $now]);
