@@ -25,12 +25,15 @@ final class GoogleIdentityService
     {
         $url = parse_url((string) Config::get('app.url'));
         $host = strtolower((string) ($url['host'] ?? ''));
-        $secureUrl = ($url['scheme'] ?? '') === 'https' || in_array($host, ['localhost', '127.0.0.1', '::1'], true);
+        $secureUrl = strtolower((string) ($url['scheme'] ?? '')) === 'https' || in_array($host, ['localhost', '127.0.0.1', '::1'], true);
         return (string) Config::get('google.client_id') !== ''
             && (string) Config::get('google.client_secret') !== ''
             && $secureUrl
             && $host !== ''
-            && !isset($url['user'], $url['pass'], $url['query'], $url['fragment'])
+            && !isset($url['user'])
+            && !isset($url['pass'])
+            && !isset($url['query'])
+            && !isset($url['fragment'])
             && function_exists('openssl_verify');
     }
 
