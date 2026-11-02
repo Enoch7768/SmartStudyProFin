@@ -63,7 +63,7 @@ try {
     $commerce->updateProviderReference((int) $payment['id'], 'phase5-dpo-token', 'CREATED', ['company_ref' => $order['public_id']]);
     if (!$commerce->confirmPayment((int) $payment['id'], 'dpo', 'phase5-dpo-token', 'phase5-approval', 20000, 'UGX', 'COMPLETED', 'phase5-event')) throw new RuntimeException('A verified payment did not complete the purchase.');
 
-    $learning = new App\\Learning\\LearningService($pdo);
+    $learning = new App\Learning\LearningService($pdo);
     if (!$learning->hasAccess($adminId, $courseId)) throw new RuntimeException('A verified course purchase did not grant course access.');
     $files = $commerce->purchasedFiles($adminId, $itemId);
     if (count($files) !== 2 || $files[0]['original_name'] !== 'guide.pdf' || $files[1]['original_name'] !== 'notes.txt') throw new RuntimeException('Purchased files were not returned in their configured order.');
