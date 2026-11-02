@@ -39,7 +39,7 @@ jobs:
       - name: Test security and routing
         run: php tests/unit.php
       - name: Lint media endpoints
-        run: php -l media.php && php -l favicon.php
+        run: php -l media.php && php -l favicon.php && php -l admin/media-preview.php
       - name: Test SQLite migrations, identity and CMS
         run: php tests/run.php
       - name: Test commerce delivery and refund ledger
@@ -56,7 +56,7 @@ jobs:
         with:
           node-version: '20'
       - name: Validate browser JavaScript
-        run: node --check assets/js/main.js && node tests/main-js.test.cjs && node --check assets/js/cms-theme.js && node tests/cms-theme.test.cjs
+        run: node --check assets/js/main.js && node tests/main-js.test.cjs && node --check assets/js/cms-theme.js && node tests/cms-theme.test.cjs && node --check assets/js/media-library.js && node tests/media-library.test.cjs
       - name: Test CMS rich-text sanitization
         run: php tests/content-security.php
       - name: Validate production SQLite query plans
