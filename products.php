@@ -43,7 +43,7 @@ $siteUrl = 'https://smartstudypro.com';
   <meta property="og:description" content="<?= htmlspecialchars($seoDescription) ?>">
   <meta property="og:image" content="<?= $siteUrl ?>/Smart_Study_Logo_Fin-removebg-preview.png">
 
-  <link href="Smart_Study_Logo_Fin-removebg-preview.png" rel="icon">
+  <link href="<?= htmlspecialchars(rtrim(dirname((string) ($_SERVER['SCRIPT_NAME'] ?? '/')), '/') . '/favicon.php', ENT_QUOTES, 'UTF-8') ?>" rel="icon">
   <link href="Smart_Study_Logo_Fin-removebg-preview.png" rel="apple-touch-icon">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">

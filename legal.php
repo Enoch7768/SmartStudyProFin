@@ -103,6 +103,7 @@ $seoDescription = $page['intro'];
 <!doctype html>
 <html lang="en">
 <head>
+<link href="<?= htmlspecialchars(rtrim(dirname((string) ($_SERVER['SCRIPT_NAME'] ?? '/')), '/') . '/favicon.php', ENT_QUOTES, 'UTF-8') ?>" rel="icon">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="<?= htmlspecialchars($seoDescription, ENT_QUOTES, 'UTF-8') ?>">
