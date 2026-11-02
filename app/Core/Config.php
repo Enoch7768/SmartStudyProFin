@@ -39,7 +39,7 @@ final class Config
                 $line = trim($line);
                 if ($line === '' || str_starts_with($line, '#') || !str_contains($line, '=')) continue;
                 [$key, $value] = explode('=', $line, 2);
-$privateEnv[trim($key)] = trim(trim($value), chr(34) . "'");
+                $privateEnv[trim($key)] = trim(trim($value), chr(34) . "'");
             }
         }
         $readPrivate = static function (string $key, mixed $default = null) use ($privateEnv): mixed {
