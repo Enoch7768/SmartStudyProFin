@@ -52,6 +52,7 @@ $items = $service->all();
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Backups | SmartStudyPro</title>
 <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"><link href="../assets/css/main.css" rel="stylesheet">
 <style>:root{--orange:#FF7A00;--bg:#F5F6FB;--line:#E2E8F0;--muted:#64748B}body{background:var(--bg);color:#1E293B;font-family:"Plus Jakarta Sans",sans-serif}.panel{background:#fff;border:1px solid var(--line);border-radius:15px;padding:22px}.muted{color:var(--muted);font-size:13px}.btn-main{background:var(--orange);color:#fff;border:0;border-radius:9px;padding:10px 16px;font-weight:700}</style>
+<link href="../assets/css/device-responsive.css" rel="stylesheet">
 </head>
 <body><main class="container py-5"><div class="d-flex justify-content-between align-items-center mb-4"><div><h1 class="h2">Backups</h1><p class="muted">Private database and media recovery points.</p></div><a href="cms.php" class="btn btn-outline-primary">CMS</a></div>
 <?php if ($message !== ''): ?><div class="alert alert-success"><?= Security::escape($message) ?></div><?php endif; ?><?php if ($error !== ''): ?><div class="alert alert-danger"><?= Security::escape($error) ?></div><?php endif; ?>
