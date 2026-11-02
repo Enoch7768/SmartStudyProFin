@@ -12,7 +12,8 @@ use App\Core\Security;
 $pdo = Database::connect();
 $user = Auth::user($pdo);
 if (!$user) Security::redirect('login.php?redirect=orders.php');
-$orders = (new CommerceService($pdo))->history((int) $user['id']);
+$commerce = new CommerceService($pdo);
+$orders = $commerce->history((int) $user['id']);
 $demoLookup = $pdo->prepare('SELECT scenario FROM demo_payment_events WHERE order_id = :order_id ORDER BY id DESC LIMIT 1');
 foreach ($orders as &$order) {
     $demoLookup->execute(['order_id' => (int) $order['id']]);
