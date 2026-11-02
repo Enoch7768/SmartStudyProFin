@@ -68,6 +68,7 @@ const cmsPage = fs.readFileSync('admin/cms.php', 'utf8');
 assert.equal((cmsPage.match(/id="cms-theme-toggle"/g) || []).length, 2);
 assert.equal((cmsPage.match(/src="\.\.\/assets\/js\/cms-theme\.js"/g) || []).length, 2);
 assert.ok(cmsPage.includes('html[data-theme="dark"] .panel'));
+assert.ok(cmsPage.includes('z-index:10;width:auto;margin:0;'));
 assert.ok(cmsPage.includes('name="site.favicon_media_id"'));
 assert.ok(cmsPage.includes('href="../favicon.php"'));
 console.log('PASS CMS sign-in and dashboard expose dark mode and site favicon settings');
