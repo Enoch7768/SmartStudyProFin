@@ -139,7 +139,7 @@ final class GoogleIdentityService
         $expiresAt = filter_var($claims['exp'] ?? null, FILTER_VALIDATE_INT);
         if (!in_array($issuer, ['https://accounts.google.com', 'accounts.google.com'], true)
             || !$audienceMatches
-            || (is_array($audience) && isset($claims['azp']) && !hash_equals($clientId, (string) $claims['azp']))
+            || (is_array($audience) && (!is_string($claims['azp'] ?? null) || !hash_equals($clientId, $claims['azp'])))
             || !$issuedAt
             || !$expiresAt
             || $issuedAt > time() + 60
