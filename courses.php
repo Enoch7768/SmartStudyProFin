@@ -56,7 +56,7 @@ $siteUrl = 'https://smartstudypro.com';
         "@type": "ListItem",
         "position": <?= $i ?>,
         "name": "<?= htmlspecialchars($course['Title'] ?? 'Course') ?>",
-        "url": "<?= $siteUrl ?>/course-details.php?id=<?= $course['_id'] ?>"
+        "url": "<?= $siteUrl ?>//courses/<?= rawurlencode((string) ($course['slug'] ?? $course['_id'])) ?>"
       }<?= ($i < count(array_slice($courses, 0, 5))) ? ',' : '' ?>
       <?php $i++; endforeach; ?>
     ]
@@ -261,7 +261,7 @@ $siteUrl = 'https://smartstudypro.com';
                     </div>
 
                     <h5 class="fw-bold mb-2">
-                      <a href="course-details.php?id=<?= $course['_id'] ?>" class="text-decoration-none course-title-link"><?= htmlspecialchars($course['Title'] ?? 'Untitled Course') ?></a>
+                      <a href="/courses/<?= rawurlencode((string) ($course['slug'] ?? $course['_id'])) ?>" class="text-decoration-none course-title-link"><?= htmlspecialchars($course['Title'] ?? 'Untitled Course') ?></a>
                     </h5>
                     
                     <div class="description">
@@ -269,7 +269,7 @@ $siteUrl = 'https://smartstudypro.com';
                     </div>
                     
                     <div class="trainer">
-                        <a href="course-details.php?id=<?= $course['_id'] ?>" class="btn-ssp-primary d-block text-center text-decoration-none">
+                        <a href="/courses/<?= rawurlencode((string) ($course['slug'] ?? $course['_id'])) ?>" class="btn-ssp-primary d-block text-center text-decoration-none">
                             Explore Course
                         </a>
                     </div>
