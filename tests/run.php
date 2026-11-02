@@ -131,6 +131,8 @@ try {
     $faviconId = (int) $pdo->lastInsertId();
     $content->saveSettings(['contact.phone'=>'+256700000000','contact.email'=>'hello@example.test','contact.address'=>'Kampala','site.favicon_media_id'=>(string) $faviconId]);
     if (($content->settings()['site.favicon_media_id'] ?? '') !== (string) $faviconId) throw new RuntimeException('CMS public favicon setting was not saved.');
+    $content->saveSettings(['contact.phone'=>'+256700000001']);
+    if (($content->settings()['site.favicon_media_id'] ?? '') !== (string) $faviconId) throw new RuntimeException('A partial CMS settings update cleared the saved favicon.');
     $privateFaviconRejected = false;
     try { $content->saveSettings(['contact.phone'=>'+256700000000','contact.email'=>'hello@example.test','contact.address'=>'Kampala','site.favicon_media_id'=>(string) $resourceId]); } catch (RuntimeException) { $privateFaviconRejected = true; }
     if (!$privateFaviconRejected || ($content->settings()['site.favicon_media_id'] ?? '') !== (string) $faviconId) throw new RuntimeException('CMS accepted a private favicon or changed settings after invalid input.');
