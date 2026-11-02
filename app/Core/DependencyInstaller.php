@@ -97,10 +97,10 @@ final class DependencyInstaller
     private static function downloadComposer(string $destination): void
     {
         $temporary = $destination . '.tmp-' . bin2hex(random_bytes(6));
-        $context = stream_context_create(['http' => ['timeout' => 30, 'follow_location' => 0, 'max_redirects' => 0], 'ssl' => ['verify_peer' => true, 'verify_peer_name' => true]]);
+        $context = stream_context_create(['http' => ['timeout' => 30, 'follow_location' => 1, 'max_redirects' => 3], 'ssl' => ['verify_peer' => true, 'verify_peer_name' => true]]);
         if (extension_loaded('curl')) {
             $handle = curl_init(self::COMPOSER_URL);
-            curl_setopt_array($handle, [CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => false, CURLOPT_CONNECTTIMEOUT => 15, CURLOPT_TIMEOUT => 45, CURLOPT_PROTOCOLS => CURLPROTO_HTTPS]);
+            curl_setopt_array($handle, [CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => true, CURLOPT_MAXREDIRS => 3, CURLOPT_CONNECTTIMEOUT => 15, CURLOPT_TIMEOUT => 45, CURLOPT_PROTOCOLS => CURLPROTO_HTTPS, CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTPS]);
             $contents = curl_exec($handle);
             $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
             $error = curl_error($handle);

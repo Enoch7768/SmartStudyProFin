@@ -9,6 +9,7 @@ header('X-Frame-Options: DENY');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 header('Cache-Control: no-store, private');
 
+use App\Core\DependencyInstaller;
 use App\Core\Installer;
 use App\Core\Security;
 
