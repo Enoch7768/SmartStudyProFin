@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 require __DIR__ . '/bootstrap/app.php';
 
-use App\\Core\\Auth;
-use App\\Core\\Database;
-use App\\Core\\Security;
-use App\\Core\\Session;
-use App\\Identity\\GoogleIdentityService;
-use App\\Identity\\LegalAcceptanceService;
+use App\Core\Auth;
+use App\Core\Database;
+use App\Core\Security;
+use App\Core\Session;
+use App\Identity\GoogleIdentityService;
+use App\Identity\LegalAcceptanceService;
 
 $pdo = Database::connect();
 $service = new GoogleIdentityService($pdo);
