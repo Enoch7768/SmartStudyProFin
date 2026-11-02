@@ -10,6 +10,7 @@ use App\Core\Auth;
 use App\Core\Config;
 use App\Core\Database;
 use App\Core\Security;
+use App\Identity\LegalAcceptanceService;
 
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
