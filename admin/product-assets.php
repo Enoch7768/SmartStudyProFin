@@ -7,8 +7,6 @@ require dirname(__DIR__) . '/bootstrap/app.php';
 use App\Core\Auth;
 use App\Core\Database;
 use App\Core\Security;
-use RuntimeException;
-use Throwable;
 
 $pdo = Database::connect();
 $user = Auth::user($pdo);
