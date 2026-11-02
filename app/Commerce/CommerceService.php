@@ -43,18 +43,27 @@ final class CommerceService
                 $access->execute(['user_id' => $userId, 'course_id' => $id]);
                 if ($access->fetchColumn()) throw new RuntimeException('You already have access to this course.');
             }
+            $assets = [];
             if ($type === 'product' && ($item['product_type'] ?? '') === 'online') {
-                $asset = $this->pdo->prepare("SELECT id FROM media_assets WHERE id = :id AND visibility = 'private' AND mime_type = 'application/pdf'");
-                $asset->execute(['id' => (int) $item['product_file_media_id']]);
-                if (!$asset->fetchColumn()) throw new RuntimeException('The digital product file must be a private PDF in the media library.');
+                $assetQuery = $this->pdo->prepare("SELECT m.id, m.storage_path, m.original_name, m.mime_type, m.file_size, m.checksum_sha256 FROM cms_product_assets pa INNER JOIN media_assets m ON m.id = pa.media_asset_id WHERE pa.product_id = :product_id AND pa.asset_role = 'download' AND m.visibility = 'private' ORDER BY pa.sort_order, pa.id");
+                $assetQuery->execute(['product_id' => $id]);
+                $assets = $assetQuery->fetchAll();
+                if (!empty($item['product_file_media_id']) && !in_array((int) $item['product_file_media_id'], array_map(static fn ($asset) => (int) $asset['id'], $assets), true)) {
+                    $legacy = $this->pdo->prepare("SELECT id, storage_path, original_name, mime_type, file_size, checksum_sha256 FROM media_assets WHERE id = :id AND visibility = 'private'");
+                    $legacy->execute(['id' => (int) $item['product_file_media_id']]);
+                    $legacyAsset = $legacy->fetch();
+                    if ($legacyAsset) array_unshift($assets, $legacyAsset);
+                }
+                $allowedMimes = ['application/pdf', 'text/plain', 'text/csv', 'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/rtf', 'text/rtf', 'application/vnd.oasis.opendocument.text'];
+                if (!$assets || count($assets) > 25) throw new RuntimeException('Add at least one private digital file before publishing this product.');
+                foreach ($assets as $asset) if (!in_array($asset['mime_type'], $allowedMimes, true) || (int) $asset['file_size'] < 1) throw new RuntimeException('A digital product contains an unsupported or empty file.');
             }
             $price = (int) $item['price_ugx'];
             if ($price < 0 || $price > 1000000000) throw new RuntimeException('A product price is invalid.');
-            if ($type === 'product' && ($item['product_type'] ?? '') === 'online' && empty($item['product_file_media_id'])) throw new RuntimeException('This digital product is not configured for delivery yet.');
             $line = $price * $quantity;
             if ($line > 1000000000 || $subtotal > 1000000000 - $line) throw new RuntimeException('Your order total is too large.');
             $subtotal += $line;
-            $items[] = ['type' => $type, 'id' => $id, 'title' => (string) $item['title'], 'product_type' => $item['product_type'] ?? null, 'file_id' => $item['product_file_media_id'] ?? null, 'price' => $price, 'quantity' => $quantity, 'line' => $line];
+            $items[] = ['type' => $type, 'id' => $id, 'title' => (string) $item['title'], 'product_type' => $item['product_type'] ?? null, 'file_id' => $item['product_file_media_id'] ?? null, 'assets' => $assets, 'price' => $price, 'quantity' => $quantity, 'line' => $line];
         }
         if ($subtotal < 1) throw new RuntimeException('The order total must be greater than zero.');
         $now = gmdate('Y-m-d H:i:s');
@@ -65,7 +74,14 @@ final class CommerceService
             $insert->execute(['public_id' => $publicId, 'user_id' => $userId, 'subtotal' => $subtotal, 'total' => $subtotal, 'name' => $user['name'], 'email' => $user['email'], 'created_at' => $now, 'updated_at' => $now]);
             $orderId = (int) $this->pdo->lastInsertId();
             $lineInsert = $this->pdo->prepare('INSERT INTO order_items (order_id, item_type, item_id, item_title, product_type, product_file_media_id, unit_price_ugx, quantity, line_total_ugx, created_at) VALUES (:order_id, :type, :item_id, :title, :product_type, :file_id, :price, :quantity, :line, :created_at)');
-            foreach ($items as $item) $lineInsert->execute(['order_id' => $orderId, 'type' => $item['type'], 'item_id' => $item['id'], 'title' => $item['title'], 'product_type' => $item['product_type'], 'file_id' => $item['file_id'], 'price' => $item['price'], 'quantity' => $item['quantity'], 'line' => $item['line'], 'created_at' => $now]);
+            foreach ($items as $item) {
+                $lineInsert->execute(['order_id' => $orderId, 'type' => $item['type'], 'item_id' => $item['id'], 'title' => $item['title'], 'product_type' => $item['product_type'], 'file_id' => $item['file_id'], 'price' => $item['price'], 'quantity' => $item['quantity'], 'line' => $item['line'], 'created_at' => $now]);
+                $orderItemId = (int) $this->pdo->lastInsertId();
+                if ($item['assets']) {
+                    $assetInsert = $this->pdo->prepare('INSERT INTO order_item_assets (order_item_id, media_asset_id, storage_path, original_name, mime_type, file_size, checksum_sha256, sort_order, created_at) VALUES (:order_item_id, :media_asset_id, :storage_path, :original_name, :mime_type, :file_size, :checksum, :sort_order, :created_at)');
+                    foreach ($item['assets'] as $position => $asset) $assetInsert->execute(['order_item_id' => $orderItemId, 'media_asset_id' => (int) $asset['id'], 'storage_path' => $asset['storage_path'], 'original_name' => $asset['original_name'], 'mime_type' => $asset['mime_type'], 'file_size' => (int) $asset['file_size'], 'checksum' => $asset['checksum_sha256'], 'sort_order' => $position, 'created_at' => $now]);
+                }
+            }
             $this->pdo->commit();
             return $this->order($orderId, $userId) ?? throw new RuntimeException('The order could not be loaded.');
         } catch (Throwable $exception) {
@@ -167,4 +183,21 @@ final class CommerceService
         $query->execute(['item_id' => $orderItemId, 'user_id' => $userId]);
         return $query->fetch() ?: null;
     }
+    public function purchasedFiles(int $userId, int $orderItemId): array
+    {
+        $query = $this->pdo->prepare("SELECT a.id AS asset_id, a.order_item_id, oi.item_title, a.storage_path, a.original_name, a.mime_type, a.file_size, a.checksum_sha256 FROM order_item_assets a INNER JOIN order_items oi ON oi.id = a.order_item_id INNER JOIN orders o ON o.id = oi.order_id WHERE oi.id = :item_id AND oi.item_type = 'product' AND oi.product_type = 'online' AND o.user_id = :user_id AND o.status IN ('paid', 'partially_refunded') AND EXISTS (SELECT 1 FROM payments p WHERE p.order_id = o.id AND p.status = 'paid') ORDER BY a.sort_order, a.id");
+        $query->execute(['item_id' => $orderItemId, 'user_id' => $userId]);
+        $files = $query->fetchAll();
+        if ($files) return $files;
+        $legacy = $this->purchasedFile($userId, $orderItemId);
+        return $legacy ? [['asset_id' => null] + $legacy] : [];
+    }
+
+    public function purchasedAsset(int $userId, int $assetId): ?array
+    {
+        $query = $this->pdo->prepare("SELECT a.id AS asset_id, oi.id AS order_item_id, oi.item_title, a.storage_path, a.original_name, a.mime_type, a.file_size, a.checksum_sha256 FROM order_item_assets a INNER JOIN order_items oi ON oi.id = a.order_item_id INNER JOIN orders o ON o.id = oi.order_id WHERE a.id = :asset_id AND o.user_id = :user_id AND o.status IN ('paid', 'partially_refunded') AND EXISTS (SELECT 1 FROM payments p WHERE p.order_id = o.id AND p.status = 'paid') LIMIT 1");
+        $query->execute(['asset_id' => $assetId, 'user_id' => $userId]);
+        return $query->fetch() ?: null;
+    }
+
 }
