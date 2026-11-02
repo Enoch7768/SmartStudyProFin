@@ -54,7 +54,7 @@ The administrator order screen flags missing paid-payment records, paid payments
 - DPO BackURL is `https://YOUR_DOMAIN/dpo-webhook.php`; the redirect URL returns to the authenticated order owner.
 - PHP cURL is required for provider API calls. PHP SimpleXML is additionally required for DPO XML responses.
 
-This release covers one-time course and product orders. Automated refunds, coupon campaigns, recurring subscriptions, tax, and physical-shipping fulfilment are not enabled in this phase. The live provider credentials, merchant account configuration, DPO service type, PayPal conversion setup, webhook registration, and end-to-end sandbox/live transactions must be verified by the site owner before launch.
+This release covers one-time course and product orders, secure multi-file delivery and an audited administrator refund ledger. Provider refund execution is manual through the merchant console and must be confirmed before the corresponding refund record is marked successful. Coupon campaigns, recurring subscriptions, tax and physical-shipping fulfilment are not enabled in this phase. The live provider credentials, merchant account configuration, DPO service type, PayPal conversion setup, webhook registration, and end-to-end sandbox/live transactions must be verified by the site owner before launch.
 
 ## Simulated demo payments
 
