@@ -53,7 +53,7 @@ jobs:
         with:
           node-version: '20'
       - name: Validate browser JavaScript
-        run: node --check assets/js/main.js && node tests/main-js.test.cjs
+        run: node --check assets/js/main.js && node tests/main-js.test.cjs && node --check assets/js/cms-theme.js && node tests/cms-theme.test.cjs
       - name: Test CMS rich-text sanitization
         run: php tests/content-security.php
       - name: Validate production SQLite query plans
