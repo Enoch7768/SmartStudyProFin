@@ -54,6 +54,7 @@ $ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="<?= $siteUrl ?>/courses/<?= rawurlencode((string) ($course['slug'] ?? '')) ?>">
+  <link rel="canonical" href="<?= $siteUrl ?>/courses/<?= rawurlencode((string) ($course['slug'] ?? '')) ?>">
   <meta property="og:title" content="<?= htmlspecialchars($seoTitle) ?>">
   <meta property="og:description" content="<?= htmlspecialchars($seoDescription) ?>">
   <meta property="og:image" content="<?= $ogImage ?>">
