@@ -15,6 +15,8 @@ spl_autoload_register(static function (string $class): void {
     if (is_file($path)) require $path;
 });
 Config::load($root);
+$vendorAutoload = rtrim((string) Config::get('storage.path'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+if (is_file($vendorAutoload)) require_once $vendorAutoload;
 Security::sendHeaders();
 Session::start();
 return ['root' => $root, 'config' => Config::all()];
