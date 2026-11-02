@@ -433,43 +433,7 @@ $siteUrl = 'https://smartstudypro.com';
 
 <body class="index-page">
 
-  <header id="header" class="header ssp-header d-flex align-items-center sticky-top py-2">
-    <div class="container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
-      
-      <a href="index.php" class="logo d-flex align-items-center me-auto me-xl-0 text-decoration-none">
-        <img src="Smart_Study_Logo_Fin-removebg-preview.png" alt="SmartStudyPro Logo" height="48" class="img-fluid" style="max-height: 48px;">
-      </a>
-
-      <nav id="navmenu" class="navmenu">
-        <ul>
-          <li><a href="index.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'active' : '' ?>">Home</a></li>
-          <li><a href="about.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'about.php') ? 'active' : '' ?>">About Us</a></li>
-          <li><a href="courses.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'courses.php') ? 'active' : '' ?>">Courses</a></li>
-          <li><a href="products.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'products.php') ? 'active' : '' ?>">Products</a></li>
-          <li><a href="contact.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'contact.php') ? 'active' : '' ?>">Contact</a></li>
-        </ul>
-        <i class="mobile-nav-toggle d-xl-none bi bi-list fs-2 ms-3 ms-sm-4 p-1"></i>
-      </nav>
-
-      <div class="d-flex align-items-center gap-2 gap-sm-3">
-        <!-- Dark Mode Toggle Button -->
-        <button type="button" id="theme-toggle" class="header-icon-link fs-5" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
-          <i id="theme-toggle-icon" class="bi bi-moon-fill"></i>
-        </button>
-
-        <a href="cart.php" class="header-icon-link fs-5 text-decoration-none" title="Shopping Cart">
-          <i class="bi bi-bag"></i>
-        </a>
-
-        <a href="profile.php" class="header-icon-link fs-5 text-decoration-none" title="My Profile">
-          <i class="bi bi-person-circle"></i>
-        </a>
-
-        <a class="btn-ssp-primary d-none d-sm-inline-block text-decoration-none ms-1 ms-sm-2" href="courses.php">Explore Courses</a>
-      </div>
-
-    </div>
-  </header>
+  <?php include __DIR__ . '/nav.php'; ?>
 
   <main id="main-content" class="main">
 
@@ -686,32 +650,7 @@ $siteUrl = 'https://smartstudypro.com';
   <script src="assets/vendor/aos/aos.js"></script>
   <script src="assets/js/main.js"></script>
 
-  <!-- Dark Mode Toggle Script -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const toggleBtn = document.getElementById('theme-toggle');
-      const toggleIcon = document.getElementById('theme-toggle-icon');
-      if (!toggleBtn || !toggleIcon) return;
 
-      function updateIcon(isDark) {
-        toggleBtn.setAttribute('aria-pressed', String(isDark));
-        toggleIcon.classList.toggle('bi-sun-fill', isDark);
-        toggleIcon.classList.toggle('bi-moon-fill', !isDark);
-      }
-
-      updateIcon(document.documentElement.getAttribute('data-theme') === 'dark');
-
-      toggleBtn.addEventListener('click', () => {
-        const isDark = document.documentElement.getAttribute('data-theme') !== 'dark';
-        document.documentElement.toggleAttribute('data-theme', isDark);
-        if (isDark) document.documentElement.setAttribute('data-theme', 'dark');
-        try {
-          window.localStorage.setItem('ssp-theme', isDark ? 'dark' : 'light');
-        } catch (error) {}
-        updateIcon(isDark);
-      });
-    });
-  </script>
 
 </body>
 </html>
