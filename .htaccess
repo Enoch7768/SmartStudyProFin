@@ -1,6 +1,8 @@
 Options -Indexes -MultiViews
 RewriteEngine On
 
+RewriteRule ^favicon\.ico$ favicon.php [L]
+
 RewriteRule ^(?:app|bootstrap|config|database|scripts|tests|storage|cms|docs)(?:/|$) - [F,L,NC]
 RewriteRule (^|/)\.(?!well-known(?:/|$)) - [F,L,NC]
 
