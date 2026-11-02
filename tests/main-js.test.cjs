@@ -117,7 +117,7 @@ console.log('PASS homepage loads the shared accessibility stylesheet');
 const sharedNavigation = fs.readFileSync('nav.php', 'utf8');
 assert.ok(homepage.includes("include __DIR__ . '/nav.php';"));
 assert.doesNotMatch(homepage, /id="header"/);
-assert.ok(sharedNavigation.includes('href="courses.php">Explore Courses</a>'));
+assert.ok(sharedNavigation.includes('href="/courses">Explore Courses</a>'));
 assert.match(sharedNavigation, /aria-controls="navmenu"/);
 assert.match(sharedNavigation, /aria-expanded="false"/);
 console.log('PASS homepage uses the shared accessible navigation and course entry point');
