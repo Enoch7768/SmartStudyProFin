@@ -42,6 +42,9 @@ try {
         $statement->execute(['id' => $result['user_id']]);
         $authVersion = $statement->fetchColumn();
         if ($authVersion === false) throw new RuntimeException('This SmartStudyPro account is not currently active.');
+        $loginUpdate = $pdo->prepare('UPDATE users SET last_login_at = :last_login_at, updated_at = :updated_at WHERE id = :id');
+        $loginNow = gmdate('Y-m-d H:i:s');
+        $loginUpdate->execute(['last_login_at' => $loginNow, 'updated_at' => $loginNow, 'id' => $result['user_id']]);
         Session::regenerate();
         unset($_SESSION['_csrf']);
         $_SESSION['user_id'] = (int) $result['user_id'];
