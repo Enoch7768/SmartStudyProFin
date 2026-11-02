@@ -325,7 +325,7 @@ $siteUrl = 'https://smartstudypro.com';
             <label class="form-check-label small" for="accept-privacy">I have read the <a href="privacy.php" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</label>
           </div>
           <?php if ($googleConfigured): ?>
-          <button type="submit" formaction="google-auth.php" formmethod="post" name="action" value="register" class="btn btn-outline-secondary w-100 rounded-3 py-2 fw-semibold mb-3">Continue with Google</button>
+          <button type="submit" formaction="google-auth.php" formmethod="post" name="action" value="register" formnovalidate class="btn btn-outline-secondary w-100 rounded-3 py-2 fw-semibold mb-3">Continue with Google</button>
           <?php endif; ?>
           <button type="submit" class="btn-ssp-primary w-100 py-2 fs-6">Create Account</button>
         </form>
