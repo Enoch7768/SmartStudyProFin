@@ -80,7 +80,7 @@ $ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/
   </script>
   <?php endif; ?>
 
-  <link href="Smart_Study_Logo_Fin-removebg-preview.png" rel="icon">
+  <link href="favicon.php" rel="icon">
   <link href="Smart_Study_Logo_Fin-removebg-preview.png" rel="apple-touch-icon">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
