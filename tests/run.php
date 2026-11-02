@@ -19,6 +19,7 @@ use App\Core\Installer;
 use App\Core\Migrator;
 use App\Cms\ContentRepository;
 use App\Cms\PublicContent;
+use App\Cms\MediaManager;
 use App\Commerce\CommerceService;
 
 $temporary = sys_get_temp_dir() . '/ssp-test-' . bin2hex(random_bytes(8));
@@ -64,6 +65,17 @@ try {
     $assetInsert = $pdo->prepare("INSERT INTO media_assets (storage_path, original_name, mime_type, file_size, checksum_sha256, alt_text, visibility, uploaded_by, created_at) VALUES (:path, 'lesson.pdf', 'application/pdf', 10, 'test-checksum', 'Lesson PDF', 'private', :user_id, :created_at)");
     $assetInsert->execute(['path' => 'media/test/lesson.pdf', 'user_id' => $userId, 'created_at' => $now]);
     $resourceId = (int) $pdo->lastInsertId();
+    $mediaManager = new MediaManager($pdo, $temporary);
+    $mediaManager->updateMetadata($resourceId, 'Private lesson resource', 'private');
+    $publicDocumentRejected = false;
+    try { $mediaManager->updateMetadata($resourceId, 'Not public', 'public'); } catch (RuntimeException) { $publicDocumentRejected = true; }
+    if (!$publicDocumentRejected) throw new RuntimeException('A private document was incorrectly allowed to become public.');
+    $pdo->prepare("INSERT INTO media_assets (storage_path, original_name, mime_type, file_size, checksum_sha256, alt_text, visibility, uploaded_by, created_at) VALUES ('media/test/library-image.png', 'library-image.png', 'image/png', 128, 'image-checksum', '', 'private', :user_id, :created_at)")->execute(['user_id' => $userId, 'created_at' => $now]);
+    $imageAssetId = (int) $pdo->lastInsertId();
+    $mediaManager->updateMetadata($imageAssetId, 'Library cover image', 'public');
+    $libraryAssets = $mediaManager->all();
+    $libraryImage = array_values(array_filter($libraryAssets, static fn (array $asset): bool => (int) $asset['id'] === $imageAssetId))[0] ?? null;
+    if (!$libraryImage || $libraryImage['visibility'] !== 'public' || $libraryImage['alt_text'] !== 'Library cover image' || $libraryImage['uploader_name'] !== 'Test Admin') throw new RuntimeException('Media metadata, visibility or uploader details did not persist.');
     $content->save('lessons', $lessonId, ['resource_media_id' => $resourceId, 'resource_title' => 'Science notes', 'quiz_time_limit_minutes' => 5, 'quiz_pass_mark' => 75]);
     if (!$learning->media($userId, $resourceId)) throw new RuntimeException('An enrolled student could not resolve their private lesson resource.');
     $pdo->prepare("UPDATE course_enrolments SET status = 'revoked' WHERE user_id = :user_id AND course_id = :course_id")->execute(['user_id' => $userId, 'course_id' => $courseId]);
