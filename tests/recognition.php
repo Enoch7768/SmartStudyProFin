@@ -44,6 +44,8 @@ try {
     $service = new RecognitionService($pdo);
     $service->sync($studentId);
     $service->sync($studentId);
+    $service->recordQuizResult($studentId, ['attempt_id' => $attemptId, 'passed' => true, 'score' => 100], $courseId, $lessonId);
+    $service->recordQuizResult($studentId, ['attempt_id' => $attemptId, 'passed' => true, 'score' => 100], $courseId, $lessonId);
     if (count($service->achievements($studentId)) !== 6) throw new RuntimeException('The achievement catalogue is incomplete.');
     $earned = array_values(array_filter($service->achievements($studentId), static fn (array $item): bool => $item['earned_at'] !== null));
     if (count($earned) !== 3) throw new RuntimeException('Earned achievements did not match the actual learning activity.');
