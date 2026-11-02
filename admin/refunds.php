@@ -8,8 +8,6 @@ use App\Commerce\RefundService;
 use App\Core\Auth;
 use App\Core\Database;
 use App\Core\Security;
-use RuntimeException;
-use Throwable;
 
 $pdo = Database::connect();
 $user = Auth::user($pdo);
