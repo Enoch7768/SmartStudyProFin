@@ -136,13 +136,22 @@ final class ContentRepository
 
     public function saveSettings(array $input): void
     {
-        $allowed = ['contact.phone', 'contact.email', 'contact.address'];
-        $statement = $this->pdo->prepare('INSERT INTO cms_settings (setting_key, setting_value, updated_at) VALUES (:setting_key, :setting_value, :updated_at) ON CONFLICT(setting_key) DO UPDATE SET setting_value = excluded.setting_value, updated_at = excluded.updated_at');
+        $allowed = ['contact.phone', 'contact.email', 'contact.address', 'site.favicon_media_id'];
+        $values = [];
         foreach ($allowed as $key) {
             $value = trim((string) ($input[$key] ?? ''));
             if ($key === 'contact.email' && $value !== '' && !filter_var($value, FILTER_VALIDATE_EMAIL)) throw new RuntimeException('Enter a valid contact email address.');
-            $statement->execute(['setting_key' => $key, 'setting_value' => $value, 'updated_at' => gmdate('Y-m-d H:i:s')]);
+            if ($key === 'site.favicon_media_id' && $value !== '') {
+                if (!ctype_digit($value) || (int) $value < 1) throw new RuntimeException('Choose a valid public favicon image.');
+                $asset = $this->pdo->prepare("SELECT id FROM media_assets WHERE id = :id AND visibility = 'public' AND mime_type IN ('image/jpeg', 'image/png', 'image/webp', 'image/gif') LIMIT 1");
+                $asset->execute(['id' => (int) $value]);
+                if (!$asset->fetchColumn()) throw new RuntimeException('The favicon must be an uploaded public image.');
+            }
+            $values[$key] = $value;
         }
+        $statement = $this->pdo->prepare('INSERT INTO cms_settings (setting_key, setting_value, updated_at) VALUES (:setting_key, :setting_value, :updated_at) ON CONFLICT(setting_key) DO UPDATE SET setting_value = excluded.setting_value, updated_at = excluded.updated_at');
+        $updatedAt = gmdate('Y-m-d H:i:s');
+        foreach ($values as $key => $value) $statement->execute(['setting_key' => $key, 'setting_value' => $value, 'updated_at' => $updatedAt]);
     }
 
     private function definition(string $type): array
