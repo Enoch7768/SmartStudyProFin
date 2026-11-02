@@ -8,12 +8,14 @@ use App\Core\Auth;
 use App\Core\Database;
 use App\Core\Security;
 use App\Identity\LegalAcceptanceService;
+use App\Identity\GoogleIdentityService;
 
 $pdo = Database::connect();
 if (Auth::user($pdo)) Security::redirect('profile.php');
 $redirect = trim((string) ($_GET['redirect'] ?? 'profile.php'));
 if ($redirect === '' || str_starts_with($redirect, '//') || preg_match('/^[a-z][a-z0-9+.-]*:/i', $redirect) || str_contains($redirect, chr(92)) || str_contains($redirect, chr(10)) || str_contains($redirect, chr(13))) $redirect = 'profile.php';
-$error = null;
+$error = isset($_GET['google_error']) ? 'Google sign-in could not be completed. Try again or use your email and password.' : null;
+$googleConfigured = GoogleIdentityService::isConfigured();
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if (!Security::verifyCsrf($_POST['_csrf'] ?? null)) {
         $error = 'Your session expired. Refresh the page and try again.';
@@ -297,7 +299,12 @@ $siteUrl = 'https://smartstudypro.com';
           </div>
         <?php endif; ?>
 
-        <p class="text-center small text-muted mb-3">Sign in securely with your SmartStudyPro account.</p>
+        <?php if ($googleConfigured): ?>
+          <a class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2 rounded-3 py-2 fw-semibold" href="google-auth.php?action=login"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.72 7.18l7.62 5.91c4.45-4.11 7.14-10.17 7.14-17.56z"/><path fill="#FBBC05" d="M10.53 28.59A14.4 14.4 0 0 1 9.75 24c0-1.59.27-3.13.76-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.86.92 7.5 2.53 10.78l8-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.9-5.89l-7.62-5.91c-2.12 1.45-4.84 2.3-8.28 2.3-6.26 0-11.57-4.22-13.47-9.91l-8 6.19C6.51 43.62 14.62 48 24 48z"/></svg>Continue with Google</a>
+          <div class="d-flex align-items-center my-3"><hr class="flex-grow-1 text-muted opacity-25"><span class="mx-3 text-muted small fw-semibold">or</span><hr class="flex-grow-1 text-muted opacity-25"></div>
+        <?php else: ?>
+          <p class="text-center small text-muted mb-3">Google sign-in is unavailable until OAuth credentials are configured.</p>
+        <?php endif; ?>
 
         <div class="d-flex align-items-center my-3">
           <hr class="flex-grow-1 text-muted opacity-25">
