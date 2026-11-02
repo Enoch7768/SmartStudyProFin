@@ -28,6 +28,12 @@ try {
     $migrationPath = dirname(__DIR__) . '/database/migrations';
     if (Migrator::run($pdo, $migrationPath) !== ['001_identity', '002_cms_content', '003_student_identity', '004_learning_engine', '005_lesson_resources_quiz_settings', '006_commerce_payments', '007_ai_learning_assistant', '008_notifications_recognition_analytics', '009_production_indexes', '010_legal_acceptance', '011_demo_payments']) throw new RuntimeException('Foundation and CMS migrations did not run.');
     if (Migrator::run($pdo, $migrationPath) !== []) throw new RuntimeException('Migrations are not idempotent.');
+    $routeRules = (string) file_get_contents(dirname(__DIR__) . '/.htaccess');
+    foreach (['RewriteRule ^courses/(', 'RewriteRule ^learn/(', 'RewriteRule ^products/(', 'RewriteRule ^cart/add/?$ cart-add.php'] as $route) {
+        if (!str_contains($routeRules, $route)) throw new RuntimeException('A required clean URL route is missing: ' . $route);
+    }
+    $cartAction = (string) file_get_contents(dirname(__DIR__) . '/cart-add.php');
+    if (!str_contains($cartAction, "Security::verifyCsrf") || !str_contains($cartAction, "product_type") || !str_contains($cartAction, "status = 'published'")) throw new RuntimeException('The cart endpoint is missing server-side request and catalogue validation.');
     $now = gmdate('Y-m-d H:i:s');
     $insert = $pdo->prepare('INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES (:name, :email, :password_hash, :status, :created_at, :updated_at)');
     $insert->execute(['name' => 'Test Admin', 'email' => 'admin@example.test', 'password_hash' => password_hash('a-strong-test-password', PASSWORD_DEFAULT), 'status' => 'active', 'created_at' => $now, 'updated_at' => $now]);
@@ -47,6 +53,7 @@ try {
     if (!$content->find('questions', $questionId)) throw new RuntimeException('Quiz question creation failed.');
     $pdo->exec("UPDATE cms_courses SET price_ugx = 0 WHERE id = " . $courseId);
     $learning = new App\Learning\LearningService($pdo);
+    if (($learning->course('foundations-of-science')['title'] ?? '') !== 'Foundations of Science') throw new RuntimeException('Learning course slug resolution failed.');
     if ($learning->hasAccess($userId, $courseId)) throw new RuntimeException('A student gained access before enrolment.');
     $learning->enrolFreeCourse($userId, $courseId);
     if (!$learning->hasAccess($userId, $courseId)) throw new RuntimeException('Free course enrolment did not grant access.');
@@ -59,6 +66,11 @@ try {
     $resourceId = (int) $pdo->lastInsertId();
     $content->save('lessons', $lessonId, ['resource_media_id' => $resourceId, 'resource_title' => 'Science notes', 'quiz_time_limit_minutes' => 5, 'quiz_pass_mark' => 75]);
     if (!$learning->media($userId, $resourceId)) throw new RuntimeException('An enrolled student could not resolve their private lesson resource.');
+    $pdo->prepare("UPDATE course_enrolments SET status = 'revoked' WHERE user_id = :user_id AND course_id = :course_id")->execute(['user_id' => $userId, 'course_id' => $courseId]);
+    if ($learning->hasAccess($userId, $courseId) || $learning->media($userId, $resourceId) !== null) throw new RuntimeException('A revoked enrolment retained lesson or media access.');
+    $pdo->prepare("UPDATE course_enrolments SET status = 'active' WHERE user_id = :user_id AND course_id = :course_id")->execute(['user_id' => $userId, 'course_id' => $courseId]);
+    if (!$learning->hasAccess($userId, $courseId) || !$learning->media($userId, $resourceId)) throw new RuntimeException('Restoring an enrolment did not restore course access.');
+
     $insert->execute(['name' => 'Outside Student', 'email' => 'outside@example.test', 'password_hash' => password_hash('another-strong-password', PASSWORD_DEFAULT), 'status' => 'active', 'created_at' => $now, 'updated_at' => $now]);
     $outsideUserId = (int) $pdo->lastInsertId();
     if ($learning->hasAccess($outsideUserId, $courseId) || $learning->media($outsideUserId, $resourceId) !== null) throw new RuntimeException('A different student accessed another student course resource.');
