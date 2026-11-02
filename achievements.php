@@ -23,6 +23,7 @@ $earned = count(array_filter($items, static fn (array $item): bool => $item['ear
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Achievements | SmartStudyPro</title>
 <link href="<?= htmlspecialchars(rtrim(dirname((string) ($_SERVER['SCRIPT_NAME'] ?? '/')), '/') . '/favicon.php', ENT_QUOTES, 'UTF-8') ?>" rel="icon"><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"><link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"><link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet"><link href="assets/css/main.css" rel="stylesheet">
 <style>:root{--navy:#0C086B;--orange:#FF7A00;--bg:#F5F6FB;--line:#E2E8F0;--muted:#64748B}body{background:var(--bg);font-family:"Plus Jakarta Sans",sans-serif;color:#1E293B}h1,h2,h3{font-family:Outfit,sans-serif}.achievement{height:100%;background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}.achievement.locked{opacity:.58}.achievement-icon{width:52px;height:52px;border-radius:14px;background:#fff2e6;color:var(--orange);display:grid;place-items:center;font-size:24px}.muted{color:var(--muted);font-size:13px}</style>
+<link href="assets/css/device-responsive.css" rel="stylesheet">
 </head>
 <body>
 <?php include __DIR__ . '/nav.php'; ?>
