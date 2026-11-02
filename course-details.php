@@ -5,8 +5,13 @@ require_once __DIR__ . '/bootstrap/app.php';
 
 $pdo = \App\Core\Database::connect();
 $content = new \App\Cms\PublicContent($pdo);
-$courseId = $_GET['id'] ?? $_GET['_id'] ?? null;
-$course = $content->course(is_string($courseId) || is_int($courseId) ? $courseId : null);
+$courseIdentifier = $_GET['slug'] ?? $_GET['id'] ?? $_GET['_id'] ?? null;
+$course = $content->course(is_string($courseIdentifier) || is_int($courseIdentifier) ? $courseIdentifier : null);
+$courseId = (int) ($course['_id'] ?? 0);
+if ($course && !isset($_GET['slug']) && !headers_sent()) {
+    header('Location: /courses/' . rawurlencode((string) $course['slug']), true, 301);
+    exit;
+}
 $contact = $content->contact();
 
 if (!$course) http_response_code(404);
@@ -48,7 +53,7 @@ $ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/
   <meta name="author" content="SmartStudyPro">
 
   <meta property="og:type" content="website">
-  <meta property="og:url" content="<?= $siteUrl ?>/course-details.php?id=<?= $courseId ?>">
+  <meta property="og:url" content="<?= $siteUrl ?>/courses/<?= rawurlencode((string) ($course['slug'] ?? '')) ?>">
   <meta property="og:title" content="<?= htmlspecialchars($seoTitle) ?>">
   <meta property="og:description" content="<?= htmlspecialchars($seoDescription) ?>">
   <meta property="og:image" content="<?= $ogImage ?>">
