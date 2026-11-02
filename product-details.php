@@ -30,6 +30,7 @@ $imgData = $product['Image'] ?? null;
 $imgUrl = $imgData['url'] ?? 'assets/img/course-details-tab-1.png';
 $gallery = $product['Gallery'] ?? [];
 if (!$gallery && $imgData) $gallery = [['url' => $imgUrl, 'alt' => $displayTitle]];
+$includedFiles = $product['Files'] ?? [];
 $filePath = '';
 
 $seoTitle = $product['SEO-Title'] ?? ($displayTitle . ' | SmartStudyPro Store');
@@ -311,6 +312,7 @@ $fullImgUrl = str_starts_with($imgUrl, 'http') ? $imgUrl : $siteUrl . '/' . ltri
             <div class="content text-muted lh-lg">
                 <?= $displayDesc ?>
             </div>
+            <?php if ($includedFiles): ?><section class="mt-4"><h3 class="h5 fw-bold mb-3" style="color:var(--ssp-navy);">Included files</h3><ul class="list-group list-group-flush rounded-3"><?php foreach ($includedFiles as $file): ?><li class="list-group-item d-flex justify-content-between gap-3"><span><i class="bi bi-file-earmark-text me-2"></i><?= htmlspecialchars($file['name'], ENT_QUOTES, 'UTF-8') ?></span><small class="text-muted text-nowrap"><?= number_format((int) $file['size'] / 1024, 1) ?> KB</small></li><?php endforeach; ?></ul><p class="small text-muted mt-2 mb-0">Secure access becomes available in your order history after payment is verified.</p></section><?php endif; ?>
           </div>
 
           <div class="col-lg-4">
