@@ -490,7 +490,8 @@ textarea {
 
   .ssp-header,
   .ssp-footer {
-    padding-inline: env(viewport-segment-left 0 0, 0px) env(viewport-segment-right 1 0, 100vw);
+    padding-left: env(viewport-segment-left 0 0, 0px);
+    padding-right: calc(100vw - env(viewport-segment-right 1 0, 100vw));
   }
 
   main,
