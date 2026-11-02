@@ -48,7 +48,7 @@ final class AccountService
 
     public function profile(int $userId): array
     {
-        $statement = $this->pdo->prepare('SELECT u.id, u.name, u.email, u.avatar_url, u.google_subject, u.status, u.email_verified_at, u.created_at, p.phone, p.location, p.bio, p.preferred_theme FROM users u LEFT JOIN student_profiles p ON p.user_id = u.id WHERE u.id = :id LIMIT 1');
+        $statement = $this->pdo->prepare('SELECT u.id, u.name, u.email, u.avatar_url, u.google_subject, CASE WHEN u.password_hash IS NOT NULL AND u.password_hash <> '' THEN 1 ELSE 0 END AS has_password, u.status, u.email_verified_at, u.created_at, p.phone, p.location, p.bio, p.preferred_theme FROM users u LEFT JOIN student_profiles p ON p.user_id = u.id WHERE u.id = :id LIMIT 1');
         $statement->execute(['id' => $userId]);
         return $statement->fetch() ?: [];
     }
@@ -83,7 +83,8 @@ final class AccountService
         $statement = $this->pdo->prepare("SELECT password_hash FROM users WHERE id = :id AND status = 'active' LIMIT 1");
         $statement->execute(['id' => $userId]);
         $hash = $statement->fetchColumn();
-        if (!is_string($hash) || $hash === '' || !password_verify($currentPassword, $hash)) throw new RuntimeException('Your current password is incorrect.');
+        if (is_string($hash) && $hash !== '' && !password_verify($currentPassword, $hash)) throw new RuntimeException('Your current password is incorrect.');
+        if (($hash === false || $hash === null || $hash === '') && $currentPassword !== '') throw new RuntimeException('This account does not have a password yet.');
         $update = $this->pdo->prepare('UPDATE users SET password_hash = :hash, auth_version = auth_version + 1, updated_at = :updated_at WHERE id = :id');
         $update->execute(['hash' => password_hash($newPassword, PASSWORD_DEFAULT), 'updated_at' => gmdate('Y-m-d H:i:s'), 'id' => $userId]);
         $tokens = $this->pdo->prepare('UPDATE password_reset_tokens SET used_at = :used_at WHERE user_id = :user_id AND used_at IS NULL');
