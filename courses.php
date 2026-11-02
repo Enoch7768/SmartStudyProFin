@@ -224,6 +224,7 @@ $siteUrl = 'https://smartstudypro.com';
       color: #FFFFFF;
     }
   </style>
+<link href="assets/css/device-responsive.css" rel="stylesheet">
 </head>
 
 <body class="courses-page">
