@@ -37,10 +37,10 @@ if (!in_array($type, ['course', 'product'], true) || $id < 1) {
 }
 
 $table = $type === 'course' ? 'cms_courses' : 'cms_products';
-$statement = $pdo->prepare("SELECT id, slug, price_ugx FROM {$table} WHERE id = :id AND status = 'published' LIMIT 1");
+$statement = $pdo->prepare("SELECT id, slug, price_ugx, product_type FROM {$table} WHERE id = :id AND status = 'published' LIMIT 1");
 $statement->execute(['id' => $id]);
 $item = $statement->fetch();
-if (!$item) {
+if (!$item || ($type === 'product' && ($item['product_type'] ?? '') !== 'online')) {
     http_response_code(404);
     exit('This item is no longer available.');
 }
