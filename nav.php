@@ -139,10 +139,10 @@
       <ul>
         <li><a href="index.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'active' : '' ?>">Home</a></li>
         <li><a href="about.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'about.php') ? 'active' : '' ?>">About Us</a></li>
-        <li><a href="courses.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'courses.php') ? 'active' : '' ?>">Courses</a></li>
+        <li><a href="/courses" class="<?= (basename($_SERVER['PHP_SELF']) == 'courses.php') ? 'active' : '' ?>">Courses</a></li>
         <li><a href="learning.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'learning.php') ? 'active' : '' ?>">My Learning</a></li>
         <li><a href="assistant.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'assistant.php') ? 'active' : '' ?>">AI Tutor</a></li>
-        <li><a href="products.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'products.php') ? 'active' : '' ?>">Products</a></li>
+        <li><a href="/products" class="<?= (basename($_SERVER['PHP_SELF']) == 'products.php') ? 'active' : '' ?>">Products</a></li>
         <li><a href="contact.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'contact.php') ? 'active' : '' ?>">Contact</a></li>
       </ul>
       <button type="button" class="mobile-nav-toggle d-xl-none border-0 bg-transparent ms-3 ms-sm-4 p-1" aria-label="Open navigation" aria-controls="navmenu" aria-expanded="false"><i class="bi bi-list fs-2" aria-hidden="true"></i></button>
@@ -159,11 +159,11 @@
 
       <a href="notifications.php" class="header-icon-link fs-5 text-decoration-none" title="Notifications" aria-label="Notifications"><i class="bi bi-bell"></i></a>
 
-      <a href="profile.php" class="header-icon-link fs-5 text-decoration-none" title="My Profile" aria-label="My profile">
+      <a href="/profile" class="header-icon-link fs-5 text-decoration-none" title="My Profile" aria-label="My profile">
         <i class="bi bi-person-circle" aria-hidden="true"></i>
       </a>
 
-      <a class="btn-ssp-primary d-none d-sm-inline-block text-decoration-none ms-1 ms-sm-2" href="courses.php">Explore Courses</a>
+      <a class="btn-ssp-primary d-none d-sm-inline-block text-decoration-none ms-1 ms-sm-2" href="/courses">Explore Courses</a>
     </div>
 
   </div>
