@@ -218,7 +218,7 @@ html[data-theme="dark"] .notice[style*="fff1f0"]{background:#431f28!important;co
 }
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
-}</style></head><body>
+}</style><link rel="stylesheet" href="../assets/css/device-responsive.css"></head><body>
 <header class="top"><div class="brand">SmartStudy<span>Pro</span> <span style="color:#8b90a6;font:600 12px 'Plus Jakarta Sans',sans-serif">CONTENT MANAGER</span></div><div class="top-actions"><button type="button" id="cms-theme-toggle" class="logout" aria-pressed="false">Dark mode</button><form method="post"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>"><input type="hidden" name="action" value="logout"><button class="logout">Sign out · <?= Security::escape($user['name']) ?></button></form></div></header>
 <div class="layout"><aside><div class="side-label">Manage website</div><nav class="side"><?php foreach ($labels as $key=>$label): ?><a class="<?= $section===$key?'active':'' ?>" href="?section=<?= Security::escape($key) ?>"><?= Security::escape($label) ?></a><?php endforeach; ?><a href="orders.php">Orders and payments</a><a href="analytics.php">Learning analytics</a></nav></aside>
 <main class="main"><div class="heading"><div><h1><?= Security::escape($labels[$section]) ?></h1><div class="muted">Manage SmartStudyPro website content.</div></div><?php if (isset($definitions[$section])): ?><a class="primary" href="?section=<?= Security::escape($section) ?>&new=1">+ Add new</a><?php endif; ?></div>
