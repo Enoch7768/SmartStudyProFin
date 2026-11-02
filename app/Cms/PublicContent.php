@@ -107,6 +107,7 @@ final class PublicContent
             'Image' => $this->image($row['image_media_id']),
             'ProductType' => ucfirst($row['product_type']),
             'ProductFile' => $this->image($row['product_file_media_id']),
+            'Gallery' => $this->productGallery((int) $row['id']),
             'SEO-Title' => $row['title'] . ' | SmartStudyPro Store',
             'SEO-Description' => substr(strip_tags($row['description_html']), 0, 160),
             'slug' => $row['slug']
@@ -122,4 +123,11 @@ final class PublicContent
         if (!$asset || !str_starts_with($asset['mime_type'], 'image/')) return null;
         return ['url' => 'media.php?id=' . (int) $asset['id']];
     }
+    private function productGallery(int $productId): array
+    {
+        $query = $this->pdo->prepare("SELECT m.id, m.alt_text FROM cms_product_assets pa INNER JOIN media_assets m ON m.id = pa.media_asset_id WHERE pa.product_id = :product_id AND pa.asset_role = 'gallery' AND m.visibility = 'public' AND m.mime_type IN ('image/jpeg', 'image/png', 'image/webp', 'image/gif') ORDER BY pa.sort_order, pa.id");
+        $query->execute(['product_id' => $productId]);
+        return array_map(static fn (array $asset): array => ['url' => 'media.php?id=' . (int) $asset['id'], 'alt' => (string) $asset['alt_text']], $query->fetchAll());
+    }
+
 }
