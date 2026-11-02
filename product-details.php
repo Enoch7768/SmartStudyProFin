@@ -58,6 +58,7 @@ $fullImgUrl = str_starts_with($imgUrl, 'http') ? $imgUrl : $siteUrl . '/' . ltri
 
   <meta property="og:type" content="product">
   <meta property="og:url" content="<?= $siteUrl ?>/products/<?= rawurlencode((string) ($product['slug'] ?? '')) ?>">
+  <link rel="canonical" href="<?= $siteUrl ?>/products/<?= rawurlencode((string) ($product['slug'] ?? '')) ?>">
   <meta property="og:title" content="<?= htmlspecialchars($seoTitle) ?>">
   <meta property="og:description" content="<?= htmlspecialchars($seoDescription) ?>">
   <meta property="og:image" content="<?= $fullImgUrl ?>">
