@@ -120,7 +120,9 @@ $seoDescription = 'Manage your SmartStudyPro account and student profile.';
 <form method="post">
 <input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>">
 <input type="hidden" name="action" value="password">
+<?php if (!empty($profile['has_password'])): ?>
 <div class="mb-3"><label class="form-label fw-semibold" for="current_password">Current password</label><input class="form-control" id="current_password" name="current_password" type="password" autocomplete="current-password" required></div>
+<?php else: ?><p class="meta mb-3">This account currently uses Google sign-in. You can set a password here to enable email-and-password sign-in too.</p><input type="hidden" name="current_password" value=""><?php endif; ?>
 <div class="mb-4"><label class="form-label fw-semibold" for="new_password">New password</label><input class="form-control" id="new_password" name="new_password" type="password" minlength="12" autocomplete="new-password" required></div>
 <button class="btn btn-ssp w-100" type="submit">Update password</button>
 </form>
