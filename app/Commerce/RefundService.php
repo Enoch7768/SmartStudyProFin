@@ -49,7 +49,7 @@ final class RefundService
         if ($status === 'succeeded' && $reference === '') throw new RuntimeException('Enter the provider refund reference after the refund is confirmed by the provider.');
         $this->pdo->beginTransaction();
         try {
-            $query = $this->pdo->prepare("SELECT r.*, p.id AS payment_id, p.amount_ugx AS payment_amount, o.id AS order_id FROM refunds r INNER JOIN payments p ON p.id = r.payment_id INNER JOIN orders o ON o.id = p.order_id WHERE r.id = :id");
+            $query = $this->pdo->prepare("SELECT r.*, p.id AS payment_id, p.amount_ugx AS payment_amount, o.id AS order_id, o.user_id FROM refunds r INNER JOIN payments p ON p.id = r.payment_id INNER JOIN orders o ON o.id = p.order_id WHERE r.id = :id");
             $query->execute(['id' => $refundId]);
             $refund = $query->fetch();
             if (!$refund || $refund['status'] !== 'pending') throw new RuntimeException('This refund is no longer awaiting resolution.');
@@ -67,6 +67,16 @@ final class RefundService
                 $orderStatus = $refunded >= (int) $refund['payment_amount'] ? 'refunded' : 'partially_refunded';
                 $this->pdo->prepare('UPDATE payments SET status = :status, updated_at = :updated_at WHERE id = :id')->execute(['status' => $paymentStatus, 'updated_at' => $now, 'id' => (int) $refund['payment_id']]);
                 $this->pdo->prepare('UPDATE orders SET status = :status, updated_at = :updated_at WHERE id = :id')->execute(['status' => $orderStatus, 'updated_at' => $now, 'id' => (int) $refund['order_id']]);
+                if ($orderStatus === 'refunded') {
+                    $courses = $this->pdo->prepare("SELECT item_id FROM order_items WHERE order_id = :order_id AND item_type = 'course'");
+                    $courses->execute(['order_id' => (int) $refund['order_id']]);
+                    $otherPurchase = $this->pdo->prepare("SELECT 1 FROM orders o INNER JOIN payments p ON p.order_id = o.id AND p.status = 'paid' INNER JOIN order_items oi ON oi.order_id = o.id AND oi.item_type = 'course' WHERE o.user_id = :user_id AND oi.item_id = :course_id AND o.id != :order_id AND o.status IN ('paid', 'partially_refunded') LIMIT 1");
+                    $revoke = $this->pdo->prepare("UPDATE course_enrolments SET status = 'revoked', updated_at = :updated_at WHERE user_id = :user_id AND course_id = :course_id AND source = 'payment' AND status IN ('active', 'completed')");
+                    foreach ($courses->fetchAll(PDO::FETCH_COLUMN) as $courseId) {
+                        $otherPurchase->execute(['user_id' => (int) $refund['user_id'], 'course_id' => (int) $courseId, 'order_id' => (int) $refund['order_id']]);
+                        if (!$otherPurchase->fetchColumn()) $revoke->execute(['updated_at' => $now, 'user_id' => (int) $refund['user_id'], 'course_id' => (int) $courseId]);
+                    }
+                }
             }
             $this->pdo->commit();
         } catch (Throwable $exception) {
