@@ -263,6 +263,16 @@ if (!$oauthReplayRejected) throw new RuntimeException('A Google OAuth callback w
     if (!Installer::isInstalled()) throw new RuntimeException('Installer did not create its lock.');
     Config::load($root);
     if (!Installer::applicationKeyIsValid()) throw new RuntimeException('The generated application key was not loaded.');
+    putenv('GOOGLE_CLIENT_SECRET');
+    $privateEnvironmentFile = $privateStorage . '/.env';
+    if (file_put_contents($privateEnvironmentFile, "GOOGLE_CLIENT_SECRET=private-google-secret\\n") === false) throw new RuntimeException('The private environment file could not be created.');
+    chmod($privateEnvironmentFile, 0600);
+    Config::load($root);
+    if (Config::get('google.client_secret') !== 'private-google-secret') throw new RuntimeException('Google OAuth credentials were not loaded from private storage.');
+    if ((fileperms($privateEnvironmentFile) & 0777) !== 0600) throw new RuntimeException('The private environment file permissions are unsafe.');
+    unlink($privateEnvironmentFile);
+    Config::load($root);
+
     if ((fileperms($privateStorage . '/app.key') & 0777) !== 0600 || (fileperms($privateStorage . '/installed.lock') & 0777) !== 0600) throw new RuntimeException('Private key and install lock permissions are unsafe.');
     putenv('DB_PATH=' . $temporary . '/outside.sqlite');
     Config::load($root);
