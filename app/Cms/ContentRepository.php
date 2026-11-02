@@ -139,7 +139,8 @@ final class ContentRepository
         $allowed = ['contact.phone', 'contact.email', 'contact.address', 'site.favicon_media_id'];
         $values = [];
         foreach ($allowed as $key) {
-            $value = trim((string) ($input[$key] ?? ''));
+            if (!array_key_exists($key, $input)) continue;
+            $value = trim((string) $input[$key]);
             if ($key === 'contact.email' && $value !== '' && !filter_var($value, FILTER_VALIDATE_EMAIL)) throw new RuntimeException('Enter a valid contact email address.');
             if ($key === 'site.favicon_media_id' && $value !== '') {
                 if (!ctype_digit($value) || (int) $value < 1) throw new RuntimeException('Choose a valid public favicon image.');
