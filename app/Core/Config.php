@@ -32,6 +32,20 @@ final class Config
         };
         $storage = (string) $read('APP_STORAGE_PATH', $local['storage_path'] ?? dirname($root) . '/smartstudypro-storage');
         $database = (string) $read('DB_PATH', $local['database_path'] ?? $storage . '/smartstudypro.sqlite');
+        $privateEnv = [];
+        $privateEnvFile = $storage . '/.env';
+        if (is_file($privateEnvFile) && is_readable($privateEnvFile) && !is_link($privateEnvFile)) {
+            foreach (file($privateEnvFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
+                $line = trim($line);
+                if ($line === '' || str_starts_with($line, '#') || !str_contains($line, '=')) continue;
+                [$key, $value] = explode('=', $line, 2);
+                $privateEnv[trim($key)] = trim(trim($value), "\\\"'");
+            }
+        }
+        $readPrivate = static function (string $key, mixed $default = null) use ($privateEnv): mixed {
+            $value = getenv($key);
+            return $value !== false && $value !== '' ? $value : ($privateEnv[$key] ?? $default);
+        };
         $keyFile = $storage . '/app.key';
         $storedKey = is_file($keyFile) && is_readable($keyFile) ? trim((string) file_get_contents($keyFile)) : '';
         self::$values = [
@@ -47,7 +61,7 @@ final class Config
             'mail' => ['from' => (string) $read('APP_MAIL_FROM', 'no-reply@smartstudypro.com')],
             'google' => [
                 'client_id' => (string) $read('GOOGLE_CLIENT_ID', ''),
-                'client_secret' => (string) $read('GOOGLE_CLIENT_SECRET', ''),
+                'client_secret' => (string) $readPrivate('GOOGLE_CLIENT_SECRET', ''),
             ],
             'ai' => ['gemini_api_key' => (string) $read('GEMINI_API_KEY', ''), 'gemini_model' => (string) $read('GEMINI_MODEL', 'gemini-2.5-flash')],
             'payments' => [
