@@ -45,6 +45,5 @@ header('Content-Length: ' . filesize($path));
 header('Content-Disposition: ' . ($download ? 'attachment' : 'inline') . '; filename="' . $name . '"');
 header('X-Content-Type-Options: nosniff');
 header('Cache-Control: private, no-store');
-header('Content-Security-Policy: default-src \'none\'; sandbox');
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'HEAD') readfile($path);
 exit;
