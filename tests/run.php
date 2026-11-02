@@ -11,6 +11,7 @@ require dirname(__DIR__) . '/bootstrap/app.php';
 
 use App\Core\Auth;
 use App\Identity\AccountService;
+use App\Identity\GoogleIdentityService;
 use App\Identity\LegalAcceptanceService;
 use App\Core\Config;
 use App\Core\Database;
