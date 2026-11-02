@@ -22,10 +22,10 @@ final class LearningService
         return $statement->fetchAll();
     }
 
-    public function course(int $courseId): ?array
+    public function course(int|string $identifier): ?array
     {
-        $statement = $this->pdo->prepare("SELECT * FROM cms_courses WHERE id = :id AND status = 'published' LIMIT 1");
-        $statement->execute(['id' => $courseId]);
+        $statement = $this->pdo->prepare("SELECT * FROM cms_courses WHERE status = 'published' AND (id = :id OR slug = :slug) LIMIT 1");
+        $statement->execute(['id' => is_int($identifier) || ctype_digit((string) $identifier) ? (int) $identifier : -1, 'slug' => (string) $identifier]);
         $course = $statement->fetch();
         if (!$course) return null;
         $course['description_html'] = HtmlSanitizer::clean((string) $course['description_html']);
