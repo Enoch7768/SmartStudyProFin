@@ -68,6 +68,7 @@ $seoTitle = 'Password Recovery | SmartStudyPro';
 <style>
 :root{--navy:#0C086B;--deep:#070443;--orange:#FF7A00;--ink:#1E293B;--muted:#64748B;--line:#E2E8F0;--surface:#fff;--bg:#F5F6FB}*{box-sizing:border-box}body{min-height:100vh;display:grid;place-items:center;padding:24px;background:var(--bg);color:var(--ink);font-family:"Plus Jakarta Sans",sans-serif}.card-shell{width:min(100%,460px);padding:36px;background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:0 18px 55px rgba(7,4,67,.1)}h1{font:700 29px Outfit,sans-serif;color:var(--navy)}.brand{font:800 24px Outfit,sans-serif;color:var(--deep)}.brand span{color:var(--orange)}.form-control{min-height:48px;border-radius:10px}.btn-primary{background:var(--orange);border:0;font-weight:700;min-height:48px}.btn-primary:hover{background:#E06B00}.muted{color:var(--muted)}@media(max-width:480px){.card-shell{padding:26px 20px}}
 </style>
+<link href="assets/css/device-responsive.css" rel="stylesheet">
 </head>
 <body>
 <main class="card-shell">
