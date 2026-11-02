@@ -18,6 +18,7 @@ final class DependencyInstaller
         return [
             'PHP process execution for automatic dependency setup' => function_exists('proc_open') && !in_array('proc_open', $disabled, true),
             'PHP Phar support' => class_exists(Phar::class),
+            'PHP CLI executable' => self::phpBinary() !== null,
             'HTTPS downloads' => extension_loaded('openssl') && (extension_loaded('curl') || filter_var(ini_get('allow_url_fopen'), FILTER_VALIDATE_BOOL)),
         ];
     }
@@ -71,7 +72,7 @@ final class DependencyInstaller
         }
         try {
             $process = proc_open(
-                [PHP_BINARY, $composer, 'install', '--no-dev', '--prefer-dist', '--no-interaction', '--no-progress', '--optimize-autoloader', '--no-plugins', '--no-scripts', '--working-dir=' . $root],
+                [self::phpBinary(), $composer, 'install', '--no-dev', '--prefer-dist', '--no-interaction', '--no-progress', '--optimize-autoloader', '--no-plugins', '--no-scripts', '--working-dir=' . $root],
                 [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
                 $pipes,
                 $root
@@ -92,6 +93,20 @@ final class DependencyInstaller
         }
         if (!is_file($vendor . DIRECTORY_SEPARATOR . 'autoload.php')) throw new RuntimeException('Composer finished without creating the dependency autoloader.');
         chmod($vendor . DIRECTORY_SEPARATOR . 'autoload.php', 0600);
+    }
+
+    private static function phpBinary(): ?string
+    {
+        $suffix = DIRECTORY_SEPARATOR === chr(92) ? '.exe' : '';
+        $candidates = [
+            PHP_BINDIR . DIRECTORY_SEPARATOR . 'php' . $suffix,
+            PHP_BINDIR . DIRECTORY_SEPARATOR . 'php-cli' . $suffix,
+            PHP_BINARY,
+        ];
+        foreach (array_unique($candidates) as $candidate) {
+            if (is_file($candidate) && is_executable($candidate)) return $candidate;
+        }
+        return null;
     }
 
     private static function downloadComposer(string $destination): void
