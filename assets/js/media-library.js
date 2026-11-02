@@ -110,7 +110,9 @@
             'Media ID ' + data.id,
             data.mime,
             formatSize(Number(data.size)),
-            data.visibility === 'public' ? 'Public asset' : 'Private asset'
+            data.visibility === 'public' ? 'Public asset' : 'Private asset',
+            'Uploaded by ' + (data.uploader || 'Administrator'),
+            'Uploaded ' + new Date(data.created).toLocaleDateString()
         ].forEach(value => {
             const item = document.createElement('span');
             item.textContent = value;
