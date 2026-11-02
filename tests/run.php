@@ -160,6 +160,40 @@ try {
 
     $accounts = new AccountService($pdo);
     $studentId = $accounts->register('Test Student', 'student@example.test', 'a-strong-student-password', ['terms' => '1.0.0', 'privacy' => '1.0.0'], '127.0.0.1', 'test-agent');
+$googleService = new GoogleIdentityService($pdo);
+$googleResolve = new ReflectionMethod(GoogleIdentityService::class, 'resolveAccount');
+$googleClaims = ['sub' => 'google-subject-test', 'email' => 'google@example.test', 'email_verified' => true, 'name' => 'Google Student', 'picture' => 'https://example.test/avatar.png'];
+$googleUserId = (int) $googleResolve->invoke($googleService, $googleClaims, 'register', 0);
+$googleUser = $accounts->profile($googleUserId);
+if (($googleUser['google_subject'] ?? '') !== 'google-subject-test' || (int) ($googleUser['has_password'] ?? 1) !== 0 || empty($googleUser['email_verified_at'])) throw new RuntimeException('Google registration did not create a verified passwordless identity.');
+if (!Auth::hasRole($pdo, $googleUserId, 'student') || !(new LegalAcceptanceService($pdo))->hasCurrentAcceptance($googleUserId)) throw new RuntimeException('Google registration did not apply student access and legal acceptance.');
+if ((int) $googleResolve->invoke($googleService, $googleClaims, 'login', 0) !== $googleUserId) throw new RuntimeException('An existing Google identity could not sign in.');
+if (!Auth::attempt($pdo, 'student@example.test', 'a-strong-student-password')) throw new RuntimeException('The account-linking test could not authenticate the existing account.');
+$linkClaims = ['sub' => 'google-link-subject', 'email' => 'different-google@example.test', 'email_verified' => true, 'name' => 'Linked Identity'];
+if ((int) $googleResolve->invoke($googleService, $linkClaims, 'link', $studentId) !== $studentId) throw new RuntimeException('An authenticated account could not connect a verified Google identity.');
+$linkedSubject = $pdo->prepare('SELECT google_subject FROM users WHERE id = :id');
+$linkedSubject->execute(['id' => $studentId]);
+if ($linkedSubject->fetchColumn() !== 'google-link-subject') throw new RuntimeException('The Google identity was not linked to the authenticated account.');
+$collisionRejected = false;
+try {
+    $googleResolve->invoke($googleService, $googleClaims, 'link', $studentId);
+} catch (RuntimeException) {
+    $collisionRejected = true;
+}
+if (!$collisionRejected) throw new RuntimeException('A Google identity already owned by another account was linked.');
+Auth::logout();
+$accounts->changePassword($googleUserId, '', 'a-google-account-password');
+if (!Auth::attempt($pdo, 'google@example.test', 'a-google-account-password')) throw new RuntimeException('A Google-only account could not add a password.');
+Auth::logout();
+$verifyGoogleToken = new ReflectionMethod(GoogleIdentityService::class, 'verifyIdToken');
+$invalidGoogleTokenRejected = false;
+try {
+    $verifyGoogleToken->invoke($googleService, 'not-a-jwt', 'expected-nonce');
+} catch (RuntimeException) {
+    $invalidGoogleTokenRejected = true;
+}
+if (!$invalidGoogleTokenRejected) throw new RuntimeException('A malformed Google identity token was accepted.');
+
     $acceptances = $pdo->prepare('SELECT document, version, ip_hash, user_agent_hash FROM user_legal_acceptances WHERE user_id = :user_id ORDER BY document');
     $acceptances->execute(['user_id' => $studentId]);
     $acceptedDocuments = $acceptances->fetchAll();
