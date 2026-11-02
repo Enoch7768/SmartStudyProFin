@@ -257,6 +257,7 @@ $siteUrl = 'https://smartstudypro.com';
       document.documentElement.setAttribute('data-theme', 'dark');
     }
   </script>
+<link href="assets/css/device-responsive.css" rel="stylesheet">
 </head>
 
 <body class="about-page">
