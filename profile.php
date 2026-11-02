@@ -13,8 +13,8 @@ $pdo = Database::connect();
 $user = Auth::user($pdo);
 if (!$user) Security::redirect('login.php?redirect=profile.php');
 $service = new AccountService($pdo);
-$error = null;
-$success = null;
+$error = isset($_GET['google_error']) ? 'Google could not be connected. The account may already be linked elsewhere.' : null;
+$success = isset($_GET['google_linked']) ? 'Your Google account is now connected.' : null;
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if (!Security::verifyCsrf($_POST['_csrf'] ?? null)) {
