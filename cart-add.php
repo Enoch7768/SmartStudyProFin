@@ -37,7 +37,8 @@ if (!in_array($type, ['course', 'product'], true) || $id < 1) {
 }
 
 $table = $type === 'course' ? 'cms_courses' : 'cms_products';
-$statement = $pdo->prepare("SELECT id, slug, price_ugx, product_type FROM {$table} WHERE id = :id AND status = 'published' LIMIT 1");
+$columns = $type === 'product' ? 'id, slug, price_ugx, product_type' : 'id, slug, price_ugx';
+$statement = $pdo->prepare("SELECT {$columns} FROM {$table} WHERE id = :id AND status = 'published' LIMIT 1");
 $statement->execute(['id' => $id]);
 $item = $statement->fetch();
 if (!$item || ($type === 'product' && ($item['product_type'] ?? '') !== 'online')) {
