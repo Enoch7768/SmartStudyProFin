@@ -113,3 +113,12 @@ assert.match(homepage, /<link href="assets\/css\/main\.css" rel="stylesheet">/);
 assert.match(sharedStylesheet, /:where\(a, button, input, select, textarea, summary, \[tabindex\]\):focus-visible/);
 assert.match(sharedStylesheet, /prefers-reduced-motion: reduce/);
 console.log('PASS homepage loads the shared accessibility stylesheet');
+
+const sharedNavigation = fs.readFileSync('nav.php', 'utf8');
+assert.match(homepage, /include __DIR__ \. '\/nav\.php';/);
+assert.doesNotMatch(homepage, /id="header"/);
+assert.match(sharedNavigation, /href="courses\.php">Explore Courses<\/a>/);
+assert.match(sharedNavigation, /aria-controls="navmenu"/);
+assert.match(sharedNavigation, /aria-expanded="false"/);
+console.log('PASS homepage uses the shared accessible navigation and course entry point');
+
