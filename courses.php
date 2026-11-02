@@ -38,7 +38,8 @@ $siteUrl = 'https://smartstudypro.com';
   <meta name="author" content="SmartStudyPro">
 
   <meta property="og:type" content="website">
-  <meta property="og:url" content="<?= $siteUrl ?>/courses.php">
+  <meta property="og:url" content="<?= $siteUrl ?>/courses">
+  <link rel="canonical" href="<?= $siteUrl ?>/courses">
   <meta property="og:title" content="<?= htmlspecialchars($seoTitle) ?>">
   <meta property="og:description" content="<?= htmlspecialchars($seoDescription) ?>">
   <meta property="og:image" content="<?= $siteUrl ?>/Smart_Study_Logo_Fin-removebg-preview.png">
