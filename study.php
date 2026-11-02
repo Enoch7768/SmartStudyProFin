@@ -13,7 +13,7 @@ use App\Learning\RecognitionService;
 header('Cache-Control: private, no-store');
 $pdo = Database::connect();
 $user = Auth::user($pdo);
-if (!$user) Security::redirect('login.php?redirect=study.php');
+if (!$user) Security::redirect('/login?redirect=%2Flearn');
 $userId = (int) $user['id'];
 $service = new LearningService($pdo);
 $courseIdentifier = $_GET['course_slug'] ?? $_GET['course_id'] ?? $_POST['course_id'] ?? null;
