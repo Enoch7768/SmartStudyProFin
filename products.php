@@ -38,7 +38,8 @@ $siteUrl = 'https://smartstudypro.com';
   <meta name="author" content="SmartStudyPro">
 
   <meta property="og:type" content="website">
-  <meta property="og:url" content="<?= $siteUrl ?>/products.php">
+  <meta property="og:url" content="<?= $siteUrl ?>/products">
+  <link rel="canonical" href="<?= $siteUrl ?>/products">
   <meta property="og:title" content="<?= htmlspecialchars($seoTitle) ?>">
   <meta property="og:description" content="<?= htmlspecialchars($seoDescription) ?>">
   <meta property="og:image" content="<?= $siteUrl ?>/Smart_Study_Logo_Fin-removebg-preview.png">
@@ -314,7 +315,7 @@ $siteUrl = 'https://smartstudypro.com';
                     </div>
 
                     <h3 class="h5 fw-bold mb-2">
-                      <a href="product-details.php?id=<?= $product['_id'] ?>" class="text-decoration-none product-title-link">
+                      <a href="/products/<?= rawurlencode((string) ($product['slug'] ?? $product['_id'])) ?>" class="text-decoration-none product-title-link">
                         <?= htmlspecialchars($product['Title'] ?? $product['title'] ?? 'Untitled Product') ?>
                       </a>
                     </h3>
@@ -323,7 +324,7 @@ $siteUrl = 'https://smartstudypro.com';
                       <?= htmlspecialchars(substr(strip_tags($product['Description'] ?? $product['description'] ?? ''), 0, 110)) ?>...
                     </p>
 
-                    <a href="product-details.php?id=<?= $product['_id'] ?>" class="btn btn-outline-custom w-100 mt-auto rounded-3 text-decoration-none">
+                    <a href="/products/<?= rawurlencode((string) ($product['slug'] ?? $product['_id'])) ?>" class="btn btn-outline-custom w-100 mt-auto rounded-3 text-decoration-none">
                       View Details
                     </a>
                   </div>
