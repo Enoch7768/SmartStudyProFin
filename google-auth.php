@@ -14,6 +14,7 @@ use App\Identity\LegalAcceptanceService;
 $pdo = Database::connect();
 $service = new GoogleIdentityService($pdo);
 $action = (string) ($_GET['action'] ?? $_POST['action'] ?? '');
+$failureMode = '';
 
 try {
     if ($action === 'login' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') $service->start('login');
@@ -29,6 +30,7 @@ try {
         $service->start('link', (int) $user['id']);
     }
     if ($action === 'callback' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
+        $failureMode = (string) ($_SESSION['google_oauth']['mode'] ?? '');
         if (isset($_GET['error'])) throw new RuntimeException('Google sign-in was cancelled or could not be completed.');
         $result = $service->complete((string) ($_GET['code'] ?? ''), (string) ($_GET['state'] ?? ''));
         if ($result['mode'] === 'link') Security::redirect('profile.php?google_linked=1');
@@ -53,7 +55,7 @@ try {
 } catch (Throwable $exception) {
     $pending = $_SESSION['google_oauth'] ?? null;
     unset($_SESSION['google_oauth']);
-    $mode = is_array($pending) ? (string) ($pending['mode'] ?? '') : '';
+    $mode = $failureMode !== '' ? $failureMode : (is_array($pending) ? (string) ($pending['mode'] ?? '') : '');
     if ($mode === 'link' || $action === 'link') Security::redirect('profile.php?google_error=1');
     Security::redirect(($mode === 'register' || $action === 'register') ? 'register.php?google_error=1' : 'login.php?google_error=1');
 }
