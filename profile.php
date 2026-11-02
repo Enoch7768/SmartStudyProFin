@@ -13,6 +13,7 @@ $pdo = Database::connect();
 $user = Auth::user($pdo);
 if (!$user) Security::redirect('login.php?redirect=profile.php');
 $service = new AccountService($pdo);
+$googleConfigured = GoogleIdentityService::isConfigured();
 $error = isset($_GET['google_error']) ? 'Google could not be connected. The account may already be linked elsewhere.' : null;
 $success = isset($_GET['google_linked']) ? 'Your Google account is now connected.' : null;
 
@@ -110,9 +111,10 @@ $seoDescription = 'Manage your SmartStudyPro account and student profile.';
 <section class="account-card p-4 p-lg-5 mb-4">
 <div class="eyebrow">Connected accounts</div><h2 class="h4 mb-1">Google sign-in</h2>
 <p class="meta mb-3"><?= !empty($profile['google_subject']) ? 'Your Google account is connected. You can use it to sign in securely.' : 'Connect Google to sign in without entering your password.' ?></p>
-<?php if (empty($profile['google_subject'])): ?>
+<?php if (!empty($profile['google_subject'])): ?><span class="badge text-bg-success">Google connected</span>
+<?php elseif ($googleConfigured): ?>
 <form method="post" action="google-auth.php"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>"><input type="hidden" name="action" value="link"><button class="btn btn-outline-secondary w-100 rounded-3 fw-semibold" type="submit">Connect Google account</button></form>
-<?php else: ?><span class="badge text-bg-success">Google connected</span><?php endif; ?>
+<?php else: ?><p class="meta mb-0">Google sign-in is unavailable until OAuth credentials are configured.</p><?php endif; ?>
 </section>
 
 <section class="account-card p-4 p-lg-5 mb-4">
