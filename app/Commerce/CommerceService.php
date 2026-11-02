@@ -192,7 +192,7 @@ final class CommerceService
 
     public function purchasedFile(int $userId, int $orderItemId): ?array
     {
-        $query = $this->pdo->prepare("SELECT oi.item_title, m.storage_path, m.original_name, m.mime_type, m.file_size FROM order_items oi INNER JOIN orders o ON o.id = oi.order_id INNER JOIN payments p ON p.order_id = o.id AND p.status = 'paid' INNER JOIN media_assets m ON m.id = oi.product_file_media_id WHERE oi.id = :item_id AND oi.item_type = 'product' AND oi.product_type = 'online' AND o.user_id = :user_id AND o.status = 'paid' AND m.visibility = 'private' LIMIT 1");
+        $query = $this->pdo->prepare("SELECT oi.item_title, m.storage_path, m.original_name, m.mime_type, m.file_size FROM order_items oi INNER JOIN orders o ON o.id = oi.order_id INNER JOIN payments p ON p.order_id = o.id AND p.status = 'paid' INNER JOIN media_assets m ON m.id = oi.product_file_media_id WHERE oi.id = :item_id AND oi.item_type = 'product' AND oi.product_type = 'online' AND o.user_id = :user_id AND o.status IN ('paid', 'partially_refunded') AND m.visibility = 'private' LIMIT 1");
         $query->execute(['item_id' => $orderItemId, 'user_id' => $userId]);
         return $query->fetch() ?: null;
     }
