@@ -125,7 +125,20 @@ html[data-theme="dark"] .muted{color:#aab6ca}
 html[data-theme="dark"] label{color:#e2e8f0}
 html[data-theme="dark"] input{background:#0f1726;border-color:#34425c;color:#edf2fb}
 html[data-theme="dark"] .theme-toggle{background:#151d2e;border-color:#34425c;color:#edf2fb}
-</style></head><body><button type="button" id="cms-theme-toggle" class="theme-toggle" aria-pressed="false">Dark mode</button><main class="card"><div class="brand">SmartStudy<span>Pro</span></div><h1>Admin sign in</h1><p class="muted">Manage your learning content and website information.</p><?php if ($error !== ''): ?><div class="error"><?= Security::escape($error) ?></div><?php endif; ?><form method="post"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>"><input type="hidden" name="action" value="login"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="username" required><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required><button type="submit">Sign in to CMS</button></form></main></body></html>
+
+@media(max-width:480px){
+  body{padding:12px}
+  .card{padding:clamp(16px,5vw,26px)}
+  h1{font-size:24px;margin-top:22px}
+  .theme-toggle{top:max(8px,env(safe-area-inset-top));right:max(8px,env(safe-area-inset-right))}
+}
+@media(max-width:280px){
+  body{padding:8px}
+  .card{padding:14px;border-radius:16px}
+  .brand{font-size:22px}
+  h1{font-size:22px}
+}</style><link rel="stylesheet" href="../assets/css/device-responsive.css">
+</head><body><button type="button" id="cms-theme-toggle" class="theme-toggle" aria-pressed="false">Dark mode</button><main class="card"><div class="brand">SmartStudy<span>Pro</span></div><h1>Admin sign in</h1><p class="muted">Manage your learning content and website information.</p><?php if ($error !== ''): ?><div class="error"><?= Security::escape($error) ?></div><?php endif; ?><form method="post"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>"><input type="hidden" name="action" value="login"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="username" required><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required><button type="submit">Sign in to CMS</button></form></main></body></html>
 <?php exit; endif; ?>
 <?php
 
@@ -158,7 +171,54 @@ html[data-theme="dark"] .media-item{border-color:#34425c}
 html[data-theme="dark"] .notice{background:#123528;color:#a7f3c6}
 html[data-theme="dark"] .notice[style*="fff1f0"]{background:#431f28!important;color:#fecaca!important}
 @media(max-width:900px){.layout{grid-template-columns:1fr}aside{padding:12px;overflow:auto}.side{display:flex;gap:5px;overflow:auto}.side-label{display:none}.side a{white-space:nowrap}.main{padding:20px}.grid{grid-template-columns:1fr}}@media(max-width:560px){.top{padding:0 16px}.main{padding:14px}.heading{align-items:flex-start;flex-direction:column}.page-grid{grid-template-columns:1fr}}
-</style></head><body>
+
+@media(min-width:1800px){
+  .layout{grid-template-columns:270px minmax(0,1fr)}
+  .main{width:min(100%,1760px);padding:clamp(28px,3vw,64px)}
+  .panel{padding:clamp(22px,2vw,36px)}
+}
+@media(max-width:900px){
+  .top{height:auto;min-height:64px;padding:12px 18px;gap:12px;flex-wrap:wrap}
+  .layout{grid-template-columns:minmax(0,1fr)}
+  .layout aside{position:relative;padding:10px 12px;min-width:0}
+  .side{display:flex;gap:6px;overflow-x:auto;overscroll-behavior-inline:contain;white-space:nowrap;padding-bottom:4px;scrollbar-width:thin}
+  .side a{flex:0 0 auto;padding:10px 12px}
+  .side-label{display:none}
+  .main{width:100%;max-width:none;padding:clamp(14px,3vw,26px)}
+  .grid{grid-template-columns:minmax(0,1fr)}
+  .page-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .table-wrap{max-width:100%;overflow-x:auto;overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch}
+  .table-wrap table{min-width:640px}
+  .panel,.field,.media-grid,.media-item{min-width:0;max-width:100%}
+  .field input,.field textarea,.field select{width:100%;max-width:100%;min-width:0}
+}
+@media(max-width:560px){
+  .top{padding:10px 12px}
+  .brand{font-size:19px}
+  .main{padding:12px}
+  .heading{align-items:flex-start;flex-direction:column;gap:12px}
+  .heading .primary{width:100%;text-align:center}
+  .page-grid{grid-template-columns:minmax(0,1fr)}
+  .panel{padding:14px;border-radius:14px}
+  .panel h2{font-size:18px}
+  .media-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .side a{font-size:12px;padding:9px 10px}
+  button,.primary,.danger,.logout{min-height:44px}
+}
+@media(max-width:340px){
+  .top{align-items:flex-start}
+  .brand{font-size:17px}
+  .main{padding:9px}
+  .panel{padding:11px}
+  .media-grid{grid-template-columns:minmax(0,1fr)}
+  .table-wrap table{min-width:560px}
+}
+@media(pointer:coarse){
+  .side a,.logout,button,.primary,.danger{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
+}</style></head><body>
 <header class="top"><div class="brand">SmartStudy<span>Pro</span> <span style="color:#8b90a6;font:600 12px 'Plus Jakarta Sans',sans-serif">CONTENT MANAGER</span></div><div class="top-actions"><button type="button" id="cms-theme-toggle" class="logout" aria-pressed="false">Dark mode</button><form method="post"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>"><input type="hidden" name="action" value="logout"><button class="logout">Sign out · <?= Security::escape($user['name']) ?></button></form></div></header>
 <div class="layout"><aside><div class="side-label">Manage website</div><nav class="side"><?php foreach ($labels as $key=>$label): ?><a class="<?= $section===$key?'active':'' ?>" href="?section=<?= Security::escape($key) ?>"><?= Security::escape($label) ?></a><?php endforeach; ?><a href="orders.php">Orders and payments</a><a href="analytics.php">Learning analytics</a></nav></aside>
 <main class="main"><div class="heading"><div><h1><?= Security::escape($labels[$section]) ?></h1><div class="muted">Manage SmartStudyPro website content.</div></div><?php if (isset($definitions[$section])): ?><a class="primary" href="?section=<?= Security::escape($section) ?>&new=1">+ Add new</a><?php endif; ?></div>
