@@ -153,7 +153,7 @@
         <i id="theme-toggle-icon" class="bi bi-moon-fill" aria-hidden="true"></i>
       </button>
 
-      <a href="cart.php" class="header-icon-link fs-5 text-decoration-none" title="Shopping Cart" aria-label="Shopping cart">
+      <a href="/cart" class="header-icon-link fs-5 text-decoration-none" title="Shopping Cart" aria-label="Shopping cart">
         <i class="bi bi-bag"></i>
       </a>
 
