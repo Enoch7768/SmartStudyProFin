@@ -183,8 +183,8 @@ final class GoogleIdentityService
                 $existing->execute(['subject' => $subject]);
                 $owner = $existing->fetchColumn();
                 if ($owner !== false && (int) $owner !== $linkUserId) throw new RuntimeException('This Google account is already connected to another SmartStudyPro account.');
-                $update = $this->pdo->prepare('UPDATE users SET google_subject = :subject, avatar_url = COALESCE(:avatar, avatar_url), email_verified_at = COALESCE(email_verified_at, :verified_at), updated_at = :updated_at WHERE id = :id AND status = :status');
-                $update->execute(['subject' => $subject, 'avatar' => $picture, 'verified_at' => $now, 'updated_at' => $now, 'id' => $linkUserId, 'status' => 'active']);
+                $update = $this->pdo->prepare('UPDATE users SET google_subject = :subject, avatar_url = COALESCE(:avatar, avatar_url), email_verified_at = CASE WHEN email = :google_email COLLATE NOCASE THEN COALESCE(email_verified_at, :verified_at) ELSE email_verified_at END, updated_at = :updated_at WHERE id = :id AND status = :status');
+                $update->execute(['subject' => $subject, 'avatar' => $picture, 'google_email' => $email, 'verified_at' => $now, 'updated_at' => $now, 'id' => $linkUserId, 'status' => 'active']);
                 if ($update->rowCount() !== 1) throw new RuntimeException('The Google account could not be connected.');
                 $this->pdo->commit();
                 return $linkUserId;
