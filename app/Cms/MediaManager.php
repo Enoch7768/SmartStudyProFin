@@ -75,7 +75,7 @@ final class MediaManager
         if (!in_array($visibility, ['private', 'public'], true)) throw new RuntimeException('Choose a valid visibility setting.');
         if ($visibility === 'public' && !str_starts_with((string) $asset['mime_type'], 'image/')) throw new RuntimeException('Only image files can be made public.');
         $update = $this->pdo->prepare('UPDATE media_assets SET alt_text = :alt_text, visibility = :visibility WHERE id = :id');
-        $update->execute(['alt_text' => mb_substr(trim($altText), 0, 240), 'visibility' => $visibility, 'id' => $id]);
+        $update->execute(['alt_text' => substr(trim($altText), 0, 240), 'visibility' => $visibility, 'id' => $id]);
     }
 
     public function all(): array
