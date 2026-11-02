@@ -21,6 +21,26 @@ PayPal's Orders API uses USD for the provider settlement amount in this integrat
 
 DPO is configured for UGX. The server creates a hosted-checkout token, verifies the DPO BackURL callback using `verifyToken`, and repeats verification on the customer return if needed. The callback endpoint is `dpo-webhook.php`.
 
+## Digital product delivery
+
+Online products can include up to 25 private downloadable assets with a combined maximum size of 250 MB per product. Supported delivery formats include PDF, TXT, CSV, common Word/Excel/PowerPoint documents, RTF, ODT and raster images. Public gallery images are managed separately and are shown on the product detail page. Private files are stored outside the public web root and are never exposed through their storage paths.
+
+The CMS media library accepts the supported file formats. Open **Administration → Orders and payments → Product files and images** to attach public gallery images and private purchase files to an online product. Existing single-PDF product attachments remain supported.
+
+After a verified payment, the customer's order history exposes secure view links for browser-previewable PDF, text, CSV and image assets, and download links for every attached file. Each request checks the signed-in owner, paid order, purchase line, private storage root and real file path. Full refunds disable digital delivery; partially refunded purchases retain access while a verified payment remains active.
+
+Receipts are available from each order in the customer's order history. They show the immutable purchase-time item and amount snapshots, provider status, transaction reference and recorded refund totals.
+
+## Refund operations
+
+The administrator refund ledger records the request, amount, reason, requesting administrator, resolution administrator, provider refund reference, timestamps and append-only audit events. A request reserves refundable balance so overlapping requests cannot exceed the captured amount. A failed request releases its reservation. Successful partial refunds move the order to partially_refunded; a full refund moves both order and payment to refunded and revokes protected digital delivery.
+
+The refund screen records and audits provider actions; it does not claim to move money or call an undocumented provider refund API. An administrator must first process the refund in the relevant PayPal or DPO merchant console, then record the provider-confirmed refund reference and resolution. Never mark a refund successful before provider confirmation.
+
+## Reconciliation
+
+The administrator order screen flags missing paid-payment records, paid payments attached to pending/cancelled orders, and order/payment amount mismatches. Review provider settlement reports against these exceptions before closing a reconciliation period.
+
 ## Payment safety
 
 - Return URLs never mark an order paid on their own.
