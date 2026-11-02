@@ -110,6 +110,7 @@ $seoDescription = $page['intro'];
 <title><?= htmlspecialchars($seoTitle, ENT_QUOTES, 'UTF-8') ?></title>
 <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+<link href="/assets/css/device-responsive.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--ssp-navy:#0C086B;--ssp-navy-dark:#070443;--ssp-orange:#FF7A00;--ssp-orange-hover:#E06B00;--ssp-bg-main:#FFFFFF;--ssp-bg-soft:#F8FAFC;--ssp-card-bg:#FFFFFF;--ssp-card-border:#E2E8F0;--ssp-text-main:#1E293B;--ssp-text-muted:#64748B}
