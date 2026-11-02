@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 require __DIR__ . '/bootstrap/app.php';
 
-use App\Commerce\CommerceService;
 use App\Core\Auth;
 use App\Core\Database;
 use App\Core\Security;
@@ -27,7 +26,6 @@ if (!Security::verifyCsrf($_POST['_csrf'] ?? null)) {
 
 $pdo = Database::connect();
 $user = Auth::user($pdo);
-if (!$user) Security::redirect('/login?redirect=%2Fcart');
 
 $type = (string) ($_POST['type'] ?? '');
 $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT) ?: 0;
@@ -48,10 +46,12 @@ if (!$item || ($type === 'product' && ($item['product_type'] ?? '') !== 'online'
 
 if ($type === 'course') {
     $learning = new LearningService($pdo);
-    if ($learning->hasAccess((int) $user['id'], $id)) Security::redirect('/learn/' . rawurlencode((string) $item['slug']));
+    if ($user && $learning->hasAccess((int) $user['id'], $id)) Security::redirect('/learn/' . rawurlencode((string) $item['slug']));
     if ((int) $item['price_ugx'] === 0) {
+        $destination = '/learn/' . rawurlencode((string) $item['slug']);
+        if (!$user) Security::redirect('/login?redirect=' . rawurlencode($destination));
         $learning->enrolFreeCourse((int) $user['id'], $id);
-        Security::redirect('/learn/' . rawurlencode((string) $item['slug']));
+        Security::redirect($destination);
     }
 }
 
