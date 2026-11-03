@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\\Core;
+namespace App\Core;
 
 final class Url
 {
     public static function basePath(): string
     {
-        $scriptName = str_replace('\\\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
+        $scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
         $directory = dirname($scriptName);
         return $directory === '/' || $directory === '.' ? '' : rtrim($directory, '/');
     }
