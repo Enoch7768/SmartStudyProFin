@@ -40,6 +40,20 @@
       } catch (error) {}
 
       updateButton(isDark);
+
+      const endpoint = button.dataset.themeEndpoint;
+      const csrf = button.dataset.csrf;
+      if (endpoint && csrf) {
+        fetch(endpoint, {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": csrf
+          },
+          body: JSON.stringify({ theme: isDark ? "dark" : "light" })
+        }).catch(function() {});
+      }
     });
   }
 
