@@ -79,7 +79,7 @@ async function run() {
   browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   const page = await context.newPage();
-  await page.route(/^https:\/\/fonts\\.(?:googleapis|gstatic)\\.com\\//, route => route.abort());
+  await page.route(/^https:\/\/fonts\.(?:googleapis|gstatic)\.com\//, route => route.abort());
   page.setDefaultTimeout(12000);
   page.setDefaultNavigationTimeout(12000);
   const pageErrors = [];
