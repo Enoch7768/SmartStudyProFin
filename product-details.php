@@ -13,7 +13,7 @@ $productIdentifier = $_GET['slug'] ?? $_GET['id'] ?? $_GET['_id'] ?? null;
 $product = $content->product(is_string($productIdentifier) || is_int($productIdentifier) ? $productIdentifier : null);
 $productId = (int) ($product['_id'] ?? 0);
 if ($product && !isset($_GET['slug']) && !headers_sent()) {
-    header('Location: /products/' . rawurlencode((string) $product['slug']), true, 301);
+    header('Location: \App\Core\Url::to('/products/' . rawurlencode((string) $product['slug'])), true, 301);
     exit;
 }
 $contact = $content->contact();
@@ -330,7 +330,7 @@ $fullImgUrl = str_starts_with($imgUrl, 'http') ? $imgUrl : $siteUrl . '/' . ltri
               <hr class="my-3" style="border-color: var(--ssp-card-border);">
               
               <?php if (strtolower($productType) === 'online'): ?>
-              <form method="post" action="/cart/add">
+              <form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>">
                 <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" name="type" value="product">
                 <input type="hidden" name="id" value="<?= $productId ?>">
