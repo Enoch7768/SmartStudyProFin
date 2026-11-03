@@ -72,6 +72,8 @@ async function run() {
   const page = await context.newPage();
   const pageErrors = [];
   const localRequestFailures = [];
+  const artifactDirectory = process.env.BROWSER_ARTIFACT_DIR ? path.resolve(process.env.BROWSER_ARTIFACT_DIR) : path.join(temporary, 'artifacts');
+  fs.mkdirSync(artifactDirectory, { recursive: true });
   page.on('pageerror', error => pageErrors.push(error.message));
   page.on('requestfailed', request => {
     if (request.url().startsWith(base)) localRequestFailures.push(request.url() + ': ' + request.failure()?.errorText);
@@ -90,6 +92,7 @@ async function run() {
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(base + '/', { waitUntil: 'domcontentloaded' });
+  await page.screenshot({ path: path.join(artifactDirectory, 'home-desktop.png'), fullPage: true });
   const mobileToggle = page.locator('.mobile-nav-toggle');
   await mobileToggle.click();
   assert.equal(await mobileToggle.getAttribute('aria-expanded'), 'true');
@@ -139,6 +142,7 @@ async function run() {
   await page.waitForURL(/profile\.php|\/profile(?:$|[?#])/);
   await page.getByRole('heading', { name: 'Welcome, Browser Test Student' }).waitFor();
   assert.equal(await page.locator('#name').inputValue(), 'Browser Test Student');
+  await page.screenshot({ path: path.join(artifactDirectory, 'profile-desktop.png'), fullPage: true });
 
   await page.locator('#name').fill('Updated Browser Student');
   await page.locator('#phone').fill('+256700000000');
@@ -190,6 +194,7 @@ async function run() {
   console.log('PASS responsive overflow checks at 320, 390, 768 and 1440 pixels');
   console.log('PASS student registration, profile update, protected pages, logout and login');
   console.log('PASS no uncaught browser errors or failed local asset requests');
+  console.log('Browser screenshots: ' + artifactDirectory);
 }
 
 run().catch(error => {
