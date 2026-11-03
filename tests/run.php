@@ -53,6 +53,12 @@ try {
         if (!str_contains((string) file_get_contents(dirname(__DIR__) . '/' . $portalPage), 'assets/css/portal-theme.css')) throw new RuntimeException('A student portal page is missing the shared theme stylesheet: ' . $portalPage);
     }
     if (!str_contains($studyPage, 'study-theme-toggle') || !str_contains($studyPage, 'ssp-theme')) throw new RuntimeException('The focused lesson player is missing its persistent theme control.');
+    $adminTheme = (string) file_get_contents(dirname(__DIR__) . '/assets/css/admin-theme.css');
+    if (!str_contains($adminTheme, 'html[data-theme="dark"] body') || !str_contains($adminTheme, '.table')) throw new RuntimeException('The admin commerce dark theme is incomplete.');
+    foreach (['admin/orders.php', 'admin/refunds.php'] as $adminPage) {
+        $adminMarkup = (string) file_get_contents(dirname(__DIR__) . '/' . $adminPage);
+        if (!str_contains($adminMarkup, 'assets/css/admin-theme.css') || !str_contains($adminMarkup, 'data-admin-theme-toggle') || !str_contains($adminMarkup, 'ssp-theme')) throw new RuntimeException('An admin commerce page is missing its shared theme control: ' . $adminPage);
+    }
     $applicationBootstrap = (string) file_get_contents(dirname(__DIR__) . '/bootstrap/app.php');
     if (!str_contains($applicationBootstrap, 'Installer::isInstalled()') || !str_contains($applicationBootstrap, 'header(\'Location: \' . $installPath . \'/\', true, 303);')) throw new RuntimeException('An uninstalled web request must be redirected to first-run setup before opening the database.');
     $cartPage = (string) file_get_contents(dirname(__DIR__) . '/cart.php');
