@@ -47,6 +47,12 @@ try {
     if (is_file(dirname(__DIR__) . '/router.php') || str_contains((string) file_get_contents(dirname(__DIR__) . '/README.md'), 'php -S 127.0.0.1:8000 router.php')) throw new RuntimeException('A separate router.php must not be required by the application.');
     $studyPage = (string) file_get_contents(dirname(__DIR__) . '/study.php');
     if (!str_contains($studyPage, 'Url::to(\'/\')') || !str_contains($studyPage, 'Url::to(\'/learn/\'')) throw new RuntimeException('Nested learning pages are missing their base-path-aware assets and lesson routes.');
+    $portalTheme = (string) file_get_contents(dirname(__DIR__) . '/assets/css/portal-theme.css');
+    if (!str_contains($portalTheme, '[data-theme="dark"] body') || !str_contains($portalTheme, '.assistant-panel') || !str_contains($portalTheme, '.lesson-link')) throw new RuntimeException('The student portal dark theme is missing shared learning and assistant surfaces.');
+    foreach (['learning.php', 'study.php', 'achievements.php', 'certificates.php', 'notifications.php', 'assistant.php'] as $portalPage) {
+        if (!str_contains((string) file_get_contents(dirname(__DIR__) . '/' . $portalPage), 'assets/css/portal-theme.css')) throw new RuntimeException('A student portal page is missing the shared theme stylesheet: ' . $portalPage);
+    }
+    if (!str_contains($studyPage, 'study-theme-toggle') || !str_contains($studyPage, 'ssp-theme')) throw new RuntimeException('The focused lesson player is missing its persistent theme control.');
     $applicationBootstrap = (string) file_get_contents(dirname(__DIR__) . '/bootstrap/app.php');
     if (!str_contains($applicationBootstrap, 'Installer::isInstalled()') || !str_contains($applicationBootstrap, 'header(\'Location: \' . $installPath . \'/\', true, 303);')) throw new RuntimeException('An uninstalled web request must be redirected to first-run setup before opening the database.');
     $cartPage = (string) file_get_contents(dirname(__DIR__) . '/cart.php');
