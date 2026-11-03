@@ -25,6 +25,12 @@ const environment = {
 let server;
 let browser;
 let serverOutput = '';
+const watchdog = setTimeout(() => {
+  console.error('Browser checks exceeded their four-minute execution budget.');
+  if (server) server.kill('SIGKILL');
+  process.exit(124);
+}, 240000);
+watchdog.unref();
 
 async function reservePort() {
   return new Promise((resolve, reject) => {
@@ -40,7 +46,7 @@ async function reservePort() {
 async function waitForServer(url) {
   for (let attempt = 0; attempt < 80; attempt++) {
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, { signal: AbortSignal.timeout(1000) });
       if (response.status > 0) return;
     } catch {}
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -62,7 +68,7 @@ async function run() {
     '$adminId = (int) $pdo->query("SELECT user_id FROM user_roles LIMIT 1")->fetchColumn();',
     '(new App\\Commerce\\DemoPaymentService($pdo))->setEnabled(true, $adminId);'
   ].join(' ');
-  const setup = spawnSync('php', ['-r', bootstrap], { cwd: root, env: environment, encoding: 'utf8' });
+  const setup = spawnSync('php', ['-r', bootstrap], { cwd: root, env: environment, encoding: 'utf8', timeout: 30000 });
   if (setup.status !== 0) throw new Error('Browser test database setup failed: ' + setup.stderr + setup.stdout);
 
   const port = await reservePort();
@@ -76,7 +82,7 @@ async function run() {
   server.stderr.on('data', chunk => { serverOutput += chunk.toString(); });
   await waitForServer(base + '/login');
 
-  browser = await chromium.launch({ headless: true });
+  browser = await chromium.launch({ headless: true, timeout: 30000 });
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   const page = await context.newPage();
   await page.route(/^https:\/\/fonts\.(?:googleapis|gstatic)\.com\//, route => route.abort());
@@ -252,6 +258,7 @@ run().catch(error => {
   if (serverOutput) console.error(serverOutput);
   process.exitCode = 1;
 }).finally(async () => {
+  clearTimeout(watchdog);
   if (browser) await browser.close();
   if (server && !server.killed) server.kill('SIGTERM');
   fs.rmSync(temporary, { recursive: true, force: true });
