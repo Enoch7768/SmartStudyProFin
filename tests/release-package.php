@@ -21,7 +21,7 @@ foreach ($iterator as $entry) {
     if (in_array('node_modules', $segments, true)) {
         throw new RuntimeException('Installed Node dependencies must not be committed: ' . $relative);
     }
-    if (in_array('vendor', $segments, true) && !str_starts_with($relative, 'assets/vendor/')) {
+    if (in_array('vendor', $segments, true) && $relative !== 'assets/vendor' && !str_starts_with($relative, 'assets/vendor/')) {
         throw new RuntimeException('Installed Composer dependencies must not be committed: ' . $relative);
     }
     if (strtolower(basename($relative)) === 'composer.phar') {
