@@ -63,6 +63,7 @@ try {
     $cmsThemeScript = (string) file_get_contents(dirname(__DIR__) . '/assets/js/cms-theme.js');
     if (!str_contains($cmsMarkup, 'data-theme-endpoint="../theme-preference.php"') || !str_contains($cmsMarkup, 'data-csrf=') || !str_contains($cmsThemeScript, 'X-CSRF-Token') || !str_contains($cmsThemeScript, 'JSON.stringify({ theme: isDark ? "dark" : "light" })')) throw new RuntimeException('The CMS theme control is not synchronized with the signed-in account.');
     if (!str_contains($cmsMarkup, 'if(' . '$asset' . "['visibility']!=='public'") || !str_contains($cmsMarkup, 'image/jpeg')) throw new RuntimeException('CMS page hero selectors must only offer public supported image assets.');
+    if (!str_contains($cmsMarkup, "if(\$field==='image_media_id')") || !str_contains($cmsMarkup, "visibility']==='public'") || !str_contains($cmsMarkup, "mime_type']==='application/pdf' && \$asset['visibility']==='private'")) throw new RuntimeException('CMS content selectors must only offer media that matches its public or private delivery rules.');
     $applicationBootstrap = (string) file_get_contents(dirname(__DIR__) . '/bootstrap/app.php');
     if (!str_contains($applicationBootstrap, 'Installer::isInstalled()') || !str_contains($applicationBootstrap, 'header(\'Location: \' . $installPath . \'/\', true, 303);')) throw new RuntimeException('An uninstalled web request must be redirected to first-run setup before opening the database.');
     $cartPage = (string) file_get_contents(dirname(__DIR__) . '/cart.php');
