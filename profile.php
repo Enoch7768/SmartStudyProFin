@@ -14,7 +14,8 @@ $pdo = Database::connect();
 $user = Auth::user($pdo);
 if (!$user) Security::redirect('login.php?redirect=profile.php');
 $service = new AccountService($pdo);
-$googleConfigured = GoogleIdentityService::isConfigured();
+$googleIssues = GoogleIdentityService::configurationIssues();
+$googleConfigured = $googleIssues === [];
 $error = isset($_GET['google_error']) ? 'Google could not be connected. The account may already be linked elsewhere.' : null;
 $success = isset($_GET['google_linked']) ? 'Your Google account is now connected.' : null;
 
@@ -64,7 +65,15 @@ $seoDescription = 'Manage your SmartStudyPro account and student profile.';
 <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
 <link href="assets/css/main.css" rel="stylesheet">
 <style>
-:root{--ssp-navy:#0C086B;--ssp-deep:#070443;--ssp-orange:#FF7A00;--ssp-bg:#F6F7FC;--ssp-card:#fff;--ssp-ink:#1E293B;--ssp-muted:#64748B;--ssp-line:#E2E8F0}body{background:var(--ssp-bg);color:var(--ssp-ink);font-family:"Plus Jakarta Sans",sans-serif}h1,h2,h3,h4{font-family:Outfit,sans-serif}.account-hero{background:linear-gradient(125deg,var(--ssp-deep),var(--ssp-navy));color:#fff;border-radius:22px;padding:34px;position:relative;overflow:hidden}.account-hero:after{content:"";position:absolute;width:240px;height:240px;border:1px solid rgba(255,255,255,.15);border-radius:50%;right:-70px;top:-120px;box-shadow:0 0 0 35px rgba(255,255,255,.035),0 0 0 70px rgba(255,255,255,.025)}.account-card{background:var(--ssp-card);border:1px solid var(--ssp-line);border-radius:18px;box-shadow:0 10px 28px rgba(7,4,67,.045)}.account-card .form-control,.account-card .form-select{min-height:46px;border-radius:10px}.account-card textarea.form-control{min-height:110px}.btn-ssp{background:var(--ssp-orange);border:0;color:#fff;font-weight:700;border-radius:10px;padding:12px 20px}.btn-ssp:hover{background:#E06B00;color:#fff}.profile-avatar{width:64px;height:64px;border-radius:18px;background:rgba(255,255,255,.15);display:grid;place-items:center;font:700 28px Outfit,sans-serif}.eyebrow{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;color:var(--ssp-orange)}.meta{color:var(--ssp-muted);font-size:13px}@media(max-width:575px){.account-hero{padding:24px}}
+:root{--ssp-navy:#0C086B;--ssp-deep:#070443;--ssp-orange:#FF7A00;--ssp-bg:#F6F7FC;--ssp-card:#fff;--ssp-ink:#1E293B;--ssp-muted:#64748B;--ssp-line:#E2E8F0}
+[data-theme="dark"]{--ssp-navy:#C7D2FE;--ssp-deep:#070443;--ssp-orange:#FF8A1D;--ssp-bg:#0B0F17;--ssp-card:#151C2C;--ssp-ink:#F8FAFC;--ssp-muted:#CBD5E1;--ssp-line:#334155}
+body{background:var(--ssp-bg);color:var(--ssp-ink);font-family:"Plus Jakarta Sans",sans-serif;transition:background-color .2s ease,color .2s ease}h1,h2,h3,h4{font-family:Outfit,sans-serif}
+.account-card .form-control,.account-card .form-select{background:var(--ssp-card);color:var(--ssp-ink);border-color:var(--ssp-line)}
+.account-card .form-control:focus,.account-card .form-select:focus{background:var(--ssp-card);color:var(--ssp-ink);border-color:var(--ssp-orange);box-shadow:0 0 0 .2rem rgba(255,122,0,.15)}
+[data-theme="dark"] .account-card .form-text{color:var(--ssp-muted)}
+[data-theme="dark"] .account-card .btn-outline-primary{color:#C7D2FE;border-color:#6366F1}
+[data-theme="dark"] .account-card .btn-outline-secondary{color:#E2E8F0;border-color:#64748B}
+.account-hero{background:linear-gradient(125deg,var(--ssp-deep),var(--ssp-navy));color:#fff;border-radius:22px;padding:34px;position:relative;overflow:hidden}.account-hero:after{content:"";position:absolute;width:240px;height:240px;border:1px solid rgba(255,255,255,.15);border-radius:50%;right:-70px;top:-120px;box-shadow:0 0 0 35px rgba(255,255,255,.035),0 0 0 70px rgba(255,255,255,.025)}.account-card{background:var(--ssp-card);border:1px solid var(--ssp-line);border-radius:18px;box-shadow:0 10px 28px rgba(7,4,67,.045)}.account-card .form-control,.account-card .form-select{min-height:46px;border-radius:10px}.account-card textarea.form-control{min-height:110px}.btn-ssp{background:var(--ssp-orange);border:0;color:#fff;font-weight:700;border-radius:10px;padding:12px 20px}.btn-ssp:hover{background:#E06B00;color:#fff}.profile-avatar{width:64px;height:64px;border-radius:18px;background:rgba(255,255,255,.15);display:grid;place-items:center;font:700 28px Outfit,sans-serif}.eyebrow{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;color:var(--ssp-orange)}.meta{color:var(--ssp-muted);font-size:13px}@media(max-width:575px){.account-hero{padding:24px}}
 </style>
 <link href="assets/css/device-responsive.css" rel="stylesheet">
 </head>
@@ -116,7 +125,9 @@ $seoDescription = 'Manage your SmartStudyPro account and student profile.';
 <?php if (!empty($profile['google_subject'])): ?><span class="badge text-bg-success">Google connected</span>
 <?php elseif ($googleConfigured): ?>
 <form method="post" action="google-auth.php"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>"><input type="hidden" name="action" value="link"><button class="btn btn-outline-secondary w-100 rounded-3 fw-semibold" type="submit">Connect Google account</button></form>
-<?php else: ?><p class="meta mb-0">Google sign-in is unavailable until OAuth credentials are configured.</p><?php endif; ?>
+<?php else: ?>
+<div class="meta" role="status"><p class="mb-2">Google account linking is not ready. Check the server configuration:</p><ul class="mb-0 ps-3"><?php foreach ($googleIssues as $issue): ?><li class="mb-1"><?= Security::escape($issue) ?></li><?php endforeach; ?></ul></div>
+<?php endif; ?>
 </section>
 
 <section class="account-card p-4 p-lg-5 mb-4">
