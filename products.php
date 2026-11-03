@@ -316,7 +316,7 @@ $siteUrl = 'https://smartstudypro.com';
                     </div>
 
                     <h3 class="h5 fw-bold mb-2">
-                      <a href="/products/<?= rawurlencode((string) ($product['slug'] ?? $product['_id'])) ?>" class="text-decoration-none product-title-link">
+                      <a href="<?= \App\Core\Url::to('/products/' . rawurlencode((string) ($product['slug'] ?? $product['_id']))) ?>" class="text-decoration-none product-title-link">
                         <?= htmlspecialchars($product['Title'] ?? $product['title'] ?? 'Untitled Product') ?>
                       </a>
                     </h3>
@@ -325,7 +325,7 @@ $siteUrl = 'https://smartstudypro.com';
                       <?= htmlspecialchars(substr(strip_tags($product['Description'] ?? $product['description'] ?? ''), 0, 110)) ?>...
                     </p>
 
-                    <a href="/products/<?= rawurlencode((string) ($product['slug'] ?? $product['_id'])) ?>" class="btn btn-outline-custom w-100 mt-auto rounded-3 text-decoration-none">
+                    <a href="<?= \App\Core\Url::to('/products/' . rawurlencode((string) ($product['slug'] ?? $product['_id']))) ?>" class="btn btn-outline-custom w-100 mt-auto rounded-3 text-decoration-none">
                       View Details
                     </a>
                   </div>
