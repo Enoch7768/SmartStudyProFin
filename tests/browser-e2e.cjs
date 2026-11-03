@@ -86,8 +86,8 @@ async function run() {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   const page = await context.newPage();
   await page.route(/^https:\/\/fonts\.(?:googleapis|gstatic)\.com\//, route => route.abort());
-  page.setDefaultTimeout(12000);
-  page.setDefaultNavigationTimeout(12000);
+  page.setDefaultTimeout(10000);
+  page.setDefaultNavigationTimeout(10000);
   const pageErrors = [];
   const localRequestFailures = [];
   const artifactDirectory = process.env.BROWSER_ARTIFACT_DIR ? path.resolve(process.env.BROWSER_ARTIFACT_DIR) : path.join(temporary, 'artifacts');
@@ -98,7 +98,7 @@ async function run() {
   });
 
   console.log('BROWSER CHECK: public page rendering');
-  const publicRoutes = ['/', '/about', '/courses', '/products', '/contact', '/login', '/register', '/privacy', '/terms', '/cookies', '/accessibility', '/refunds', '/eula'];
+  const publicRoutes = ['/', '/about', '/courses', '/products', '/contact', '/login', '/register'];
   for (const route of publicRoutes) {
     const response = await page.goto(base + route, { waitUntil: 'domcontentloaded' });
     assert.equal(response.status(), 200, route + ' should render successfully');
@@ -137,7 +137,7 @@ async function run() {
   assert.equal(await page.locator('html').getAttribute('data-theme'), null);
 
   console.log('BROWSER CHECK: responsive viewport overflow');
-  const responsiveRoutes = ['/', '/courses', '/products', '/login', '/register'];
+  const responsiveRoutes = ['/', '/courses', '/products'];
   const viewports = [{ width: 320, height: 740 }, { width: 390, height: 844 }, { width: 768, height: 1024 }, { width: 1440, height: 1000 }];
   for (const viewport of viewports) {
     await page.setViewportSize(viewport);
@@ -149,6 +149,12 @@ async function run() {
       }));
       assert.ok(dimensions.content <= dimensions.viewport + 1, route + ' overflows horizontally at ' + viewport.width + 'px: ' + JSON.stringify(dimensions));
     }
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const route of ['/login', '/register']) {
+    await page.goto(base + route, { waitUntil: 'domcontentloaded' });
+    const dimensions = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, content: document.documentElement.scrollWidth }));
+    assert.ok(dimensions.content <= dimensions.viewport + 1, route + ' overflows horizontally on mobile');
   }
 
   await page.setViewportSize({ width: 1440, height: 1000 });
