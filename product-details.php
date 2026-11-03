@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/bootstrap/app.php';
 
-$assetBasePath = dirname(str_replace('\\\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php')));
+$assetBasePath = dirname(str_replace(chr(92), '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php')));
 $assetBasePath = $assetBasePath === '/' || $assetBasePath === '.' ? '' : rtrim($assetBasePath, '/');
 
 
