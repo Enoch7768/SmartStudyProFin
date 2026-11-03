@@ -37,7 +37,10 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             if (!hash_equals($password, (string) ($_POST['password_confirmation'] ?? ''))) throw new RuntimeException('The passwords do not match.');
             DependencyInstaller::install($application['root']);
             Installer::install($application['root'], (string) ($_POST['name'] ?? ''), (string) ($_POST['email'] ?? ''), $password);
-            header('Location: ./?installed=1', true, 303);
+            $scriptName = str_replace('\\\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/install/index.php'));
+            $basePath = dirname(dirname($scriptName));
+            $basePath = $basePath === '/' || $basePath === '.' ? '' : rtrim($basePath, '/');
+            header('Location: ' . $basePath . '/install?installed=1', true, 303);
             exit;
         } catch (Throwable $exception) {
             $errors[] = $exception->getMessage();
