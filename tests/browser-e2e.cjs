@@ -206,6 +206,8 @@ async function run() {
   await page.waitForURL(/orders\.php/);
   await page.getByText('Demo payment: Success').waitFor();
   await page.getByText('Paid Browser Course').waitFor();
+  await page.goto(base + '/cart', { waitUntil: 'domcontentloaded' });
+  await page.getByRole('heading', { name: 'Your cart is empty' }).waitFor();
 
   console.log('BROWSER CHECK: authenticated learning and shopping pages');
   await page.goto(base + '/assistant', { waitUntil: 'domcontentloaded' });
