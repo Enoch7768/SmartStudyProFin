@@ -13,7 +13,8 @@ $productIdentifier = $_GET['slug'] ?? $_GET['id'] ?? $_GET['_id'] ?? null;
 $product = $content->product(is_string($productIdentifier) || is_int($productIdentifier) ? $productIdentifier : null);
 $productId = (int) ($product['_id'] ?? 0);
 if ($product && !isset($_GET['slug']) && !headers_sent()) {
-    header('Location: ' . \App\Core\Url::to('/products/' . rawurlencode((string) $product['slug'])), true, 301);
+    $canonicalProductPath = '/products/' . rawurlencode((string) ($product['slug'] ?? ''));
+    header('Location: ' . \App\Core\Url::to($canonicalProductPath), true, 301);
     exit;
 }
 $contact = $content->contact();
