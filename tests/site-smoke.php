@@ -140,7 +140,7 @@ try {
         '/about' => [200],
         '/admin' => [303],
         '/assistant' => [303],
-        '/cart' => [200],
+        '/cart' => [303],
         '/courses' => [200],
         '/courses/no-such-course-for-smoke-test' => [404],
         '/install' => [404],

@@ -30,6 +30,14 @@ if (
 if (PHP_SAPI === 'cli-server' && $path !== '/' && $path !== '/index.php' && $path !== '/favicon.ico') {
     $requestedFile = realpath($root . $path);
     if ($requestedFile !== false && str_starts_with($requestedFile, $rootPath . DIRECTORY_SEPARATOR) && is_file($requestedFile)) {
+        if (strtolower(pathinfo($requestedFile, PATHINFO_EXTENSION)) === 'php') {
+            $requestedUrl = $basePath . $path;
+            $_SERVER['SCRIPT_NAME'] = $requestedUrl;
+            $_SERVER['PHP_SELF'] = $requestedUrl;
+            $_SERVER['SCRIPT_FILENAME'] = $requestedFile;
+            require $requestedFile;
+            return;
+        }
         return false;
     }
 }
