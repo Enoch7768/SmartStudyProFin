@@ -31,7 +31,7 @@ $pages = [
     'payment-webhook.php', 'privacy.php', 'process_payment.php',
     'product-details.php', 'products.php', 'profile.php', 'receipt.php',
     'refunds.php', 'register.php', 'reset.php', 'stream.php', 'study.php',
-    'terms.php', 'verify-certificate.php', 'view.php', 'admin/analytics.php',
+    'terms.php', 'theme-preference.php', 'verify-certificate.php', 'view.php', 'admin/analytics.php',
     'admin/backups.php', 'admin/cms.php', 'admin/diagnostics.php',
     'admin/media-preview.php', 'admin/orders.php', 'admin/payment-demo-settings.php',
     'admin/product-assets.php', 'admin/refunds.php', 'admin/updates.php'
