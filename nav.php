@@ -128,7 +128,7 @@
 </style>
 
 <?php
-$navScriptName = str_replace('\\\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
+$navScriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
 $navBasePath = dirname($navScriptName);
 $navBasePath = $navBasePath === '/' || $navBasePath === '.' ? '' : rtrim($navBasePath, '/');
 $navRoute = static fn (string $path): string => $navBasePath . '/' . ltrim($path, '/');
