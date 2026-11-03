@@ -13,7 +13,7 @@ $courseIdentifier = $_GET['slug'] ?? $_GET['id'] ?? $_GET['_id'] ?? null;
 $course = $content->course(is_string($courseIdentifier) || is_int($courseIdentifier) ? $courseIdentifier : null);
 $courseId = (int) ($course['_id'] ?? 0);
 if ($course && !isset($_GET['slug']) && !headers_sent()) {
-    header('Location: /courses/' . rawurlencode((string) $course['slug']), true, 301);
+    header('Location: \App\Core\Url::to('/courses/' . rawurlencode((string) $course['slug'])), true, 301);
     exit;
 }
 $contact = $content->contact();
@@ -103,7 +103,7 @@ $ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/
   <link href="assets/vendor/aos/aos.css" rel="stylesheet">
   <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
   <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
-  <link href="/assets/css/device-responsive.css" rel="stylesheet">
+  <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/device-responsive.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 
   <style>
     :root {
@@ -253,7 +253,7 @@ $ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/
       </div>
     </div>
 
-    <section class="section pt-4 pb-0"><div class="container"><div class="row justify-content-center"><div class="col-lg-8"><div class="p-4 p-md-5 ssp-card-box"><div class="small text-uppercase fw-bold mb-2" style="color:var(--ssp-orange)">Start learning</div><h2 class="h3 fw-bold mb-2">Join this course</h2><p class="text-muted mb-3">Access the structured lessons, learning resources and knowledge checks in your student dashboard.</p><?php if ((int) $displayPrice === 0): ?><a class="btn-ssp-primary text-decoration-none" href="/learn/<?= rawurlencode((string) ($course['slug'] ?? '')) ?>">Start this free course</a><?php else: ?><div class="d-flex flex-wrap align-items-center justify-content-between gap-3"><strong class="fs-4" style="color:var(--ssp-orange)">UGX <?= number_format((int) $displayPrice) ?></strong><form method="post" action="/cart-add.php"><input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="type" value="course"><input type="hidden" name="id" value="<?= $courseId ?>"><button class="btn-ssp-primary" type="submit">Add course to cart</button></form></div><?php endif; ?></div></div></div></div></section>
+    <section class="section pt-4 pb-0"><div class="container"><div class="row justify-content-center"><div class="col-lg-8"><div class="p-4 p-md-5 ssp-card-box"><div class="small text-uppercase fw-bold mb-2" style="color:var(--ssp-orange)">Start learning</div><h2 class="h3 fw-bold mb-2">Join this course</h2><p class="text-muted mb-3">Access the structured lessons, learning resources and knowledge checks in your student dashboard.</p><?php if ((int) $displayPrice === 0): ?><a class="btn-ssp-primary text-decoration-none" href="<?= \App\Core\Url::to('/learn/' . rawurlencode((string) ($course['slug'] ?? ''))) ?>">Start this free course</a><?php else: ?><div class="d-flex flex-wrap align-items-center justify-content-between gap-3"><strong class="fs-4" style="color:var(--ssp-orange)">UGX <?= number_format((int) $displayPrice) ?></strong><form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>"><input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="type" value="course"><input type="hidden" name="id" value="<?= $courseId ?>"><button class="btn-ssp-primary" type="submit">Add course to cart</button></form></div><?php endif; ?></div></div></div></div></section>
 
     <section id="starter-section" class="starter-section section py-5">
       <div class="container section-title text-center mb-4" data-aos="fade-up">
