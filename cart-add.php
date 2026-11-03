@@ -7,6 +7,7 @@ require __DIR__ . '/bootstrap/app.php';
 use App\Core\Auth;
 use App\Core\Database;
 use App\Core\Security;
+use App\Core\Url;
 use App\Core\Session;
 use App\Learning\LearningService;
 
@@ -46,10 +47,10 @@ if (!$item || ($type === 'product' && ($item['product_type'] ?? '') !== 'online'
 
 if ($type === 'course') {
     $learning = new LearningService($pdo);
-    if ($user && $learning->hasAccess((int) $user['id'], $id)) Security::redirect('/learn/' . rawurlencode((string) $item['slug']));
+    if ($user && $learning->hasAccess((int) $user['id'], $id)) Security::redirect(Url::to('/learn/' . rawurlencode((string) $item['slug'])));
     if ((int) $item['price_ugx'] === 0) {
-        $destination = '/learn/' . rawurlencode((string) $item['slug']);
-        if (!$user) Security::redirect('/login?redirect=' . rawurlencode($destination));
+        $destination = Url::to('/learn/' . rawurlencode((string) $item['slug']));
+        if (!$user) Security::redirect(Url::to('/login?redirect=' . rawurlencode($destination)));
         $learning->enrolFreeCourse((int) $user['id'], $id);
         Security::redirect($destination);
     }
@@ -57,4 +58,4 @@ if ($type === 'course') {
 
 $key = $type . ':' . $id;
 $_SESSION['ssp_cart'][$key] = ['type' => $type, 'id' => $id, 'quantity' => 1];
-Security::redirect('/cart');
+Security::redirect(Url::to('/cart'));
