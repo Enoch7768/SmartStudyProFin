@@ -1,7 +1,7 @@
 Options -Indexes -MultiViews
 RewriteEngine On
 
-RewriteRule ^favicon\.ico$ favicon.php [L]
+RewriteRule ^favicon\.ico$ index.php [L,QSA]
 
 RewriteCond %{REQUEST_METHOD} =GET
 RewriteCond %{THE_REQUEST} \s/+index\.php(?:[?\s]) [NC]
@@ -67,7 +67,7 @@ RewriteCond %{REQUEST_METHOD} =GET
 RewriteCond %{THE_REQUEST} \s/+refunds\.php(?:[?\s]) [NC]
 RewriteRule ^refunds\.php$ /refunds [R=301,L]
 
-RewriteRule ^(?:app|bootstrap|config|database|scripts|tests|storage|cms|docs)(?:/|$) - [F,L,NC]
+RewriteRule ^(?:app|bootstrap|config|database|scripts|storage|cms|docs|tests|vendor)(?:/|$) - [F,L,NC]
 RewriteRule (^|/)\.(?!well-known(?:/|$)) - [F,L,NC]
 
 <FilesMatch "^(\.env|composer\.(json|lock)|phpunit\.xml|\.gitignore)$">
@@ -78,40 +78,10 @@ RewriteRule (^|/)\.(?!well-known(?:/|$)) - [F,L,NC]
     Require all denied
 </FilesMatch>
 
-RewriteRule ^install/?$ install/index.php [L,QSA]
+RewriteRule ^install/?$ index.php [QSA,L]
 
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-RewriteRule ^courses/([a-z0-9][a-z0-9-]*)/?$ course-details.php?slug=$1 [L,QSA,NC]
-RewriteRule ^courses/?$ courses.php [L,QSA]
-RewriteRule ^learn/([a-z0-9][a-z0-9-]*)/([0-9]+)/?$ study.php?course_slug=$1&lesson_id=$2 [L,QSA,NC]
-RewriteRule ^learn/([a-z0-9][a-z0-9-]*)/?$ study.php?course_slug=$1 [L,QSA,NC]
-RewriteRule ^learning/?$ /learn [R=301,L]
-RewriteRule ^learn/?$ learning.php [L,QSA]
-RewriteRule ^products/([a-z0-9][a-z0-9-]*)/?$ product-details.php?slug=$1 [L,QSA,NC]
-
-RewriteRule ^about/?$ about.php [L,QSA]
-RewriteRule ^admin/?$ admin.php [L,QSA]
-RewriteRule ^booking/?$ booking.php [L,QSA]
-RewriteRule ^cart/add/?$ cart-add.php [L,QSA]
-RewriteRule ^cart/?$ cart.php [L,QSA]
-RewriteRule ^checkout/?$ checkout.php [L,QSA]
-RewriteRule ^contact/?$ contact.php [L,QSA]
-RewriteRule ^course-details/?$ /courses [R=301,L]
-RewriteRule ^login/?$ login.php [L,QSA]
-RewriteRule ^logout/?$ logout.php [L,QSA]
-RewriteRule ^product-details/?$ /products [R=301,L]
-RewriteRule ^products/?$ products.php [L,QSA]
-RewriteRule ^privacy/?$ privacy.php [L,QSA]
-RewriteRule ^terms/?$ terms.php [L,QSA]
-RewriteRule ^cookies/?$ cookies.php [L,QSA]
-RewriteRule ^accessibility/?$ accessibility.php [L,QSA]
-RewriteRule ^eula/?$ eula.php [L,QSA]
-RewriteRule ^profile/?$ profile.php [L,QSA]
-RewriteRule ^register/?$ register.php [L,QSA]
-RewriteRule ^reset/?$ reset.php [L,QSA]
-RewriteRule ^stream/?$ stream.php [L,QSA]
-RewriteRule ^study/?$ /learn [R=301,L]
-RewriteRule ^refunds/?$ refunds.php [L,QSA]
+RewriteRule ^ index.php [QSA,L]

@@ -46,7 +46,7 @@ try {
     $address = stream_socket_get_name($socket, false);
     fclose($socket);
     $port = (int) substr(strrchr($address, ':'), 1);
-    $command = [PHP_BINARY, '-S', '127.0.0.1:' . $port, '-t', $root];
+    $command = [PHP_BINARY, '-S', '127.0.0.1:' . $port, '-t', $root, $root . '/index.php'];
     $descriptors = [0 => ['pipe', 'r'], 1 => ['file', '/dev/null', 'a'], 2 => ['file', '/dev/null', 'a']];
     $server = proc_open($command, $descriptors, $pipes, $root);
     if (!is_resource($server)) throw new RuntimeException('Could not start the isolated PHP page server.');
@@ -130,6 +130,47 @@ try {
                     continue;
                 }
                 $assetChecks++;
+            }
+        }
+        $checked++;
+    }
+
+    $cleanRoutes = [
+        '/' => [200],
+        '/about' => [200],
+        '/admin' => [303],
+        '/assistant' => [303],
+        '/cart' => [200],
+        '/courses' => [200],
+        '/courses/no-such-course-for-smoke-test' => [404],
+        '/install' => [404],
+        '/learn' => [303],
+        '/login' => [200],
+        '/notifications' => [303],
+        '/privacy' => [200],
+        '/products' => [200],
+        '/products/no-such-product-for-smoke-test' => [404],
+        '/profile' => [303],
+        '/register' => [200],
+        '/favicon.ico' => [200],
+        '/unknown-smoke-route' => [404],
+    ];
+    foreach ($cleanRoutes as $route => $expectedStatuses) {
+        $routeBody = @file_get_contents($baseUrl . ltrim($route, '/'), false, stream_context_create([
+            'http' => ['method' => 'GET', 'ignore_errors' => true, 'timeout' => 10, 'follow_location' => 0]
+        ]));
+        $routeHeaders = $http_response_header ?? [];
+        $routeStatus = 0;
+        if (isset($routeHeaders[0]) && preg_match('/\\s([1-5][0-9]{2})\\s/', $routeHeaders[0], $match)) $routeStatus = (int) $match[1];
+        if (!in_array($routeStatus, $expectedStatuses, true)) {
+            $failures[] = $route . ': expected HTTP ' . implode(' or ', $expectedStatuses) . ', received ' . $routeStatus;
+            continue;
+        }
+        $routeBody = is_string($routeBody) ? $routeBody : '';
+        foreach (['Fatal error:', 'Parse error:', 'Uncaught Error', 'Uncaught TypeError'] as $fatal) {
+            if (str_contains($routeBody, $fatal)) {
+                $failures[] = $route . ': response contains ' . $fatal;
+                break;
             }
         }
         $checked++;

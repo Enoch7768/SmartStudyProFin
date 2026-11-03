@@ -48,13 +48,13 @@ Never use production customer data in development or CI. Automated tests create 
 
 ## Development and validation
 
-For local development with PHP's built-in server, start it from the repository root with the included router:
+The application uses `index.php` as its single front controller. No separate `router.php` file or server-specific router is required. For local development, start the built-in PHP server from the repository root:
 
 ```sh
-php -S 127.0.0.1:8000 router.php
+php -S 127.0.0.1:8000 index.php
 ```
 
-The router applies the same clean URLs as Apache, including `/profile`, and returns a real 404 for unknown paths instead of falling through to the homepage. Apache deployments continue to use the repository's `.htaccess` rules.
+The same front controller handles clean URLs such as `/profile`, dynamic course and product slugs, learning routes and `/install`. Existing public PHP endpoints and static assets are passed through, while unknown paths return a real 404. Apache deployments use the included `.htaccess` to send clean URLs to `index.php`; conventional PHP hosting can point its document root at the project directory.
 
 For local Google OAuth, set `APP_URL=http://localhost:8000` and add this exact authorized redirect URI to the Google OAuth web client:
 
