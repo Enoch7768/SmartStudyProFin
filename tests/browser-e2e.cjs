@@ -90,6 +90,7 @@ async function run() {
     }
   }
 
+  await page.goto(base + '/', { waitUntil: 'domcontentloaded' });
   await page.screenshot({ path: path.join(artifactDirectory, 'home-desktop.png'), fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(base + '/', { waitUntil: 'domcontentloaded' });
