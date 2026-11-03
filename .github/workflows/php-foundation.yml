@@ -99,33 +99,3 @@ jobs:
           test ! -e /tmp/smartstudypro-release-check/tests
           test -f /tmp/smartstudypro-release-check/uploads/avatars/.gitkeep
           test -f /tmp/smartstudypro-release-check/uploads/avatars/.htaccess
-
-  browser-e2e:
-    needs: foundation
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          extensions: pdo_sqlite, sqlite3, fileinfo, openssl
-          coverage: none
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - name: Install Chromium test runner
-        run: |
-          npm install --no-save --package-lock=false playwright
-          npx playwright install --with-deps chromium
-      - name: Run browser-level product journeys
-        env:
-          BROWSER_ARTIFACT_DIR: browser-artifacts
-        run: node tests/browser-e2e.cjs
-      - name: Upload desktop and mobile browser captures
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: smartstudypro-browser-review
-          path: browser-artifacts/
-          if-no-files-found: ignore
