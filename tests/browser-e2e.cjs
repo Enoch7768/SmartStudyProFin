@@ -60,7 +60,7 @@ async function run() {
     '$content->save("lessons", null, ["chapter_id" => $chapterId, "title" => "First lesson", "content_html" => "This lesson confirms course enrolment and progress persistence.", "video_url" => "", "sort_order" => "1", "status" => "published"]);',
     '$content->save("courses", null, ["title" => "Paid Browser Course", "description_html" => "A paid course used by checkout browser tests.", "content_html" => "Paid course content.", "price_ugx" => "5000", "category" => "Testing", "status" => "published", "sort_order" => "2"]);',
     '$adminId = (int) $pdo->query("SELECT user_id FROM user_roles LIMIT 1")->fetchColumn();',
-    '(new App\\\\Commerce\\\\DemoPaymentService($pdo))->setEnabled(true, $adminId);'
+    '(new App\\Commerce\\DemoPaymentService($pdo))->setEnabled(true, $adminId);'
   ].join(' ');
   const setup = spawnSync('php', ['-r', bootstrap], { cwd: root, env: environment, encoding: 'utf8' });
   if (setup.status !== 0) throw new Error('Browser test database setup failed: ' + setup.stderr + setup.stdout);
@@ -201,9 +201,9 @@ async function run() {
   await page.getByRole('link', { name: 'Proceed to checkout' }).click();
   await page.getByRole('heading', { name: 'Review your order' }).waitFor();
   await page.getByRole('button', { name: 'Create order and choose payment' }).click();
-  await page.waitForURL(/payment-choice\\.php/);
+  await page.waitForURL(/payment-choice\.php/);
   await page.getByRole('button', { name: 'Simulate successful payment' }).click();
-  await page.waitForURL(/orders\\.php/);
+  await page.waitForURL(/orders\.php/);
   await page.getByText('Demo payment: Success').waitFor();
   await page.getByText('Paid Browser Course').waitFor();
 
