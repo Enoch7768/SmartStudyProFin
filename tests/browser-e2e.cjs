@@ -51,7 +51,12 @@ async function run() {
   const bootstrap = [
     '$root = ' + JSON.stringify(root) + ';',
     'require $root . "/bootstrap/app.php";',
-    'App\\Core\\Installer::install($root, "E2E Administrator", "e2e-admin@example.test", "E2E-Admin-Password-2026!");'
+    'App\\Core\\Installer::install($root, "E2E Administrator", "e2e-admin@example.test", "E2E-Admin-Password-2026!");',
+    '$pdo = App\\Core\\Database::connect();',
+    '$content = new App\\Cms\\ContentRepository($pdo);',
+    '$courseId = $content->save("courses", null, ["title" => "Browser Test Course", "description_html" => "A course used by browser tests.", "content_html" => "Course content.", "price_ugx" => "0", "category" => "Testing", "status" => "published", "sort_order" => "1"]);',
+    '$chapterId = $content->save("chapters", null, ["course_id" => $courseId, "title" => "Getting Started", "sort_order" => "1"]);',
+    '$content->save("lessons", null, ["chapter_id" => $chapterId, "title" => "First lesson", "content_html" => "This lesson confirms course enrolment and progress persistence.", "video_url" => "", "sort_order" => "1", "status" => "published"]);'
   ].join(' ');
   const setup = spawnSync('php', ['-r', bootstrap], { cwd: root, env: environment, encoding: 'utf8' });
   if (setup.status !== 0) throw new Error('Browser test database setup failed: ' + setup.stderr + setup.stdout);
@@ -171,6 +176,18 @@ async function run() {
   assert.equal(await page.locator('#preferred_theme').inputValue(), 'light', 'profile form should reflect the theme preference changed in the header');
   assert.equal(await page.locator('#name').inputValue(), 'Updated Browser Student');
 
+  console.log('BROWSER CHECK: course discovery, free enrolment and progress persistence');
+  await page.goto(base + '/courses', { waitUntil: 'domcontentloaded' });
+  await page.getByRole('link', { name: 'Browser Test Course' }).first().click();
+  assert.match(new URL(page.url()).pathname, /^\\/courses\\/browser-test-course$/);
+  await page.getByRole('link', { name: 'Start this free course' }).click();
+  await page.getByRole('button', { name: 'Enrol for free' }).click();
+  await page.getByRole('heading', { name: 'First lesson' }).waitFor();
+  await page.getByRole('button', { name: /Mark complete/ }).click();
+  await page.getByText('Lesson marked as complete. Your progress has been saved.').waitFor();
+  await page.goto(base + '/learn', { waitUntil: 'domcontentloaded' });
+  await page.getByText('Browser Test Course').first().waitFor();
+
   console.log('BROWSER CHECK: authenticated learning and shopping pages');
   await page.goto(base + '/assistant', { waitUntil: 'domcontentloaded' });
   assert.equal(new URL(page.url()).pathname, '/assistant');
@@ -203,7 +220,7 @@ async function run() {
   console.log('PASS mobile navigation, Escape handling and route transitions');
   console.log('PASS theme switching, local persistence and authenticated database synchronization');
   console.log('PASS responsive overflow checks at 320, 390, 768 and 1440 pixels');
-  console.log('PASS student registration, profile update, protected pages, logout and login');
+  console.log('PASS student registration, profile update, course enrolment, lesson completion, protected pages, logout and login');
   console.log('PASS no uncaught browser errors or failed local asset requests');
   console.log('Browser screenshots: ' + artifactDirectory);
 }
