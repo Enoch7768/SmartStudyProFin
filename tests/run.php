@@ -179,6 +179,9 @@ try {
     $public = new PublicContent($pdo);
     if (count($public->courses()) !== 2 || ($public->course((string) $courseId)['Title'] ?? '') !== 'Foundations of Science' || ($public->course('foundations-of-science')['Title'] ?? '') !== 'Foundations of Science') throw new RuntimeException('Published course public read mapping failed.');
     if (($public->product((string) $productId)['ProductType'] ?? '') !== 'Physical' || count($public->products()) !== 2) throw new RuntimeException('Published product public read mapping failed.');
+    $pdo->prepare('UPDATE cms_products SET description_html = :description WHERE id = :id')->execute(['description' => '<p>Safe product details</p><script>window.productInjected = true;</script><img src=x onerror=alert(1)>', 'id' => $productId]);
+    $publicProduct = $public->product((string) $productId);
+    if (!$publicProduct || str_contains($publicProduct['Description'], '<script') || str_contains($publicProduct['Description'], 'onerror=') || !str_contains($publicProduct['Description'], 'Safe product details')) throw new RuntimeException('Public product reads did not sanitize unsafe stored HTML while preserving safe content.');
 
     $content->savePage('home', ['title'=>'Learn with purpose','subtitle'=>'SmartStudyPro','body_html'=>'Home content','status'=>'published']);
     if (($content->page('home')['title'] ?? '') !== 'Learn with purpose') throw new RuntimeException('CMS page editing failed.');
