@@ -115,6 +115,17 @@ try {
     if (!$libraryImage || $libraryImage['visibility'] !== 'public' || $libraryImage['alt_text'] !== 'Library cover image' || $libraryImage['uploader_name'] !== 'Test Admin') throw new RuntimeException('Media metadata, visibility or uploader details did not persist.');
     $content->save('lessons', $lessonId, ['resource_media_id' => $resourceId, 'resource_title' => 'Science notes', 'quiz_time_limit_minutes' => 5, 'quiz_pass_mark' => 75]);
     if (!$learning->media($userId, $resourceId)) throw new RuntimeException('An enrolled student could not resolve their private lesson resource.');
+    $invalidVideoReferenceRejected = false;
+    try { $content->save('lessons', $lessonId, ['video_media_id' => $resourceId]); } catch (RuntimeException) { $invalidVideoReferenceRejected = true; }
+    if (!$invalidVideoReferenceRejected) throw new RuntimeException('CMS accepted a PDF as a lesson video.');
+    $invalidResourceReferenceRejected = false;
+    try { $content->save('lessons', $lessonId, ['resource_media_id' => $imageAssetId]); } catch (RuntimeException) { $invalidResourceReferenceRejected = true; }
+    if (!$invalidResourceReferenceRejected) throw new RuntimeException('CMS accepted a public image as a private lesson resource.');
+    $invalidQuizEditRejected = false;
+    try { $content->save('questions', $questionId, ['options_json' => ['A', 'B']]); } catch (RuntimeException) { $invalidQuizEditRejected = true; }
+    $savedQuestion = $content->find('questions', $questionId);
+    if (!$invalidQuizEditRejected || !in_array('Study of nature', json_decode((string) $savedQuestion['options_json'], true), true)) throw new RuntimeException('A partial quiz edit invalidated its saved correct answer.');
+
     $pdo->prepare("UPDATE course_enrolments SET status = 'revoked' WHERE user_id = :user_id AND course_id = :course_id")->execute(['user_id' => $userId, 'course_id' => $courseId]);
     if ($learning->hasAccess($userId, $courseId) || $learning->media($userId, $resourceId) !== null) throw new RuntimeException('A revoked enrolment retained lesson or media access.');
     $pdo->prepare("UPDATE course_enrolments SET status = 'active' WHERE user_id = :user_id AND course_id = :course_id")->execute(['user_id' => $userId, 'course_id' => $courseId]);
