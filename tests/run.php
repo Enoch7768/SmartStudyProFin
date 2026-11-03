@@ -37,7 +37,7 @@ try {
     $developmentRouter = (string) file_get_contents(dirname(__DIR__) . '/router.php');
     if (!str_contains($developmentRouter, "'/install' => 'install/index.php'") || !str_contains($developmentRouter, "'/profile' => 'profile.php'") || !str_contains($developmentRouter, "http_response_code(404)")) throw new RuntimeException('The PHP development router must resolve /profile and return 404 for unknown routes.');
     $applicationBootstrap = (string) file_get_contents(dirname(__DIR__) . '/bootstrap/app.php');
-    if (!str_contains($applicationBootstrap, 'Installer::isInstalled()') || !str_contains($applicationBootstrap, "Location: ' . $installPath . '/")) throw new RuntimeException('An uninstalled web request must be redirected to first-run setup before opening the database.');
+    if (!str_contains($applicationBootstrap, 'Installer::isInstalled()') || !str_contains($applicationBootstrap, 'header(\'Location: \' . $installPath . \'/\', true, 303);')) throw new RuntimeException('An uninstalled web request must be redirected to first-run setup before opening the database.');
     $cartAction = (string) file_get_contents(dirname(__DIR__) . '/cart-add.php');
     if (!str_contains($cartAction, "Security::verifyCsrf") || !str_contains($cartAction, "product_type") || !str_contains($cartAction, "status = 'published'")) throw new RuntimeException('The cart endpoint is missing server-side request and catalogue validation.');
     $now = gmdate('Y-m-d H:i:s');
