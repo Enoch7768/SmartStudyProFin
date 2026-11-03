@@ -90,9 +90,10 @@ async function run() {
     }
   }
 
+  await page.screenshot({ path: path.join(artifactDirectory, 'home-desktop.png'), fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(base + '/', { waitUntil: 'domcontentloaded' });
-  await page.screenshot({ path: path.join(artifactDirectory, 'home-desktop.png'), fullPage: true });
+  await page.screenshot({ path: path.join(artifactDirectory, 'home-mobile.png'), fullPage: true });
   const mobileToggle = page.locator('.mobile-nav-toggle');
   await mobileToggle.click();
   assert.equal(await mobileToggle.getAttribute('aria-expanded'), 'true');
