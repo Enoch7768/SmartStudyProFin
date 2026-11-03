@@ -32,9 +32,9 @@ try {
     $routeRules = (string) file_get_contents(dirname(__DIR__) . '/.htaccess');
     $previousScriptName = $_SERVER['SCRIPT_NAME'] ?? null;
     $_SERVER['SCRIPT_NAME'] = '/SmartStudyProFin/study.php';
-    if (App\\Core\\Url::to('/courses/example-course') !== '/SmartStudyProFin/courses/example-course' || App\\Core\\Url::to('/assets/css/device-responsive.css') !== '/SmartStudyProFin/assets/css/device-responsive.css') throw new RuntimeException('Internal URLs do not preserve the installed subdirectory.');
+    if (App\Core\Url::to('/courses/example-course') !== '/SmartStudyProFin/courses/example-course' || App\Core\Url::to('/assets/css/device-responsive.css') !== '/SmartStudyProFin/assets/css/device-responsive.css') throw new RuntimeException('Internal URLs do not preserve the installed subdirectory.');
     $_SERVER['SCRIPT_NAME'] = '/index.php';
-    if (App\\Core\\Url::to('/courses') !== '/courses') throw new RuntimeException('Root installation URLs are not canonical.');
+    if (App\Core\Url::to('/courses') !== '/courses') throw new RuntimeException('Root installation URLs are not canonical.');
     if ($previousScriptName === null) unset($_SERVER['SCRIPT_NAME']); else $_SERVER['SCRIPT_NAME'] = $previousScriptName;
 
     if (!str_contains($routeRules, 'RewriteRule ^(?:admin|install)/?$ index.php [QSA,L]') || !str_contains($routeRules, 'RewriteRule ^ index.php [QSA,L]')) throw new RuntimeException('Apache must send installer and clean URLs through the index.php front controller.');
