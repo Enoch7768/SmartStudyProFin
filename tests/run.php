@@ -30,6 +30,13 @@ try {
     if (Migrator::run($pdo, $migrationPath) !== ['001_identity', '002_cms_content', '003_student_identity', '004_learning_engine', '005_lesson_resources_quiz_settings', '006_commerce_payments', '007_ai_learning_assistant', '008_notifications_recognition_analytics', '009_production_indexes', '010_legal_acceptance', '011_demo_payments', '012_commerce_delivery_refunds']) throw new RuntimeException('Foundation and CMS migrations did not run.');
     if (Migrator::run($pdo, $migrationPath) !== []) throw new RuntimeException('Migrations are not idempotent.');
     $routeRules = (string) file_get_contents(dirname(__DIR__) . '/.htaccess');
+    $previousScriptName = $_SERVER['SCRIPT_NAME'] ?? null;
+    $_SERVER['SCRIPT_NAME'] = '/SmartStudyProFin/study.php';
+    if (App\\Core\\Url::to('/courses/example-course') !== '/SmartStudyProFin/courses/example-course' || App\\Core\\Url::to('/assets/css/device-responsive.css') !== '/SmartStudyProFin/assets/css/device-responsive.css') throw new RuntimeException('Internal URLs do not preserve the installed subdirectory.');
+    $_SERVER['SCRIPT_NAME'] = '/index.php';
+    if (App\\Core\\Url::to('/courses') !== '/courses') throw new RuntimeException('Root installation URLs are not canonical.');
+    if ($previousScriptName === null) unset($_SERVER['SCRIPT_NAME']); else $_SERVER['SCRIPT_NAME'] = $previousScriptName;
+
     if (!str_contains($routeRules, 'RewriteRule ^(?:admin|install)/?$ index.php [QSA,L]') || !str_contains($routeRules, 'RewriteRule ^ index.php [QSA,L]')) throw new RuntimeException('Apache must send installer and clean URLs through the index.php front controller.');
     $frontController = (string) file_get_contents(dirname(__DIR__) . '/index.php');
     foreach (["install/index.php", "'/profile' => 'profile.php'", "'/cart/add' => 'cart-add.php'", "'/assistant' => 'assistant.php'", "'/learn' => 'learning.php'", "course_slug"] as $route) {
