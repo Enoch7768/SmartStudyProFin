@@ -64,6 +64,14 @@ try {
     }
     if (!$ready) throw new RuntimeException('The isolated PHP page server did not become ready.');
 
+    $navigationPages = [
+        'index.php', 'about.php', 'accessibility.php', 'achievements.php', 'assistant.php',
+        'cart.php', 'certificates.php', 'checkout.php', 'contact.php', 'cookies.php',
+        'course-details.php', 'courses.php', 'eula.php', 'learning.php', 'legal.php',
+        'login.php', 'notifications.php', 'orders.php', 'payment-choice.php',
+        'payment-return.php', 'privacy.php', 'product-details.php', 'products.php',
+        'profile.php', 'refunds.php', 'register.php', 'reset.php', 'terms.php'
+    ];
     $checked = 0;
     $assetChecks = 0;
     $failures = [];
@@ -99,6 +107,13 @@ try {
             }
         }
         if (str_contains(strtolower($body), '<html')) {
+            if (in_array($page, $navigationPages, true)) {
+                foreach (['id="navmenu"', 'id="theme-toggle"', 'assets/js/main.js', 'assets/css/device-responsive.css'] as $sharedFeature) {
+                    if (!str_contains($body, $sharedFeature)) {
+                        $failures[] = $page . ': shared site shell is missing ' . $sharedFeature;
+                    }
+                }
+            }
             if (!preg_match('/<meta\s+name=["\']viewport["\']/i', $body)) {
                 $failures[] = $page . ': HTML page is missing its responsive viewport declaration';
             }
@@ -125,6 +140,7 @@ try {
     }
 
     echo 'PASS unauthenticated HTTP smoke checks for ' . $checked . ' application pages' . PHP_EOL;
+    echo 'PASS unified public navigation, theme toggle and responsive shell on ' . count($navigationPages) . ' pages' . PHP_EOL;
     echo 'PASS local CSS, JavaScript, image and font references (' . $assetChecks . ' checks)' . PHP_EOL;
     echo 'PASS isolated SQLite installation and administrator bootstrap' . PHP_EOL;
 } finally {
