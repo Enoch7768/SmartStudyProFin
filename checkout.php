@@ -30,6 +30,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         if ($error !== null) throw new RuntimeException($error);
         $cart = array_values($_SESSION['ssp_cart'] ?? []);
         $order = (new CommerceService($pdo))->createOrder((int) $user['id'], $cart);
+        unset($_SESSION['ssp_cart']);
         $_SESSION['ssp_last_order_id'] = (int) $order['id'];
         Security::redirect('payment-choice.php?order=' . (int) $order['id']);
     } catch (Throwable $exception) {
