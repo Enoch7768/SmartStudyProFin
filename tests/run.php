@@ -30,7 +30,7 @@ try {
     if (Migrator::run($pdo, $migrationPath) !== ['001_identity', '002_cms_content', '003_student_identity', '004_learning_engine', '005_lesson_resources_quiz_settings', '006_commerce_payments', '007_ai_learning_assistant', '008_notifications_recognition_analytics', '009_production_indexes', '010_legal_acceptance', '011_demo_payments', '012_commerce_delivery_refunds']) throw new RuntimeException('Foundation and CMS migrations did not run.');
     if (Migrator::run($pdo, $migrationPath) !== []) throw new RuntimeException('Migrations are not idempotent.');
     $routeRules = (string) file_get_contents(dirname(__DIR__) . '/.htaccess');
-    if (!str_contains($routeRules, 'RewriteRule ^install/?$ index.php [QSA,L]') || !str_contains($routeRules, 'RewriteRule ^ index.php [QSA,L]')) throw new RuntimeException('Apache must send installer and clean URLs through the index.php front controller.');
+    if (!str_contains($routeRules, 'RewriteRule ^(?:admin|install)/?$ index.php [QSA,L]') || !str_contains($routeRules, 'RewriteRule ^ index.php [QSA,L]')) throw new RuntimeException('Apache must send installer and clean URLs through the index.php front controller.');
     $frontController = (string) file_get_contents(dirname(__DIR__) . '/index.php');
     foreach (["'/install' => 'install/index.php'", "'/profile' => 'profile.php'", "'/cart/add' => 'cart-add.php'", "'/assistant' => 'assistant.php'", "'/learn' => 'learning.php'", "course_slug"] as $route) {
         if (!str_contains($frontController, $route)) throw new RuntimeException('The index.php front controller is missing route support: ' . $route);
