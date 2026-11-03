@@ -70,13 +70,16 @@ final class ContentRepository
             }
             $data[$field] = $value;
         }
-        if ($type === 'questions' && isset($data['options_json'], $data['correct_answer'])) {
-            $options = json_decode((string) $data['options_json'], true);
-            if (!is_array($options) || !in_array(trim((string) $data['correct_answer']), $options, true)) throw new RuntimeException('The correct answer must match one of the question options exactly.');
+        if ($type === 'questions') {
+            $existing = $id === null ? [] : ($this->find('questions', $id) ?? []);
+            $optionsJson = $data['options_json'] ?? $existing['options_json'] ?? null;
+            $correctAnswer = trim((string) ($data['correct_answer'] ?? $existing['correct_answer'] ?? ''));
+            $options = is_string($optionsJson) ? json_decode($optionsJson, true) : null;
+            if (!is_array($options) || count($options) < 2 || $correctAnswer === '' || !in_array($correctAnswer, $options, true)) throw new RuntimeException('The correct answer must match one of the question options exactly.');
         }
-        foreach (['image_media_id'] as $field) {
-            if (array_key_exists($field, $data) && $data[$field] !== null) $this->assertPublicImage((int) $data[$field]);
-        }
+        if (array_key_exists('image_media_id', $data) && $data['image_media_id'] !== null) $this->assertPublicImage((int) $data['image_media_id']);
+        if (array_key_exists('video_media_id', $data) && $data['video_media_id'] !== null) $this->assertPrivateMedia((int) $data['video_media_id'], 'video/mp4');
+        if (array_key_exists('resource_media_id', $data) && $data['resource_media_id'] !== null) $this->assertPrivateMedia((int) $data['resource_media_id'], 'application/pdf');
         if ($type === 'courses' || $type === 'products') {
             $data['slug'] = $this->uniqueSlug($table, (string) ($data['slug'] ?? $data['title'] ?? ''), $id);
         }
@@ -166,6 +169,13 @@ final class ContentRepository
         $statement = $this->pdo->prepare("SELECT 1 FROM media_assets WHERE id = :id AND visibility = 'public' AND mime_type IN ('image/jpeg', 'image/png', 'image/webp', 'image/gif') LIMIT 1");
         $statement->execute(['id' => $mediaId]);
         if (!$statement->fetchColumn()) throw new RuntimeException('Choose an uploaded public image.');
+    }
+
+    private function assertPrivateMedia(int $mediaId, string $mimeType): void
+    {
+        $statement = $this->pdo->prepare("SELECT 1 FROM media_assets WHERE id = :id AND visibility = 'private' AND mime_type = :mime_type LIMIT 1");
+        $statement->execute(['id' => $mediaId, 'mime_type' => $mimeType]);
+        if (!$statement->fetchColumn()) throw new RuntimeException('Choose a private lesson file with the required format.');
     }
 
     private function definition(string $type): array
