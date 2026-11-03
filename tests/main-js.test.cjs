@@ -114,6 +114,9 @@ assert.match(sharedStylesheet, /:where\(a, button, input, select, textarea, summ
 assert.match(sharedStylesheet, /prefers-reduced-motion: reduce/);
 console.log('PASS homepage loads the shared accessibility stylesheet');
 
+const profilePage = fs.readFileSync('profile.php', 'utf8');
+assert.ok(profilePage.includes('const preferredTheme ='));
+assert.ok(profilePage.includes("localStorage.setItem('ssp-theme', preferredTheme)"));
 const sharedNavigation = fs.readFileSync('nav.php', 'utf8');
 assert.ok(homepage.includes("include __DIR__ . '/nav.php';"));
 assert.doesNotMatch(homepage, /id="header"/);
@@ -122,6 +125,9 @@ assert.ok(sharedNavigation.includes("$navActive('courses')"));
 assert.doesNotMatch(sharedNavigation, /href="(?:index|about|courses|learning|assistant|products|contact|notifications|profile|cart)\\.php"/);
 assert.match(sharedNavigation, /aria-controls="navmenu"/);
 assert.match(sharedNavigation, /aria-expanded="false"/);
+assert.ok(sharedNavigation.includes('data-theme-endpoint='));
+assert.ok(sharedNavigation.includes('data-csrf='));
+assert.ok(sharedNavigation.includes('fetch(endpoint'));
 console.log('PASS homepage uses the shared accessible navigation and course entry point');
 
 for (const page of ['index.php', 'about.php', 'contact.php', 'courses.php', 'products.php', 'product-details.php', 'login.php', 'register.php']) {
