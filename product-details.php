@@ -27,7 +27,7 @@ $email = $contact['email'];
 $address = strip_tags($contact['address']);
 
 $imgData = $product['Image'] ?? null;
-$imgUrl = $imgData['url'] ?? 'assets/img/course-details-tab-1.png';
+$imgUrl = $imgData['url'] ?? 'assets/img/course-details.jpg';
 $gallery = $product['Gallery'] ?? [];
 if (!$gallery && $imgData) $gallery = [['url' => $imgUrl, 'alt' => $displayTitle]];
 $includedFiles = $product['Files'] ?? [];

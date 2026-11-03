@@ -33,7 +33,7 @@ jobs:
           extensions: pdo_sqlite, sqlite3, fileinfo, openssl
           coverage: none
       - name: Lint foundation PHP
-        run: find app admin bootstrap database install scripts tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+        run: find . -path './.git' -prune -o -path './cms' -prune -o -path './assets' -prune -o -type f -name '*.php' -print0 | xargs -0 -n1 php -l
       - name: Test private Composer dependency installer
         run: php -l app/Core/DependencyInstaller.php && php tests/dependency-installer.php && php tests/release-package.php
       - name: Lint migrated public pages
@@ -65,16 +65,26 @@ jobs:
         run: php tests/performance.php
       - name: Test production security configuration
         run: php tests/security.php
+      - name: Smoke-test every application page and local asset
+        run: php tests/site-smoke.php
       - name: Validate release workflow and package contents
         run: |
           ruby -e "require 'yaml'; YAML.load_file('.github/workflows/release.yml')"
           mkdir -p /tmp/smartstudypro-release-check
-          git archive HEAD | tar --exclude='vendor' --exclude='composer.phar' --exclude='node_modules' --exclude='cms' --exclude='db' --exclude='tests' --exclude='.github' --exclude='transcripts' --exclude='uploads/avatars/*' --exclude='database/bookings.db' --exclude='database/bookings.sqlite' --exclude='Income Statement and distribution.xlsx' --exclude='Readme.txt' -x -C /tmp/smartstudypro-release-check
+          git archive HEAD | tar --exclude='composer.phar' --exclude='cms' --exclude='db' --exclude='tests' --exclude='.github' --exclude='transcripts' --exclude='uploads/avatars/*' --exclude='database/bookings.db' --exclude='database/bookings.sqlite' --exclude='Income Statement and distribution.xlsx' --exclude='Readme.txt' -x -C /tmp/smartstudypro-release-check
           git archive HEAD uploads/avatars/.htaccess | tar -x -C /tmp/smartstudypro-release-check
           mkdir -p /tmp/smartstudypro-release-check/uploads/avatars
           touch /tmp/smartstudypro-release-check/uploads/avatars/.gitkeep
           test -f /tmp/smartstudypro-release-check/VERSION
           test -f /tmp/smartstudypro-release-check/favicon.php
+          test -f /tmp/smartstudypro-release-check/composer.json
+          test -f /tmp/smartstudypro-release-check/composer.lock
+          test -f /tmp/smartstudypro-release-check/assets/vendor/bootstrap/css/bootstrap.min.css
+          test -f /tmp/smartstudypro-release-check/assets/vendor/bootstrap/js/bootstrap.bundle.min.js
+          test -f /tmp/smartstudypro-release-check/assets/css/device-responsive.css
+          test -f /tmp/smartstudypro-release-check/assets/js/main.js
+          test ! -e /tmp/smartstudypro-release-check/vendor
+          test ! -e /tmp/smartstudypro-release-check/node_modules
           test -f /tmp/smartstudypro-release-check/install/index.php
           test -f /tmp/smartstudypro-release-check/database/migrations/008_notifications_recognition_analytics.php
           test -f /tmp/smartstudypro-release-check/database/migrations/009_production_indexes.php
