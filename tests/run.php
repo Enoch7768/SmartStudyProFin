@@ -49,6 +49,8 @@ try {
     if (!str_contains($studyPage, 'Url::to(\'/\')') || !str_contains($studyPage, 'Url::to(\'/learn/\'')) throw new RuntimeException('Nested learning pages are missing their base-path-aware assets and lesson routes.');
     $applicationBootstrap = (string) file_get_contents(dirname(__DIR__) . '/bootstrap/app.php');
     if (!str_contains($applicationBootstrap, 'Installer::isInstalled()') || !str_contains($applicationBootstrap, 'header(\'Location: \' . $installPath . \'/\', true, 303);')) throw new RuntimeException('An uninstalled web request must be redirected to first-run setup before opening the database.');
+    $cartPage = (string) file_get_contents(dirname(__DIR__) . '/cart.php');
+    if (!str_contains($cartPage, "Url::to('/checkout')") || str_contains($cartPage, 'action="checkout.php"')) throw new RuntimeException('The cart must open the checkout review before creating an order.');
     $cartAction = (string) file_get_contents(dirname(__DIR__) . '/cart-add.php');
     if (!str_contains($cartAction, "Security::verifyCsrf") || !str_contains($cartAction, "product_type") || !str_contains($cartAction, "status = 'published'")) throw new RuntimeException('The cart endpoint is missing server-side request and catalogue validation.');
     $now = gmdate('Y-m-d H:i:s');
