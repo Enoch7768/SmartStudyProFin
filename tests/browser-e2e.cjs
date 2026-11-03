@@ -179,7 +179,7 @@ async function run() {
   console.log('BROWSER CHECK: course discovery, free enrolment and progress persistence');
   await page.goto(base + '/courses', { waitUntil: 'domcontentloaded' });
   await page.getByRole('link', { name: 'Browser Test Course' }).first().click();
-  assert.match(new URL(page.url()).pathname, /^\\/courses\\/browser-test-course$/);
+  assert.match(new URL(page.url()).pathname, /^\/courses\/browser-test-course$/);
   await page.getByRole('link', { name: 'Start this free course' }).click();
   await page.getByRole('button', { name: 'Enrol for free' }).click();
   await page.getByRole('heading', { name: 'First lesson' }).waitFor();
