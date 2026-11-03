@@ -34,7 +34,7 @@ try {
     $_SERVER['SCRIPT_NAME'] = '/SmartStudyProFin/study.php';
     if (App\Core\Url::to('/courses/example-course') !== '/SmartStudyProFin/courses/example-course' || App\Core\Url::to('/assets/css/device-responsive.css') !== '/SmartStudyProFin/assets/css/device-responsive.css') throw new RuntimeException('Internal URLs do not preserve the installed subdirectory.');
     $_SERVER['SCRIPT_NAME'] = '\\SmartStudyProFin\\study.php';
-    if (App\\Core\\Url::to('/courses') !== '/SmartStudyProFin/courses') throw new RuntimeException('Windows-style script paths are not normalized.');
+    if (App\Core\Url::to('/courses') !== '/SmartStudyProFin/courses') throw new RuntimeException('Windows-style script paths are not normalized.');
     $_SERVER['SCRIPT_NAME'] = '/index.php';
     if (App\Core\Url::to('/courses') !== '/courses') throw new RuntimeException('Root installation URLs are not canonical.');
     if ($previousScriptName === null) unset($_SERVER['SCRIPT_NAME']); else $_SERVER['SCRIPT_NAME'] = $previousScriptName;
