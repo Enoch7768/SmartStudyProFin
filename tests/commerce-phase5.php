@@ -54,6 +54,27 @@ try {
     if (count($product['Files'] ?? []) !== 2 || isset($product['Files'][0]['url'])) throw new RuntimeException('The product page did not expose safe file descriptions without private download URLs.');
 
     $commerce = new CommerceService($pdo);
+    $emptyProductId = $content->save('products', null, ['title' => 'Incomplete Digital Product', 'description_html' => 'Must not be purchasable without files.', 'price_ugx' => '1000', 'category' => 'Testing', 'product_type' => 'online', 'status' => 'published']);
+    $missingFilesRejected = false;
+    try {
+        $commerce->createOrder($adminId, [['type' => 'product', 'id' => $emptyProductId, 'quantity' => 1]]);
+    } catch (RuntimeException) {
+        $missingFilesRejected = true;
+    }
+    if (!$missingFilesRejected) throw new RuntimeException('An online product without downloadable files was purchasable.');
+
+    $media->execute(['path' => 'media/phase5/unsupported.mp4', 'name' => 'unsupported.mp4', 'mime' => 'video/mp4', 'size' => 2048, 'checksum' => hash('sha256', 'unsupported.mp4'), 'alt' => '', 'visibility' => 'private', 'user_id' => $adminId, 'created_at' => $now]);
+    $unsupportedAssetId = (int) $pdo->lastInsertId();
+    $attach->execute(['product_id' => $productId, 'media_id' => $unsupportedAssetId, 'role' => 'download', 'sort_order' => 2, 'created_at' => $now]);
+    $unsupportedFileRejected = false;
+    try {
+        $commerce->createOrder($adminId, [['type' => 'product', 'id' => $productId, 'quantity' => 1]]);
+    } catch (RuntimeException) {
+        $unsupportedFileRejected = true;
+    }
+    if (!$unsupportedFileRejected) throw new RuntimeException('An unsupported media type was accepted as a digital download.');
+    $pdo->prepare('DELETE FROM cms_product_assets WHERE product_id = :product_id AND media_asset_id = :media_id')->execute(['product_id' => $productId, 'media_id' => $unsupportedAssetId]);
+
     $order = $commerce->createOrder($adminId, [['type' => 'product', 'id' => $productId, 'quantity' => 1], ['type' => 'course', 'id' => $courseId, 'quantity' => 1]]);
     $itemId = (int) $order['items'][0]['id'];
     if ((int) $order['total_ugx'] !== 20000 || (int) $pdo->query('SELECT COUNT(*) FROM order_item_assets WHERE order_item_id = ' . $itemId)->fetchColumn() !== 2) throw new RuntimeException('The order did not snapshot every private product asset.');
