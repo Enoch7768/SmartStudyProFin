@@ -78,7 +78,7 @@ RewriteRule (^|/)\.(?!well-known(?:/|$)) - [F,L,NC]
     Require all denied
 </FilesMatch>
 
-RewriteRule ^install/?$ index.php [QSA,L]
+RewriteRule ^(?:admin|install)/?$ index.php [QSA,L]
 
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
