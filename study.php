@@ -7,6 +7,7 @@ require __DIR__ . '/bootstrap/app.php';
 use App\Core\Auth;
 use App\Core\Database;
 use App\Core\Security;
+use App\Core\Url;
 use App\Learning\LearningService;
 use App\Learning\RecognitionService;
 
@@ -14,9 +15,11 @@ header('Cache-Control: private, no-store');
 $pdo = Database::connect();
 $user = Auth::user($pdo);
 if (!$user) {
-    $requestedPath = (string) ($_SERVER['REQUEST_URI'] ?? '/learn');
+    $requestedPath = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/learn'), PHP_URL_PATH);
+    $basePath = Url::basePath();
+    if ($basePath !== '' && str_starts_with($requestedPath, $basePath . '/')) $requestedPath = substr($requestedPath, strlen($basePath));
     if (!preg_match('#^/learn/[a-z0-9][a-z0-9-]*(?:/[0-9]+)?/?$#i', $requestedPath)) $requestedPath = '/learn';
-    Security::redirect('/login?redirect=' . rawurlencode($requestedPath));
+    Security::redirect(Url::to('/login?redirect=' . rawurlencode(Url::to($requestedPath))));
 }
 $userId = (int) $user['id'];
 $service = new LearningService($pdo);
@@ -42,7 +45,7 @@ if ($course && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             if ($action === 'enrol') {
                 $service->enrolFreeCourse($userId, $courseId);
                 (new RecognitionService($pdo))->recordCourseEnrollment($userId, $courseId);
-                Security::redirect('/learn/' . rawurlencode((string) $course['slug']));
+                Security::redirect(Url::to('/learn/' . rawurlencode((string) $course['slug'])));
             } elseif ($action === 'complete') {
                 $service->completeLesson($userId, $courseId, $lessonId);
                 $notice = 'Lesson marked as complete. Your progress has been saved.';
@@ -106,7 +109,7 @@ $seoTitle = ($course['title'] ?? 'Study Portal') . ' | SmartStudyPro';
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="<?= htmlspecialchars(Url::to('/'), ENT_QUOTES, 'UTF-8') ?>"><meta name="robots" content="noindex,nofollow">
 <title><?= Security::escape($seoTitle) ?></title>
 <link href="<?= htmlspecialchars(rtrim(dirname((string) ($_SERVER['SCRIPT_NAME'] ?? '/')), '/') . '/favicon.php', ENT_QUOTES, 'UTF-8') ?>" rel="icon"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"><link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"><link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
 <style>
@@ -119,9 +122,9 @@ $seoTitle = ($course['title'] ?? 'Study Portal') . ' | SmartStudyPro';
 <?php if ($error): ?><div class="container py-4"><div class="alert alert-danger rounded-3"><?= Security::escape($error) ?></div></div><?php endif; ?>
 <?php if ($notice): ?><div class="container pt-3"><div class="alert alert-success rounded-3"><?= Security::escape($notice) ?></div></div><?php endif; ?>
 <?php if (!$course): ?><main id="main-content" class="container py-5"><div class="panel text-center"><h1>Course unavailable</h1><p class="muted">The course may have been unpublished or removed.</p><a href="courses.php" class="btn-main text-decoration-none">Browse courses</a></div></main>
-<?php elseif (!$hasAccess): ?><main class="container py-5"><div class="panel mx-auto text-center" style="max-width:650px"><div class="small text-uppercase fw-bold mb-2" style="color:var(--orange)">Your learning journey</div><h1><?= Security::escape($course['title']) ?></h1><p class="muted"><?= Security::escape(strip_tags($course['description_html'])) ?></p><?php if ((int)$course['price_ugx'] === 0): ?><p>This course is free. Enrol to unlock its lessons and resources.</p><form method="post"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>"><input type="hidden" name="course_id" value="<?= $courseId ?>"><input type="hidden" name="action" value="enrol"><button class="btn-main">Enrol for free</button></form><?php else: ?><p>This course requires a confirmed purchase. Enrolment is activated after secure payment verification.</p><a href="/courses/<?= rawurlencode((string) $course['slug']) ?>" class="btn-main text-decoration-none">View course and purchase options</a><?php endif; ?></div></main>
+<?php elseif (!$hasAccess): ?><main class="container py-5"><div class="panel mx-auto text-center" style="max-width:650px"><div class="small text-uppercase fw-bold mb-2" style="color:var(--orange)">Your learning journey</div><h1><?= Security::escape($course['title']) ?></h1><p class="muted"><?= Security::escape(strip_tags($course['description_html'])) ?></p><?php if ((int)$course['price_ugx'] === 0): ?><p>This course is free. Enrol to unlock its lessons and resources.</p><form method="post"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>"><input type="hidden" name="course_id" value="<?= $courseId ?>"><input type="hidden" name="action" value="enrol"><button class="btn-main">Enrol for free</button></form><?php else: ?><p>This course requires a confirmed purchase. Enrolment is activated after secure payment verification.</p><a href="<?= Url::to('/courses/' . rawurlencode((string) $course['slug'])) ?>" class="btn-main text-decoration-none">View course and purchase options</a><?php endif; ?></div></main>
 <?php else: ?><div class="layout"><aside class="sidebar"><div class="px-4 pb-3"><div class="small muted mb-1">COURSE PROGRESS</div><div class="d-flex justify-content-between fw-bold mb-2"><span><?= $completedCount ?> of <?= $totalLessons ?> lessons</span><span><?= $progressPercent ?>%</span></div><div class="progress"><div class="progress-bar" style="width:<?= $progressPercent ?>%"></div></div></div>
-<?php foreach ($outline as $chapter): ?><div class="chapter"><?= Security::escape($chapter['title']) ?></div><?php foreach ($chapter['lessons'] as $item): ?><a class="lesson-link <?= (int)$item['id']===$lessonId?'active':'' ?>" href="/learn/<?= rawurlencode((string) $course['slug']) ?>/<?= (int)$item['id'] ?>"><i class="bi <?= $item['progress_status']==='completed'?'bi-check-circle-fill text-success':'bi-play-circle' ?>"></i><span><?= Security::escape($item['title']) ?></span><?php if ($item['bookmarked']): ?><i class="bi bi-bookmark-fill text-warning"></i><?php endif; ?></a><?php endforeach; ?><?php endforeach; ?></aside>
+<?php foreach ($outline as $chapter): ?><div class="chapter"><?= Security::escape($chapter['title']) ?></div><?php foreach ($chapter['lessons'] as $item): ?><a class="lesson-link <?= (int)$item['id']===$lessonId?'active':'' ?>" href="<?= Url::to('/learn/' . rawurlencode((string) $course['slug']) . '/' . (int) $item['id']) ?>"><i class="bi <?= $item['progress_status']==='completed'?'bi-check-circle-fill text-success':'bi-play-circle' ?>"></i><span><?= Security::escape($item['title']) ?></span><?php if ($item['bookmarked']): ?><i class="bi bi-bookmark-fill text-warning"></i><?php endif; ?></a><?php endforeach; ?><?php endforeach; ?></aside>
 <main class="content">
 <?php if ($lesson): ?><div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4"><div><div class="small fw-bold text-uppercase mb-1" style="color:var(--orange)">Learning module</div><h1 class="h2 mb-1"><?= Security::escape($lesson['title']) ?></h1><p class="muted mb-0"><?= Security::escape($course['title']) ?></p></div><div class="d-flex gap-2"><form method="post"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>"><input type="hidden" name="course_id" value="<?= $courseId ?>"><input type="hidden" name="lesson_id" value="<?= $lessonId ?>"><input type="hidden" name="action" value="bookmark"><button class="btn-outline" type="submit"><i class="bi bi-bookmark-plus"></i> Save</button></form><form method="post"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>"><input type="hidden" name="course_id" value="<?= $courseId ?>"><input type="hidden" name="lesson_id" value="<?= $lessonId ?>"><input type="hidden" name="action" value="complete"><button class="btn-main" type="submit"><i class="bi bi-check2-circle me-1"></i>Mark complete</button></form></div></div>
 <?php if (!empty($lesson['video_media_id'])): ?><div class="panel mb-4 p-2"><video class="video" controls preload="metadata" controlsList="nodownload" data-resume="<?= $resumeSeconds ?>" src="lesson-media.php?id=<?= (int)$lesson['video_media_id'] ?>"></video></div><?php elseif (!empty($lesson['video_url'])): ?><div class="panel mb-4"><a href="<?= Security::escape($lesson['video_url']) ?>" target="_blank" rel="noopener noreferrer" class="resource"><i class="bi bi-play-circle"></i> Open lesson video</a></div><?php endif; ?>
