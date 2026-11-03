@@ -7,12 +7,13 @@ require __DIR__ . '/bootstrap/app.php';
 use App\Core\Auth;
 use App\Core\Database;
 use App\Core\Security;
+use App\Core\Url;
 use App\Learning\LearningService;
 use App\Learning\RecognitionService;
 
 $pdo = Database::connect();
 $user = Auth::user($pdo);
-if (!$user) Security::redirect('/login?redirect=%2Flearn');
+if (!$user) Security::redirect(Url::to('/login?redirect=' . rawurlencode(Url::to('/learn'))));
 $recognition = new RecognitionService($pdo);
 $recognition->sync((int) $user['id']);
 $dashboard = (new LearningService($pdo))->dashboard((int) $user['id']);
