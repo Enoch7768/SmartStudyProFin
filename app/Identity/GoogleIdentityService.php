@@ -21,20 +21,35 @@ final class GoogleIdentityService
     {
     }
 
-    public static function isConfigured(): bool
+    public static function configurationIssues(): array
     {
-        $url = parse_url((string) Config::get('app.url'));
+        $issues = [];
+        $clientId = trim((string) Config::get('google.client_id'));
+        $clientSecret = trim((string) Config::get('google.client_secret'));
+        $appUrl = trim((string) Config::get('app.url'));
+        $url = parse_url($appUrl) ?: [];
+        $scheme = strtolower((string) ($url['scheme'] ?? ''));
         $host = strtolower((string) ($url['host'] ?? ''));
-        $secureUrl = strtolower((string) ($url['scheme'] ?? '')) === 'https' || in_array($host, ['localhost', '127.0.0.1', '::1', '[::1]'], true);
-        return (string) Config::get('google.client_id') !== ''
-            && (string) Config::get('google.client_secret') !== ''
-            && $secureUrl
+        $localHost = in_array($host, ['localhost', '127.0.0.1', '::1', '[::1]'], true);
+        $validScheme = $scheme === 'https' || ($scheme === 'http' && $localHost);
+        $validUrl = $validScheme
             && $host !== ''
             && !isset($url['user'])
             && !isset($url['pass'])
             && !isset($url['query'])
-            && !isset($url['fragment'])
-            && function_exists('openssl_verify');
+            && !isset($url['fragment']);
+
+        if ($appUrl === '' || !$validUrl) $issues[] = 'APP_URL must be the canonical HTTPS site URL (HTTP is allowed only for localhost development).';
+        if ($clientId === '') $issues[] = 'GOOGLE_CLIENT_ID is missing from the server environment or project .env file.';
+        if ($clientSecret === '') $issues[] = 'GOOGLE_CLIENT_SECRET is missing. Put it in the server environment or APP_STORAGE_PATH/.env outside the public web root.';
+        if (!function_exists('openssl_verify')) $issues[] = 'The PHP OpenSSL extension is required.';
+
+        return $issues;
+    }
+
+    public static function isConfigured(): bool
+    {
+        return self::configurationIssues() === [];
     }
 
     public function start(string $mode, int $userId = 0): never
