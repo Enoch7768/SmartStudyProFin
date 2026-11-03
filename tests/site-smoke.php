@@ -41,6 +41,12 @@ try {
     require $root . '/bootstrap/app.php';
 
     App\Core\Installer::install($root, 'Smoke Administrator', 'smoke@example.test', 'Smoke-Only-Password-2026!');
+    $pdo = App\Core\Database::connect();
+    $now = gmdate('Y-m-d H:i:s');
+    $course = $pdo->prepare("INSERT INTO cms_courses (slug, title, description_html, content_html, price_ugx, category, status, sort_order, created_at, updated_at) VALUES ('smoke-course', 'Smoke Course', 'Course description', 'Course content', 0, 'Testing', 'published', 1, :now, :now)");
+    $course->execute(['now' => $now]);
+    $product = $pdo->prepare("INSERT INTO cms_products (slug, title, description_html, price_ugx, category, product_type, status, sort_order, created_at, updated_at) VALUES ('smoke-product', 'Smoke Product', 'Product description', 1000, 'Testing', 'online', 'published', 1, :now, :now)");
+    $product->execute(['now' => $now]);
     $socket = stream_socket_server('tcp://127.0.0.1:0', $errorCode, $errorMessage);
     if ($socket === false) throw new RuntimeException('Could not reserve a local HTTP port: ' . $errorMessage);
     $address = stream_socket_get_name($socket, false);
@@ -143,6 +149,7 @@ try {
         '/cart' => [303],
         '/courses' => [200],
         '/courses/no-such-course-for-smoke-test' => [404],
+        '/courses/smoke-course' => [200],
         '/install' => [404],
         '/learn' => [303],
         '/learning' => [301],
@@ -154,6 +161,7 @@ try {
         '/privacy' => [200],
         '/products' => [200],
         '/products/no-such-product-for-smoke-test' => [404],
+        '/products/smoke-product' => [200],
         '/profile' => [303],
         '/register' => [200],
         '/favicon.ico' => [200],
@@ -174,6 +182,9 @@ try {
             continue;
         }
         $routeBody = is_string($routeBody) ? $routeBody : '';
+        if (in_array($route, ['/courses/smoke-course', '/products/smoke-product'], true) && !str_contains($routeBody, '<base href="/">')) {
+            $failures[] = $route . ': nested detail page is missing its root asset base';
+        }
         foreach (['Fatal error:', 'Parse error:', 'Uncaught Error', 'Uncaught TypeError'] as $fatal) {
             if (str_contains($routeBody, $fatal)) {
                 $failures[] = $route . ': response contains ' . $fatal;
