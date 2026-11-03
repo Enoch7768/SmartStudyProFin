@@ -30,9 +30,11 @@ try {
     if (Migrator::run($pdo, $migrationPath) !== ['001_identity', '002_cms_content', '003_student_identity', '004_learning_engine', '005_lesson_resources_quiz_settings', '006_commerce_payments', '007_ai_learning_assistant', '008_notifications_recognition_analytics', '009_production_indexes', '010_legal_acceptance', '011_demo_payments', '012_commerce_delivery_refunds']) throw new RuntimeException('Foundation and CMS migrations did not run.');
     if (Migrator::run($pdo, $migrationPath) !== []) throw new RuntimeException('Migrations are not idempotent.');
     $routeRules = (string) file_get_contents(dirname(__DIR__) . '/.htaccess');
-    foreach (['RewriteRule ^courses/(', 'RewriteRule ^learn/(', 'RewriteRule ^products/(', 'RewriteRule ^cart/add/?$ cart-add.php'] as $route) {
+    foreach (['RewriteRule ^courses/(', 'RewriteRule ^learn/(', 'RewriteRule ^products/(', 'RewriteRule ^cart/add/?$ cart-add.php', 'RewriteRule ^profile/?$ profile.php'] as $route) {
         if (!str_contains($routeRules, $route)) throw new RuntimeException('A required clean URL route is missing: ' . $route);
     }
+    $developmentRouter = (string) file_get_contents(dirname(__DIR__) . '/router.php');
+    if (!str_contains($developmentRouter, "'/profile' => 'profile.php'") || !str_contains($developmentRouter, "http_response_code(404)")) throw new RuntimeException('The PHP development router must resolve /profile and return 404 for unknown routes.');
     $cartAction = (string) file_get_contents(dirname(__DIR__) . '/cart-add.php');
     if (!str_contains($cartAction, "Security::verifyCsrf") || !str_contains($cartAction, "product_type") || !str_contains($cartAction, "status = 'published'")) throw new RuntimeException('The cart endpoint is missing server-side request and catalogue validation.');
     $now = gmdate('Y-m-d H:i:s');
@@ -297,6 +299,17 @@ if (!$oauthReplayRejected) throw new RuntimeException('A Google OAuth callback w
     Config::load($root);
     if (Config::get('google.client_secret') !== 'private-google-secret') throw new RuntimeException('Google OAuth credentials were not loaded from private storage.');
     if ((fileperms($privateEnvironmentFile) & 0777) !== 0600) throw new RuntimeException('The private environment file permissions are unsafe.');
+    putenv('APP_URL=http://localhost:8000');
+    putenv('GOOGLE_CLIENT_ID=test-client.apps.googleusercontent.com');
+    putenv('GOOGLE_CLIENT_SECRET=test-private-client-secret');
+    Config::load($root);
+    if (!GoogleIdentityService::isConfigured()) throw new RuntimeException('Valid localhost Google OAuth settings were not recognized.');
+    putenv('APP_URL=http://example.test');
+    Config::load($root);
+    if (GoogleIdentityService::isConfigured() || !in_array('APP_URL must be the canonical HTTPS site URL (HTTP is allowed only for localhost development).', GoogleIdentityService::configurationIssues(), true)) throw new RuntimeException('An insecure non-local Google OAuth URL was accepted.');
+    putenv('APP_URL');
+    putenv('GOOGLE_CLIENT_ID');
+    putenv('GOOGLE_CLIENT_SECRET');
     unlink($privateEnvironmentFile);
     Config::load($root);
 
