@@ -95,6 +95,7 @@ $routes = [
     '/reset' => 'reset.php',
     '/stream' => 'stream.php',
     '/terms' => 'terms.php',
+    '/theme-preference' => 'theme-preference.php',
     '/verify-certificate' => 'verify-certificate.php',
     '/view' => 'view.php',
 ];
