@@ -173,7 +173,7 @@ async function run() {
 
   await page.goto(base + '/profile', { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: 'Sign out' }).click();
-  await page.waitForURL(/index\\.php|\\/$/);
+  await page.waitForURL(/index\.php|\/$/);
   await page.goto(base + '/login', { waitUntil: 'domcontentloaded' });
   await page.locator('#login-email').fill(email);
   await page.locator('#login-password').fill(password);
