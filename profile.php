@@ -74,8 +74,8 @@ $seoDescription = 'Manage your SmartStudyPro account and student profile.';
 <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
 <link href="assets/css/main.css" rel="stylesheet">
 <style>
-:root{--ssp-navy:#0C086B;--ssp-deep:#070443;--ssp-orange:#FF7A00;--ssp-bg:#F6F7FC;--ssp-card:#fff;--ssp-ink:#1E293B;--ssp-muted:#64748B;--ssp-line:#E2E8F0}
-[data-theme="dark"]{--ssp-navy:#C7D2FE;--ssp-deep:#070443;--ssp-orange:#FF8A1D;--ssp-bg:#0B0F17;--ssp-card:#151C2C;--ssp-ink:#F8FAFC;--ssp-muted:#CBD5E1;--ssp-line:#334155}
+:root{--ssp-navy:#0C086B;--ssp-deep:#070443;--ssp-orange:#FF7A00;--ssp-bg:#F6F7FC;--ssp-card:#fff;--ssp-ink:#1E293B;--ssp-muted:#64748B;--ssp-line:#E2E8F0;--ssp-card-bg:var(--ssp-card);--ssp-card-border:var(--ssp-line);--ssp-bg-soft:var(--ssp-bg);--ssp-header-bg:rgba(255,255,255,.96)}
+[data-theme="dark"]{--ssp-navy:#C7D2FE;--ssp-deep:#070443;--ssp-orange:#FF8A1D;--ssp-bg:#0B0F17;--ssp-card:#151C2C;--ssp-ink:#F8FAFC;--ssp-muted:#CBD5E1;--ssp-line:#334155;--ssp-header-bg:rgba(11,15,23,.98)}
 body{background:var(--ssp-bg);color:var(--ssp-ink);font-family:"Plus Jakarta Sans",sans-serif;transition:background-color .2s ease,color .2s ease}h1,h2,h3,h4{font-family:Outfit,sans-serif}
 .account-card .form-control,.account-card .form-select{background:var(--ssp-card);color:var(--ssp-ink);border-color:var(--ssp-line)}
 .account-card .form-control:focus,.account-card .form-select:focus{background:var(--ssp-card);color:var(--ssp-ink);border-color:var(--ssp-orange);box-shadow:0 0 0 .2rem rgba(255,122,0,.15)}
