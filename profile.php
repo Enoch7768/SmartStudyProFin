@@ -53,6 +53,15 @@ $seoDescription = 'Manage your SmartStudyPro account and student profile.';
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+(function () {
+    try {
+        const savedTheme = localStorage.getItem('ssp-theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) document.documentElement.setAttribute('data-theme', 'dark');
+    } catch (error) {}
+})();
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= Security::escape($seoTitle) ?></title>
