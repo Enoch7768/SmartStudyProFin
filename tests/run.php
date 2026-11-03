@@ -30,11 +30,14 @@ try {
     if (Migrator::run($pdo, $migrationPath) !== ['001_identity', '002_cms_content', '003_student_identity', '004_learning_engine', '005_lesson_resources_quiz_settings', '006_commerce_payments', '007_ai_learning_assistant', '008_notifications_recognition_analytics', '009_production_indexes', '010_legal_acceptance', '011_demo_payments', '012_commerce_delivery_refunds']) throw new RuntimeException('Foundation and CMS migrations did not run.');
     if (Migrator::run($pdo, $migrationPath) !== []) throw new RuntimeException('Migrations are not idempotent.');
     $routeRules = (string) file_get_contents(dirname(__DIR__) . '/.htaccess');
+    if (!str_contains($routeRules, 'RewriteRule ^install/?$ install/index.php')) throw new RuntimeException('Apache must route /install to the first-run installer.');
     foreach (['RewriteRule ^courses/(', 'RewriteRule ^learn/(', 'RewriteRule ^products/(', 'RewriteRule ^cart/add/?$ cart-add.php', 'RewriteRule ^profile/?$ profile.php'] as $route) {
         if (!str_contains($routeRules, $route)) throw new RuntimeException('A required clean URL route is missing: ' . $route);
     }
     $developmentRouter = (string) file_get_contents(dirname(__DIR__) . '/router.php');
-    if (!str_contains($developmentRouter, "'/profile' => 'profile.php'") || !str_contains($developmentRouter, "http_response_code(404)")) throw new RuntimeException('The PHP development router must resolve /profile and return 404 for unknown routes.');
+    if (!str_contains($developmentRouter, "'/install' => 'install/index.php'") || !str_contains($developmentRouter, "'/profile' => 'profile.php'") || !str_contains($developmentRouter, "http_response_code(404)")) throw new RuntimeException('The PHP development router must resolve /profile and return 404 for unknown routes.');
+    $applicationBootstrap = (string) file_get_contents(dirname(__DIR__) . '/bootstrap/app.php');
+    if (!str_contains($applicationBootstrap, 'Installer::isInstalled()') || !str_contains($applicationBootstrap, "Location: ' . $installPath . '/")) throw new RuntimeException('An uninstalled web request must be redirected to first-run setup before opening the database.');
     $cartAction = (string) file_get_contents(dirname(__DIR__) . '/cart-add.php');
     if (!str_contains($cartAction, "Security::verifyCsrf") || !str_contains($cartAction, "product_type") || !str_contains($cartAction, "status = 'published'")) throw new RuntimeException('The cart endpoint is missing server-side request and catalogue validation.');
     $now = gmdate('Y-m-d H:i:s');

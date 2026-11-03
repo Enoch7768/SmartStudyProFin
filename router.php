@@ -19,6 +19,7 @@ $routes = [
     '/checkout' => 'checkout.php',
     '/contact' => 'contact.php',
     '/courses' => 'courses.php',
+    '/install' => 'install/index.php',
     '/login' => 'login.php',
     '/logout' => 'logout.php',
     '/learn' => 'learning.php',

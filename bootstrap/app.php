@@ -19,4 +19,20 @@ $vendorAutoload = rtrim((string) Config::get('storage.path'), DIRECTORY_SEPARATO
 if (is_file($vendorAutoload)) require_once $vendorAutoload;
 Security::sendHeaders();
 Session::start();
+
+if (PHP_SAPI !== 'cli' && !App\Core\Installer::isInstalled()) {
+    $scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/'));
+    $basePath = str_ends_with($scriptName, '/install/index.php')
+        ? dirname(dirname($scriptName))
+        : dirname($scriptName);
+    $basePath = $basePath === '/' || $basePath === '.' ? '' : rtrim($basePath, '/');
+    $installPath = $basePath . '/install';
+    $requestPath = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
+
+    if (!in_array($requestPath, [$installPath, $installPath . '/', $installPath . '/index.php'], true)) {
+        header('Location: ' . $installPath . '/', true, 303);
+        exit;
+    }
+}
+
 return ['root' => $root, 'config' => Config::all()];

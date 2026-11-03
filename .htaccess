@@ -78,6 +78,8 @@ RewriteRule (^|/)\.(?!well-known(?:/|$)) - [F,L,NC]
     Require all denied
 </FilesMatch>
 
+RewriteRule ^install/?$ install/index.php [L,QSA]
+
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
