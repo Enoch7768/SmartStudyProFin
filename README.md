@@ -48,6 +48,22 @@ Never use production customer data in development or CI. Automated tests create 
 
 ## Development and validation
 
+For local development with PHP's built-in server, start it from the repository root with the included router:
+
+```sh
+php -S 127.0.0.1:8000 router.php
+```
+
+The router applies the same clean URLs as Apache, including `/profile`, and returns a real 404 for unknown paths instead of falling through to the homepage. Apache deployments continue to use the repository's `.htaccess` rules.
+
+For local Google OAuth, set `APP_URL=http://localhost:8000` and add this exact authorized redirect URI to the Google OAuth web client:
+
+```
+http://localhost:8000/google-auth.php?action=callback
+```
+
+Google accepts HTTP for localhost development only. Keep the client ID in the project environment and the client secret in the server environment or `$APP_STORAGE_PATH/.env`. Restart the PHP server after changing environment configuration.
+
 Run PHP lint, unit, SQLite integration, assistant, recognition, operations, content-security, performance and security tests, plus JavaScript syntax and behaviour tests. GitHub Actions validates PHP 8.1 and 8.3. Provider credentials and real-money payment flows must be tested separately in provider sandbox environments before production activation.
 
 ## Legal and intellectual property
