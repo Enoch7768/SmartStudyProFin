@@ -15,7 +15,7 @@ The installer displays each server requirement before allowing setup. If the hos
 ## First installation
 
 1. Upload the clean release package and point the document root to the application directory.
-2. Open `/install/` over HTTPS.
+2. Open `/install` over HTTPS.
 3. The installer downloads the current stable Composer PHAR over verified HTTPS into private storage and validates its PHAR signature.
 4. Composer installs the exact versions in `composer.lock`, with development packages, plugins and scripts disabled. The resulting `vendor/` directory, Composer home and cache are placed under `APP_STORAGE_PATH`, not in the public application directory.
 5. The installer prepares the private SQLite database, applies migrations, creates the administrator account, and writes the installation lock.
