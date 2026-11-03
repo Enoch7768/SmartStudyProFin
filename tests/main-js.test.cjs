@@ -87,7 +87,8 @@ function execute(options = {}) {
   const window = {
     scrollY: 0,
     addEventListener(name, callback) {
-      windowListeners[name] = callback;
+      windowListeners[name] = windowListeners[name] || [];
+      windowListeners[name].push(callback);
     },
     matchMedia() {
       return { matches: Boolean(options.reducedMotion) };
@@ -96,18 +97,21 @@ function execute(options = {}) {
   };
   const animationLibrary = options.animationLibrary ? { init(config) { options.animationConfig = config; } } : undefined;
   vm.runInNewContext(source, { document, window, AOS: animationLibrary });
-  return { body, header, button, icon, link, animated, documentListeners, windowListeners, options };
+  function fireWindowEvent(name) {
+    for (const callback of windowListeners[name] || []) callback();
+  }
+  return { body, header, button, icon, link, animated, documentListeners, windowListeners, fireWindowEvent, options };
 }
 
 assert.doesNotThrow(() => execute());
 const noAnimationLibrary = execute();
-noAnimationLibrary.windowListeners.load();
+noAnimationLibrary.fireWindowEvent('load');
 assert.equal(noAnimationLibrary.animated.classList.contains('aos-animate'), true);
 const reducedMotion = execute({ reducedMotion: true, animationLibrary: true });
-reducedMotion.windowListeners.load();
+reducedMotion.fireWindowEvent('load');
 assert.equal(reducedMotion.options.animationConfig.disable, true);
 const animationReady = execute({ animationLibrary: true });
-animationReady.windowListeners.load();
+animationReady.fireWindowEvent('load');
 assert.equal(animationReady.options.animationConfig.once, true);
 const app = execute({ header: true, button: true, link: true });
 assert.equal(app.body.classList.contains('mobile-nav-active'), false);
