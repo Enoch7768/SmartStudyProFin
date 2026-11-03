@@ -169,7 +169,7 @@ $navActive = static function (string $section) use ($navRequestPath): bool {
       <button type="button" class="mobile-nav-toggle d-xl-none border-0 bg-transparent ms-3 ms-sm-4 p-1" aria-label="Open navigation" aria-controls="navmenu" aria-expanded="false"><i class="bi bi-list fs-2" aria-hidden="true"></i></button>
     </nav>
     <div class="d-flex align-items-center gap-2 gap-sm-3">
-      <button type="button" id="theme-toggle" class="header-icon-link fs-5" aria-label="Toggle Dark/Light Mode" title="Toggle Theme" data-theme-endpoint="<?= htmlspecialchars($navRoute('/theme-preference'), ENT_QUOTES, 'UTF-8') ?>" data-csrf="<?= htmlspecialchars(\\App\\Core\\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
+      <button type="button" id="theme-toggle" class="header-icon-link fs-5" aria-label="Toggle Dark/Light Mode" title="Toggle Theme" data-theme-endpoint="<?= htmlspecialchars($navRoute('/theme-preference'), ENT_QUOTES, 'UTF-8') ?>" data-csrf="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
         <i id="theme-toggle-icon" class="bi bi-moon-fill" aria-hidden="true"></i>
       </button>
       <a href="<?= htmlspecialchars($navRoute('/cart'), ENT_QUOTES, 'UTF-8') ?>" class="header-icon-link fs-5 text-decoration-none" title="Shopping Cart" aria-label="Shopping cart"><i class="bi bi-bag"></i></a>
