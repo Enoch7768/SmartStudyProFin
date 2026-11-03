@@ -103,6 +103,7 @@ jobs:
   browser-e2e:
     needs: foundation
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
