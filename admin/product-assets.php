@@ -75,11 +75,26 @@ if (isset($_GET['saved'])) $notice = 'Product assets saved.';
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Product files and images | SmartStudyPro</title>
+<script src="../assets/js/cms-theme.js"></script>
+<style>
+body{background:#f5f7fb;color:#172033;transition:background-color .2s ease,color .2s ease}
+.cms-theme-toggle{position:fixed;top:14px;right:14px;z-index:20}
+html[data-theme="dark"] body{background:#0b1020;color:#edf2fb}
+html[data-theme="dark"] .border,html[data-theme="dark"] .border.rounded-4,html[data-theme="dark"] .border.rounded-4.p-3,html[data-theme="dark"] form.border{border-color:#34425c!important}
+html[data-theme="dark"] .text-muted{color:#aab6ca!important}
+html[data-theme="dark"] .form-select,html[data-theme="dark"] .form-control{background-color:#0f1726;border-color:#34425c;color:#edf2fb}
+html[data-theme="dark"] .form-check-input{background-color:#0f1726;border-color:#64748b}
+html[data-theme="dark"] .btn-outline-secondary{color:#dbeafe;border-color:#64748b}
+html[data-theme="dark"] .btn-outline-secondary:hover{background:#26344c;color:#fff}
+html[data-theme="dark"] .alert-success{background:#123528;border-color:#166534;color:#a7f3c6}
+html[data-theme="dark"] .alert-danger{background:#431f28;border-color:#7f1d1d;color:#fecaca}
+</style>
 <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <link href="../assets/css/main.css" rel="stylesheet">
 <link href="../assets/css/device-responsive.css" rel="stylesheet">
 </head>
 <body>
+<button type="button" id="cms-theme-toggle" class="btn btn-outline-secondary cms-theme-toggle" aria-pressed="false">Dark mode</button>
 <main class="container py-4">
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
 <div><p class="small text-uppercase fw-bold mb-1" style="color:#FF7A00">Commerce management</p><h1 class="h2 mb-0">Product files and images</h1></div>
