@@ -11,7 +11,7 @@ use App\Core\Security;
 
 $pdo = Database::connect();
 $user = Auth::user($pdo);
-if (!$user) Security::redirect('login.php?redirect=cart.php');
+if (!$user) Security::redirect(\App\Core\Url::to('/login?redirect=' . rawurlencode(\App\Core\Url::to('/payment-choice?order=' . (int) ($_POST['order_id'] ?? $_GET['order'] ?? 0)))));
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST' || !Security::verifyCsrf($_POST['_csrf'] ?? null)) {
     http_response_code(400);
     exit('Invalid demo payment request.');
