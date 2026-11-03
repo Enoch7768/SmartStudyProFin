@@ -101,7 +101,7 @@ final class PublicContent
         return [
             '_id' => (int) $row['id'],
             'Title' => $row['title'],
-            'Description' => $row['description_html'],
+            'Description' => HtmlSanitizer::clean((string) $row['description_html']),
             'Price' => (int) $row['price_ugx'],
             'Category' => $row['category'],
             'Image' => $this->image($row['image_media_id']),
