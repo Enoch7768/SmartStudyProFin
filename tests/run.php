@@ -51,6 +51,9 @@ try {
     if (!str_contains($applicationBootstrap, 'Installer::isInstalled()') || !str_contains($applicationBootstrap, 'header(\'Location: \' . $installPath . \'/\', true, 303);')) throw new RuntimeException('An uninstalled web request must be redirected to first-run setup before opening the database.');
     $cartPage = (string) file_get_contents(dirname(__DIR__) . '/cart.php');
     if (!str_contains($cartPage, "Url::to('/checkout')") || str_contains($cartPage, 'action="checkout.php"')) throw new RuntimeException('The cart must open the checkout review before creating an order.');
+    $checkoutPage = (string) file_get_contents(dirname(__DIR__) . '/checkout.php');
+    $ordersPage = (string) file_get_contents(dirname(__DIR__) . '/orders.php');
+    if (!str_contains($checkoutPage, "unset($_SESSION['ssp_cart'])") || !str_contains($ordersPage, "Continue payment") || !str_contains($ordersPage, "Url::to('/payment-choice?order='")) throw new RuntimeException('Checkout must clear a created cart and preserve a retry path for pending orders.');
     $cartAction = (string) file_get_contents(dirname(__DIR__) . '/cart-add.php');
     if (!str_contains($cartAction, "Security::verifyCsrf") || !str_contains($cartAction, "product_type") || !str_contains($cartAction, "status = 'published'")) throw new RuntimeException('The cart endpoint is missing server-side request and catalogue validation.');
     $now = gmdate('Y-m-d H:i:s');
