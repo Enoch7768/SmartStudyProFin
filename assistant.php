@@ -42,14 +42,22 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         echo json_encode(['success' => true] + $result, JSON_THROW_ON_ERROR);
     } catch (Throwable $exception) {
         $message = $exception->getMessage();
-        http_response_code(str_contains($message, 'limit') ? 429 : 422);
+        $status = str_contains($message, 'limit') ? 429 : (str_contains($message, 'not available') ? 404 : (str_contains($message, 'temporarily unavailable') || str_contains($message, 'not configured') ? 503 : 422));
+        http_response_code($status);
         echo json_encode(['error' => $message]);
     }
     exit;
 }
 
 $conversationId = max(0, (int) ($_GET['conversation_id'] ?? 0));
-$history = $conversationId > 0 ? $service->history((int) $user['id'], $conversationId) : [];
+$conversationError = null;
+try {
+    $history = $conversationId > 0 ? $service->history((int) $user['id'], $conversationId) : [];
+} catch (RuntimeException) {
+    $conversationId = 0;
+    $history = [];
+    $conversationError = 'That conversation is not available. Start a new conversation to continue.';
+}
 $conversations = $service->conversations((int) $user['id']);
 $csrf = Security::csrfToken();
 ?>
@@ -68,7 +76,7 @@ $csrf = Security::csrfToken();
 <body>
 <?php include __DIR__ . '/nav.php'; ?>
 <main id="main-content" class="container py-5">
-<section class="welcome mb-4"><div class="small fw-bold text-uppercase mb-2" style="color:#ffb36b;letter-spacing:1px">Your course companion</div><h1 class="h2 mb-2">Learn it. Understand it. Apply it.</h1><p class="mb-0">Ask questions about your enrolled courses. Answers are grounded in published lesson notes and include links to their sources.</p></section>
+<section class="welcome mb-4"><div class="small fw-bold text-uppercase mb-2" style="color:#ffb36b;letter-spacing:1px">Your course companion</div><h1 class="h2 mb-2">Learn it. Understand it. Apply it.</h1><p class="mb-0">Ask questions about your enrolled courses. Answers are grounded in published lesson notes and include links to their sources.</p></section><?php if ($conversationError !== null): ?><div class="alert alert-info" role="status"><?= Security::escape($conversationError) ?></div><?php endif; ?>
 <div class="assistant-shell">
 <aside class="assistant-panel"><a class="btn btn-outline-primary w-100 mb-3" href="assistant.php">+ New conversation</a><div class="small text-uppercase fw-bold mb-2" style="color:var(--muted)">Recent conversations</div><?php foreach ($conversations as $conversation): ?><a class="conversation-link <?= (int)$conversation['id']===$conversationId?'active':'' ?>" href="assistant.php?conversation_id=<?= (int)$conversation['id'] ?>"><?= Security::escape($conversation['title']) ?></a><?php endforeach; ?><?php if (!$conversations): ?><p class="hint">Your saved conversations will appear here.</p><?php endif; ?><hr><p class="hint mb-0">The assistant can only use lessons in courses you are enrolled in. It will tell you when your course material does not contain an answer.</p></aside>
 <section class="chat-panel">
