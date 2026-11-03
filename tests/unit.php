@@ -8,8 +8,8 @@ use App\Core\Router;
 use App\Core\Security;
 use App\Core\Session;
 
-if (!str_contains($rewriteRules, 'RewriteRule ^favicon\\.ico$ index.php [L,QSA]')) throw new RuntimeException('The default browser favicon route must use the index.php front controller.');
-if (!str_contains($rewriteRules, 'RewriteRule ^favicon\\.ico$ index.php [L,QSA]')) throw new RuntimeException('The default browser favicon route must use the index.php front controller.');
+if (!str_contains($rewriteRules, 'RewriteRule ^favicon\.ico$ index.php [L,QSA]')) throw new RuntimeException('The default browser favicon route must use the index.php front controller.');
+if (!str_contains($rewriteRules, 'RewriteRule ^favicon\.ico$ index.php [L,QSA]')) throw new RuntimeException('The default browser favicon route must use the index.php front controller.');
 $token = Security::csrfToken();
 if (!Security::verifyCsrf($token) || Security::verifyCsrf('invalid-token')) throw new RuntimeException('CSRF token validation failed.');
 if (Security::escape('<script>') !== '&lt;script&gt;') throw new RuntimeException('HTML escaping failed.');
