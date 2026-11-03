@@ -263,7 +263,7 @@ $siteUrl = 'https://smartstudypro.com';
                     </div>
 
                     <h5 class="fw-bold mb-2">
-                      <a href="/courses/<?= rawurlencode((string) ($course['slug'] ?? $course['_id'])) ?>" class="text-decoration-none course-title-link"><?= htmlspecialchars($course['Title'] ?? 'Untitled Course') ?></a>
+                      <a href="<?= \App\Core\Url::to('/courses/' . rawurlencode((string) ($course['slug'] ?? $course['_id']))) ?>" class="text-decoration-none course-title-link"><?= htmlspecialchars($course['Title'] ?? 'Untitled Course') ?></a>
                     </h5>
                     
                     <div class="description">
@@ -271,7 +271,7 @@ $siteUrl = 'https://smartstudypro.com';
                     </div>
                     
                     <div class="trainer">
-                        <a href="/courses/<?= rawurlencode((string) ($course['slug'] ?? $course['_id'])) ?>" class="btn-ssp-primary d-block text-center text-decoration-none">
+                        <a href="<?= \App\Core\Url::to('/courses/' . rawurlencode((string) ($course['slug'] ?? $course['_id']))) ?>" class="btn-ssp-primary d-block text-center text-decoration-none">
                             Explore Course
                         </a>
                     </div>
