@@ -74,6 +74,9 @@ final class ContentRepository
             $options = json_decode((string) $data['options_json'], true);
             if (!is_array($options) || !in_array(trim((string) $data['correct_answer']), $options, true)) throw new RuntimeException('The correct answer must match one of the question options exactly.');
         }
+        foreach (['image_media_id'] as $field) {
+            if (array_key_exists($field, $data) && $data[$field] !== null) $this->assertPublicImage((int) $data[$field]);
+        }
         if ($type === 'courses' || $type === 'products') {
             $data['slug'] = $this->uniqueSlug($table, (string) ($data['slug'] ?? $data['title'] ?? ''), $id);
         }
@@ -114,12 +117,15 @@ final class ContentRepository
     public function savePage(string $key, array $input): void
     {
         if (!in_array($key, ['home', 'about'], true)) throw new RuntimeException('Unknown page.');
+        $heroMediaId = ($input['hero_media_id'] ?? '') === '' ? null : filter_var($input['hero_media_id'], FILTER_VALIDATE_INT);
+        if ($heroMediaId === false || ($heroMediaId !== null && $heroMediaId < 1)) throw new RuntimeException('Choose a valid public hero image.');
+        if ($heroMediaId !== null) $this->assertPublicImage($heroMediaId);
         $statement = $this->pdo->prepare('UPDATE cms_pages SET title = :title, subtitle = :subtitle, body_html = :body_html, hero_media_id = :hero_media_id, status = :status, updated_at = :updated_at WHERE page_key = :page_key');
         $statement->execute([
             'title' => trim((string) ($input['title'] ?? '')),
             'subtitle' => trim((string) ($input['subtitle'] ?? '')),
             'body_html' => HtmlSanitizer::clean((string) ($input['body_html'] ?? '')),
-            'hero_media_id' => ($input['hero_media_id'] ?? '') === '' ? null : (int) $input['hero_media_id'],
+            'hero_media_id' => $heroMediaId,
             'status' => ($input['status'] ?? 'published') === 'draft' ? 'draft' : 'published',
             'updated_at' => gmdate('Y-m-d H:i:s'),
             'page_key' => $key
@@ -153,6 +159,13 @@ final class ContentRepository
         $statement = $this->pdo->prepare('INSERT INTO cms_settings (setting_key, setting_value, updated_at) VALUES (:setting_key, :setting_value, :updated_at) ON CONFLICT(setting_key) DO UPDATE SET setting_value = excluded.setting_value, updated_at = excluded.updated_at');
         $updatedAt = gmdate('Y-m-d H:i:s');
         foreach ($values as $key => $value) $statement->execute(['setting_key' => $key, 'setting_value' => $value, 'updated_at' => $updatedAt]);
+    }
+
+    private function assertPublicImage(int $mediaId): void
+    {
+        $statement = $this->pdo->prepare("SELECT 1 FROM media_assets WHERE id = :id AND visibility = 'public' AND mime_type IN ('image/jpeg', 'image/png', 'image/webp', 'image/gif') LIMIT 1");
+        $statement->execute(['id' => $mediaId]);
+        if (!$statement->fetchColumn()) throw new RuntimeException('Choose an uploaded public image.');
     }
 
     private function definition(string $type): array
