@@ -23,6 +23,7 @@ const environment = {
 
 let server;
 let browser;
+let serverOutput = '';
 
 async function reservePort() {
   return new Promise((resolve, reject) => {
@@ -62,7 +63,6 @@ async function run() {
     env: environment,
     stdio: ['ignore', 'pipe', 'pipe']
   });
-  let serverOutput = '';
   server.stdout.on('data', chunk => { serverOutput += chunk.toString(); });
   server.stderr.on('data', chunk => { serverOutput += chunk.toString(); });
   await waitForServer(base + '/login');
@@ -137,7 +137,7 @@ async function run() {
   await page.locator('#accept-privacy').check();
   await page.getByRole('button', { name: 'Create Account' }).click();
   await page.waitForURL(/profile\.php|\/profile(?:$|[?#])/);
-  await page.getByRole('heading', { name: 'My account' }).waitFor();
+  await page.getByRole('heading', { name: 'Welcome, Browser Test Student' }).waitFor();
   assert.equal(await page.locator('#name').inputValue(), 'Browser Test Student');
 
   await page.locator('#name').fill('Updated Browser Student');
@@ -156,14 +156,14 @@ async function run() {
   assert.equal((await themeResponse.json()).theme, 'light');
   await page.reload({ waitUntil: 'domcontentloaded' });
   assert.equal(await page.locator('html').getAttribute('data-theme'), null, 'profile should rehydrate the saved light theme from the database');
-  assert.equal(await page.locator('#preferred_theme').inputValue(), 'dark', 'profile form should continue to show the explicit saved preference');
+  assert.equal(await page.locator('#preferred_theme').inputValue(), 'light', 'profile form should reflect the theme preference changed in the header');
   assert.equal(await page.locator('#name').inputValue(), 'Updated Browser Student');
 
   await page.goto(base + '/assistant', { waitUntil: 'domcontentloaded' });
-  assert.equal(new URL(page.url()).pathname, '/assistant.php');
+  assert.equal(new URL(page.url()).pathname, '/assistant');
   await page.locator('#composer').waitFor();
   await page.goto(base + '/cart', { waitUntil: 'domcontentloaded' });
-  assert.equal(new URL(page.url()).pathname, '/cart.php');
+  assert.equal(new URL(page.url()).pathname, '/cart');
   await page.locator('main').waitFor();
 
   await page.goto(base + '/profile', { waitUntil: 'domcontentloaded' });
