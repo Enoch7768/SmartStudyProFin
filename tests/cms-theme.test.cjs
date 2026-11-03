@@ -70,6 +70,13 @@ assert.equal((cmsPage.match(/src="\.\.\/assets\/js\/cms-theme\.js"/g) || []).len
 assert.ok(cmsPage.includes('html[data-theme="dark"] .panel'));
 assert.ok(cmsPage.includes('z-index:10;width:auto;margin:0;'));
 assert.ok(cmsPage.includes('name="site.favicon_media_id"'));
+assert.ok(cmsPage.includes('href="product-assets.php"'));
+const productAssetPage = fs.readFileSync('admin/product-assets.php', 'utf8');
+assert.ok(productAssetPage.includes('../assets/js/cms-theme.js'));
+assert.ok(productAssetPage.includes('id="cms-theme-toggle"'));
+assert.ok(productAssetPage.includes('html[data-theme="dark"] .form-select'));
+assert.ok(productAssetPage.includes('Private files delivered after purchase'));
+assert.ok(productAssetPage.includes('Public product gallery images'));
 assert.ok(cmsPage.includes('href="../favicon.php"'));
 console.log('PASS CMS sign-in and dashboard expose dark mode and site favicon settings');
 
