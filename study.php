@@ -119,7 +119,7 @@ $seoTitle = ($course['title'] ?? 'Study Portal') . ' | SmartStudyPro';
 <link rel="stylesheet" href="assets/css/portal-theme.css">
 </head>
 <body>
-<header class="topbar"><div class="d-flex align-items-center gap-3"><a href="index.php"><img src="Smart_Study_Logo_Fin-removebg-preview.png" alt="SmartStudyPro" height="42"></a><span class="fw-bold d-none d-md-inline"><?= Security::escape($course['title'] ?? 'Study Portal') ?></span></div><div class="d-flex align-items-center gap-3"><a href="learning.php" class="text-decoration-none fw-semibold">My learning</a><a href="profile.php" class="text-decoration-none fw-semibold">Account</a><button type="button" id="study-theme-toggle" class="btn btn-sm btn-outline-secondary" aria-label="Toggle dark mode" title="Toggle theme"><i class="bi bi-moon-stars"></i></button></div></header>
+<header class="topbar"><div class="d-flex align-items-center gap-3"><a href="index.php"><img src="Smart_Study_Logo_Fin-removebg-preview.png" alt="SmartStudyPro" height="42"></a><span class="fw-bold d-none d-md-inline"><?= Security::escape($course['title'] ?? 'Study Portal') ?></span></div><div class="d-flex align-items-center gap-3"><a href="learning.php" class="text-decoration-none fw-semibold">My learning</a><a href="profile.php" class="text-decoration-none fw-semibold">Account</a><button type="button" id="study-theme-toggle" class="btn btn-sm btn-outline-secondary" aria-label="Toggle dark mode" title="Toggle theme" data-theme-endpoint="<?= htmlspecialchars(Url::to('/theme-preference'), ENT_QUOTES, 'UTF-8') ?>" data-csrf="<?= Security::escape(Security::csrfToken()) ?>"><i class="bi bi-moon-stars"></i></button></div></header>
 <?php if ($error): ?><div class="container py-4"><div class="alert alert-danger rounded-3"><?= Security::escape($error) ?></div></div><?php endif; ?>
 <?php if ($notice): ?><div class="container pt-3"><div class="alert alert-success rounded-3"><?= Security::escape($notice) ?></div></div><?php endif; ?>
 <?php if (!$course): ?><main id="main-content" class="container py-5"><div class="panel text-center"><h1>Course unavailable</h1><p class="muted">The course may have been unpublished or removed.</p><a href="courses.php" class="btn-main text-decoration-none">Browse courses</a></div></main>
@@ -155,7 +155,7 @@ if(player){player.addEventListener('loadedmetadata',()=>{const resume=Number(pla
   const icon=button.querySelector('i');
   const sync=()=>{const dark=root.getAttribute('data-theme')==='dark';button.setAttribute('aria-pressed',String(dark));icon.className=dark?'bi bi-sun':'bi bi-moon-stars'};
   sync();
-  button.addEventListener('click',()=>{const dark=root.getAttribute('data-theme')!=='dark';if(dark)root.setAttribute('data-theme','dark');else root.removeAttribute('data-theme');try{localStorage.setItem('ssp-theme',dark?'dark':'light')}catch(error){}sync()});
+  button.addEventListener('click',()=>{const dark=root.getAttribute('data-theme')!=='dark';if(dark)root.setAttribute('data-theme','dark');else root.removeAttribute('data-theme');try{localStorage.setItem('ssp-theme',dark?'dark':'light')}catch(error){}sync();const endpoint=button.dataset.themeEndpoint,csrf=button.dataset.csrf;if(endpoint&&csrf)fetch(endpoint,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRF-Token':csrf},body:JSON.stringify({theme:dark?'dark':'light'})}).catch(()=>{})});
 })();
 </script>
 </body>
