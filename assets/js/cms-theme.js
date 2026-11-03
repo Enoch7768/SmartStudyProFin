@@ -41,8 +41,8 @@
 
       updateButton(isDark);
 
-      const endpoint = button.dataset.themeEndpoint;
-      const csrf = button.dataset.csrf;
+      const endpoint = button.dataset?.themeEndpoint;
+      const csrf = button.dataset?.csrf;
       if (endpoint && csrf) {
         fetch(endpoint, {
           method: "POST",
