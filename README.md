@@ -34,7 +34,7 @@ Optional integrations require their own credentials: PayPal, DPO and Google Gemi
 2. Set APP_STORAGE_PATH to a writable directory outside the public web root. The installer stores Composer's runtime, downloaded PHP packages, application key, database, logs and private media there.
 3. Set DB_PATH to a SQLite file inside that private storage directory.
 4. Configure APP_URL, APP_ENV=production and APP_DEBUG=false.
-5. Open /install/ over HTTPS. The installer downloads Composer securely, installs the exact composer.lock dependencies into private storage, verifies the autoloader, runs migrations and creates the first administrator. You do not need Composer or SSH installed on the hosting account.
+5. Open /install over HTTPS. The installer downloads Composer securely, installs the exact composer.lock dependencies into private storage, verifies the autoloader, runs migrations and creates the first administrator. You do not need Composer or SSH installed on the hosting account.
 6. Add provider credentials to the hosting environment or private storage; never commit secrets.
 7. Configure and test payment-provider webhooks and email delivery before accepting live transactions. The installer locks itself after successful setup.
 
