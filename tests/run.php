@@ -185,6 +185,12 @@ try {
 
     $content->savePage('home', ['title'=>'Learn with purpose','subtitle'=>'SmartStudyPro','body_html'=>'Home content','status'=>'published']);
     if (($content->page('home')['title'] ?? '') !== 'Learn with purpose') throw new RuntimeException('CMS page editing failed.');
+    $privateHeroRejected = false;
+    try { $content->savePage('home', ['title'=>'Invalid hero','hero_media_id'=>(string) $resourceId,'status'=>'published']); } catch (RuntimeException) { $privateHeroRejected = true; }
+    if (!$privateHeroRejected || ($content->page('home')['title'] ?? '') !== 'Learn with purpose') throw new RuntimeException('CMS accepted a private lesson resource as a public page hero or changed content after invalid input.');
+    $privateCourseImageRejected = false;
+    try { $content->save('courses', null, ['title'=>'Private image course','image_media_id'=>(string) $resourceId,'status'=>'draft']); } catch (RuntimeException) { $privateCourseImageRejected = true; }
+    if (!$privateCourseImageRejected) throw new RuntimeException('CMS accepted a private lesson resource as a public course image.');
     $content->saveSettings(['contact.phone'=>'+256700000000','contact.email'=>'hello@example.test','contact.address'=>'Kampala']);
     if (($content->settings()['contact.phone'] ?? '') !== '+256700000000') throw new RuntimeException('CMS settings editing failed.');
     $publicFavicon = $pdo->prepare("INSERT INTO media_assets (storage_path, original_name, mime_type, file_size, checksum_sha256, alt_text, visibility, uploaded_by, created_at) VALUES ('media/public/favicon.png', 'favicon.png', 'image/png', 128, 'favicon-checksum', 'Site favicon', 'public', :user_id, :created_at)");
