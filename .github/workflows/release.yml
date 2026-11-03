@@ -43,7 +43,7 @@ jobs:
       - name: Build clean deployment package
         run: |
           mkdir -p dist/package
-          git archive "$GITHUB_SHA" | tar --exclude='vendor' --exclude='composer.phar' --exclude='node_modules' --exclude='cms' --exclude='db' --exclude='tests' --exclude='.github' --exclude='transcripts' --exclude='uploads/avatars/*' --exclude='database/bookings.db' --exclude='database/bookings.sqlite' --exclude='Income Statement and distribution.xlsx' --exclude='Readme.txt' -x -C dist/package
+          git archive "$GITHUB_SHA" | tar --exclude='composer.phar' --exclude='cms' --exclude='db' --exclude='tests' --exclude='.github' --exclude='transcripts' --exclude='uploads/avatars/*' --exclude='database/bookings.db' --exclude='database/bookings.sqlite' --exclude='Income Statement and distribution.xlsx' --exclude='Readme.txt' -x -C dist/package
           git archive "$GITHUB_SHA" uploads/avatars/.htaccess | tar -x -C dist/package
           mkdir -p dist/package/uploads/avatars
           touch dist/package/uploads/avatars/.gitkeep
@@ -51,6 +51,12 @@ jobs:
           cd dist/package
           zip -qr "../smartstudypro-${VERSION}.zip" .
           cd ..
+          unzip -Z1 "smartstudypro-${VERSION}.zip" > "smartstudypro-${VERSION}.files.txt"
+          grep -Fx 'composer.json' "smartstudypro-${VERSION}.files.txt"
+          grep -Fx 'composer.lock' "smartstudypro-${VERSION}.files.txt"
+          grep -Fx 'assets/vendor/bootstrap/css/bootstrap.min.css' "smartstudypro-${VERSION}.files.txt"
+          grep -Fx 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' "smartstudypro-${VERSION}.files.txt"
+          ! grep -Eq '(^|/)vendor/autoload.php$|(^|/)node_modules/' "smartstudypro-${VERSION}.files.txt"
           sha256sum "smartstudypro-${VERSION}.zip" > "smartstudypro-${VERSION}.zip.sha256"
       - uses: softprops/action-gh-release@v2
         with:
