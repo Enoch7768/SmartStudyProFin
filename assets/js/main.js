@@ -80,10 +80,20 @@
 
   const reducedMotion = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  if (!reducedMotion && typeof AOS !== 'undefined' && AOS && typeof AOS.init === 'function') {
-    window.addEventListener('load', function() {
-      AOS.init({ duration: 600, easing: 'ease-in-out', once: true, mirror: false });
+  function initializeAnimations() {
+    if (typeof AOS !== 'undefined' && AOS && typeof AOS.init === 'function') {
+      AOS.init({ duration: 600, easing: 'ease-in-out', once: true, mirror: false, disable: reducedMotion });
+      return;
+    }
+    document.querySelectorAll('[data-aos]').forEach(function(element) {
+      element.classList.add('aos-animate');
     });
+  }
+
+  if (document.readyState === 'complete') {
+    initializeAnimations();
+  } else {
+    window.addEventListener('load', initializeAnimations, { once: true });
   }
 
   if (!reducedMotion && typeof GLightbox === 'function') GLightbox({ selector: '.glightbox' });
