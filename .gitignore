@@ -5,8 +5,8 @@
 **/vendor/
 **/node_modules/
 **/composer.phar
-!/assets/vendor/
-!/assets/vendor/**
+!**/assets/vendor/
+!**/assets/vendor/**
 /dist/
 /storage/*.sqlite
 /storage/*.sqlite-*

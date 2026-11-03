@@ -21,11 +21,8 @@ foreach ($iterator as $entry) {
     if (in_array('node_modules', $segments, true)) {
         throw new RuntimeException('Installed Node dependencies must not be committed: ' . $relative);
     }
-    if (str_contains('/' . $relative, '/vendor/autoload.php') || str_contains('/' . $relative, '/vendor/composer/installed.php')) {
+    if (in_array('vendor', $segments, true) && !str_starts_with($relative, 'assets/vendor/')) {
         throw new RuntimeException('Installed Composer dependencies must not be committed: ' . $relative);
-    }
-    if ($relative === 'cms/lib/vendor') {
-        throw new RuntimeException('The legacy Composer dependency tree must not be committed.');
     }
     if (strtolower(basename($relative)) === 'composer.phar') {
         throw new RuntimeException('The Composer executable must be downloaded by the installer, not committed.');
@@ -33,7 +30,7 @@ foreach ($iterator as $entry) {
 }
 
 $ignore = (string) file_get_contents($root . '/.gitignore');
-foreach (['**/vendor/', '**/node_modules/', '**/composer.phar', '!**/assets/vendor/', '!**/assets/vendor/**'] as $rule) {
+foreach (['**/vendor/', '**/node_modules/', '**/composer.phar', '!/assets/vendor/', '!/assets/vendor/**'] as $rule) {
     if (!str_contains($ignore, $rule)) {
         throw new RuntimeException('The dependency ignore policy is missing: ' . $rule);
     }
