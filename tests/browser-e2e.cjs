@@ -70,6 +70,8 @@ async function run() {
   browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   const page = await context.newPage();
+  page.setDefaultTimeout(12000);
+  page.setDefaultNavigationTimeout(12000);
   const pageErrors = [];
   const localRequestFailures = [];
   const artifactDirectory = process.env.BROWSER_ARTIFACT_DIR ? path.resolve(process.env.BROWSER_ARTIFACT_DIR) : path.join(temporary, 'artifacts');
@@ -79,6 +81,7 @@ async function run() {
     if (request.url().startsWith(base)) localRequestFailures.push(request.url() + ': ' + request.failure()?.errorText);
   });
 
+  console.log('BROWSER CHECK: public page rendering');
   const publicRoutes = ['/', '/about', '/courses', '/products', '/contact', '/login', '/register', '/privacy', '/terms', '/cookies', '/accessibility', '/refunds', '/eula'];
   for (const route of publicRoutes) {
     const response = await page.goto(base + route, { waitUntil: 'domcontentloaded' });
@@ -90,6 +93,7 @@ async function run() {
     }
   }
 
+  console.log('BROWSER CHECK: responsive navigation and theme controls');
   await page.goto(base + '/', { waitUntil: 'domcontentloaded' });
   await page.screenshot({ path: path.join(artifactDirectory, 'home-desktop.png'), fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
@@ -116,6 +120,7 @@ async function run() {
   await themeToggle.click();
   assert.equal(await page.locator('html').getAttribute('data-theme'), null);
 
+  console.log('BROWSER CHECK: responsive viewport overflow');
   const responsiveRoutes = ['/', '/courses', '/products', '/login', '/register'];
   const viewports = [{ width: 320, height: 740 }, { width: 390, height: 844 }, { width: 768, height: 1024 }, { width: 1440, height: 1000 }];
   for (const viewport of viewports) {
@@ -131,6 +136,7 @@ async function run() {
   }
 
   await page.setViewportSize({ width: 1440, height: 1000 });
+  console.log('BROWSER CHECK: registration and profile persistence');
   const email = 'student-' + Date.now() + '@example.test';
   const password = 'Student-E2E-Password-2026!';
   await page.goto(base + '/register', { waitUntil: 'domcontentloaded' });
@@ -165,6 +171,7 @@ async function run() {
   assert.equal(await page.locator('#preferred_theme').inputValue(), 'light', 'profile form should reflect the theme preference changed in the header');
   assert.equal(await page.locator('#name').inputValue(), 'Updated Browser Student');
 
+  console.log('BROWSER CHECK: authenticated learning and shopping pages');
   await page.goto(base + '/assistant', { waitUntil: 'domcontentloaded' });
   assert.equal(new URL(page.url()).pathname, '/assistant');
   await page.locator('#composer').waitFor();
@@ -172,6 +179,7 @@ async function run() {
   assert.equal(new URL(page.url()).pathname, '/cart');
   await page.locator('main').waitFor();
 
+  console.log('BROWSER CHECK: logout and login round trip');
   await page.goto(base + '/profile', { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: 'Sign out' }).click();
   await page.waitForURL(/index\.php|\/$/);
