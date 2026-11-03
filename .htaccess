@@ -78,6 +78,9 @@ RewriteRule (^|/)\.(?!well-known(?:/|$)) - [F,L,NC]
     Require all denied
 </FilesMatch>
 
+RewriteRule ^(?:learning|study)/?$ /learn [R=301,L]
+RewriteRule ^course-details/?$ /courses [R=301,L]
+RewriteRule ^product-details/?$ /products [R=301,L]
 RewriteRule ^(?:admin|install)/?$ index.php [QSA,L]
 
 RewriteCond %{REQUEST_FILENAME} -f [OR]

@@ -145,6 +145,10 @@ try {
         '/courses/no-such-course-for-smoke-test' => [404],
         '/install' => [404],
         '/learn' => [303],
+        '/learning' => [301],
+        '/study' => [301],
+        '/course-details' => [301],
+        '/product-details' => [301],
         '/login' => [200],
         '/notifications' => [303],
         '/privacy' => [200],
@@ -154,6 +158,9 @@ try {
         '/register' => [200],
         '/favicon.ico' => [200],
         '/unknown-smoke-route' => [404],
+        '/.env' => [404],
+        '/app/Core/Config.php' => [404],
+        '/nav.php' => [404],
     ];
     foreach ($cleanRoutes as $route => $expectedStatuses) {
         $routeBody = @file_get_contents($baseUrl . ltrim($route, '/'), false, stream_context_create([

@@ -34,6 +34,21 @@ if (PHP_SAPI === 'cli-server' && $path !== '/' && $path !== '/index.php' && $pat
     }
 }
 
+$aliases = [
+    '/learning' => '/learn',
+    '/study' => '/learn',
+    '/course-details' => '/courses',
+    '/product-details' => '/products',
+];
+
+if (isset($aliases[$path]) && in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET', 'HEAD'], true)) {
+    $destination = $basePath . $aliases[$path];
+    $query = (string) ($_SERVER['QUERY_STRING'] ?? '');
+    if ($query !== '') $destination .= '?' . $query;
+    header('Location: ' . $destination, true, 301);
+    exit;
+}
+
 $routes = [
     '/about' => 'about.php',
     '/accessibility' => 'accessibility.php',
