@@ -56,9 +56,12 @@ $seoDescription = 'Manage your SmartStudyPro account and student profile.';
 <script>
 (function () {
     try {
-        const savedTheme = localStorage.getItem('ssp-theme');
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) document.documentElement.setAttribute('data-theme', 'dark');
+        const preferredTheme = <?= json_encode((string) ($profile['preferred_theme'] ?? 'system'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+        if (preferredTheme === 'dark' || preferredTheme === 'light') localStorage.setItem('ssp-theme', preferredTheme);
+        else localStorage.removeItem('ssp-theme');
+        const useDarkTheme = preferredTheme === 'dark' || (preferredTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (useDarkTheme) document.documentElement.setAttribute('data-theme', 'dark');
+        else document.documentElement.removeAttribute('data-theme');
     } catch (error) {}
 })();
 </script>
