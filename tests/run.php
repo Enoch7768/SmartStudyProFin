@@ -192,7 +192,18 @@ try {
     if ((int) $unpaidOrder['total_ugx'] !== 10000 || $unpaidOrder['status'] !== 'pending') throw new RuntimeException('Order ownership or pending status was not enforced.');
 
     $public = new PublicContent($pdo);
-    if (count($public->courses()) !== 2 || ($public->course((string) $courseId)['Title'] ?? '') !== 'Foundations of Science' || ($public->course('foundations-of-science')['Title'] ?? '') !== 'Foundations of Science') throw new RuntimeException('Published course public read mapping failed.');
+    $draftCourseId = $content->save('courses', null, ['title'=>'Draft Learning Programme','description_html'=>'Not public yet','price_ugx'=>0,'category'=>'Testing','status'=>'draft']);
+    if ($public->course($draftCourseId) !== null || $learning->course($draftCourseId) !== null || count($public->courses()) !== 2) throw new RuntimeException('Draft course content leaked into public catalogue or student learning.');
+    $content->save('courses', $draftCourseId, ['status'=>'published']);
+    if (($public->course($draftCourseId)['Title'] ?? '') !== 'Draft Learning Programme' || count($public->courses()) !== 3) throw new RuntimeException('Publishing a course did not make it available in the public catalogue.');
+    $content->save('courses', $draftCourseId, ['status'=>'draft']);
+    $draftLessonId = $content->save('lessons', null, ['chapter_id'=>$chapterId,'title'=>'Unpublished lesson','content_html'=>'Hidden lesson','status'=>'draft']);
+    if ($learning->lesson($userId, $courseId, $draftLessonId) !== null || count($learning->outline($userId, $courseId)[0]['lessons']) !== 1) throw new RuntimeException('Draft lesson content leaked into the enrolled student portal.');
+    $content->save('lessons', $draftLessonId, ['status'=>'published']);
+    if (($learning->lesson($userId, $courseId, $draftLessonId)['title'] ?? '') !== 'Unpublished lesson' || count($learning->outline($userId, $courseId)[0]['lessons']) !== 2) throw new RuntimeException('Publishing a lesson did not update the enrolled course outline.');
+    $content->save('lessons', $draftLessonId, ['status'=>'draft']);
+    if ($learning->lesson($userId, $courseId, $draftLessonId) !== null) throw new RuntimeException('Unpublishing a lesson did not revoke student-facing lesson access.');
+    if (($public->course((string) $courseId)['Title'] ?? '') !== 'Foundations of Science' || ($public->course('foundations-of-science')['Title'] ?? '') !== 'Foundations of Science') throw new RuntimeException('Published course public read mapping failed.');
     if (($public->product((string) $productId)['ProductType'] ?? '') !== 'Physical' || count($public->products()) !== 2) throw new RuntimeException('Published product public read mapping failed.');
     $pdo->prepare('UPDATE cms_products SET description_html = :description WHERE id = :id')->execute(['description' => '<p>Safe product details</p><script>window.productInjected = true;</script><img src=x onerror=alert(1)>', 'id' => $productId]);
     $publicProduct = $public->product((string) $productId);
