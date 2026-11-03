@@ -32,7 +32,7 @@ try {
     $routeRules = (string) file_get_contents(dirname(__DIR__) . '/.htaccess');
     if (!str_contains($routeRules, 'RewriteRule ^(?:admin|install)/?$ index.php [QSA,L]') || !str_contains($routeRules, 'RewriteRule ^ index.php [QSA,L]')) throw new RuntimeException('Apache must send installer and clean URLs through the index.php front controller.');
     $frontController = (string) file_get_contents(dirname(__DIR__) . '/index.php');
-    foreach (["'/install' => 'install/index.php'", "'/profile' => 'profile.php'", "'/cart/add' => 'cart-add.php'", "'/assistant' => 'assistant.php'", "'/learn' => 'learning.php'", "course_slug"] as $route) {
+    foreach (["if ($path === '/install')", "'/profile' => 'profile.php'", "'/cart/add' => 'cart-add.php'", "'/assistant' => 'assistant.php'", "'/learn' => 'learning.php'", "course_slug"] as $route) {
         if (!str_contains($frontController, $route)) throw new RuntimeException('The index.php front controller is missing route support: ' . $route);
     }
     if (is_file(dirname(__DIR__) . '/router.php') || str_contains((string) file_get_contents(dirname(__DIR__) . '/README.md'), 'php -S 127.0.0.1:8000 router.php')) throw new RuntimeException('A separate router.php must not be required by the application.');
