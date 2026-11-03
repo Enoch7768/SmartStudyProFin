@@ -33,6 +33,8 @@ try {
     $previousScriptName = $_SERVER['SCRIPT_NAME'] ?? null;
     $_SERVER['SCRIPT_NAME'] = '/SmartStudyProFin/study.php';
     if (App\Core\Url::to('/courses/example-course') !== '/SmartStudyProFin/courses/example-course' || App\Core\Url::to('/assets/css/device-responsive.css') !== '/SmartStudyProFin/assets/css/device-responsive.css') throw new RuntimeException('Internal URLs do not preserve the installed subdirectory.');
+    $_SERVER['SCRIPT_NAME'] = '\\SmartStudyProFin\\study.php';
+    if (App\\Core\\Url::to('/courses') !== '/SmartStudyProFin/courses') throw new RuntimeException('Windows-style script paths are not normalized.');
     $_SERVER['SCRIPT_NAME'] = '/index.php';
     if (App\Core\Url::to('/courses') !== '/courses') throw new RuntimeException('Root installation URLs are not canonical.');
     if ($previousScriptName === null) unset($_SERVER['SCRIPT_NAME']); else $_SERVER['SCRIPT_NAME'] = $previousScriptName;
@@ -43,6 +45,8 @@ try {
         if (!str_contains($frontController, $route)) throw new RuntimeException('The index.php front controller is missing route support: ' . $route);
     }
     if (is_file(dirname(__DIR__) . '/router.php') || str_contains((string) file_get_contents(dirname(__DIR__) . '/README.md'), 'php -S 127.0.0.1:8000 router.php')) throw new RuntimeException('A separate router.php must not be required by the application.');
+    $studyPage = (string) file_get_contents(dirname(__DIR__) . '/study.php');
+    if (!str_contains($studyPage, 'Url::to(\'/\')') || !str_contains($studyPage, 'Url::to(\'/learn/\'')) throw new RuntimeException('Nested learning pages are missing their base-path-aware assets and lesson routes.');
     $applicationBootstrap = (string) file_get_contents(dirname(__DIR__) . '/bootstrap/app.php');
     if (!str_contains($applicationBootstrap, 'Installer::isInstalled()') || !str_contains($applicationBootstrap, 'header(\'Location: \' . $installPath . \'/\', true, 303);')) throw new RuntimeException('An uninstalled web request must be redirected to first-run setup before opening the database.');
     $cartAction = (string) file_get_contents(dirname(__DIR__) . '/cart-add.php');
