@@ -52,7 +52,7 @@ $refunds = $service->all();
 </head>
 <body>
 <main class="container-fluid py-4">
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4"><div><p class="small text-uppercase fw-bold mb-1" style="color:#FF7A00">Administration</p><h1 class="h2 mb-0">Refund requests</h1></div><div class="d-flex gap-2"><a href="orders.php" class="btn btn-outline-secondary">Back to orders</a><button type="button" class="btn btn-outline-secondary" data-admin-theme-toggle aria-label="Toggle dark mode">Dark mode</button></div></div>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4"><div><p class="small text-uppercase fw-bold mb-1" style="color:#FF7A00">Administration</p><h1 class="h2 mb-0">Refund requests</h1></div><div class="d-flex gap-2"><a href="orders.php" class="btn btn-outline-secondary">Back to orders</a><button type="button" class="btn btn-outline-secondary" data-admin-theme-toggle aria-label="Toggle dark mode" data-theme-endpoint="../theme-preference.php" data-csrf="<?= Security::escape(Security::csrfToken()) ?>">Dark mode</button></div></div>
 <?php if ($error !== ''): ?><div class="alert alert-danger"><?= Security::escape($error) ?></div><?php endif; ?>
 <?php if (isset($_GET['saved'])): ?><div class="alert alert-success">Refund record updated.</div><?php endif; ?>
 <section class="border rounded-4 p-3 p-md-4 mb-4">
@@ -89,7 +89,7 @@ $refunds = $service->all();
   if(!button)return;
   const sync=()=>{const dark=root.getAttribute('data-theme')==='dark';button.textContent=dark?'Light mode':'Dark mode';button.setAttribute('aria-pressed',String(dark))};
   sync();
-  button.addEventListener('click',()=>{const dark=root.getAttribute('data-theme')!=='dark';if(dark)root.setAttribute('data-theme','dark');else root.removeAttribute('data-theme');try{localStorage.setItem('ssp-theme',dark?'dark':'light')}catch(error){}sync()});
+  button.addEventListener('click',()=>{const dark=root.getAttribute('data-theme')!=='dark';if(dark)root.setAttribute('data-theme','dark');else root.removeAttribute('data-theme');try{localStorage.setItem('ssp-theme',dark?'dark':'light')}catch(error){}sync();const endpoint=button.dataset.themeEndpoint,csrf=button.dataset.csrf;if(endpoint&&csrf)fetch(endpoint,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRF-Token':csrf},body:JSON.stringify({theme:dark?'dark':'light'})}).catch(()=>{})});
 })();
 </script>
 </body>
