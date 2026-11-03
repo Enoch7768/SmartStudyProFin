@@ -116,9 +116,10 @@ $seoTitle = ($course['title'] ?? 'Study Portal') . ' | SmartStudyPro';
 :root{--navy:#0C086B;--deep:#070443;--orange:#FF7A00;--bg:#F5F6FB;--card:#fff;--ink:#1E293B;--muted:#64748B;--line:#E2E8F0}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px "Plus Jakarta Sans",sans-serif}h1,h2,h3,h4{font-family:Outfit,sans-serif}.topbar{height:70px;background:var(--card);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:5}.layout{display:grid;grid-template-columns:340px minmax(0,1fr);min-height:calc(100vh - 70px)}.sidebar{background:var(--card);border-right:1px solid var(--line);padding:22px 0;overflow:auto;max-height:calc(100vh - 70px);position:sticky;top:70px}.chapter{padding:13px 22px;background:#f0f1fa;color:var(--navy);font:700 14px Outfit,sans-serif}.lesson-link{display:flex;align-items:center;gap:10px;padding:13px 22px;text-decoration:none;color:var(--ink);border-left:4px solid transparent;border-bottom:1px solid #f0f1f5}.lesson-link.active{background:#fff5eb;color:#b95500;border-left-color:var(--orange);font-weight:700}.content{padding:32px;min-width:0}.panel{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:24px;box-shadow:0 8px 25px rgba(7,4,67,.04)}.video{width:100%;max-height:70vh;background:#080808;border-radius:14px}.btn-main{background:var(--orange);border:0;border-radius:10px;padding:11px 18px;color:#fff;font-weight:700}.btn-outline{border:1px solid var(--line);border-radius:10px;padding:10px 15px;color:var(--navy);background:#fff;font-weight:700}.muted{color:var(--muted)}.progress{height:8px;background:#e9eaf2}.progress-bar{background:var(--orange)}.question{border:1px solid var(--line);border-radius:13px;padding:18px;margin:14px 0}.resource{display:inline-flex;gap:9px;align-items:center;padding:12px 15px;background:#fff5eb;border-radius:10px;color:#9a4700;text-decoration:none;font-weight:700}.timer{font-weight:800;color:#b54708}.review-item{border-bottom:1px solid var(--line);padding:12px 0}.review-item:last-child{border:0}@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{position:static;max-height:350px;border-bottom:1px solid var(--line)}.content{padding:18px}.topbar{padding:0 14px}}
 </style>
 <link rel="stylesheet" href="assets/css/device-responsive.css">
+<link rel="stylesheet" href="assets/css/portal-theme.css">
 </head>
 <body>
-<header class="topbar"><div class="d-flex align-items-center gap-3"><a href="index.php"><img src="Smart_Study_Logo_Fin-removebg-preview.png" alt="SmartStudyPro" height="42"></a><span class="fw-bold d-none d-md-inline"><?= Security::escape($course['title'] ?? 'Study Portal') ?></span></div><div class="d-flex align-items-center gap-3"><a href="learning.php" class="text-decoration-none fw-semibold">My learning</a><a href="profile.php" class="text-decoration-none fw-semibold">Account</a></div></header>
+<header class="topbar"><div class="d-flex align-items-center gap-3"><a href="index.php"><img src="Smart_Study_Logo_Fin-removebg-preview.png" alt="SmartStudyPro" height="42"></a><span class="fw-bold d-none d-md-inline"><?= Security::escape($course['title'] ?? 'Study Portal') ?></span></div><div class="d-flex align-items-center gap-3"><a href="learning.php" class="text-decoration-none fw-semibold">My learning</a><a href="profile.php" class="text-decoration-none fw-semibold">Account</a><button type="button" id="study-theme-toggle" class="btn btn-sm btn-outline-secondary" aria-label="Toggle dark mode" title="Toggle theme"><i class="bi bi-moon-stars"></i></button></div></header>
 <?php if ($error): ?><div class="container py-4"><div class="alert alert-danger rounded-3"><?= Security::escape($error) ?></div></div><?php endif; ?>
 <?php if ($notice): ?><div class="container pt-3"><div class="alert alert-success rounded-3"><?= Security::escape($notice) ?></div></div><?php endif; ?>
 <?php if (!$course): ?><main id="main-content" class="container py-5"><div class="panel text-center"><h1>Course unavailable</h1><p class="muted">The course may have been unpublished or removed.</p><a href="courses.php" class="btn-main text-decoration-none">Browse courses</a></div></main>
@@ -141,6 +142,21 @@ const timer=document.getElementById('quizTimer');
 if(timer){const start=Number(timer.dataset.start),limit=Number(timer.dataset.limit)*60,form=document.getElementById('quizForm');const tick=()=>{const left=Math.max(0,limit-Math.floor(Date.now()/1000-start));timer.textContent='Time remaining: '+String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');if(left===0&&form){form.querySelectorAll('input,button').forEach(el=>el.disabled=true);timer.textContent='Time expired · reload to retry';}};tick();window.setInterval(tick,1000);}
 const player=document.querySelector('video.video');
 if(player){player.addEventListener('loadedmetadata',()=>{const resume=Number(player.dataset.resume||0);if(resume>0&&resume<player.duration)player.currentTime=resume;},{once:true});let last=-1;player.addEventListener('timeupdate',()=>{const second=Math.floor(player.currentTime);if(second>0&&second%10===0&&second!==last){last=second;const data=new FormData();data.append('_csrf','<?= Security::escape(Security::csrfToken()) ?>');data.append('action','position');data.append('course_id','<?= $courseId ?>');data.append('lesson_id','<?= $lessonId ?>');data.append('position',String(second));fetch(location.href,{method:'POST',body:data,credentials:'same-origin'}).catch(()=>{});}});}
+</script>
+<script>
+(function(){
+  const root=document.documentElement;
+  const button=document.getElementById('study-theme-toggle');
+  let saved=null;
+  try{saved=localStorage.getItem('ssp-theme')}catch(error){}
+  if(saved==='dark')root.setAttribute('data-theme','dark');
+  else if(saved==='light')root.removeAttribute('data-theme');
+  if(!button)return;
+  const icon=button.querySelector('i');
+  const sync=()=>{const dark=root.getAttribute('data-theme')==='dark';button.setAttribute('aria-pressed',String(dark));icon.className=dark?'bi bi-sun':'bi bi-moon-stars'};
+  sync();
+  button.addEventListener('click',()=>{const dark=root.getAttribute('data-theme')!=='dark';if(dark)root.setAttribute('data-theme','dark');else root.removeAttribute('data-theme');try{localStorage.setItem('ssp-theme',dark?'dark':'light')}catch(error){}sync()});
+})();
 </script>
 </body>
 </html>
