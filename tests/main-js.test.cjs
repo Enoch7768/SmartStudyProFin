@@ -63,8 +63,11 @@ function execute(options = {}) {
   const button = options.button ? new FakeElement() : null;
   if (button) button.children.i = icon;
   const link = new FakeElement();
+  const animated = new FakeElement();
   const documentListeners = {};
+  const windowListeners = {};
   const document = {
+    readyState: 'loading',
     body,
     querySelector(selector) {
       if (selector === 'body') return body;
@@ -73,7 +76,9 @@ function execute(options = {}) {
       return null;
     },
     querySelectorAll(selector) {
-      return selector === '#navmenu a' && options.link ? [link] : [];
+      if (selector === '#navmenu a' && options.link) return [link];
+      if (selector === '[data-aos]') return [animated];
+      return [];
     },
     addEventListener(name, callback) {
       documentListeners[name] = callback;
@@ -81,14 +86,29 @@ function execute(options = {}) {
   };
   const window = {
     scrollY: 0,
-    addEventListener() {},
+    addEventListener(name, callback) {
+      windowListeners[name] = callback;
+    },
+    matchMedia() {
+      return { matches: Boolean(options.reducedMotion) };
+    },
     scrollTo() {}
   };
-  vm.runInNewContext(source, { document, window });
-  return { body, header, button, icon, link, documentListeners };
+  const animationLibrary = options.animationLibrary ? { init(config) { options.animationConfig = config; } } : undefined;
+  vm.runInNewContext(source, { document, window, AOS: animationLibrary });
+  return { body, header, button, icon, link, animated, documentListeners, windowListeners, options };
 }
 
 assert.doesNotThrow(() => execute());
+const noAnimationLibrary = execute();
+noAnimationLibrary.windowListeners.load();
+assert.equal(noAnimationLibrary.animated.classList.contains('aos-animate'), true);
+const reducedMotion = execute({ reducedMotion: true, animationLibrary: true });
+reducedMotion.windowListeners.load();
+assert.equal(reducedMotion.options.animationConfig.disable, true);
+const animationReady = execute({ animationLibrary: true });
+animationReady.windowListeners.load();
+assert.equal(animationReady.options.animationConfig.once, true);
 const app = execute({ header: true, button: true, link: true });
 assert.equal(app.body.classList.contains('mobile-nav-active'), false);
 app.button.listeners.click();
@@ -104,6 +124,7 @@ app.button.listeners.click();
 app.link.listeners.click();
 assert.equal(app.body.classList.contains('mobile-nav-active'), false);
 console.log('PASS optional frontend dependencies and missing elements');
+console.log('PASS animated content remains visible without AOS and with reduced motion');
 console.log('PASS keyboard-operable mobile navigation and accessible state');
 console.log('PASS escape and link navigation close the mobile menu');
 
