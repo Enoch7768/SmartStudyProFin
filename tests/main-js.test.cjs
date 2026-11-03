@@ -122,6 +122,7 @@ assert.ok(homepage.includes("include __DIR__ . '/nav.php';"));
 assert.doesNotMatch(homepage, /id="header"/);
 assert.ok(sharedNavigation.includes("$navRoute('/courses')"));
 assert.ok(sharedNavigation.includes("$navActive('courses')"));
+assert.ok(sharedNavigation.includes("str_replace('\\\\', '/'") , 'navigation should normalize Windows path separators');
 assert.doesNotMatch(sharedNavigation, /href="(?:index|about|courses|learning|assistant|products|contact|notifications|profile|cart)\\.php"/);
 assert.match(sharedNavigation, /aria-controls="navmenu"/);
 assert.match(sharedNavigation, /aria-expanded="false"/);
