@@ -16,8 +16,9 @@ const environment = {
   APP_STORAGE_PATH: storage,
   DB_PATH: path.join(storage, 'smartstudypro.sqlite'),
   APP_KEY: key,
-  APP_ENV: 'testing',
+  APP_ENV: 'local',
   APP_DEBUG: 'false',
+  DEMO_PAYMENTS_ALLOWED: 'true',
   APP_URL: 'http://127.0.0.1'
 };
 
@@ -56,7 +57,10 @@ async function run() {
     '$content = new App\\Cms\\ContentRepository($pdo);',
     '$courseId = $content->save("courses", null, ["title" => "Browser Test Course", "description_html" => "A course used by browser tests.", "content_html" => "Course content.", "price_ugx" => "0", "category" => "Testing", "status" => "published", "sort_order" => "1"]);',
     '$chapterId = $content->save("chapters", null, ["course_id" => $courseId, "title" => "Getting Started", "sort_order" => "1"]);',
-    '$content->save("lessons", null, ["chapter_id" => $chapterId, "title" => "First lesson", "content_html" => "This lesson confirms course enrolment and progress persistence.", "video_url" => "", "sort_order" => "1", "status" => "published"]);'
+    '$content->save("lessons", null, ["chapter_id" => $chapterId, "title" => "First lesson", "content_html" => "This lesson confirms course enrolment and progress persistence.", "video_url" => "", "sort_order" => "1", "status" => "published"]);',
+    '$content->save("courses", null, ["title" => "Paid Browser Course", "description_html" => "A paid course used by checkout browser tests.", "content_html" => "Paid course content.", "price_ugx" => "5000", "category" => "Testing", "status" => "published", "sort_order" => "2"]);',
+    '$adminId = (int) $pdo->query("SELECT user_id FROM user_roles LIMIT 1")->fetchColumn();',
+    '(new App\\\\Commerce\\\\DemoPaymentService($pdo))->setEnabled(true, $adminId);'
   ].join(' ');
   const setup = spawnSync('php', ['-r', bootstrap], { cwd: root, env: environment, encoding: 'utf8' });
   if (setup.status !== 0) throw new Error('Browser test database setup failed: ' + setup.stderr + setup.stdout);
@@ -188,6 +192,21 @@ async function run() {
   await page.goto(base + '/learn', { waitUntil: 'domcontentloaded' });
   await page.getByText('Browser Test Course').first().waitFor();
 
+  console.log('BROWSER CHECK: paid course checkout and simulated payment');
+  await page.goto(base + '/courses', { waitUntil: 'domcontentloaded' });
+  await page.getByRole('link', { name: 'Paid Browser Course' }).first().click();
+  await page.getByRole('button', { name: 'Add course to cart' }).click();
+  await page.getByRole('heading', { name: 'Your selected items' }).waitFor();
+  await page.getByText('Paid Browser Course').waitFor();
+  await page.getByRole('link', { name: 'Proceed to checkout' }).click();
+  await page.getByRole('heading', { name: 'Review your order' }).waitFor();
+  await page.getByRole('button', { name: 'Create order and choose payment' }).click();
+  await page.waitForURL(/payment-choice\\.php/);
+  await page.getByRole('button', { name: 'Simulate successful payment' }).click();
+  await page.waitForURL(/orders\\.php/);
+  await page.getByText('Demo payment: Success').waitFor();
+  await page.getByText('Paid Browser Course').waitFor();
+
   console.log('BROWSER CHECK: authenticated learning and shopping pages');
   await page.goto(base + '/assistant', { waitUntil: 'domcontentloaded' });
   assert.equal(new URL(page.url()).pathname, '/assistant');
@@ -220,7 +239,7 @@ async function run() {
   console.log('PASS mobile navigation, Escape handling and route transitions');
   console.log('PASS theme switching, local persistence and authenticated database synchronization');
   console.log('PASS responsive overflow checks at 320, 390, 768 and 1440 pixels');
-  console.log('PASS student registration, profile update, course enrolment, lesson completion, protected pages, logout and login');
+  console.log('PASS student registration, profile update, free and paid course enrolment, lesson completion, checkout, demo payment, protected pages, logout and login');
   console.log('PASS no uncaught browser errors or failed local asset requests');
   console.log('Browser screenshots: ' + artifactDirectory);
 }
