@@ -14,7 +14,8 @@ use App\Identity\GoogleIdentityService;
 $pdo = Database::connect();
 if (Auth::user($pdo)) Security::redirect('profile.php');
 $error = isset($_GET['google_error']) ? 'Google account creation could not be completed. Try again or use the registration form.' : null;
-$googleConfigured = GoogleIdentityService::isConfigured();
+$googleIssues = GoogleIdentityService::configurationIssues();
+$googleConfigured = $googleIssues === [];
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if (!Security::verifyCsrf($_POST['_csrf'] ?? null)) {
         $error = 'Your session expired. Refresh the page and try again.';
@@ -327,6 +328,11 @@ $siteUrl = 'https://smartstudypro.com';
           </div>
           <?php if ($googleConfigured): ?>
           <button type="submit" formaction="google-auth.php" formmethod="post" name="action" value="register" formnovalidate class="btn btn-outline-secondary w-100 rounded-3 py-2 fw-semibold mb-3">Continue with Google</button>
+          <?php else: ?>
+          <div class="rounded-3 p-3 mb-3 small" style="background:var(--ssp-bg-soft);border:1px solid var(--ssp-card-border);color:var(--ssp-text-main)" role="status">
+            <strong>Google sign-in needs configuration</strong>
+            <ul class="mb-0 mt-2 ps-3"><?php foreach ($googleIssues as $issue): ?><li class="mb-1"><?= Security::escape($issue) ?></li><?php endforeach; ?></ul>
+          </div>
           <?php endif; ?>
           <button type="submit" class="btn-ssp-primary w-100 py-2 fs-6">Create Account</button>
         </form>
