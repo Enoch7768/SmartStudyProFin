@@ -13,7 +13,8 @@ $courseIdentifier = $_GET['slug'] ?? $_GET['id'] ?? $_GET['_id'] ?? null;
 $course = $content->course(is_string($courseIdentifier) || is_int($courseIdentifier) ? $courseIdentifier : null);
 $courseId = (int) ($course['_id'] ?? 0);
 if ($course && !isset($_GET['slug']) && !headers_sent()) {
-    header('Location: ' . \App\Core\Url::to('/courses/' . rawurlencode((string) $course['slug'])), true, 301);
+    $canonicalCoursePath = '/courses/' . rawurlencode((string) ($course['slug'] ?? ''));
+    header('Location: ' . \App\Core\Url::to($canonicalCoursePath), true, 301);
     exit;
 }
 $contact = $content->contact();
