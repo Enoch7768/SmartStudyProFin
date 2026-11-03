@@ -11,7 +11,7 @@ use App\Core\Security;
 
 $pdo = Database::connect();
 $user = Auth::user($pdo);
-if (!$user) Security::redirect('login.php?redirect=cart.php');
+if (!$user) Security::redirect(\App\Core\Url::to('/login?redirect=' . rawurlencode(\App\Core\Url::to('/payment-choice?order=' . (int) ($_GET['order'] ?? 0)))));
 $orderId = filter_var($_GET['order'] ?? null, FILTER_VALIDATE_INT);
 $commerce = new CommerceService($pdo);
 $order = $orderId ? $commerce->order((int) $orderId, (int) $user['id']) : null;
