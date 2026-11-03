@@ -57,7 +57,7 @@ $siteUrl = 'https://smartstudypro.com';
         "@type": "ListItem",
         "position": <?= $i ?>,
         "name": "<?= htmlspecialchars($course['Title'] ?? 'Course') ?>",
-        "url": "<?= $siteUrl ?>//courses/<?= rawurlencode((string) ($course['slug'] ?? $course['_id'])) ?>"
+        "url": "<?= $siteUrl ?>/courses/<?= rawurlencode((string) ($course['slug'] ?? $course['_id'])) ?>"
       }<?= ($i < count(array_slice($courses, 0, 5))) ? ',' : '' ?>
       <?php $i++; endforeach; ?>
     ]
