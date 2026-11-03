@@ -204,6 +204,12 @@ try {
     $content->save('lessons', $draftLessonId, ['status'=>'draft']);
     if ($learning->lesson($userId, $courseId, $draftLessonId) !== null) throw new RuntimeException('Unpublishing a lesson did not revoke student-facing lesson access.');
     if (($public->course((string) $courseId)['Title'] ?? '') !== 'Foundations of Science' || ($public->course('foundations-of-science')['Title'] ?? '') !== 'Foundations of Science') throw new RuntimeException('Published course public read mapping failed.');
+    $pdo->prepare('UPDATE cms_courses SET description_html = :description, content_html = :content WHERE id = :id')->execute(['description' => '<p>Course description</p><script>alert(1)</script>', 'content' => '<h3>Course outline</h3><img src=x onerror=alert(1)>', 'id' => $courseId]);
+    $publishedCourse = $public->course($courseId);
+    if (!$publishedCourse || str_contains($publishedCourse['Description'], '<script') || str_contains($publishedCourse['Content'], 'onerror=') || !str_contains($publishedCourse['Content'], 'Course outline')) throw new RuntimeException('Public course content was not safely sanitised.');
+    $courseDetailsPage = (string) file_get_contents(dirname(__DIR__) . '/course-details.php');
+    $courseCataloguePage = (string) file_get_contents(dirname(__DIR__) . '/courses.php');
+    if (!str_contains($courseDetailsPage, '$course[\\'Description\\']') || !str_contains($courseDetailsPage, '$course[\\'Content\\']') || !str_contains($courseDetailsPage, 'About this course') || !str_contains($courseCataloguePage, '$siteUrl ?>/courses/')) throw new RuntimeException('Published course descriptions, full overview or canonical catalogue URLs are not rendered correctly.');
     if (($public->product((string) $productId)['ProductType'] ?? '') !== 'Physical' || count($public->products()) !== 2) throw new RuntimeException('Published product public read mapping failed.');
     $pdo->prepare('UPDATE cms_products SET description_html = :description WHERE id = :id')->execute(['description' => '<p>Safe product details</p><script>window.productInjected = true;</script><img src=x onerror=alert(1)>', 'id' => $productId]);
     $publicProduct = $public->product((string) $productId);
