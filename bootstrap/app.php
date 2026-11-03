@@ -30,7 +30,7 @@ if (PHP_SAPI !== 'cli' && !App\Core\Installer::isInstalled()) {
     $requestPath = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
 
     if (!in_array($requestPath, [$installPath, $installPath . '/', $installPath . '/index.php'], true)) {
-        header('Location: ' . $installPath . '/', true, 303);
+        header('Location: ' . $installPath, true, 303);
         exit;
     }
 }
