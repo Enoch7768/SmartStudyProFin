@@ -1,0 +1,15 @@
+[data-theme="dark"] body{background:#0b1020;color:#edf2fb}
+[data-theme="dark"] .achievement,[data-theme="dark"] .certificate,[data-theme="dark"] .panel,[data-theme="dark"] .notice,[data-theme="dark"] .metric,[data-theme="dark"] .learning-card,[data-theme="dark"] .course-card,[data-theme="dark"] .sidebar,[data-theme="dark"] .topbar,[data-theme="dark"] .assistant-panel,[data-theme="dark"] .chat-panel,[data-theme="dark"] .question{background:#151d2e;color:#edf2fb;border-color:#34425c}
+[data-theme="dark"] .notice.unread{background:#282116}
+[data-theme="dark"] .chapter,[data-theme="dark"] .lesson-link.active,[data-theme="dark"] .message.assistant{background:#202b40;color:#edf2fb}
+[data-theme="dark"] .lesson-link{color:#e2e8f0;border-bottom-color:#263247}
+[data-theme="dark"] .lesson-link:hover,[data-theme="dark"] .conversation-link:hover,[data-theme="dark"] .conversation-link.active{background:#28344a;color:#ffd2a6}
+[data-theme="dark"] .muted,[data-theme="dark"] .hint,[data-theme="dark"] .meta,[data-theme="dark"] .text-muted,[data-theme="dark"] .text-secondary{color:#aab6ca!important}
+[data-theme="dark"] .code,[data-theme="dark"] .btn-link,[data-theme="dark"] .btn-outline-primary,[data-theme="dark"] .btn-outline-secondary{color:#c7d2fe}
+[data-theme="dark"] .btn-outline-primary,[data-theme="dark"] .btn-outline-secondary{border-color:#64748b}
+[data-theme="dark"] .composer textarea{background:#0f1726;color:#edf2fb;border-color:#34425c}
+[data-theme="dark"] .resource{background:#342719;color:#ffd2a6}
+[data-theme="dark"] .progress{background:#28344a}
+[data-theme="dark"] .review-item{border-color:#34425c}
+[data-theme="dark"] .table{--bs-table-color:#edf2fb;--bs-table-bg:#151d2e;--bs-table-border-color:#34425c}
+@media(prefers-reduced-motion:reduce){[data-theme="dark"] body{transition:none}}
