@@ -196,6 +196,13 @@ $siteUrl = 'https://smartstudypro.com';
       box-shadow: 0 6px 20px rgba(255, 122, 0, 0.45);
     }
 
+    .ssp-google-notice {
+      color: var(--ssp-text-main);
+      background: var(--ssp-bg-soft);
+      border: 1px solid var(--ssp-card-border);
+      text-align: left;
+    }
+
     .ssp-auth-card {
       background: var(--ssp-card-bg);
       border-radius: 20px;
