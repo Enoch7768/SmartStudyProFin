@@ -12,6 +12,7 @@ require dirname(__DIR__) . '/bootstrap/app.php';
 use App\Cms\ContentRepository;
 use App\Core\Database;
 use App\Core\Migrator;
+use App\Learning\LearningService;
 use App\Learning\RecognitionService;
 
 $temporary = sys_get_temp_dir() . '/ssp-recognition-test-' . bin2hex(random_bytes(8));
