@@ -107,6 +107,14 @@ final class LearningService
 
     public function completeLesson(int $userId, int $courseId, int $lessonId): void
     {
+        if (!$this->lesson($userId, $courseId, $lessonId)) throw new RuntimeException('This lesson is not available in your course.');
+        $questions = $this->pdo->prepare('SELECT COUNT(*) FROM cms_quiz_questions WHERE lesson_id = :lesson_id');
+        $questions->execute(['lesson_id' => $lessonId]);
+        if ((int) $questions->fetchColumn() > 0) {
+            $passed = $this->pdo->prepare('SELECT 1 FROM quiz_attempts WHERE user_id = :user_id AND course_id = :course_id AND lesson_id = :lesson_id AND passed = 1 LIMIT 1');
+            $passed->execute(['user_id' => $userId, 'course_id' => $courseId, 'lesson_id' => $lessonId]);
+            if (!$passed->fetchColumn()) throw new RuntimeException('Pass this lesson quiz before marking the lesson complete.');
+        }
         $this->startLesson($userId, $courseId, $lessonId);
         $now = gmdate('Y-m-d H:i:s');
         $statement = $this->pdo->prepare("UPDATE lesson_progress SET status = 'completed', completed_at = COALESCE(completed_at, :completed_at), updated_at = :updated_at WHERE user_id = :user_id AND course_id = :course_id AND lesson_id = :lesson_id");
