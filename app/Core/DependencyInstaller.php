@@ -27,9 +27,21 @@ final class DependencyInstaller
     public static function isReady(string $root): bool
     {
         $vendor = rtrim((string) Config::get('storage.path'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'vendor';
-        return is_file($vendor . DIRECTORY_SEPARATOR . 'autoload.php')
-            && is_file($root . DIRECTORY_SEPARATOR . 'composer.json')
-            && is_file($root . DIRECTORY_SEPARATOR . 'composer.lock');
+        $lockPath = $root . DIRECTORY_SEPARATOR . 'composer.lock';
+        $installedPath = $vendor . DIRECTORY_SEPARATOR . 'composer' . DIRECTORY_SEPARATOR . 'installed.json';
+        if (!is_file($vendor . DIRECTORY_SEPARATOR . 'autoload.php') || !is_file($lockPath) || !is_file($installedPath)) return false;
+        $lock = json_decode((string) file_get_contents($lockPath), true);
+        $installed = json_decode((string) file_get_contents($installedPath), true);
+        if (!is_array($lock['packages'] ?? null) || !is_array($installed['packages'] ?? null)) return false;
+        $versions = [];
+        foreach ($installed['packages'] as $package) {
+            if (is_array($package) && isset($package['name'], $package['version'])) $versions[(string) $package['name']] = (string) $package['version'];
+        }
+        foreach ($lock['packages'] as $package) {
+            if (!is_array($package) || !isset($package['name'], $package['version'])) return false;
+            if (($versions[(string) $package['name']] ?? null) !== (string) $package['version']) return false;
+        }
+        return true;
     }
 
     public static function install(string $root): void
