@@ -19,6 +19,7 @@ final class DependencyInstaller
             'PHP process execution for automatic dependency setup' => function_exists('proc_open') && !in_array('proc_open', $disabled, true),
             'PHP Phar support' => class_exists(Phar::class),
             'PHP CLI executable' => self::phpBinary() !== null,
+            'PHP CLI OpenSSL' => self::cliOpenSslAvailable(),
             'HTTPS downloads' => extension_loaded('openssl') && (extension_loaded('curl') || filter_var(ini_get('allow_url_fopen'), FILTER_VALIDATE_BOOL)),
         ];
     }
@@ -35,7 +36,7 @@ final class DependencyInstaller
     {
         if (self::isReady($root)) return;
         foreach (self::requirements() as $label => $passed) {
-            if (!$passed) throw new RuntimeException('Automatic dependency setup is unavailable: ' . $label . '. Ask your hosting provider to enable it or use a host that supports PHP process execution.');
+            if (!$passed) throw new RuntimeException($label === 'PHP CLI OpenSSL' ? 'Automatic dependency setup cannot use HTTPS because the PHP command-line runtime has OpenSSL disabled. Enable extension=openssl in the php.ini used by PHP CLI, restart the PHP server, and retry. The web PHP and command-line PHP runtimes can load different php.ini files.' : 'Automatic dependency setup is unavailable: ' . $label . '. Ask your hosting provider to enable it or use a host that supports PHP process execution.');
         }
         $manifestPath = $root . DIRECTORY_SEPARATOR . 'composer.json';
         $lockPath = $root . DIRECTORY_SEPARATOR . 'composer.lock';
@@ -64,6 +65,7 @@ final class DependencyInstaller
             'COMPOSER_HOME' => $home,
             'COMPOSER_CACHE_DIR' => $cache,
             'COMPOSER_ALLOW_SUPERUSER' => '1',
+            'COMPOSER_CAFILE' => self::certificateBundle() ?? (string) (getenv('COMPOSER_CAFILE') ?: ''),
         ];
         $previous = [];
         foreach ($environment as $key => $value) {
@@ -93,6 +95,34 @@ final class DependencyInstaller
         }
         if (!is_file($vendor . DIRECTORY_SEPARATOR . 'autoload.php')) throw new RuntimeException('Composer finished without creating the dependency autoloader.');
         chmod($vendor . DIRECTORY_SEPARATOR . 'autoload.php', 0600);
+    }
+
+    private static function cliOpenSslAvailable(): bool
+    {
+        $binary = self::phpBinary();
+        if ($binary === null || !function_exists('proc_open')) return false;
+        $process = @proc_open([$binary, '-r', 'echo extension_loaded("openssl") ? "1" : "0";'], [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+        if (!is_resource($process)) return false;
+        fclose($pipes[0]);
+        $output = trim((string) stream_get_contents($pipes[1]));
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        return proc_close($process) === 0 && $output === '1';
+    }
+
+    private static function certificateBundle(): ?string
+    {
+        $candidates = [
+            (string) ini_get('openssl.cafile'),
+            (string) ini_get('curl.cainfo'),
+            PHP_BINDIR . DIRECTORY_SEPARATOR . 'extras' . DIRECTORY_SEPARATOR . 'ssl' . DIRECTORY_SEPARATOR . 'cacert.pem',
+            PHP_BINDIR . DIRECTORY_SEPARATOR . 'cacert.pem',
+            dirname(PHP_BINDIR) . DIRECTORY_SEPARATOR . 'apache' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'curl-ca-bundle.crt',
+        ];
+        foreach ($candidates as $candidate) {
+            if ($candidate !== '' && is_file($candidate) && is_readable($candidate)) return $candidate;
+        }
+        return null;
     }
 
     private static function phpBinary(): ?string
