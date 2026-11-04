@@ -131,7 +131,7 @@ final class RecognitionService
 
     private function stats(int $userId): array
     {
-        $statement = $this->pdo->prepare("SELECT (SELECT COUNT(*) FROM lesson_progress WHERE user_id = :lessons_user AND status = 'completed') AS lessons_completed, (SELECT COUNT(*) FROM quiz_attempts WHERE user_id = :quizzes_user AND passed = 1) AS quizzes_passed, (SELECT COUNT(*) FROM course_enrolments WHERE user_id = :courses_user AND status = 'completed') AS courses_completed");
+        $statement = $this->pdo->prepare("SELECT (SELECT COUNT(*) FROM lesson_progress WHERE user_id = :lessons_user AND status = 'completed') AS lessons_completed, (SELECT COUNT(DISTINCT lesson_id) FROM quiz_attempts WHERE user_id = :quizzes_user AND passed = 1) AS quizzes_passed, (SELECT COUNT(*) FROM course_enrolments WHERE user_id = :courses_user AND status = 'completed') AS courses_completed");
         $statement->execute(['lessons_user' => $userId, 'quizzes_user' => $userId, 'courses_user' => $userId]);
         return $statement->fetch() ?: [];
     }
