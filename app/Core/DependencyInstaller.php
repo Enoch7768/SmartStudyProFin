@@ -157,10 +157,15 @@ final class DependencyInstaller
     private static function downloadComposer(string $destination): void
     {
         $temporary = $destination . '.tmp-' . bin2hex(random_bytes(6));
-        $context = stream_context_create(['http' => ['timeout' => 30, 'follow_location' => 1, 'max_redirects' => 3], 'ssl' => ['verify_peer' => true, 'verify_peer_name' => true]]);
+        $certificateBundle = self::certificateBundle();
+        $ssl = ['verify_peer' => true, 'verify_peer_name' => true];
+        if ($certificateBundle !== null) $ssl['cafile'] = $certificateBundle;
+        $context = stream_context_create(['http' => ['timeout' => 30, 'follow_location' => 1, 'max_redirects' => 3], 'ssl' => $ssl]);
         if (extension_loaded('curl')) {
             $handle = curl_init(self::COMPOSER_URL);
-            curl_setopt_array($handle, [CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => true, CURLOPT_MAXREDIRS => 3, CURLOPT_CONNECTTIMEOUT => 15, CURLOPT_TIMEOUT => 45, CURLOPT_PROTOCOLS => CURLPROTO_HTTPS, CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTPS]);
+            $options = [CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => true, CURLOPT_MAXREDIRS => 3, CURLOPT_CONNECTTIMEOUT => 15, CURLOPT_TIMEOUT => 45, CURLOPT_PROTOCOLS => CURLPROTO_HTTPS, CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTPS];
+            if ($certificateBundle !== null) $options[CURLOPT_CAINFO] = $certificateBundle;
+            curl_setopt_array($handle, $options);
             $contents = curl_exec($handle);
             $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
             $error = curl_error($handle);
@@ -168,8 +173,10 @@ final class DependencyInstaller
             if ($contents === false || $status !== 200) throw new RuntimeException('Composer download failed: ' . ($error !== '' ? $error : 'unexpected HTTPS response.'));
         } else {
             $contents = @file_get_contents(self::COMPOSER_URL, false, $context);
+            $lastError = error_get_last();
+            if ($contents === false) throw new RuntimeException('Composer HTTPS download failed: ' . (is_array($lastError) ? (string) $lastError['message'] : 'check the PHP OpenSSL CA certificate configuration.'));
         }
-        if (!is_string($contents) || $contents === '' || strlen($contents) > self::MAX_COMPOSER_BYTES) throw new RuntimeException('Composer could not be downloaded securely. Check outbound HTTPS access and retry.');
+        if (!is_string($contents) || $contents === '' || strlen($contents) > self::MAX_COMPOSER_BYTES) throw new RuntimeException('Composer could not be downloaded securely. Check outbound HTTPS access, the CA certificate bundle and retry.');
         if (file_put_contents($temporary, $contents, LOCK_EX) === false || !self::validComposerPhar($temporary) || !rename($temporary, $destination)) {
             @unlink($temporary);
             throw new RuntimeException('The downloaded Composer executable failed its PHAR signature validation.');
