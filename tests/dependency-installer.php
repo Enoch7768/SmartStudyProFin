@@ -19,6 +19,7 @@ if (DependencyInstaller::isReady($root)) throw new RuntimeException('A fresh pri
 foreach (DependencyInstaller::requirements() as $label => $passed) {
     if (!is_bool($passed)) throw new RuntimeException('Dependency requirement checks must return booleans.');
 }
+if (!array_key_exists('PHP CLI OpenSSL', DependencyInstaller::requirements())) throw new RuntimeException('The installer must verify OpenSSL in the PHP CLI runtime used by Composer.');
 if (!is_file($root . '/composer.json') || !is_file($root . '/composer.lock')) throw new RuntimeException('The deployment must include dependency manifests.');
 if (is_dir($root . '/vendor')) throw new RuntimeException('Composer dependencies must not be installed inside the application source tree.');
 echo "PASS locked dependency manifest validation\nPASS private vendor directory selection\nPASS automatic installer host capability checks\n";
