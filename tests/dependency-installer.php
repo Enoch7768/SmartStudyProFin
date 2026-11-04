@@ -36,5 +36,7 @@ foreach (DependencyInstaller::requirements() as $label => $passed) {
 }
 if (!array_key_exists('PHP CLI OpenSSL', DependencyInstaller::requirements())) throw new RuntimeException('The installer must verify OpenSSL in the PHP CLI runtime used by Composer.');
 if (!is_file($root . '/composer.json') || !is_file($root . '/composer.lock')) throw new RuntimeException('The deployment must include dependency manifests.');
+$installerMarkup = (string) file_get_contents($root . '/install/index.php');
+if (!str_contains($installerMarkup, 'PHP CLI OpenSSL') || !str_contains($installerMarkup, 'php --ini')) throw new RuntimeException('The installer must explain how to repair missing CLI OpenSSL.');
 if (is_dir($root . '/vendor')) throw new RuntimeException('Composer dependencies must not be installed inside the application source tree.');
 echo "PASS locked dependency manifest validation\nPASS private vendor directory selection\nPASS automatic installer host capability checks\n";
