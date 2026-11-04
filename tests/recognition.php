@@ -40,6 +40,8 @@ try {
     $pdo->prepare("INSERT INTO lesson_progress (user_id, course_id, lesson_id, status, started_at, completed_at, updated_at) VALUES (:user_id, :course_id, :lesson_id, 'completed', :started_at, :completed_at, :updated_at)")->execute(['user_id' => $studentId, 'course_id' => $courseId, 'lesson_id' => $lessonId, 'started_at' => $now, 'completed_at' => $now, 'updated_at' => $now]);
     $pdo->prepare("INSERT INTO quiz_attempts (user_id, course_id, lesson_id, answers_json, question_count, correct_count, score_percent, passed, started_at, submitted_at) VALUES (:user_id, :course_id, :lesson_id, '{}', 1, 1, 100, 1, :started_at, :submitted_at)")->execute(['user_id' => $studentId, 'course_id' => $courseId, 'lesson_id' => $lessonId, 'started_at' => $now, 'submitted_at' => $now]);
     $attemptId = (int) $pdo->lastInsertId();
+    $duplicateAttempt = $pdo->prepare("INSERT INTO quiz_attempts (user_id, course_id, lesson_id, answers_json, question_count, correct_count, score_percent, passed, started_at, submitted_at) VALUES (:user_id, :course_id, :lesson_id, '{}', 1, 1, 100, 1, :started_at, :submitted_at)");
+    for ($index = 0; $index < 4; $index++) $duplicateAttempt->execute(['user_id' => $studentId, 'course_id' => $courseId, 'lesson_id' => $lessonId, 'started_at' => $now, 'submitted_at' => $now]);
 
     $service = new RecognitionService($pdo);
     $service->sync($studentId);
