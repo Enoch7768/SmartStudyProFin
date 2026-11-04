@@ -42,7 +42,17 @@ try {
     $attemptId = (int) $pdo->lastInsertId();
     $duplicateAttempt = $pdo->prepare("INSERT INTO quiz_attempts (user_id, course_id, lesson_id, answers_json, question_count, correct_count, score_percent, passed, started_at, submitted_at) VALUES (:user_id, :course_id, :lesson_id, '{}', 1, 1, 100, 1, :started_at, :submitted_at)");
     for ($index = 0; $index < 4; $index++) $duplicateAttempt->execute(['user_id' => $studentId, 'course_id' => $courseId, 'lesson_id' => $lessonId, 'started_at' => $now, 'submitted_at' => $now]);
+    $draftProgress = $pdo->prepare("INSERT INTO lesson_progress (user_id, course_id, lesson_id, status, started_at, completed_at, updated_at) VALUES (:user_id, :course_id, :lesson_id, 'completed', :started_at, :completed_at, :updated_at)");
+    $draftAttempt = $pdo->prepare("INSERT INTO quiz_attempts (user_id, course_id, lesson_id, answers_json, question_count, correct_count, score_percent, passed, started_at, submitted_at) VALUES (:user_id, :course_id, :lesson_id, '{}', 1, 1, 100, 1, :started_at, :submitted_at)");
+    for ($index = 1; $index <= 10; $index++) {
+        $draftLessonId = $content->save('lessons', null, ['chapter_id' => $chapterId, 'title' => 'Draft lesson ' . $index, 'content_html' => '', 'video_url' => '', 'sort_order' => (string) ($index + 1), 'status' => 'draft']);
+        $draftProgress->execute(['user_id' => $studentId, 'course_id' => $courseId, 'lesson_id' => $draftLessonId, 'started_at' => $now, 'completed_at' => $now, 'updated_at' => $now]);
+        if ($index <= 5) $draftAttempt->execute(['user_id' => $studentId, 'course_id' => $courseId, 'lesson_id' => $draftLessonId, 'started_at' => $now, 'submitted_at' => $now]);
+    }
 
+    $learning = new LearningService($pdo);
+    $courseProgress = $learning->courses($studentId);
+    if ((int) $courseProgress[0]['completed_lessons'] !== 1) throw new RuntimeException('Unpublished lessons were incorrectly included in student course progress.');
     $service = new RecognitionService($pdo);
     $service->sync($studentId);
     $service->sync($studentId);
