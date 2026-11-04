@@ -6,11 +6,14 @@ SmartStudyPro is distributed without a root `vendor/` directory or a bundled Com
 
 - PHP 8.1 or newer with PDO SQLite, SQLite3, OpenSSL, JSON and Fileinfo.
 - Phar support, outbound HTTPS access and PHP `proc_open` enabled for first-time dependency installation.
+- OpenSSL enabled in both the web PHP runtime and the PHP CLI runtime used by Composer. These can load different `php.ini` files.
 - Apache rewrite support or equivalent web-server routing.
 - A writable private storage directory outside the public document root.
 - HTTPS enabled before opening the installer.
 
 The installer displays each server requirement before allowing setup. If the host disables `proc_open`, blocks outbound HTTPS, or lacks Phar support, automatic dependency installation cannot run on that host. Enable those PHP capabilities or use a PHP host that supports them; do not upload a public `vendor/` directory as a workaround.
+
+On Windows/XAMPP, check the `php.ini` used by the command-line PHP executable as well as the Apache or built-in-server PHP configuration. Enable `extension=openssl` in the CLI configuration, confirm the configured CA certificate bundle exists and is readable, then restart the PHP server and reopen `/install`. The installer now checks CLI OpenSSL before starting Composer and passes a detected `openssl.cafile` or `curl.cainfo` bundle to Composer. It does not disable TLS verification.
 
 ## First installation
 
