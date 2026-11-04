@@ -53,6 +53,7 @@ try {
         if (!str_contains((string) file_get_contents(dirname(__DIR__) . '/' . $portalPage), 'assets/css/portal-theme.css')) throw new RuntimeException('A student portal page is missing the shared theme stylesheet: ' . $portalPage);
     }
     if (!str_contains($studyPage, 'study-theme-toggle') || !str_contains($studyPage, 'ssp-theme') || !str_contains($studyPage, 'theme-preference')) throw new RuntimeException('The focused lesson player is missing its persistent account-synced theme control.');
+    if (!str_contains($studyPage, 'Try again') || !str_contains($studyPage, '$lessonCompleted') || !str_contains($studyPage, 'You can now mark this lesson complete.')) throw new RuntimeException('The learning player must expose quiz retries and a clear completed-lesson state.');
     $adminTheme = (string) file_get_contents(dirname(__DIR__) . '/assets/css/admin-theme.css');
     if (!str_contains($adminTheme, 'html[data-theme="dark"] body') || !str_contains($adminTheme, '.table')) throw new RuntimeException('The admin commerce dark theme is incomplete.');
     foreach (['admin/orders.php', 'admin/refunds.php'] as $adminPage) {
