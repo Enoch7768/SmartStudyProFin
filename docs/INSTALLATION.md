@@ -15,6 +15,8 @@ The installer displays each server requirement before allowing setup. If the hos
 
 On Windows/XAMPP, check the `php.ini` used by the command-line PHP executable as well as the Apache or built-in-server PHP configuration. Enable `extension=openssl` in the CLI configuration, confirm the configured CA certificate bundle exists and is readable, then restart the PHP server and reopen `/install`. The installer now checks CLI OpenSSL before starting Composer and passes a detected `openssl.cafile` or `curl.cainfo` bundle to Composer. It does not disable TLS verification.
 
+For XAMPP, run `C:\\xampp\\php\\php.exe --ini` and `C:\\xampp\\php\\php.exe -m | findstr /I openssl` in Command Prompt. Edit the `Loaded Configuration File` reported by the first command, enable `extension=openssl`, and verify `extension_dir` points to `C:\\xampp\\php\\ext`. If the CA bundle is missing, obtain the current PEM bundle from `https://curl.se/ca/cacert.pem`, save it outside the public web root, and set both `openssl.cafile` and `curl.cainfo` to its absolute path in that same `php.ini`.
+
 ## First installation
 
 1. Upload the clean release package and point the document root to the application directory.
