@@ -113,14 +113,28 @@ final class DependencyInstaller
 
     private static function certificateBundle(): ?string
     {
-        $candidates = [
-            (string) ini_get('openssl.cafile'),
-            (string) ini_get('curl.cainfo'),
+        $candidates = [(string) ini_get('openssl.cafile'), (string) ini_get('curl.cainfo')];
+        $binary = self::phpBinary();
+        if ($binary !== null && function_exists('proc_open')) {
+            $code = 'echo json_encode([ini_get("openssl.cafile"), ini_get("curl.cainfo")]);';
+            $process = @proc_open([$binary, '-r', $code], [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+            if (is_resource($process)) {
+                fclose($pipes[0]);
+                $output = (string) stream_get_contents($pipes[1]);
+                fclose($pipes[1]);
+                fclose($pipes[2]);
+                if (proc_close($process) === 0) {
+                    $values = json_decode($output, true);
+                    if (is_array($values)) $candidates = array_merge($candidates, array_map('strval', $values));
+                }
+            }
+        }
+        $candidates = array_merge($candidates, [
             PHP_BINDIR . DIRECTORY_SEPARATOR . 'extras' . DIRECTORY_SEPARATOR . 'ssl' . DIRECTORY_SEPARATOR . 'cacert.pem',
             PHP_BINDIR . DIRECTORY_SEPARATOR . 'cacert.pem',
             dirname(PHP_BINDIR) . DIRECTORY_SEPARATOR . 'apache' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'curl-ca-bundle.crt',
-        ];
-        foreach ($candidates as $candidate) {
+        ]);
+        foreach (array_unique($candidates) as $candidate) {
             if ($candidate !== '' && is_file($candidate) && is_readable($candidate)) return $candidate;
         }
         return null;
