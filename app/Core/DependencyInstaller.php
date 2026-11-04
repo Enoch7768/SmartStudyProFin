@@ -65,8 +65,9 @@ final class DependencyInstaller
             'COMPOSER_HOME' => $home,
             'COMPOSER_CACHE_DIR' => $cache,
             'COMPOSER_ALLOW_SUPERUSER' => '1',
-            'COMPOSER_CAFILE' => self::certificateBundle() ?? (string) (getenv('COMPOSER_CAFILE') ?: ''),
         ];
+        $certificateBundle = self::certificateBundle();
+        if ($certificateBundle !== null) $environment['COMPOSER_CAFILE'] = $certificateBundle;
         $previous = [];
         foreach ($environment as $key => $value) {
             $previous[$key] = getenv($key);
