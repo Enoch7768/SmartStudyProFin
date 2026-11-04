@@ -149,10 +149,16 @@ try {
     try { $learning->submitQuiz($userId, $courseId, $lessonId, []); } catch (RuntimeException) { $expiredQuizRejected = true; }
     if (!$expiredQuizRejected) throw new RuntimeException('An expired timed quiz was accepted.');
     $quizData = $learning->quizQuestions($userId, $courseId, $lessonId);
+    $failedResult = $learning->submitQuiz($userId, $courseId, $lessonId, [$questionId => 'A sport']);
+    if ($failedResult['passed'] || count($learning->attempts($userId, $lessonId)) !== 1) throw new RuntimeException('A failed quiz attempt was not saved accurately.');
+    $failedQuizCompletionRejected = false;
+    try { $learning->completeLesson($userId, $courseId, $lessonId); } catch (RuntimeException) { $failedQuizCompletionRejected = true; }
+    if (!$failedQuizCompletionRejected) throw new RuntimeException('A lesson with a quiz was completed without a passing attempt.');
+    $quizData = $learning->quizQuestions($userId, $courseId, $lessonId);
     $submittedAnswers = [];
     $submittedAnswers[$questionId] = 'Study of nature';
     $quizResult = $learning->submitQuiz($userId, $courseId, $lessonId, $submittedAnswers);
-    if (count($learning->attempts($userId, $lessonId)) !== 1) throw new RuntimeException('Quiz attempt history was not saved.');
+    if (!$quizResult['passed'] || count($learning->attempts($userId, $lessonId)) !== 2) throw new RuntimeException('A passing retry did not preserve both quiz attempts.');
     $learning->completeLesson($userId, $courseId, $lessonId);
     $completedOutline = $learning->outline($userId, $courseId);
     $completedChapter = reset($completedOutline);
