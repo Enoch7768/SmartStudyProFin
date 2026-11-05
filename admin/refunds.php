@@ -45,10 +45,10 @@ $refunds = $service->all();
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Refund requests | SmartStudyPro</title>
-<link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-<link href="../assets/css/main.css" rel="stylesheet">
-<link href="../assets/css/device-responsive.css" rel="stylesheet">
-<link href="../assets/css/admin-theme.css" rel="stylesheet">
+<link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/css/bootstrap.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
+<link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/main.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
+<link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/device-responsive.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
+<link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/admin-theme.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 </head>
 <body>
 <main class="container-fluid py-4">
