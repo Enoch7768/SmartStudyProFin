@@ -398,10 +398,10 @@ $siteUrl = 'https://smartstudypro.com';
       <div class="small mb-3 d-flex flex-wrap justify-content-center gap-3">
         <a href="<?= htmlspecialchars(\App\Core\Url::to('/privacy'), ENT_QUOTES, 'UTF-8') ?>" class="text-light opacity-75 text-decoration-none">Privacy</a>
         <a href="<?= htmlspecialchars(\App\Core\Url::to('/terms'), ENT_QUOTES, 'UTF-8') ?>" class="text-light opacity-75 text-decoration-none">Terms of Use</a>
-        <a href="cookies.php" class="text-light opacity-75 text-decoration-none">Cookies</a>
+        <a href="<?= htmlspecialchars(\App\Core\Url::to('/cookies'), ENT_QUOTES, 'UTF-8') ?>" class="text-light opacity-75 text-decoration-none">Cookies</a>
         <a href="<?= htmlspecialchars(\App\Core\Url::to('/refunds'), ENT_QUOTES, 'UTF-8') ?>" class="text-light opacity-75 text-decoration-none">Refunds</a>
-        <a href="accessibility.php" class="text-light opacity-75 text-decoration-none">Accessibility</a>
-        <a href="eula.php" class="text-light opacity-75 text-decoration-none">Client Software Licence</a>
+        <a href="<?= htmlspecialchars(\App\Core\Url::to('/accessibility'), ENT_QUOTES, 'UTF-8') ?>" class="text-light opacity-75 text-decoration-none">Accessibility</a>
+        <a href="<?= htmlspecialchars(\App\Core\Url::to('/eula'), ENT_QUOTES, 'UTF-8') ?>" class="text-light opacity-75 text-decoration-none">Client Software Licence</a>
       </div>
       <p class="mb-0">&copy; <?= date('Y') ?> <strong>SmartStudyPro</strong>. All Rights Reserved. Empowering Education in Uganda.</p>
     </div>
