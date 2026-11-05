@@ -327,7 +327,7 @@ $siteUrl = 'https://smartstudypro.com';
             <label class="form-check-label small" for="accept-privacy">I have read the <a href="<?= htmlspecialchars(\App\Core\Url::to('/privacy'), ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</label>
           </div>
           <?php if ($googleConfigured): ?>
-          <button type="submit" formaction="google-auth.php" formmethod="post" name="action" value="register" formnovalidate class="btn btn-outline-secondary w-100 rounded-3 py-2 fw-semibold mb-3">Continue with Google</button>
+          <button type="submit" formaction="<?= htmlspecialchars(\App\Core\Url::to('/google-auth.php'), ENT_QUOTES, 'UTF-8') ?>" formmethod="post" name="action" value="register" formnovalidate class="btn btn-outline-secondary w-100 rounded-3 py-2 fw-semibold mb-3">Continue with Google</button>
           <?php else: ?>
           <div class="rounded-3 p-3 mb-3 small" style="background:var(--ssp-bg-soft);border:1px solid var(--ssp-card-border);color:var(--ssp-text-main)" role="status">
             <strong>Google sign-in needs configuration</strong>
