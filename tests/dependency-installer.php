@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 require dirname(__DIR__) . '/bootstrap/app.php';
 
-use App\Core\\Config;
-use App\Core\\DependencyInstaller;
+use App\Core\Config;
+use App\Core\DependencyInstaller;
 
 $root = dirname(__DIR__);
 $manifest = json_decode((string) file_get_contents($root . '/composer.json'), true, 512, JSON_THROW_ON_ERROR);
