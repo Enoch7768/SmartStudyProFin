@@ -55,6 +55,8 @@ try {
     if (App\Core\Url::basePath() !== '/SmartStudyProFin' || App\Core\Url::documentBase() !== '/SmartStudyProFin/forms/') throw new RuntimeException('Form entrypoints must preserve their own relative document base.');
     $_SERVER['SCRIPT_NAME'] = '/SmartStudyProFin/install/index.php';
     if (App\Core\Url::documentBase() !== '/SmartStudyProFin/install/') throw new RuntimeException('Installer-relative resources must resolve inside the installer directory.');
+    $_SERVER['SCRIPT_NAME'] = '\\SmartStudyProFin\\admin\\orders.php';
+    if (App\Core\Url::basePath() !== '/SmartStudyProFin' || App\Core\Url::documentBase() !== '/SmartStudyProFin/admin/') throw new RuntimeException('Windows-style admin paths must resolve against the admin directory and application root.');
     $_SERVER['SCRIPT_NAME'] = $previousScriptName ?? '/index.php';
     $_SERVER['SCRIPT_NAME'] = 'http://localhost:8989/SmartStudyProFin/index.php';
     if (App\Core\Url::basePath() !== '/SmartStudyProFin') throw new RuntimeException('Host-qualified script paths must preserve their URL path.');
