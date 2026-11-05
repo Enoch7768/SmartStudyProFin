@@ -3,10 +3,6 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/bootstrap/app.php';
 
-$assetBasePath = dirname(str_replace(chr(92), '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php')));
-$assetBasePath = $assetBasePath === '/' || $assetBasePath === '.' ? '' : rtrim($assetBasePath, '/');
-
-
 $pdo = \App\Core\Database::connect();
 $content = new \App\Cms\PublicContent($pdo);
 $productIdentifier = $_GET['slug'] ?? $_GET['id'] ?? $_GET['_id'] ?? null;
@@ -59,7 +55,7 @@ $fullImgUrl = str_starts_with($imgUrl, 'http') ? $imgUrl : $siteUrl . '/' . ltri
   </script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <base href="<?= htmlspecialchars($assetBasePath . '/', ENT_QUOTES, 'UTF-8') ?>">
+  <base href="<?= htmlspecialchars(\\App\\Core\\Url::to('/'), ENT_QUOTES, 'UTF-8') ?>">
   
   <title><?= htmlspecialchars($seoTitle) ?></title>
   <meta name="description" content="<?= htmlspecialchars($seoDescription) ?>">
