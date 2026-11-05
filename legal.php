@@ -145,21 +145,21 @@ h1,h2,h3{font-family:Outfit,sans-serif}
             </section>
         <?php endforeach; ?>
         <nav class="legal-links" aria-label="Other legal documents">
-            <a href="privacy.php">Privacy</a>
-            <a href="terms.php">Terms of Use</a>
-            <a href="cookies.php">Cookies</a>
-            <a href="refunds.php">Refunds</a>
-            <a href="accessibility.php">Accessibility</a>
-            <a href="eula.php">Client Software Licence</a>
+            <a href="<?= htmlspecialchars(\App\Core\Url::to('/privacy'), ENT_QUOTES, 'UTF-8') ?>">Privacy</a>
+            <a href="<?= htmlspecialchars(\App\Core\Url::to('/terms'), ENT_QUOTES, 'UTF-8') ?>">Terms of Use</a>
+            <a href="<?= htmlspecialchars(\App\Core\Url::to('/cookies'), ENT_QUOTES, 'UTF-8') ?>">Cookies</a>
+            <a href="<?= htmlspecialchars(\App\Core\Url::to('/refunds'), ENT_QUOTES, 'UTF-8') ?>">Refunds</a>
+            <a href="<?= htmlspecialchars(\App\Core\Url::to('/accessibility'), ENT_QUOTES, 'UTF-8') ?>">Accessibility</a>
+            <a href="<?= htmlspecialchars(\App\Core\Url::to('/eula'), ENT_QUOTES, 'UTF-8') ?>">Client Software Licence</a>
         </nav>
     </article>
 </main>
 <footer class="legal-footer">
     <div class="mb-2">© <?= date('Y') ?> SmartStudyPro. All rights reserved.</div>
-    <a href="index.php">Home</a>
-    <a href="contact.php">Contact</a>
-    <a href="privacy.php">Privacy</a>
-    <a href="terms.php">Terms</a>
+    <a href="<?= htmlspecialchars(\App\Core\Url::to('/'), ENT_QUOTES, 'UTF-8') ?>">Home</a>
+    <a href="<?= htmlspecialchars(\App\Core\Url::to('/contact'), ENT_QUOTES, 'UTF-8') ?>">Contact</a>
+    <a href="<?= htmlspecialchars(\App\Core\Url::to('/privacy'), ENT_QUOTES, 'UTF-8') ?>">Privacy</a>
+    <a href="<?= htmlspecialchars(\App\Core\Url::to('/terms'), ENT_QUOTES, 'UTF-8') ?>">Terms</a>
 </footer>
 <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/js/bootstrap.bundle.min.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/js/main.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
