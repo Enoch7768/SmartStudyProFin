@@ -48,7 +48,7 @@ $ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/
   </script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <base href="<?= htmlspecialchars(\\App\\Core\\Url::to('/'), ENT_QUOTES, 'UTF-8') ?>">
+  <base href="<?= htmlspecialchars(\App\Core\Url::to('/'), ENT_QUOTES, 'UTF-8') ?>">
   
   <title><?= htmlspecialchars($seoTitle) ?></title>
   <meta name="description" content="<?= htmlspecialchars($seoDescription) ?>">
