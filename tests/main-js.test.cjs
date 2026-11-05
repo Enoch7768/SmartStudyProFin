@@ -165,7 +165,7 @@ console.log('PASS public pages load shared accessibility and reduced-motion styl
 for (const page of ['index.php', 'about.php', 'contact.php', 'courses.php', 'products.php', 'product-details.php', 'login.php', 'register.php', 'certificates.php', 'achievements.php', 'notifications.php', 'reset.php', 'learning.php', 'study.php', 'profile.php', 'assistant.php', 'course-details.php', 'cart.php', 'checkout.php', 'orders.php', 'legal.php', 'payment-choice.php', 'payment-return.php']) {
   const source = fs.readFileSync(page, 'utf8');
   assert.ok(source.includes("'/favicon.php'"), page + ' must use the CMS-managed favicon');
-  assert.ok(source.includes("$_SERVER['SCRIPT_NAME']"), page + ' must resolve the favicon from the application base path');
+  assert.ok(source.includes("Url::to('/favicon.php')"), page + ' must resolve the favicon through the central URL helper');
 }
 console.log('PASS CMS-managed favicon is used across public, learning, account and checkout pages');
 
