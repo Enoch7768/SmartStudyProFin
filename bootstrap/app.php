@@ -20,6 +20,15 @@ if (is_file($vendorAutoload)) require_once $vendorAutoload;
 Security::sendHeaders();
 Session::start();
 
+if (PHP_SAPI !== 'cli' && !headers_sent()) {
+    ob_start(static function (string $html): string {
+        if (!preg_match('/<head\\b[^>]*>/i', $html) || preg_match('/<base\\b/i', $html)) return $html;
+
+        $baseUrl = htmlspecialchars(App\\Core\\Url::to('/'), ENT_QUOTES, 'UTF-8');
+        return preg_replace('/(<head\\b[^>]*>)/i', '$1' . "\\n<base href=\"" . $baseUrl . "\">", $html, 1) ?? $html;
+    });
+}
+
 if (PHP_SAPI !== 'cli' && !App\Core\Installer::isInstalled()) {
     $installPath = App\Core\Url::applicationBasePath() . '/install';
     $requestPath = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
