@@ -185,7 +185,7 @@ for (const page of ['index.php', 'about.php', 'contact.php', 'courses.php', 'pro
   assert.ok(source.includes("Url::to('/assets/css/device-responsive.css')"), page + ' must generate responsive stylesheet URLs through the central URL helper');
 }
 const cmsSource = fs.readFileSync('admin/cms.php', 'utf8');
-assert.ok(cmsSource.includes('../assets/css/device-responsive.css'));
+assert.ok(cmsSource.includes("Url::to('/assets/css/device-responsive.css')"));
 console.log('PASS responsive stylesheet coverage across public pages and CMS');
 
 
