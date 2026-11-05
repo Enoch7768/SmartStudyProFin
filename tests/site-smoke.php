@@ -53,7 +53,8 @@ try {
     fclose($socket);
     $port = (int) substr(strrchr($address, ':'), 1);
     $command = [PHP_BINARY, '-S', '127.0.0.1:' . $port, '-t', $root, $root . '/index.php'];
-    $descriptors = [0 => ['pipe', 'r'], 1 => ['file', '/dev/null', 'a'], 2 => ['file', '/dev/null', 'a']];
+    $serverLog = $storage . '/server.log';
+    $descriptors = [0 => ['pipe', 'r'], 1 => ['file', $serverLog, 'a'], 2 => ['file', $serverLog, 'a']];
     $server = proc_open($command, $descriptors, $pipes, $root);
     if (!is_resource($server)) throw new RuntimeException('Could not start the isolated PHP page server.');
     fclose($pipes[0]);
