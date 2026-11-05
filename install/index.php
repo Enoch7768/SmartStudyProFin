@@ -23,10 +23,30 @@ if (Installer::isInstalled()) {
 }
 
 $errors = [];
-$requirements = array_merge(Installer::requirements(), DependencyInstaller::requirements());
+$hostRequirements = array_merge(Installer::requirements(), DependencyInstaller::requirements());
 $storagePrivate = Installer::storageIsPrivate($application['root']);
 $databasePrivate = Installer::databaseIsPrivate();
-$allPassed = !in_array(false, $requirements, true) && $storagePrivate && $databasePrivate;
+$hostReady = !in_array(false, $hostRequirements, true) && $storagePrivate && $databasePrivate;
+$dependenciesReady = DependencyInstaller::isReady($application['root']);
+
+if (!$dependenciesReady && $hostReady && ($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+    if (function_exists('set_time_limit')) @set_time_limit(0);
+    try {
+        DependencyInstaller::install($application['root']);
+        $vendorAutoload = rtrim((string) App\\Core\\Config::get('storage.path'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+        if (!is_file($vendorAutoload)) throw new RuntimeException('The verified dependency autoloader is missing after setup. Retry /install.');
+        require_once $vendorAutoload;
+        $dependenciesReady = DependencyInstaller::isReady($application['root']);
+        if (!$dependenciesReady) throw new RuntimeException('The downloaded dependencies did not pass the final integrity check. Retry /install.');
+    } catch (Throwable $exception) {
+        $errors[] = $exception->getMessage();
+    }
+}
+
+$requirements = $hostRequirements;
+$requirements['Prebuilt PHP dependencies'] = $dependenciesReady;
+$canSubmit = $hostReady;
+$allPassed = $hostReady && $dependenciesReady;
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if (!Security::verifyCsrf($_POST['_csrf'] ?? null)) {
@@ -36,6 +56,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $password = (string) ($_POST['password'] ?? '');
             if (!hash_equals($password, (string) ($_POST['password_confirmation'] ?? ''))) throw new RuntimeException('The passwords do not match.');
             DependencyInstaller::install($application['root']);
+            $vendorAutoload = rtrim((string) App\\Core\\Config::get('storage.path'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+            if (!is_file($vendorAutoload)) throw new RuntimeException('The verified dependency autoloader is missing. Retry /install.');
+            require_once $vendorAutoload;
             Installer::install($application['root'], (string) ($_POST['name'] ?? ''), (string) ($_POST['email'] ?? ''), $password);
             $scriptName = str_replace('\\\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/install/index.php'));
             $basePath = rtrim(str_replace('\\', '/', dirname(dirname($scriptName))), '/');
@@ -64,7 +87,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 <body>
 <main class="shell">
 <section class="intro"><div><div class="mark">SmartStudy<span>Pro</span></div><div class="tag">Secure first-time setup</div><h1>Your learning platform starts here.</h1><p>Prepare your private database and create the first administrator account. No default passwords or demo accounts are installed.</p></div><div style="font-size:12px;color:#b9bee8">SmartStudyPro · Private installation</div></section>
-<section class="panel"><h2>Application setup</h2><p class="sub">SmartStudyPro downloads and verifies its prebuilt PHP dependencies from GitHub into private storage, prepares the database, and creates your administrator account. No Composer or SSH installation is needed.</p>
+<section class="panel"><h2>Application setup</h2><p class="sub">Opening /install automatically downloads and verifies the prebuilt PHP dependencies from GitHub into private storage. Then create your administrator account and initialize the database. No Composer or SSH installation is needed.</p>
 <?php foreach ($errors as $error): ?><div class="alert"><?= Security::escape($error) ?></div><?php endforeach; ?>
 <div class="checks"><?php foreach ($requirements as $label => $passed): ?><div class="check"><span class="dot<?= $passed ? ' ok' : '' ?>"></span><?= Security::escape($label) ?></div><?php endforeach; ?><div class="check"><span class="dot<?= $storagePrivate ? ' ok' : '' ?>"></span>Private storage outside web root</div><div class="check"><span class="dot<?= $databasePrivate ? ' ok' : '' ?>"></span>Database inside private storage</div></div>
 <?php if (empty($requirements['OpenSSL'])): ?><div class="alert">PHP OpenSSL is not enabled for the web runtime. Enable <code>extension=openssl</code> in the PHP configuration and restart the server.</div><?php endif; ?>
@@ -74,6 +97,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 <div class="field"><label for="email">Administrator email</label><input id="email" name="email" type="email" maxlength="254" required></div>
 <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" minlength="12" autocomplete="new-password" required></div>
 <div class="field"><label for="password_confirmation">Confirm password</label><input id="password_confirmation" name="password_confirmation" type="password" minlength="12" autocomplete="new-password" required></div>
-<button type="submit"<?= $allPassed ? '' : ' disabled' ?>>Install SmartStudyPro</button></form>
-<p class="fine">Use HTTPS. Prebuilt dependencies are downloaded from a pinned GitHub commit, verified against composer.lock, and stored outside the public web root in APP_STORAGE_PATH. No Composer executable, PHP CLI, or proc_open is required.</p>
+<button type="submit"<?= $canSubmit ? '' : ' disabled' ?>>Install SmartStudyPro</button></form>
+<p class="fine">Use HTTPS. Dependencies are prepared automatically when /install is opened. If the download fails, correct the server requirement or network issue shown above and submit the form to retry. Dependencies are verified against composer.lock and stored outside the public web root in APP_STORAGE_PATH.</p>
 </section></main></body></html>
