@@ -36,7 +36,11 @@ try {
     $_SERVER['SCRIPT_NAME'] = '\\SmartStudyProFin\\study.php';
     if (App\Core\Url::to('/courses') !== '/SmartStudyProFin/courses') throw new RuntimeException('Windows-style script paths are not normalized.');
     $_SERVER['SCRIPT_NAME'] = '/index.php';
-    if (App\Core\Url::to('/courses') !== '/courses') throw new RuntimeException('Root installation URLs are not canonical.');
+    if (App\Core\Url::to('/courses') !== '/courses' || App\Core\Url::to('/') !== '/') throw new RuntimeException('Root installation URLs are not canonical.');
+    $_SERVER['SCRIPT_NAME'] = 'http://localhost:8989/course-details.php';
+    if (App\Core\Url::to('/courses/example-course') !== '/courses/example-course' || App\Core\Url::to('/') !== '/') throw new RuntimeException('Host-qualified script names must not corrupt local route URLs.');
+    $_SERVER['SCRIPT_NAME'] = '/SmartStudyProFin/course-details.php';
+    if (App\Core\Url::to('/') !== '/SmartStudyProFin/' || App\Core\Url::to('/courses/example-course') !== '/SmartStudyProFin/courses/example-course') throw new RuntimeException('Nested detail-page links must preserve the installation base path.');
     if ($previousScriptName === null) unset($_SERVER['SCRIPT_NAME']); else $_SERVER['SCRIPT_NAME'] = $previousScriptName;
 
     if (!str_contains($routeRules, 'RewriteRule ^(?:admin|install)/?$ index.php [QSA,L]') || !str_contains($routeRules, 'RewriteRule ^ index.php [QSA,L]')) throw new RuntimeException('Apache must send installer and clean URLs through the index.php front controller.');
