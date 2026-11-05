@@ -20,7 +20,7 @@ if (is_file($vendorAutoload)) require_once $vendorAutoload;
 Security::sendHeaders();
 Session::start();
 
-if (PHP_SAPI !== 'cli' && !App\Core\\Installer::isInstalled()) {
+if (PHP_SAPI !== 'cli' && !App\Core\Installer::isInstalled()) {
     $installPath = App\Core\Url::applicationBasePath() . '/install';
     $requestPath = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
 
