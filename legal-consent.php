@@ -40,8 +40,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Review Updated Terms | SmartStudyPro</title>
-<link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-<link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+<link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/css/bootstrap.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
+<link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap-icons/bootstrap-icons.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--ssp-navy:#0C086B;--ssp-navy-dark:#070443;--ssp-orange:#FF7A00;--ssp-bg-soft:#F8FAFC;--ssp-card-bg:#FFFFFF;--ssp-card-border:#E2E8F0;--ssp-text-main:#1E293B;--ssp-text-muted:#64748B}
@@ -89,7 +89,7 @@ h1,h2{font-family:Outfit,sans-serif}
     <a href="terms.php" class="text-white text-decoration-none mx-2">Terms</a>
     <a href="cookies.php" class="text-white text-decoration-none mx-2">Cookies</a>
 </footer>
-<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/main.js"></script>
+<script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/js/bootstrap.bundle.min.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+<script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/js/main.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 </body>
 </html>
