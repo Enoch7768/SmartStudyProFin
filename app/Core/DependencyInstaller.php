@@ -21,6 +21,10 @@ final class DependencyInstaller
             '64-bit PHP runtime' => PHP_INT_SIZE === 8,
             'PHP cURL extension' => extension_loaded('curl'),
             'PHP ZIP extension' => extension_loaded('zip') && class_exists(ZipArchive::class),
+            'PHP GD extension' => extension_loaded('gd'),
+            'PHP mbstring extension' => extension_loaded('mbstring'),
+            'PHP SimpleXML extension' => extension_loaded('simplexml'),
+            'PHP MongoDB extension' => extension_loaded('mongodb'),
             'PHP OpenSSL extension' => extension_loaded('openssl'),
             'Outbound HTTPS access' => extension_loaded('curl') && extension_loaded('openssl'),
         ];
@@ -35,6 +39,7 @@ final class DependencyInstaller
             $vendor . DIRECTORY_SEPARATOR . 'autoload.php',
             $vendor . DIRECTORY_SEPARATOR . 'composer' . DIRECTORY_SEPARATOR . 'autoload_real.php',
             $vendor . DIRECTORY_SEPARATOR . 'composer' . DIRECTORY_SEPARATOR . 'platform_check.php',
+            $vendor . DIRECTORY_SEPARATOR . 'composer' . DIRECTORY_SEPARATOR . 'installed.php',
             $installedPath,
         ];
         foreach ($required as $path) if (!is_file($path) || is_link($path)) return false;
@@ -47,7 +52,9 @@ final class DependencyInstaller
             $actual = self::packageVersions($installed['packages']);
             ksort($expected);
             ksort($actual);
-            return $expected !== [] && $expected === $actual;
+            if ($expected === [] || $expected !== $actual) return false;
+            $autoload = (string) file_get_contents($vendor . DIRECTORY_SEPARATOR . 'autoload.php');
+            return str_contains($autoload, 'ComposerAutoloaderInit' . ($lock['content-hash'] ?? ''));
         } catch (\Throwable) {
             return false;
         }
@@ -84,12 +91,19 @@ final class DependencyInstaller
             self::extractArchive($archivePath, $stage);
             self::validateVendor($stage, $lock);
             if (is_link($vendor)) throw new RuntimeException('The existing private vendor path cannot be a symbolic link.');
+            if (file_exists($vendor) && !is_dir($vendor)) throw new RuntimeException('The existing dependency path is not a directory.');
             if (is_dir($vendor) && !rename($vendor, $backup)) throw new RuntimeException('The existing dependency directory could not be safely replaced.');
             if (!rename($stage, $vendor)) {
                 if (is_dir($backup)) @rename($backup, $vendor);
                 throw new RuntimeException('The verified dependencies could not be activated in private storage.');
             }
-            self::setPermissions($vendor);
+            try {
+                self::setPermissions($vendor);
+            } catch (\\Throwable $exception) {
+                self::removeDirectory($vendor);
+                if (is_dir($backup)) @rename($backup, $vendor);
+                throw $exception;
+            }
             if (!self::isReady($root)) {
                 self::removeDirectory($vendor);
                 if (is_dir($backup)) @rename($backup, $vendor);
@@ -171,9 +185,9 @@ final class DependencyInstaller
                 $name = $zip->getNameIndex($i);
                 if (!is_string($name) || str_contains($name, "\0") || str_starts_with($name, '/') || preg_match('/^[A-Za-z]:/', $name)) throw new RuntimeException('The dependency archive contains an unsafe file path.');
                 $parts = explode('/', str_replace('\\', '/', $name));
-                if (count($parts) < 2 || $parts[0] === '' || $parts[0] === '.' || $parts[0] === '..') throw new RuntimeException('The dependency archive has an unexpected directory structure.');
+                if ($parts[0] === '' || $parts[0] === '.' || $parts[0] === '..') throw new RuntimeException('The dependency archive has an unexpected directory structure.');
                 if ($rootPrefix === null) $rootPrefix = $parts[0] . '/';
-                if ($parts[0] . '/' !== $rootPrefix) throw new RuntimeException('The dependency archive contains multiple root directories.');
+                if ($parts[0] . '/' !== $rootPrefix || (count($parts) === 1 && !str_ends_with($name, '/'))) throw new RuntimeException('The dependency archive contains multiple root directories.');
                 foreach ($parts as $part) if ($part === '..' || $part === '.') throw new RuntimeException('The dependency archive contains a path traversal entry.');
                 $stat = $zip->statIndex($i);
                 if (!is_array($stat) || (int) ($stat['size'] ?? 0) > self::MAX_ARCHIVE_BYTES) throw new RuntimeException('The dependency archive contains an oversized entry.');
