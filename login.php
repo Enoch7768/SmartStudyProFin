@@ -297,7 +297,7 @@ $siteUrl = 'https://smartstudypro.com';
       
       <div class="ssp-auth-card p-4 p-md-5">
         <div class="text-center mb-4">
-          <img src="Smart_Study_Logo_Fin-removebg-preview.png" alt="SmartStudyPro Logo" height="64" class="mb-3">
+          <img src="<?= htmlspecialchars(\App\Core\Url::to('/Smart_Study_Logo_Fin-removebg-preview.png'), ENT_QUOTES, 'UTF-8') ?>" alt="SmartStudyPro Logo" height="64" class="mb-3">
           <h3 class="fw-bold mb-1 ssp-form-label">Welcome Back</h3>
           <p class="text-muted small mb-0">Sign in to view your profile and enrolled courses</p>
         </div>
