@@ -69,7 +69,7 @@ $seoDescription = 'Manage your SmartStudyPro account and student profile.';
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= Security::escape($seoTitle) ?></title>
 <meta name="description" content="<?= Security::escape($seoDescription) ?>">
-<link href="<?= htmlspecialchars(rtrim(dirname((string) ($_SERVER['SCRIPT_NAME'] ?? '/')), '/') . '/favicon.php', ENT_QUOTES, 'UTF-8') ?>" rel="icon">
+<link href="<?= htmlspecialchars(\App\Core\Url::to('/favicon.php'), ENT_QUOTES, 'UTF-8') ?>" rel="icon">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
