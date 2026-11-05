@@ -137,7 +137,7 @@ body{background:var(--ssp-bg);color:var(--ssp-ink);font-family:"Plus Jakarta San
 <p class="meta mb-3"><?= !empty($profile['google_subject']) ? 'Your Google account is connected. You can use it to sign in securely.' : 'Connect Google to sign in without entering your password.' ?></p>
 <?php if (!empty($profile['google_subject'])): ?><span class="badge text-bg-success">Google connected</span>
 <?php elseif ($googleConfigured): ?>
-<form method="post" action="google-auth.php"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>"><input type="hidden" name="action" value="link"><button class="btn btn-outline-secondary w-100 rounded-3 fw-semibold" type="submit">Connect Google account</button></form>
+<form method="post" action="<?= htmlspecialchars(\App\Core\Url::to('/google-auth.php'), ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>"><input type="hidden" name="action" value="link"><button class="btn btn-outline-secondary w-100 rounded-3 fw-semibold" type="submit">Connect Google account</button></form>
 <?php else: ?>
 <div class="meta" role="status"><p class="mb-2">Google account linking is not ready. Check the server configuration:</p><ul class="mb-0 ps-3"><?php foreach ($googleIssues as $issue): ?><li class="mb-1"><?= Security::escape($issue) ?></li><?php endforeach; ?></ul></div>
 <?php endif; ?>
@@ -164,7 +164,7 @@ body{background:var(--ssp-bg);color:var(--ssp-ink);font-family:"Plus Jakarta San
 
 <section class="d-flex justify-content-between align-items-center mt-4 px-2">
 <span class="meta">Member since <?= Security::escape(date('M Y', strtotime((string) ($profile['created_at'] ?? 'now')))) ?></span>
-<form method="post" action="logout.php"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>"><button type="submit" class="btn btn-link text-danger text-decoration-none fw-semibold">Sign out</button></form>
+<form method="post" action="<?= htmlspecialchars(\App\Core\Url::to('/logout'), ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>"><button type="submit" class="btn btn-link text-danger text-decoration-none fw-semibold">Sign out</button></form>
 </section>
 </div>
 </div>
