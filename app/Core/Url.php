@@ -53,7 +53,12 @@ final class Url
             return self::to('/');
         }
 
-        if (str_starts_with($path, '/')) return self::to($path);
+        if (str_starts_with($path, '/')) {
+            $basePath = self::basePath();
+            $pathname = (string) parse_url($path, PHP_URL_PATH);
+            if ($basePath !== '' && ($pathname === $basePath || str_starts_with($pathname, $basePath . '/'))) return $path;
+            return self::to($path);
+        }
 
         $parts = preg_split('/([?#])/', $path, 2, PREG_SPLIT_DELIM_CAPTURE);
         $pathname = (string) ($parts[0] ?? '');
