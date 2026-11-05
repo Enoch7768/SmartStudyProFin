@@ -39,11 +39,7 @@ final class Security
     public static function redirect(string $path): never
     {
         $path = trim($path);
-        if ($path === '' || str_starts_with($path, '//') || preg_match('/^[a-z][a-z0-9+.-]*:/i', $path) || preg_match('/[\r\n\\\\]/', $path)) {
-            $path = Url::to('/');
-        } elseif (!str_starts_with($path, '/')) {
-            $path = Url::to('/' . $path);
-        }
+        $path = Url::resolve($path);
         header('Location: ' . $path, true, 303);
         exit;
     }
