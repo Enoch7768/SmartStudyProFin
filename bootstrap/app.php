@@ -21,7 +21,7 @@ Security::sendHeaders();
 Session::start();
 
 if (PHP_SAPI !== 'cli' && !App\Core\\Installer::isInstalled()) {
-    $installPath = App\Core\\Url::applicationBasePath() . '/install';
+    $installPath = App\Core\Url::applicationBasePath() . '/install';
     $requestPath = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
 
     if (!in_array($requestPath, [$installPath, $installPath . '/', $installPath . '/index.php'], true)) {
