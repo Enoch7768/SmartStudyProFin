@@ -74,7 +74,7 @@ $seoTitle = 'Password Recovery | SmartStudyPro';
 <body>
 <?php include __DIR__ . '/nav.php'; ?>
 <main id="main-content" class="card-shell">
-<div class="text-center mb-4"><a href="index.php" class="brand text-decoration-none">SmartStudy<span>Pro</span></a></div>
+<div class="text-center mb-4"><a href="<?= htmlspecialchars(\App\Core\Url::to('/'), ENT_QUOTES, 'UTF-8') ?>" class="brand text-decoration-none">SmartStudy<span>Pro</span></a></div>
 <h1 class="text-center mb-2"><?= $mode === 'reset' ? 'Choose a new password' : ($mode === 'complete' ? 'Password updated' : 'Reset your password') ?></h1>
 <p class="muted text-center mb-4"><?= $mode === 'reset' ? 'Choose a strong password you have not used before.' : 'We will send a secure reset link if an active account matches your email.' ?></p>
 <?php if ($error !== null): ?><div class="alert alert-danger small"><?= Security::escape($error) ?></div><?php endif; ?>
@@ -94,7 +94,7 @@ $seoTitle = 'Password Recovery | SmartStudyPro';
 <button class="btn btn-primary w-100" type="submit">Update password</button>
 </form>
 <?php endif; ?>
-<div class="text-center mt-4 small"><a href="login.php" class="text-decoration-none fw-semibold" style="color:var(--orange)">Back to sign in</a></div>
+<div class="text-center mt-4 small"><a href="<?= htmlspecialchars(\App\Core\Url::to('/login'), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none fw-semibold" style="color:var(--orange)">Back to sign in</a></div>
 </main>
 <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/js/bootstrap.bundle.min.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/js/main.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
