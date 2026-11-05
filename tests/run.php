@@ -59,6 +59,7 @@ try {
     if (App\Core\Url::basePath() !== '/SmartStudyProFin' || App\Core\Url::documentBase() !== '/SmartStudyProFin/admin/') throw new RuntimeException('Windows-style admin paths must resolve against the admin directory and application root.');
     if (App\Core\Url::resolve('orders.php?saved=1') !== '/SmartStudyProFin/admin/orders.php?saved=1' || App\Core\Url::resolve('../login.php?redirect=admin%2Forders.php') !== '/SmartStudyProFin/login.php?redirect=admin%2Forders.php' || App\Core\Url::resolve('/profile') !== '/SmartStudyProFin/profile') throw new RuntimeException('Relative redirects must resolve within their current directory and application base.');
     if (App\Core\Url::resolve(App\Core\Url::to('/learn/science')) !== '/SmartStudyProFin/learn/science') throw new RuntimeException('Prebuilt application URLs must not receive the installation prefix twice.');
+    if (App\Core\Url::resolve('../../outside.php') !== '/SmartStudyProFin/outside.php') throw new RuntimeException('Relative redirects must not escape the application installation directory.');
     if (App\Core\Url::resolve('\\\\\\\\evil.example/path') !== '/SmartStudyProFin/') throw new RuntimeException('Backslash-based external redirect targets must be rejected.');
     $_SERVER['SCRIPT_NAME'] = $previousScriptName ?? '/index.php';
     $_SERVER['SCRIPT_NAME'] = 'http://localhost:8989/SmartStudyProFin/index.php';
