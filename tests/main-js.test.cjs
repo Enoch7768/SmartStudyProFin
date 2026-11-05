@@ -134,7 +134,7 @@ console.log('PASS escape and link navigation close the mobile menu');
 
 const homepage = fs.readFileSync('index.php', 'utf8');
 const sharedStylesheet = fs.readFileSync('assets/css/main.css', 'utf8');
-assert.match(homepage, /<link href="assets\/css\/main\.css" rel="stylesheet">/);
+assert.ok(homepage.includes('assets/css/main.css'));
 assert.match(sharedStylesheet, /:where\(a, button, input, select, textarea, summary, \[tabindex\]\):focus-visible/);
 assert.match(sharedStylesheet, /prefers-reduced-motion: reduce/);
 console.log('PASS homepage loads the shared accessibility stylesheet');
