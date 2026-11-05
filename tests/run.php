@@ -41,6 +41,17 @@ try {
     if (App\Core\Url::to('/courses/example-course') !== '/courses/example-course' || App\Core\Url::to('/') !== '/') throw new RuntimeException('Host-qualified script names must not corrupt local route URLs.');
     $_SERVER['SCRIPT_NAME'] = '/SmartStudyProFin/course-details.php';
     if (App\Core\Url::to('/') !== '/SmartStudyProFin/' || App\Core\Url::to('/courses/example-course') !== '/SmartStudyProFin/courses/example-course') throw new RuntimeException('Nested detail-page links must preserve the installation base path.');
+    if (App\Core\Url::to('\courses\testing') !== '/SmartStudyProFin/courses/testing' || App\Core\Url::to('courses\testing') !== '/SmartStudyProFin/courses/testing') throw new RuntimeException('Single Windows backslashes must normalize into internal URL separators.');
+    if (App\Core\Url::to('\\courses\testing') !== '/SmartStudyProFin/') throw new RuntimeException('Double-leading backslashes must not become an external host URL.');
+    if (App\Core\Url::to('https://example.com/path') !== 'https://example.com/path') throw new RuntimeException('Absolute HTTPS URLs must remain absolute.');
+    if (App\Core\Url::to('/courses/testing?next=%2Flearn%2Fscience') !== '/SmartStudyProFin/courses/testing?next=%2Flearn%2Fscience') throw new RuntimeException('Query strings must be preserved while generating internal URLs.');
+    $_SERVER['SCRIPT_NAME'] = '/SmartStudyProFin/install/index.php';
+    if (App\Core\Url::applicationBasePath() !== '/SmartStudyProFin') throw new RuntimeException('Installer redirects must use the application base path rather than the install directory.');
+    $_SERVER['SCRIPT_NAME'] = '\\\\SmartStudyProFin\install\index.php';
+    if (App\Core\Url::applicationBasePath() !== '/SmartStudyProFin') throw new RuntimeException('Windows-style installer paths must preserve the application base path.');
+    $_SERVER['SCRIPT_NAME'] = 'http://localhost:8989/SmartStudyProFin/index.php';
+    if (App\Core\Url::basePath() !== '/SmartStudyProFin') throw new RuntimeException('Host-qualified script paths must preserve their URL path.');
+    $_SERVER['SCRIPT_NAME'] = '/index.php';
     if ($previousScriptName === null) unset($_SERVER['SCRIPT_NAME']); else $_SERVER['SCRIPT_NAME'] = $previousScriptName;
 
     if (!str_contains($routeRules, 'RewriteRule ^(?:admin|install)/?$ index.php [QSA,L]') || !str_contains($routeRules, 'RewriteRule ^ index.php [QSA,L]')) throw new RuntimeException('Apache must send installer and clean URLs through the index.php front controller.');
