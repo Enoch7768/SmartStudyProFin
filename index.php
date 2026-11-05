@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 $root = __DIR__;
 $rootPath = realpath($root) ?: $root;
-$scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
-$basePath = PHP_SAPI === 'cli-server' ? '' : dirname($scriptName);
-$basePath = $basePath === '/' || $basePath === '.' ? '' : rtrim($basePath, '/');
+require_once $root . '/app/Core/Url.php';
+$basePath = PHP_SAPI === 'cli-server' ? '' : \App\Core\Url::basePath();
 $requestPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
 $requestPath = is_string($requestPath) ? rawurldecode($requestPath) : '/';
 
