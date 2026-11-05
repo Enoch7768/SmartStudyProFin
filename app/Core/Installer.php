@@ -56,7 +56,7 @@ final class Installer
     public static function requirements(): array
     {
         return [
-            'PHP 8.2 or newer' => version_compare(PHP_VERSION, '8.1.0', '>='),
+            'PHP 8.2 or newer' => version_compare(PHP_VERSION, '8.2.0', '>='),
             'PDO SQLite' => extension_loaded('pdo_sqlite'),
             'OpenSSL' => extension_loaded('openssl'),
             'JSON' => extension_loaded('json'),
