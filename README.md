@@ -2,7 +2,7 @@
 
 **Study Made Simple, Success Made Sure.**
 
-SmartStudyPro is a PHP 8.1+ learning and education-commerce platform for students and administrators. It brings course discovery, enrolment, protected learning materials, lesson progress, quizzes and timed assessments, certificates, achievements, notifications, a grounded AI learning assistant, digital products and payment processing into one responsive website.
+SmartStudyPro is a PHP 8.2+ learning and education-commerce platform for students and administrators. It brings course discovery, enrolment, protected learning materials, lesson progress, quizzes and timed assessments, certificates, achievements, notifications, a grounded AI learning assistant, digital products and payment processing into one responsive website.
 
 The application is designed for conventional PHP hosting with SQLite. It uses server-rendered PHP pages and does not require a Node.js runtime or a separate database server in production.
 
@@ -19,9 +19,9 @@ The application is designed for conventional PHP hosting with SQLite. It uses se
 
 ## Requirements
 
-- PHP 8.1 or later
+- PHP 8.2 or later, 64-bit
 - PDO SQLite and SQLite3 extensions
-- OpenSSL and Fileinfo
+- cURL, ZIP, GD, mbstring, SimpleXML, MongoDB, OpenSSL and Fileinfo
 - HTTPS in production
 - Apache with mod_rewrite and .htaccess support, or equivalent web-server rules
 - A writable private storage directory outside the public web root
@@ -34,7 +34,7 @@ Optional integrations require their own credentials: PayPal, DPO and Google Gemi
 2. Set APP_STORAGE_PATH to a writable directory outside the public web root. The installer stores Composer's runtime, downloaded PHP packages, application key, database, logs and private media there.
 3. Set DB_PATH to a SQLite file inside that private storage directory.
 4. Configure APP_URL, APP_ENV=production and APP_DEBUG=false.
-5. Open /install over HTTPS. The installer downloads Composer securely, installs the exact composer.lock dependencies into private storage, verifies the autoloader, runs migrations and creates the first administrator. You do not need Composer or SSH installed on the hosting account.
+5. Open /install over HTTPS. When `/install` is opened, the installer automatically downloads a pinned prebuilt dependency archive from GitHub into private storage and verifies every package version against `composer.lock`. It then runs migrations and creates the first administrator. No Composer executable, PHP CLI, SSH, or `proc_open` is required on the hosting account.
 6. Add provider credentials to the hosting environment or private storage; never commit secrets.
 7. Configure and test payment-provider webhooks and email delivery before accepting live transactions. The installer locks itself after successful setup.
 
@@ -64,7 +64,7 @@ http://localhost:8000/google-auth.php?action=callback
 
 Google accepts HTTP for localhost development only. Keep the client ID in the project environment and the client secret in the server environment or `$APP_STORAGE_PATH/.env`. Restart the PHP server after changing environment configuration.
 
-Run PHP lint, unit, SQLite integration, assistant, recognition, operations, content-security, performance and security tests, plus JavaScript syntax and behaviour tests. GitHub Actions validates PHP 8.1 and 8.3. Provider credentials and real-money payment flows must be tested separately in provider sandbox environments before production activation.
+Run PHP lint, unit, SQLite integration, assistant, recognition, operations, content-security, performance and security tests, plus JavaScript syntax and behaviour tests. GitHub Actions validates the PHP 8.3 release runtime and the complete dependency installer test suite. Provider credentials and real-money payment flows must be tested separately in provider sandbox environments before production activation.
 
 ## Legal and intellectual property
 
