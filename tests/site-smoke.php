@@ -182,8 +182,10 @@ try {
             continue;
         }
         $routeBody = is_string($routeBody) ? $routeBody : '';
-        if (in_array($route, ['/courses/smoke-course', '/products/smoke-product'], true) && !str_contains($routeBody, '<base href="/">')) {
-            $failures[] = $route . ': nested detail page is missing its root asset base';
+        if (in_array($route, ['/courses/smoke-course', '/products/smoke-product'], true)) {
+            if (!str_contains($routeBody, '<base href="/">')) $failures[] = $route . ': nested detail page is missing its root asset base';
+            if (preg_match('/(?:href|src|action)=["\'][^"\']*\\\\\\\\/', $routeBody)) $failures[] = $route . ': a rendered URL contains Windows backslashes';
+            if (str_contains($routeBody, 'http://courses/')) $failures[] = $route . ': an internal link was emitted as a hostname instead of a local route';
         }
         foreach (['Fatal error:', 'Parse error:', 'Uncaught Error', 'Uncaught TypeError'] as $fatal) {
             if (str_contains($routeBody, $fatal)) {
