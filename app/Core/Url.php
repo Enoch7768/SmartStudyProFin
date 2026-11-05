@@ -9,7 +9,9 @@ final class Url
     public static function basePath(): string
     {
         $scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
-        $directory = dirname($scriptName);
+        $scriptPath = parse_url($scriptName, PHP_URL_PATH);
+        if (!is_string($scriptPath) || $scriptPath === '') $scriptPath = '/index.php';
+        $directory = dirname('/' . ltrim($scriptPath, '/'));
         return $directory === '/' || $directory === '.' ? '' : rtrim($directory, '/');
     }
 
@@ -20,6 +22,7 @@ final class Url
             return self::basePath() . '/';
         }
 
-        return self::basePath() . '/' . ltrim($path, '/');
+        $path = '/' . ltrim($path, '/');
+        return self::basePath() . $path;
     }
 }
