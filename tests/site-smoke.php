@@ -114,6 +114,9 @@ try {
         }
         if (str_contains(strtolower($body), '<html')) {
             if ($status === 200 && in_array($page, $navigationPages, true)) {
+                if (!str_contains($body, '<base href="/">')) {
+                    $failures[] = $page . ': shared root URL base is missing; nested links and assets can resolve against the current route';
+                }
                 foreach (['id="navmenu"', 'id="theme-toggle"', 'assets/js/main.js', 'assets/css/device-responsive.css'] as $sharedFeature) {
                     if (!str_contains($body, $sharedFeature)) {
                         $failures[] = $page . ': shared site shell is missing ' . $sharedFeature;
@@ -129,7 +132,8 @@ try {
                 $path = parse_url($url, PHP_URL_PATH);
                 if (!is_string($path) || $path === '' || !preg_match('/\.(?:css|js|png|jpe?g|gif|svg|ico|webp|woff2?|ttf)$/i', $path)) continue;
                 $relative = ltrim(rawurldecode($path), '/');
-                $base = str_starts_with($path, '/') ? $root : $root . '/' . dirname($page);
+                $hasRootBase = preg_match('/<base\\s+href=["\\']\\/["\\']/i', $body) === 1;
+                $base = str_starts_with($path, '/') || $hasRootBase ? $root : $root . '/' . dirname($page);
                 $candidate = realpath($base . '/' . $relative);
                 if ($candidate === false || !str_starts_with($candidate, realpath($root) . DIRECTORY_SEPARATOR) || !is_file($candidate)) {
                     $failures[] = $page . ': missing local asset ' . $url;
