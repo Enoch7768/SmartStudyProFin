@@ -10,10 +10,11 @@ use App\Core\Auth;
 use App\Core\Config;
 use App\Core\Database;
 use App\Core\Security;
+use App\Core\Url;
 
 $pdo = Database::connect();
 $user = Auth::user($pdo);
-if (!$user) Security::redirect('login.php?redirect=cart.php');
+if (!$user) Security::redirect(Url::to('/login?redirect=cart'));
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST' || !Security::verifyCsrf($_POST['_csrf'] ?? null)) {
     http_response_code(400);
     exit('Invalid checkout request.');
