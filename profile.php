@@ -159,7 +159,7 @@ body{background:var(--ssp-bg);color:var(--ssp-ink);font-family:"Plus Jakarta San
 <section class="account-card p-4">
 <div class="eyebrow">Your learning</div><h2 class="h4 mb-2">Student portal</h2>
 <p class="meta mb-3">Review your purchases, track course access and continue learning from your account.</p>
-<div class="d-flex flex-wrap gap-2"><a href="orders.php" class="btn btn-outline-primary rounded-pill fw-semibold px-3">Order history</a><a href="learning.php" class="btn btn-outline-primary rounded-pill fw-semibold px-3">Open my learning <i class="bi bi-arrow-right ms-1"></i></a><a href="courses.php" class="btn btn-outline-secondary rounded-pill fw-semibold px-3">Explore courses</a></div>
+<div class="d-flex flex-wrap gap-2"><a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/orders'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-primary rounded-pill fw-semibold px-3">Order history</a><a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/learn'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-primary rounded-pill fw-semibold px-3">Open my learning <i class="bi bi-arrow-right ms-1"></i></a><a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/courses'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-secondary rounded-pill fw-semibold px-3">Explore courses</a></div>
 </section>
 
 <section class="d-flex justify-content-between align-items-center mt-4 px-2">
