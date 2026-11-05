@@ -9,6 +9,7 @@ use App\Core\Auth;
 use App\Core\Config;
 use App\Core\Database;
 use App\Core\Security;
+use App\Core\Url;
 
 $pdo = Database::connect();
 $user = Auth::user($pdo);
@@ -19,7 +20,7 @@ if (!$user) {
         echo json_encode(['error' => 'Please sign in to use the learning assistant.']);
         exit;
     }
-    Security::redirect('login.php?redirect=assistant.php');
+    Security::redirect(Url::to('/login?redirect=assistant'));
 }
 $service = new AssistantService($pdo, (string) Config::get('ai.gemini_api_key', ''), (string) Config::get('ai.gemini_model', 'gemini-2.5-flash'));
 
