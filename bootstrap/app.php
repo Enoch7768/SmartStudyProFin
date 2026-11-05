@@ -23,10 +23,10 @@ Session::start();
 
 if (PHP_SAPI !== 'cli' && !headers_sent()) {
     ob_start(static function (string $html): string {
-        if (!preg_match('/<head\\b[^>]*>/i', $html) || preg_match('/<base\\b/i', $html)) return $html;
+        if (!preg_match('/<head\b[^>]*>/i', $html) || preg_match('/<base\b/i', $html)) return $html;
 
         $baseUrl = htmlspecialchars(Url::to('/'), ENT_QUOTES, 'UTF-8');
-        return preg_replace('/(<head\\b[^>]*>)/i', '$1' . PHP_EOL . '<base href="' . $baseUrl . '">', $html, 1) ?? $html;
+        return preg_replace('/(<head\b[^>]*>)/i', '$1' . PHP_EOL . '<base href="' . $baseUrl . '">', $html, 1) ?? $html;
     });
 }
 
