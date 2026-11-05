@@ -60,7 +60,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             if (!is_file($vendorAutoload)) throw new RuntimeException('The verified dependency autoloader is missing. Retry /install.');
             require_once $vendorAutoload;
             Installer::install($application['root'], (string) ($_POST['name'] ?? ''), (string) ($_POST['email'] ?? ''), $password);
-            $scriptName = str_replace('\\\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/install/index.php'));
+            $scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/install/index.php'));
             $basePath = rtrim(str_replace('\\', '/', dirname(dirname($scriptName))), '/');
             $basePath = $basePath === '/' || $basePath === '.' ? '' : rtrim($basePath, '/');
             header('Location: ' . $basePath . '/install?installed=1', true, 303);
