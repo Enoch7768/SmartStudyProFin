@@ -64,16 +64,16 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 <body>
 <main class="shell">
 <section class="intro"><div><div class="mark">SmartStudy<span>Pro</span></div><div class="tag">Secure first-time setup</div><h1>Your learning platform starts here.</h1><p>Prepare your private database and create the first administrator account. No default passwords or demo accounts are installed.</p></div><div style="font-size:12px;color:#b9bee8">SmartStudyPro · Private installation</div></section>
-<section class="panel"><h2>Application setup</h2><p class="sub">SmartStudyPro installs its locked PHP dependencies into private storage, prepares the database, and creates your administrator account. No Composer or SSH installation is needed.</p>
+<section class="panel"><h2>Application setup</h2><p class="sub">SmartStudyPro downloads and verifies its prebuilt PHP dependencies from GitHub into private storage, prepares the database, and creates your administrator account. No Composer or SSH installation is needed.</p>
 <?php foreach ($errors as $error): ?><div class="alert"><?= Security::escape($error) ?></div><?php endforeach; ?>
 <div class="checks"><?php foreach ($requirements as $label => $passed): ?><div class="check"><span class="dot<?= $passed ? ' ok' : '' ?>"></span><?= Security::escape($label) ?></div><?php endforeach; ?><div class="check"><span class="dot<?= $storagePrivate ? ' ok' : '' ?>"></span>Private storage outside web root</div><div class="check"><span class="dot<?= $databasePrivate ? ' ok' : '' ?>"></span>Database inside private storage</div></div>
 <?php if (empty($requirements['OpenSSL'])): ?><div class="alert">PHP OpenSSL is not enabled for the web runtime. Enable <code>extension=openssl</code> in the PHP configuration and restart the server.</div><?php endif; ?>
-<?php if (empty($requirements['PHP CLI OpenSSL'])): ?><div class="alert">Composer uses PHP CLI, and that runtime does not have OpenSSL enabled. In Command Prompt run <code>php --ini</code>, enable <code>extension=openssl</code> in the listed CLI php.ini, then restart the PHP server and refresh this page. Apache and CLI PHP can use different configuration files.</div><?php endif; ?>
+
 <form method="post" autocomplete="off"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>">
 <div class="field"><label for="name">Administrator name</label><input id="name" name="name" maxlength="120" required></div>
 <div class="field"><label for="email">Administrator email</label><input id="email" name="email" type="email" maxlength="254" required></div>
 <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" minlength="12" autocomplete="new-password" required></div>
 <div class="field"><label for="password_confirmation">Confirm password</label><input id="password_confirmation" name="password_confirmation" type="password" minlength="12" autocomplete="new-password" required></div>
 <button type="submit"<?= $allPassed ? '' : ' disabled' ?>>Install SmartStudyPro</button></form>
-<p class="fine">Use HTTPS. Dependencies and Composer's temporary runtime are stored outside the public web root in APP_STORAGE_PATH. The application source ships without a vendor directory or bundled Composer executable. PHP must permit outbound HTTPS requests and proc_open.</p>
+<p class="fine">Use HTTPS. Prebuilt dependencies are downloaded from a pinned GitHub commit, verified against composer.lock, and stored outside the public web root in APP_STORAGE_PATH. No Composer executable, PHP CLI, or proc_open is required.</p>
 </section></main></body></html>
