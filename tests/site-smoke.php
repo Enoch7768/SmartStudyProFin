@@ -202,7 +202,9 @@ try {
     }
 
     if ($failures) {
-        throw new RuntimeException("Page smoke failures:\n- " . implode("\n- ", $failures));
+        $serverOutput = is_file($serverLog) ? (string) file_get_contents($serverLog) : '';
+        $diagnostics = $serverOutput !== '' ? "\nPHP server output:\n" . substr($serverOutput, -6000) : '';
+        throw new RuntimeException("Page smoke failures:\n- " . implode("\n- ", $failures) . $diagnostics);
     }
 
     echo 'PASS unauthenticated HTTP smoke checks for ' . $checked . ' application pages' . PHP_EOL;
