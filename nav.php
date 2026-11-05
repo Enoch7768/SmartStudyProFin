@@ -128,6 +128,8 @@
 </style>
 
 <?php
+$navScriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
+$navBasePath = \App\Core\Url::basePath();
 $navRoute = static fn (string $path): string => \App\Core\Url::to($path);
 $navRequestPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
 $navRequestPath = is_string($navRequestPath) ? rawurldecode($navRequestPath) : '/';
