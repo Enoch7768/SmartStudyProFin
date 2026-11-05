@@ -77,7 +77,7 @@ assert.ok(productAssetPage.includes('id="cms-theme-toggle"'));
 assert.ok(productAssetPage.includes('html[data-theme="dark"] .form-select'));
 assert.ok(productAssetPage.includes('Private files delivered after purchase'));
 assert.ok(productAssetPage.includes('Public product gallery images'));
-assert.ok(cmsPage.includes('href="../favicon.php"'));
+assert.ok(cmsPage.includes("Url::to('/favicon.ico')"));
 console.log('PASS CMS sign-in and dashboard expose dark mode and site favicon settings');
 
 console.log('PASS CMS theme preference, system fallback, accessible toggle and storage failure handling');
