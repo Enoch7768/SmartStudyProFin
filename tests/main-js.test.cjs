@@ -158,7 +158,7 @@ console.log('PASS homepage uses the shared accessible navigation and course entr
 
 for (const page of ['index.php', 'about.php', 'contact.php', 'courses.php', 'products.php', 'product-details.php', 'login.php', 'register.php']) {
   const source = fs.readFileSync(page, 'utf8');
-  assert.ok(source.includes('<link href="assets/css/main.css" rel="stylesheet">'), page + ' must load shared accessibility styles');
+  assert.match(source, /assets\\/css\\/main\\.css/, page + ' must load shared accessibility styles through a root-safe URL');
 }
 console.log('PASS public pages load shared accessibility and reduced-motion styles');
 
