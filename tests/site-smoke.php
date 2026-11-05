@@ -185,7 +185,8 @@ try {
         if (isset($routeHeaders[0]) && preg_match('/\\s([1-5][0-9]{2})\\s/', $routeHeaders[0], $match)) $routeStatus = (int) $match[1];
         if (!in_array($routeStatus, $expectedStatuses, true)) {
             $serverOutput = is_file($serverLog) ? trim((string) file_get_contents($serverLog)) : '';
-            $failures[] = $route . ': expected HTTP ' . implode(' or ', $expectedStatuses) . ', received ' . $routeStatus . ($serverOutput !== '' ? '; server output: ' . substr($serverOutput, -1600) : '');
+            $responseExcerpt = is_string($routeBody) ? substr(strip_tags($routeBody), 0, 1600) : '';
+            $failures[] = $route . ': expected HTTP ' . implode(' or ', $expectedStatuses) . ', received ' . $routeStatus . ($responseExcerpt !== '' ? '; response: ' . $responseExcerpt : '') . ($serverOutput !== '' ? '; server output: ' . substr($serverOutput, -1600) : '');
             continue;
         }
         $routeBody = is_string($routeBody) ? $routeBody : '';
