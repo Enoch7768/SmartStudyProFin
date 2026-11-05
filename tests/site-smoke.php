@@ -128,10 +128,10 @@ try {
             if (!preg_match('/<meta\s+name=["\']viewport["\']/i', $body)) {
                 $failures[] = $page . ': HTML page is missing its responsive viewport declaration';
             }
-            preg_match_all('/(?:href|src)=["\']([^"\']+)["\']/i', $body, $matches);
+            preg_match_all('/(?:href|src|action|poster)=["\']([^"\']+)["\']/i', $body, $matches);
             foreach ($matches[1] as $url) {
                 if (str_contains($url, '\\')) $failures[] = $page . ': rendered URL contains a Windows backslash: ' . $url;
-                if (preg_match('#^https?://(?:courses|products|contact|login|profile)(?:/|$)#i', $url)) $failures[] = $page . ': internal route was rendered as an external hostname: ' . $url;
+                if (preg_match('#^https?://(?:courses|products|contact|login|profile|learn|assistant|cart|admin|about|checkout|register|notifications|orders|refunds)(?:/|$)#i', $url)) $failures[] = $page . ': internal route was rendered as an external hostname: ' . $url;
                 if ($url === '' || str_starts_with($url, '//') || preg_match('/^(?:[a-z][a-z0-9+.-]*:|#)/i', $url)) continue;
                 $path = parse_url($url, PHP_URL_PATH);
                 if (!is_string($path) || $path === '' || !preg_match('/\.(?:css|js|png|jpe?g|gif|svg|ico|webp|woff2?|ttf)$/i', $path)) continue;
