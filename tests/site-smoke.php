@@ -134,7 +134,7 @@ try {
                 if (preg_match('#^https?://(?:courses|products|contact|login|profile|learn|assistant|cart|admin|about|checkout|register|notifications|orders|refunds)(?:/|$)#i', $url)) $failures[] = $page . ': internal route was rendered as an external hostname: ' . $url;
                 if ($url === '' || str_starts_with($url, '//') || preg_match('/^(?:[a-z][a-z0-9+.-]*:|#)/i', $url)) continue;
                 $path = parse_url($url, PHP_URL_PATH);
-                if (!is_string($path) || $path === '' || !preg_match('/\.(?:css|js|png|jpe?g|gif|svg|ico|webp|woff2?|ttf)$/i', $path)) continue;
+                if (!is_string($path) || $path === '' || !preg_match('/\.(?:css|js|png|jpe?g|gif|svg|webp|woff2?|ttf)$/i', $path)) continue;
                 $relative = ltrim(rawurldecode($path), '/');
                 $hasRootBase = str_contains($body, '<base href="/">');
                 $base = str_starts_with($path, '/') || $hasRootBase ? $root : $root . '/' . dirname($page);
