@@ -149,7 +149,7 @@ $navActive = static function (string $section) use ($navRequestPath): bool {
     };
 };
 ?>
-<a class="skip-link" href="#main-content">Skip to content</a>
+<a class="skip-link" href="<?= htmlspecialchars($navRoute($navRequestPath . '#main-content'), ENT_QUOTES, 'UTF-8') ?>">Skip to content</a>
 <header id="header" class="header ssp-header d-flex align-items-center sticky-top py-2" style="z-index: 10000;">
   <div class="container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
     <a href="<?= htmlspecialchars($navRoute('/'), ENT_QUOTES, 'UTF-8') ?>" class="logo d-flex align-items-center me-auto me-xl-0 text-decoration-none">
