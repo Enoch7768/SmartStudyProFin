@@ -210,12 +210,12 @@ $siteUrl = 'https://smartstudypro.com';
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
-  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
-  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
-  <link href="assets/css/main.css" rel="stylesheet">
+  <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/css/bootstrap.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
+  <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap-icons/bootstrap-icons.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
+  <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/aos/aos.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
+  <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/glightbox/css/glightbox.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
+  <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/swiper/swiper-bundle.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
+  <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/main.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 
   <style>
     :root {
@@ -575,7 +575,7 @@ $siteUrl = 'https://smartstudypro.com';
       } catch (error) {}
     })();
   </script>
-<link href="assets/css/device-responsive.css" rel="stylesheet">
+<link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/device-responsive.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 </head>
 
 <body class="index-page">
@@ -628,7 +628,7 @@ $siteUrl = 'https://smartstudypro.com';
         <div class="row gy-4 align-items-center">
           <div class="col-lg-6 order-1 order-lg-2">
             <div class="position-relative">
-              <img src="assets/img/20240102_164438.jpg" class="img-fluid rounded-4 shadow-lg w-100" alt="SmartStudyPro Learning Environment">
+              <img src="<?= htmlspecialchars(\App\Core\Url::to('/assets/img/20240102_164438.jpg'), ENT_QUOTES, 'UTF-8') ?>" class="img-fluid rounded-4 shadow-lg w-100" alt="SmartStudyPro Learning Environment">
             </div>
           </div>
 
@@ -793,9 +793,9 @@ $siteUrl = 'https://smartstudypro.com';
   <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center text-decoration-none"><i class="bi bi-arrow-up-short"></i></a>
   <div id="preloader"></div>
 
-  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="assets/vendor/aos/aos.js"></script>
-  <script src="assets/js/main.js"></script>
+  <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/js/bootstrap.bundle.min.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+  <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/aos/aos.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+  <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/js/main.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 
 
 
