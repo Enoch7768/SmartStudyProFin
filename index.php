@@ -701,7 +701,7 @@ $siteUrl = 'https://smartstudypro.com';
                     </div>
 
                     <h3 class="h5 fw-bold mb-2">
-                      <a href="course-details.php?id=<?= $course['_id'] ?>" class="text-decoration-none" style="color: var(--ssp-navy);">
+                      <a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/courses/' . rawurlencode((string) ($course['slug'] ?? $course['_id']))), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none" style="color: var(--ssp-navy);">
                         <?= htmlspecialchars($course['Title'] ?? 'Untitled Course') ?>
                       </a>
                     </h3>
@@ -710,7 +710,7 @@ $siteUrl = 'https://smartstudypro.com';
                       <?= htmlspecialchars(substr(strip_tags($course['Description'] ?? $course['description'] ?? ''), 0, 110)) ?>...
                     </p>
 
-                    <a href="course-details.php?id=<?= $course['_id'] ?>" class="btn btn-outline-primary w-100 mt-auto rounded-3 fw-bold text-decoration-none" style="color: var(--ssp-navy); border-color: var(--ssp-navy);">
+                    <a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/courses/' . rawurlencode((string) ($course['slug'] ?? $course['_id']))), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-primary w-100 mt-auto rounded-3 fw-bold text-decoration-none" style="color: var(--ssp-navy); border-color: var(--ssp-navy);">
                       View Details
                     </a>
                   </div>
