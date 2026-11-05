@@ -31,7 +31,7 @@ Optional integrations require their own credentials: PayPal, DPO and Google Gemi
 ## Installation
 
 1. Deploy the clean release package and configure the document root to the application directory.
-2. Set APP_STORAGE_PATH to a writable directory outside the public web root. The installer stores Composer's runtime, downloaded PHP packages, application key, database, logs and private media there.
+2. Set APP_STORAGE_PATH to a writable directory outside the public web root. The installer stores the verified PHP dependency autoloader, application key, database, logs and private media there.
 3. Set DB_PATH to a SQLite file inside that private storage directory.
 4. Configure APP_URL, APP_ENV=production and APP_DEBUG=false.
 5. Open /install over HTTPS. When `/install` is opened, the installer automatically downloads a pinned prebuilt dependency archive from GitHub into private storage and verifies every package version against `composer.lock`. It then runs migrations and creates the first administrator. No Composer executable, PHP CLI, SSH, or `proc_open` is required on the hosting account.
@@ -64,7 +64,7 @@ http://localhost:8000/google-auth.php?action=callback
 
 Google accepts HTTP for localhost development only. Keep the client ID in the project environment and the client secret in the server environment or `$APP_STORAGE_PATH/.env`. Restart the PHP server after changing environment configuration.
 
-Run PHP lint, unit, SQLite integration, assistant, recognition, operations, content-security, performance and security tests, plus JavaScript syntax and behaviour tests. GitHub Actions validates the PHP 8.3 release runtime and the complete dependency installer test suite. Provider credentials and real-money payment flows must be tested separately in provider sandbox environments before production activation.
+Run PHP lint, unit, SQLite integration, assistant, recognition, operations, content-security, performance and security tests, plus JavaScript syntax and behaviour tests. GitHub Actions validates the PHP 8.2 and 8.3 runtimes, the dependency installer, and the complete application test suite. Provider credentials and real-money payment flows must be tested separately in provider sandbox environments before production activation.
 
 ## Legal and intellectual property
 
