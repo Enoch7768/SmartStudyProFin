@@ -73,9 +73,9 @@ $seoDescription = 'Manage your SmartStudyPro account and student profile.';
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-<link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-<link href="assets/css/main.css" rel="stylesheet">
+<link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/css/bootstrap.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
+<link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap-icons/bootstrap-icons.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
+<link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/main.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 <style>
 :root{--ssp-navy:#0C086B;--ssp-deep:#070443;--ssp-orange:#FF7A00;--ssp-bg:#F6F7FC;--ssp-card:#fff;--ssp-ink:#1E293B;--ssp-muted:#64748B;--ssp-line:#E2E8F0;--ssp-card-bg:var(--ssp-card);--ssp-card-border:var(--ssp-line);--ssp-bg-soft:var(--ssp-bg);--ssp-header-bg:rgba(255,255,255,.96)}
 [data-theme="dark"]{--ssp-navy:#C7D2FE;--ssp-deep:#070443;--ssp-orange:#FF8A1D;--ssp-bg:#0B0F17;--ssp-card:#151C2C;--ssp-ink:#F8FAFC;--ssp-muted:#CBD5E1;--ssp-line:#334155;--ssp-header-bg:rgba(11,15,23,.98)}
@@ -87,7 +87,7 @@ body{background:var(--ssp-bg);color:var(--ssp-ink);font-family:"Plus Jakarta San
 [data-theme="dark"] .account-card .btn-outline-secondary{color:#E2E8F0;border-color:#64748B}
 .account-hero{background:linear-gradient(125deg,var(--ssp-deep),var(--ssp-navy));color:#fff;border-radius:22px;padding:34px;position:relative;overflow:hidden}.account-hero:after{content:"";position:absolute;width:240px;height:240px;border:1px solid rgba(255,255,255,.15);border-radius:50%;right:-70px;top:-120px;box-shadow:0 0 0 35px rgba(255,255,255,.035),0 0 0 70px rgba(255,255,255,.025)}.account-card{background:var(--ssp-card);border:1px solid var(--ssp-line);border-radius:18px;box-shadow:0 10px 28px rgba(7,4,67,.045)}.account-card .form-control,.account-card .form-select{min-height:46px;border-radius:10px}.account-card textarea.form-control{min-height:110px}.btn-ssp{background:var(--ssp-orange);border:0;color:#fff;font-weight:700;border-radius:10px;padding:12px 20px}.btn-ssp:hover{background:#E06B00;color:#fff}.profile-avatar{width:64px;height:64px;border-radius:18px;background:rgba(255,255,255,.15);display:grid;place-items:center;font:700 28px Outfit,sans-serif}.eyebrow{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;color:var(--ssp-orange)}.meta{color:var(--ssp-muted);font-size:13px}@media(max-width:575px){.account-hero{padding:24px}}
 </style>
-<link href="assets/css/device-responsive.css" rel="stylesheet">
+<link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/device-responsive.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 </head>
 <body>
 <?php include __DIR__ . '/nav.php'; ?>
@@ -168,7 +168,7 @@ body{background:var(--ssp-bg);color:var(--ssp-ink);font-family:"Plus Jakarta San
 </div>
 </div>
 </main>
-<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/main.js"></script>
+<script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/js/bootstrap.bundle.min.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+<script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/js/main.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 </body>
 </html>
