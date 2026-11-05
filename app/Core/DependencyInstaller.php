@@ -47,7 +47,7 @@ final class DependencyInstaller
         try {
             $lock = json_decode((string) file_get_contents($lockPath), true, 512, JSON_THROW_ON_ERROR);
             $installed = json_decode((string) file_get_contents($installedPath), true, 512, JSON_THROW_ON_ERROR);
-            if (!is_array($lock['packages'] ?? null) || !is_array($installed['packages'] ?? null)) return false;
+            if (!is_array($lock['packages'] ?? null) || !is_array($installed['packages'] ?? null) || !is_string($lock['content-hash'] ?? null) || preg_match('/^[a-f0-9]{32}$/i', $lock['content-hash']) !== 1) return false;
             $expected = self::packageVersions($lock['packages']);
             $actual = self::packageVersions($installed['packages']);
             ksort($expected);
