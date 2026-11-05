@@ -24,13 +24,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.1', '8.3']
+        php: ['8.2', '8.3']
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: pdo_sqlite, sqlite3, fileinfo, openssl
+          extensions: pdo_sqlite, sqlite3, fileinfo, openssl, curl, zip, gd, mbstring, simplexml, mongodb
           coverage: none
       - name: Lint foundation PHP
         run: find . -path './.git' -prune -o -path './cms' -prune -o -path './assets' -prune -o -type f -name '*.php' -print0 | xargs -0 -n1 php -l
