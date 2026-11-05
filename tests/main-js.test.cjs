@@ -147,7 +147,7 @@ assert.ok(homepage.includes("include __DIR__ . '/nav.php';"));
 assert.doesNotMatch(homepage, /id="header"/);
 assert.ok(sharedNavigation.includes("$navRoute('/courses')"));
 assert.ok(sharedNavigation.includes("$navActive('courses')"));
-assert.ok(sharedNavigation.includes("str_replace('\\\\', '/'") , 'navigation should normalize Windows path separators');
+assert.ok(sharedNavigation.includes('\\App\\Core\\Url::to($path)'), 'navigation should use the shared URL normalizer');
 assert.doesNotMatch(sharedNavigation, /href="(?:index|about|courses|learning|assistant|products|contact|notifications|profile|cart)\\.php"/);
 assert.match(sharedNavigation, /aria-controls="navmenu"/);
 assert.match(sharedNavigation, /aria-expanded="false"/);
@@ -158,7 +158,7 @@ console.log('PASS homepage uses the shared accessible navigation and course entr
 
 for (const page of ['index.php', 'about.php', 'contact.php', 'courses.php', 'products.php', 'product-details.php', 'login.php', 'register.php']) {
   const source = fs.readFileSync(page, 'utf8');
-  assert.ok(source.includes('assets/css/main.css'), page + ' must load shared accessibility styles through a root-safe URL');
+  assert.ok(source.includes("Url::to('/assets/css/main.css')"), page + ' must generate shared stylesheet URLs through the central URL helper');
 }
 console.log('PASS public pages load shared accessibility and reduced-motion styles');
 
@@ -182,7 +182,7 @@ console.log('PASS compact, tablet, large-display, foldable and reduced-motion re
 
 for (const page of ['index.php', 'about.php', 'contact.php', 'courses.php', 'products.php', 'product-details.php', 'login.php', 'register.php', 'certificates.php', 'achievements.php', 'notifications.php', 'reset.php', 'learning.php', 'study.php', 'profile.php', 'assistant.php', 'course-details.php', 'cart.php', 'checkout.php', 'orders.php', 'legal.php', 'payment-choice.php', 'payment-return.php']) {
   const source = fs.readFileSync(page, 'utf8');
-  assert.ok(source.includes('assets/css/device-responsive.css'), page + ' must load device-responsive styles');
+  assert.ok(source.includes("Url::to('/assets/css/device-responsive.css')"), page + ' must generate responsive stylesheet URLs through the central URL helper');
 }
 const cmsSource = fs.readFileSync('admin/cms.php', 'utf8');
 assert.ok(cmsSource.includes('../assets/css/device-responsive.css'));
