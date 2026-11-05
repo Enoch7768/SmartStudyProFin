@@ -7,12 +7,13 @@ require __DIR__ . '/bootstrap/app.php';
 use App\Core\Auth;
 use App\Core\Database;
 use App\Core\Security;
+use App\Core\Url;
 use App\Identity\AccountService;
 use App\Identity\GoogleIdentityService;
 
 $pdo = Database::connect();
 $user = Auth::user($pdo);
-if (!$user) Security::redirect('login.php?redirect=profile.php');
+if (!$user) Security::redirect(Url::to('/login?redirect=profile'));
 $service = new AccountService($pdo);
 $googleIssues = GoogleIdentityService::configurationIssues();
 $googleConfigured = $googleIssues === [];
