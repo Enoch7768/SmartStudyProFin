@@ -103,7 +103,7 @@ body{background:var(--ssp-bg);color:var(--ssp-ink);font-family:"Plus Jakarta San
 </div>
 <div class="d-flex flex-wrap gap-2">
 <?php if ($isStudent): ?><span class="badge rounded-pill text-bg-light px-3 py-2">Student account</span><?php endif; ?>
-<?php if ($isAdmin): ?><a class="btn btn-light btn-sm fw-bold rounded-pill px-3 py-2" href="admin/cms.php">Content manager</a><?php endif; ?>
+<?php if ($isAdmin): ?><a class="btn btn-light btn-sm fw-bold rounded-pill px-3 py-2" href="<?= htmlspecialchars(\App\Core\Url::to('/admin/cms.php'), ENT_QUOTES, 'UTF-8') ?>">Content manager</a><?php endif; ?>
 </div>
 </div>
 </section>
