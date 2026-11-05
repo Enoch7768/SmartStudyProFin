@@ -349,7 +349,7 @@ $siteUrl = 'https://smartstudypro.com';
           <div class="col-lg-8">
             <div class="contact-form-container">
               <h4 class="fw-bold mb-3" style="color: var(--ssp-navy);">Send Us A Message</h4>
-              <form action="contact-process.php" method="post" class="php-email-form">
+              <form action="<?= htmlspecialchars(\App\Core\Url::to('/contact-process.php'), ENT_QUOTES, 'UTF-8') ?>" method="post" class="php-email-form">
                 <div class="row gy-3">
                   <div class="col-md-6">
                     <input type="text" name="name" class="form-control" placeholder="Your Name" required>
