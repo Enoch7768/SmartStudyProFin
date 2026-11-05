@@ -132,7 +132,7 @@ try {
                 $path = parse_url($url, PHP_URL_PATH);
                 if (!is_string($path) || $path === '' || !preg_match('/\.(?:css|js|png|jpe?g|gif|svg|ico|webp|woff2?|ttf)$/i', $path)) continue;
                 $relative = ltrim(rawurldecode($path), '/');
-                $hasRootBase = preg_match('/<base\\s+href=["\\']\\/["\\']/i', $body) === 1;
+                $hasRootBase = str_contains($body, '<base href="/">');
                 $base = str_starts_with($path, '/') || $hasRootBase ? $root : $root . '/' . dirname($page);
                 $candidate = realpath($base . '/' . $relative);
                 if ($candidate === false || !str_starts_with($candidate, realpath($root) . DIRECTORY_SEPARATOR) || !is_file($candidate)) {
