@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/app/Core/Url.php';
+
 
 if (session_status() === PHP_SESSION_NONE) {
     session_set_cookie_params([
@@ -97,8 +99,8 @@ function is_logged_in(): bool {
 
 function require_login(): void {
     if (!is_logged_in()) {
-        $redirect = urlencode($_SERVER['REQUEST_URI'] ?? 'profile.php');
-        header("Location: login.php?redirect=" . $redirect);
+        $redirect = (string) ($_SERVER['REQUEST_URI'] ?? \App\Core\Url::to('/profile'));
+        header('Location: ' . \App\Core\Url::to('/login?redirect=' . rawurlencode($redirect)), true, 303);
         exit;
     }
 }
