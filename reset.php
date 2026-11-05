@@ -64,12 +64,12 @@ $seoTitle = 'Password Recovery | SmartStudyPro';
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-<link href="assets/css/main.css" rel="stylesheet">
+<link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/css/bootstrap.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
+<link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/main.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 <style>
 :root{--navy:#0C086B;--deep:#070443;--orange:#FF7A00;--ink:#1E293B;--muted:#64748B;--line:#E2E8F0;--surface:#fff;--bg:#F5F6FB;--ssp-navy:#0C086B;--ssp-navy-dark:#070443;--ssp-orange:#FF7A00;--ssp-bg-page:#F5F6FB;--ssp-bg-soft:#F5F6FB;--ssp-card-bg:#fff;--ssp-card-border:#E2E8F0;--ssp-text-main:#1E293B;--ssp-text-muted:#64748B} [data-theme="dark"]{--navy:#C7D2FE;--deep:#C7D2FE;--orange:#FF8A1D;--ink:#F8FAFC;--muted:#CBD5E1;--line:#334155;--surface:#151C2C;--bg:#0B0F17;--ssp-navy:#C7D2FE;--ssp-navy-dark:#0B0F17;--ssp-orange:#FF8A1D;--ssp-bg-page:#0B0F17;--ssp-bg-soft:#1E293B;--ssp-card-bg:#151C2C;--ssp-card-border:#334155;--ssp-text-main:#F8FAFC;--ssp-text-muted:#CBD5E1}*{box-sizing:border-box}body{min-height:100vh;display:block;padding:0;background:var(--ssp-bg-page);color:var(--ssp-text-main);font-family:"Plus Jakarta Sans",sans-serif}.card-shell{width:min(100% - 32px,460px);margin:clamp(32px,8vh,72px) auto;padding:36px;background:var(--ssp-card-bg);color:var(--ssp-text-main);border:1px solid var(--ssp-card-border);border-radius:22px;box-shadow:0 18px 55px rgba(7,4,67,.1)}h1{font:700 29px Outfit,sans-serif;color:var(--ssp-navy)}.brand{font:800 24px Outfit,sans-serif;color:var(--ssp-navy)}.brand span{color:var(--ssp-orange)}.form-control{min-height:48px;border-radius:10px;background:var(--ssp-card-bg);color:var(--ssp-text-main);border-color:var(--ssp-card-border)}.btn-primary{background:var(--ssp-orange);border:0;font-weight:700;min-height:48px}.btn-primary:hover{background:#E06B00}.muted{color:var(--ssp-text-muted)}@media(max-width:480px){.card-shell{padding:26px 20px}}
 </style>
-<link href="assets/css/device-responsive.css" rel="stylesheet">
+<link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/device-responsive.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 </head>
 <body>
 <?php include __DIR__ . '/nav.php'; ?>
@@ -96,7 +96,7 @@ $seoTitle = 'Password Recovery | SmartStudyPro';
 <?php endif; ?>
 <div class="text-center mt-4 small"><a href="login.php" class="text-decoration-none fw-semibold" style="color:var(--orange)">Back to sign in</a></div>
 </main>
-<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/main.js"></script>
+<script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/js/bootstrap.bundle.min.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+<script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/js/main.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 </body>
 </html>
