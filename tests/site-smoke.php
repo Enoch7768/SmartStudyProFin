@@ -114,6 +114,9 @@ try {
         }
         if (str_contains(strtolower($body), '<html')) {
             if ($status === 200 && in_array($page, $navigationPages, true)) {
+                if (!preg_match('/<base\\s+href=["\\']\\/["\\']/i', $body)) {
+                    $failures[] = $page . ': shared URL base is missing; relative links and assets can resolve against nested routes';
+                }
                 foreach (['id="navmenu"', 'id="theme-toggle"', 'assets/js/main.js', 'assets/css/device-responsive.css'] as $sharedFeature) {
                     if (!str_contains($body, $sharedFeature)) {
                         $failures[] = $page . ': shared site shell is missing ' . $sharedFeature;
