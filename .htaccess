@@ -4,69 +4,47 @@ RewriteEngine On
 RewriteRule ^favicon\.ico$ index.php [L,QSA]
 
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+index\.php(?:[?\s]) [NC]
-RewriteRule ^index\.php$ / [R=301,L]
+RewriteRule ^index\.php$ ./ [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+about\.php(?:[?\s]) [NC]
-RewriteRule ^about\.php$ /about [R=301,L]
+RewriteRule ^about\.php$ about [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+admin\.php(?:[?\s]) [NC]
-RewriteRule ^admin\.php$ /admin [R=301,L]
+RewriteRule ^admin\.php$ admin [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+booking\.php(?:[?\s]) [NC]
-RewriteRule ^booking\.php$ /booking [R=301,L]
+RewriteRule ^booking\.php$ booking [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+cart\.php(?:[?\s]) [NC]
-RewriteRule ^cart\.php$ /cart [R=301,L]
+RewriteRule ^cart\.php$ cart [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+checkout\.php(?:[?\s]) [NC]
-RewriteRule ^checkout\.php$ /checkout [R=301,L]
+RewriteRule ^checkout\.php$ checkout [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+contact\.php(?:[?\s]) [NC]
-RewriteRule ^contact\.php$ /contact [R=301,L]
+RewriteRule ^contact\.php$ contact [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+courses\.php(?:[?\s]) [NC]
-RewriteRule ^courses\.php$ /courses [R=301,L]
+RewriteRule ^courses\.php$ courses [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+products\.php(?:[?\s]) [NC]
-RewriteRule ^products\.php$ /products [R=301,L]
+RewriteRule ^products\.php$ products [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+login\.php(?:[?\s]) [NC]
-RewriteRule ^login\.php$ /login [R=301,L]
+RewriteRule ^login\.php$ login [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+logout\.php(?:[?\s]) [NC]
-RewriteRule ^logout\.php$ /logout [R=301,L]
+RewriteRule ^logout\.php$ logout [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+profile\.php(?:[?\s]) [NC]
-RewriteRule ^profile\.php$ /profile [R=301,L]
+RewriteRule ^profile\.php$ profile [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+register\.php(?:[?\s]) [NC]
-RewriteRule ^register\.php$ /register [R=301,L]
+RewriteRule ^register\.php$ register [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+reset\.php(?:[?\s]) [NC]
-RewriteRule ^reset\.php$ /reset [R=301,L]
+RewriteRule ^reset\.php$ reset [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+learning\.php(?:[?\s]) [NC]
-RewriteRule ^learning\.php$ /learn [R=301,L]
+RewriteRule ^learning\.php$ learn [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+terms\.php(?:[?\s]) [NC]
-RewriteRule ^terms\.php$ /terms [R=301,L]
+RewriteRule ^terms\.php$ terms [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+privacy\.php(?:[?\s]) [NC]
-RewriteRule ^privacy\.php$ /privacy [R=301,L]
+RewriteRule ^privacy\.php$ privacy [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+cookies\.php(?:[?\s]) [NC]
-RewriteRule ^cookies\.php$ /cookies [R=301,L]
+RewriteRule ^cookies\.php$ cookies [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+accessibility\.php(?:[?\s]) [NC]
-RewriteRule ^accessibility\.php$ /accessibility [R=301,L]
+RewriteRule ^accessibility\.php$ accessibility [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+eula\.php(?:[?\s]) [NC]
-RewriteRule ^eula\.php$ /eula [R=301,L]
+RewriteRule ^eula\.php$ eula [R=301,L]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/+refunds\.php(?:[?\s]) [NC]
-RewriteRule ^refunds\.php$ /refunds [R=301,L]
-
+RewriteRule ^refunds\.php$ refunds [R=301,L]
 RewriteRule ^(?:app|bootstrap|config|database|scripts|storage|cms|docs|tests|vendor)(?:/|$) - [F,L,NC]
 RewriteRule (^|/)\.(?!well-known(?:/|$)) - [F,L,NC]
 
