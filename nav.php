@@ -128,10 +128,7 @@
 </style>
 
 <?php
-$navScriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
-$navBasePath = dirname($navScriptName);
-$navBasePath = $navBasePath === '/' || $navBasePath === '.' ? '' : rtrim($navBasePath, '/');
-$navRoute = static fn (string $path): string => $navBasePath . '/' . ltrim($path, '/');
+$navRoute = static fn (string $path): string => \\App\\Core\\Url::to($path);
 $navRequestPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
 $navRequestPath = is_string($navRequestPath) ? rawurldecode($navRequestPath) : '/';
 if ($navBasePath !== '' && str_starts_with($navRequestPath, $navBasePath . '/')) $navRequestPath = substr($navRequestPath, strlen($navBasePath));
