@@ -67,8 +67,8 @@ h1,h2{font-family:Outfit,sans-serif}
         <p class="legal-meta">Terms version 1.0.0 · Privacy version 1.0.0</p>
         <?php if ($error): ?><div class="alert alert-danger" role="alert"><?= Security::escape($error) ?></div><?php endif; ?>
         <ul>
-            <li><a href="terms.php" target="_blank" rel="noopener noreferrer">Read the Terms of Use</a></li>
-            <li><a href="privacy.php" target="_blank" rel="noopener noreferrer">Read the Privacy Policy</a></li>
+            <li><a href="<?= htmlspecialchars(\App\Core\Url::to('/terms'), ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener noreferrer">Read the Terms of Use</a></li>
+            <li><a href="<?= htmlspecialchars(\App\Core\Url::to('/privacy'), ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener noreferrer">Read the Privacy Policy</a></li>
         </ul>
         <form method="post">
             <input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>">
@@ -85,9 +85,9 @@ h1,h2{font-family:Outfit,sans-serif}
     </section>
 </main>
 <footer class="text-center py-4 small" style="background:var(--ssp-navy-dark);color:#CBD5E1">
-    <a href="privacy.php" class="text-white text-decoration-none mx-2">Privacy</a>
-    <a href="terms.php" class="text-white text-decoration-none mx-2">Terms</a>
-    <a href="cookies.php" class="text-white text-decoration-none mx-2">Cookies</a>
+    <a href="<?= htmlspecialchars(\App\Core\Url::to('/privacy'), ENT_QUOTES, 'UTF-8') ?>" class="text-white text-decoration-none mx-2">Privacy</a>
+    <a href="<?= htmlspecialchars(\App\Core\Url::to('/terms'), ENT_QUOTES, 'UTF-8') ?>" class="text-white text-decoration-none mx-2">Terms</a>
+    <a href="<?= htmlspecialchars(\App\Core\Url::to('/cookies'), ENT_QUOTES, 'UTF-8') ?>" class="text-white text-decoration-none mx-2">Cookies</a>
 </footer>
 <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/js/bootstrap.bundle.min.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/js/main.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
