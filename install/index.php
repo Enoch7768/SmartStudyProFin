@@ -46,7 +46,6 @@ if (!$dependenciesReady && $hostReady && ($_SERVER['REQUEST_METHOD'] ?? 'GET') !
 $requirements = $hostRequirements;
 $requirements['Prebuilt PHP dependencies'] = $dependenciesReady;
 $canSubmit = $hostReady;
-$allPassed = $hostReady && $dependenciesReady;
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if (!Security::verifyCsrf($_POST['_csrf'] ?? null)) {
@@ -55,6 +54,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         try {
             $password = (string) ($_POST['password'] ?? '');
             if (!hash_equals($password, (string) ($_POST['password_confirmation'] ?? ''))) throw new RuntimeException('The passwords do not match.');
+            if (function_exists('set_time_limit')) @set_time_limit(0);
             DependencyInstaller::install($application['root']);
             $vendorAutoload = rtrim((string) App\Core\Config::get('storage.path'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
             if (!is_file($vendorAutoload)) throw new RuntimeException('The verified dependency autoloader is missing. Retry /install.');
