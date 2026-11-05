@@ -38,7 +38,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             DependencyInstaller::install($application['root']);
             Installer::install($application['root'], (string) ($_POST['name'] ?? ''), (string) ($_POST['email'] ?? ''), $password);
             $scriptName = str_replace('\\\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/install/index.php'));
-            $basePath = dirname(dirname($scriptName));
+            $basePath = rtrim(str_replace('\\', '/', dirname(dirname($scriptName))), '/');
             $basePath = $basePath === '/' || $basePath === '.' ? '' : rtrim($basePath, '/');
             header('Location: ' . $basePath . '/install?installed=1', true, 303);
             exit;

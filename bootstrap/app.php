@@ -23,8 +23,8 @@ Session::start();
 if (PHP_SAPI !== 'cli' && !App\Core\Installer::isInstalled()) {
     $scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/'));
     $basePath = str_ends_with($scriptName, '/install/index.php')
-        ? dirname(dirname($scriptName))
-        : dirname($scriptName);
+        ? rtrim(str_replace('\\', '/', dirname(dirname($scriptName))), '/')
+        : rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
     $basePath = $basePath === '/' || $basePath === '.' ? '' : rtrim($basePath, '/');
     $installPath = $basePath . '/install';
     $requestPath = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
