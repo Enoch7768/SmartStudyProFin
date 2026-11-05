@@ -46,6 +46,31 @@ final class Url
         return rtrim($baseDirectory, '/') . '/';
     }
 
+    public static function resolve(string $path): string
+    {
+        $path = trim($path);
+        if ($path === '' || str_starts_with($path, '//') || preg_match('/^[a-z][a-z0-9+.-]*:/i', $path) || preg_match('/[\r\n\\\\]/', $path)) {
+            return self::to('/');
+        }
+
+        if (str_starts_with($path, '/')) return self::to($path);
+
+        $parts = preg_split('/([?#])/', $path, 2, PREG_SPLIT_DELIM_CAPTURE);
+        $pathname = (string) ($parts[0] ?? '');
+        $suffix = isset($parts[1]) ? $parts[1] . ($parts[2] ?? '') : '';
+        $segments = [];
+        foreach (explode('/', rtrim(self::documentBase(), '/') . '/' . $pathname) as $segment) {
+            if ($segment === '' || $segment === '.') continue;
+            if ($segment === '..') {
+                array_pop($segments);
+                continue;
+            }
+            $segments[] = $segment;
+        }
+
+        return '/' . implode('/', $segments) . $suffix;
+    }
+
     public static function to(string $path = '/'): string
     {
         $path = trim($path);
