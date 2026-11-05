@@ -128,7 +128,7 @@
 </style>
 
 <?php
-$navRoute = static fn (string $path): string => \\App\\Core\\Url::to($path);
+$navRoute = static fn (string $path): string => \App\Core\Url::to($path);
 $navRequestPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
 $navRequestPath = is_string($navRequestPath) ? rawurldecode($navRequestPath) : '/';
 if ($navBasePath !== '' && str_starts_with($navRequestPath, $navBasePath . '/')) $navRequestPath = substr($navRequestPath, strlen($navBasePath));
