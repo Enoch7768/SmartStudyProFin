@@ -33,7 +33,7 @@ if (!$dependenciesReady && $hostReady && ($_SERVER['REQUEST_METHOD'] ?? 'GET') !
     if (function_exists('set_time_limit')) @set_time_limit(0);
     try {
         DependencyInstaller::install($application['root']);
-        $vendorAutoload = rtrim((string) App\\Core\\Config::get('storage.path'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+        $vendorAutoload = rtrim((string) App\Core\Config::get('storage.path'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
         if (!is_file($vendorAutoload)) throw new RuntimeException('The verified dependency autoloader is missing after setup. Retry /install.');
         require_once $vendorAutoload;
         $dependenciesReady = DependencyInstaller::isReady($application['root']);
@@ -56,7 +56,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $password = (string) ($_POST['password'] ?? '');
             if (!hash_equals($password, (string) ($_POST['password_confirmation'] ?? ''))) throw new RuntimeException('The passwords do not match.');
             DependencyInstaller::install($application['root']);
-            $vendorAutoload = rtrim((string) App\\Core\\Config::get('storage.path'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+            $vendorAutoload = rtrim((string) App\Core\Config::get('storage.path'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
             if (!is_file($vendorAutoload)) throw new RuntimeException('The verified dependency autoloader is missing. Retry /install.');
             require_once $vendorAutoload;
             Installer::install($application['root'], (string) ($_POST['name'] ?? ''), (string) ($_POST['email'] ?? ''), $password);
