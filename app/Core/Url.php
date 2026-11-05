@@ -9,20 +9,48 @@ final class Url
     public static function basePath(): string
     {
         $scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
-        $scriptPath = parse_url($scriptName, PHP_URL_PATH);
+        if (preg_match('/^[a-z][a-z0-9+.-]*:\/\//i', $scriptName)) {
+            $scriptPath = parse_url($scriptName, PHP_URL_PATH);
+        } else {
+            $scriptPath = $scriptName;
+        }
+
         if (!is_string($scriptPath) || $scriptPath === '') $scriptPath = '/index.php';
-        $directory = dirname('/' . ltrim($scriptPath, '/'));
+        $scriptPath = '/' . ltrim(preg_replace('#/+#', '/', $scriptPath) ?: '/index.php', '/');
+        $directory = dirname($scriptPath);
         return $directory === '/' || $directory === '.' ? '' : rtrim($directory, '/');
+    }
+
+    public static function applicationBasePath(): string
+    {
+        $basePath = self::basePath();
+        $scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
+        $scriptPath = preg_match('/^[a-z][a-z0-9+.-]*:\/\//i', $scriptName)
+            ? (string) parse_url($scriptName, PHP_URL_PATH)
+            : $scriptName;
+        $scriptPath = '/' . ltrim(preg_replace('#/+#', '/', $scriptPath) ?: '/index.php', '/');
+
+        if (str_ends_with(strtolower($scriptPath), '/install/index.php')) {
+            $basePath = dirname($basePath);
+        }
+
+        return $basePath === '/' || $basePath === '.' ? '' : rtrim($basePath, '/');
     }
 
     public static function to(string $path = '/'): string
     {
         $path = trim($path);
-        if ($path === '' || preg_match('/^[a-z][a-z0-9+.-]*:/i', $path) || str_starts_with($path, '//')) {
-            return self::basePath() . '/';
-        }
+        if ($path === '') return self::basePath() . '/';
+        if (preg_match('/^https?:\/\//i', $path)) return $path;
 
-        $path = '/' . ltrim($path, '/');
-        return self::basePath() . $path;
+        $parts = preg_split('/([?#])/', $path, 2, PREG_SPLIT_DELIM_CAPTURE);
+        $pathname = str_replace('\\', '/', (string) ($parts[0] ?? ''));
+        if (str_starts_with($pathname, '//')) return self::basePath() . '/';
+        $pathname = preg_replace('#/+#', '/', $pathname) ?: '/';
+        $suffix = isset($parts[1]) ? $parts[1] . ($parts[2] ?? '') : '';
+        if ($pathname === '' || $pathname === '/') return self::basePath() . '/' . $suffix;
+        if (preg_match('/^[a-z][a-z0-9+.-]*:/i', $pathname)) return self::basePath() . '/';
+
+        return self::basePath() . '/' . ltrim($pathname, '/') . $suffix;
     }
 }
