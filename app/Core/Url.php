@@ -63,11 +63,14 @@ final class Url
         $parts = preg_split('/([?#])/', $path, 2, PREG_SPLIT_DELIM_CAPTURE);
         $pathname = (string) ($parts[0] ?? '');
         $suffix = isset($parts[1]) ? $parts[1] . ($parts[2] ?? '') : '';
-        $segments = [];
-        foreach (explode('/', rtrim(self::documentBase(), '/') . '/' . $pathname) as $segment) {
+        $rootSegments = array_values(array_filter(explode('/', self::basePath()), static fn (string $segment): bool => $segment !== ''));
+        $segments = $rootSegments;
+        $documentSegments = array_values(array_filter(explode('/', self::documentBase()), static fn (string $segment): bool => $segment !== ''));
+        foreach (array_slice($documentSegments, count($rootSegments)) as $segment) $segments[] = $segment;
+        foreach (explode('/', $pathname) as $segment) {
             if ($segment === '' || $segment === '.') continue;
             if ($segment === '..') {
-                array_pop($segments);
+                if (count($segments) > count($rootSegments)) array_pop($segments);
                 continue;
             }
             $segments[] = $segment;
