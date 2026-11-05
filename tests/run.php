@@ -42,7 +42,7 @@ try {
     $_SERVER['SCRIPT_NAME'] = '/SmartStudyProFin/course-details.php';
     if (App\Core\Url::to('/') !== '/SmartStudyProFin/' || App\Core\Url::to('/courses/example-course') !== '/SmartStudyProFin/courses/example-course') throw new RuntimeException('Nested detail-page links must preserve the installation base path.');
     if (App\Core\Url::to('\courses\testing') !== '/SmartStudyProFin/courses/testing' || App\Core\Url::to('courses\testing') !== '/SmartStudyProFin/courses/testing') throw new RuntimeException('Single Windows backslashes must normalize into internal URL separators.');
-    if (App\Core\Url::to('\\courses\testing') !== '/SmartStudyProFin/') throw new RuntimeException('Double-leading backslashes must not become an external host URL.');
+    if (App\Core\Url::to('\\\\courses\testing') !== '/SmartStudyProFin/') throw new RuntimeException('Double-leading backslashes must not become an external host URL.');
     if (App\Core\Url::to('https://example.com/path') !== 'https://example.com/path') throw new RuntimeException('Absolute HTTPS URLs must remain absolute.');
     if (App\Core\Url::to('/courses/testing?next=%2Flearn%2Fscience') !== '/SmartStudyProFin/courses/testing?next=%2Flearn%2Fscience') throw new RuntimeException('Query strings must be preserved while generating internal URLs.');
     $_SERVER['SCRIPT_NAME'] = '/SmartStudyProFin/install/index.php';
