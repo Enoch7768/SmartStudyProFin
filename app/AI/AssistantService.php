@@ -35,7 +35,7 @@ final class AssistantService
 
     public function retrieve(int $userId, string $question, int $limit = 5): array
     {
-        $statement = $this->pdo->prepare("SELECT c.id AS course_id, c.title AS course_title, ch.title AS chapter_title, l.id AS lesson_id, l.title AS lesson_title, l.content_html FROM cms_lessons l INNER JOIN cms_chapters ch ON ch.id = l.chapter_id INNER JOIN cms_courses c ON c.id = ch.course_id INNER JOIN course_enrolments e ON e.course_id = c.id WHERE e.user_id = :user_id AND e.status IN ('active', 'completed') AND c.status = 'published' AND l.status = 'published' ORDER BY c.id, ch.sort_order, l.sort_order, l.id LIMIT 500");
+        $statement = $this->pdo->prepare("SELECT c.id AS course_id, c.slug AS course_slug, c.title AS course_title, ch.title AS chapter_title, l.id AS lesson_id, l.title AS lesson_title, l.content_html FROM cms_lessons l INNER JOIN cms_chapters ch ON ch.id = l.chapter_id INNER JOIN cms_courses c ON c.id = ch.course_id INNER JOIN course_enrolments e ON e.course_id = c.id WHERE e.user_id = :user_id AND e.status IN ('active', 'completed') AND c.status = 'published' AND l.status = 'published' ORDER BY c.id, ch.sort_order, l.sort_order, l.id LIMIT 500");
         $statement->execute(['user_id' => $userId]);
         $terms = $this->terms($question);
         if (!$terms) return [];
@@ -52,7 +52,7 @@ final class AssistantService
                     $score += substr_count($bodyText, $term);
                 }
                 if ($score === 0) continue;
-                $matches[] = ['course_id' => (int) $lesson['course_id'], 'course_title' => (string) $lesson['course_title'], 'chapter_title' => (string) $lesson['chapter_title'], 'lesson_id' => (int) $lesson['lesson_id'], 'lesson_title' => (string) $lesson['lesson_title'], 'excerpt' => $chunk, 'score' => $score];
+                $matches[] = ['course_id' => (int) $lesson['course_id'], 'course_slug' => (string) $lesson['course_slug'], 'course_title' => (string) $lesson['course_title'], 'chapter_title' => (string) $lesson['chapter_title'], 'lesson_id' => (int) $lesson['lesson_id'], 'lesson_title' => (string) $lesson['lesson_title'], 'excerpt' => $chunk, 'score' => $score];
             }
         }
         usort($matches, static fn (array $a, array $b): int => $b['score'] <=> $a['score']);
