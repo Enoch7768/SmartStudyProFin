@@ -71,7 +71,7 @@ $ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/
   {
     "@context": "https://schema.org",
     "@type": "Course",
-    "name": "<?= htmlspecialchars($displayTitle) ?>",
+    "name": "<?= htmlspecialchars((string) $displayTitle, ENT_QUOTES, 'UTF-8') ?>",
     "description": "<?= htmlspecialchars(strip_tags($course['Description'] ?? $displaySubtitle)) ?>",
     "provider": {
       "@type": "Organization",
@@ -270,8 +270,8 @@ $ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/
               
               <form action="booking.php" method="post">
                   <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
-                  <input type="hidden" name="course_id" value="<?= htmlspecialchars($courseId) ?>">
-                  <input type="hidden" name="price" value="<?= htmlspecialchars($displayPrice) ?>">
+                  <input type="hidden" name="course_id" value="<?= htmlspecialchars((string) $courseId, ENT_QUOTES, 'UTF-8') ?>">
+                  <input type="hidden" name="price" value="<?= htmlspecialchars((string) $displayPrice, ENT_QUOTES, 'UTF-8') ?>">
                   <input type="hidden" name="service" value="<?= htmlspecialchars($displayTitle) ?>">
                   
                   <div class="row">
