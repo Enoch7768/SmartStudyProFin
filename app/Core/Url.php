@@ -18,23 +18,32 @@ final class Url
         if (!is_string($scriptPath) || $scriptPath === '') $scriptPath = '/index.php';
         $scriptPath = '/' . ltrim(preg_replace('#/+#', '/', $scriptPath) ?: '/index.php', '/');
         $directory = dirname($scriptPath);
+        if (in_array(strtolower(basename($directory)), ['admin', 'forms', 'install'], true)) {
+            $directory = dirname($directory);
+        }
+
         return $directory === '/' || $directory === '.' ? '' : rtrim($directory, '/');
     }
 
     public static function applicationBasePath(): string
     {
-        $basePath = self::basePath();
+        return self::basePath();
+    }
+
+    public static function documentBase(): string
+    {
         $scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
         $scriptPath = preg_match('/^[a-z][a-z0-9+.-]*:\/\//i', $scriptName)
             ? (string) parse_url($scriptName, PHP_URL_PATH)
             : $scriptName;
-        $scriptPath = '/' . ltrim(preg_replace('#/+#', '/', $scriptPath) ?: '/index.php', '/');
-
-        if (str_ends_with(strtolower($scriptPath), '/install/index.php')) {
-            $basePath = dirname($basePath);
+        $scriptPath = '/' . ltrim(preg_replace('#/+#', '/', (string) $scriptPath) ?: '/index.php', '/');
+        $directory = dirname($scriptPath);
+        $baseDirectory = self::basePath();
+        if (in_array(strtolower(basename($directory)), ['admin', 'forms', 'install'], true)) {
+            $baseDirectory .= '/' . basename($directory);
         }
 
-        return $basePath === '/' || $basePath === '.' ? '' : rtrim($basePath, '/');
+        return rtrim($baseDirectory, '/') . '/';
     }
 
     public static function to(string $path = '/'): string
