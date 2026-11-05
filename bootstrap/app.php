@@ -20,13 +20,8 @@ if (is_file($vendorAutoload)) require_once $vendorAutoload;
 Security::sendHeaders();
 Session::start();
 
-if (PHP_SAPI !== 'cli' && !App\Core\Installer::isInstalled()) {
-    $scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/'));
-    $basePath = str_ends_with($scriptName, '/install/index.php')
-        ? rtrim(str_replace('\\', '/', dirname(dirname($scriptName))), '/')
-        : rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
-    $basePath = $basePath === '/' || $basePath === '.' ? '' : rtrim($basePath, '/');
-    $installPath = $basePath . '/install';
+if (PHP_SAPI !== 'cli' && !App\\Core\\Installer::isInstalled()) {
+    $installPath = App\\Core\\Url::applicationBasePath() . '/install';
     $requestPath = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
 
     if (!in_array($requestPath, [$installPath, $installPath . '/', $installPath . '/index.php'], true)) {
