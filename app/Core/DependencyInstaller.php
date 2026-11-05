@@ -99,7 +99,7 @@ final class DependencyInstaller
             }
             try {
                 self::setPermissions($vendor);
-            } catch (\\Throwable $exception) {
+            } catch (\Throwable $exception) {
                 self::removeDirectory($vendor);
                 if (is_dir($backup)) @rename($backup, $vendor);
                 throw $exception;
