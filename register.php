@@ -320,11 +320,11 @@ $siteUrl = 'https://smartstudypro.com';
           
           <div class="form-check mb-3">
             <input class="form-check-input" type="checkbox" id="accept-terms" name="accept_terms" value="1" required <?= ($_POST['accept_terms'] ?? '') === '1' ? 'checked' : '' ?>>
-            <label class="form-check-label small" for="accept-terms">I agree to the <a href="terms.php" target="_blank" rel="noopener noreferrer">Terms of Use</a>.</label>
+            <label class="form-check-label small" for="accept-terms">I agree to the <a href="<?= htmlspecialchars(\App\Core\Url::to('/terms'), ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener noreferrer">Terms of Use</a>.</label>
           </div>
           <div class="form-check mb-4">
             <input class="form-check-input" type="checkbox" id="accept-privacy" name="accept_privacy" value="1" required <?= ($_POST['accept_privacy'] ?? '') === '1' ? 'checked' : '' ?>>
-            <label class="form-check-label small" for="accept-privacy">I have read the <a href="privacy.php" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</label>
+            <label class="form-check-label small" for="accept-privacy">I have read the <a href="<?= htmlspecialchars(\App\Core\Url::to('/privacy'), ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</label>
           </div>
           <?php if ($googleConfigured): ?>
           <button type="submit" formaction="google-auth.php" formmethod="post" name="action" value="register" formnovalidate class="btn btn-outline-secondary w-100 rounded-3 py-2 fw-semibold mb-3">Continue with Google</button>
@@ -338,7 +338,7 @@ $siteUrl = 'https://smartstudypro.com';
         </form>
 
         <p class="text-center small text-muted mt-4 mb-0">
-          Already have an account? <a href="login.php" class="fw-bold text-decoration-none" style="color: var(--ssp-orange);">Sign in</a>
+          Already have an account? <a href="<?= htmlspecialchars(\App\Core\Url::to('/login'), ENT_QUOTES, 'UTF-8') ?>" class="fw-bold text-decoration-none" style="color: var(--ssp-orange);">Sign in</a>
         </p>
       </div>
 
@@ -350,7 +350,7 @@ $siteUrl = 'https://smartstudypro.com';
       <div class="row gy-4">
         
         <div class="col-lg-4 col-md-6">
-          <a href="index.php" class="ssp-footer-brand text-decoration-none mb-3 d-inline-block">
+          <a href="<?= htmlspecialchars(\App\Core\Url::to('/'), ENT_QUOTES, 'UTF-8') ?>" class="ssp-footer-brand text-decoration-none mb-3 d-inline-block">
             SmartStudy<span>Pro</span>
           </a>
           <p class="small text-light opacity-75 mb-3">Study Made Simple, Success Made Sure.</p>
@@ -372,11 +372,11 @@ $siteUrl = 'https://smartstudypro.com';
         <div class="col-lg-3 col-md-3">
           <h5 class="text-white fw-bold mb-3">Quick Navigation</h5>
           <ul class="list-unstyled small">
-            <li class="mb-2"><a href="index.php" class="text-decoration-none text-light opacity-75">Home</a></li>
-            <li class="mb-2"><a href="about.php" class="text-decoration-none text-light opacity-75">About Us</a></li>
-            <li class="mb-2"><a href="courses.php" class="text-decoration-none text-light opacity-75">Courses</a></li>
-            <li class="mb-2"><a href="products.php" class="text-decoration-none text-light opacity-75">Products & Materials</a></li>
-            <li class="mb-2"><a href="contact.php" class="text-decoration-none text-light opacity-75">Contact Us</a></li>
+            <li class="mb-2"><a href="<?= htmlspecialchars(\App\Core\Url::to('/'), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-light opacity-75">Home</a></li>
+            <li class="mb-2"><a href="<?= htmlspecialchars(\App\Core\Url::to('/about'), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-light opacity-75">About Us</a></li>
+            <li class="mb-2"><a href="<?= htmlspecialchars(\App\Core\Url::to('/courses'), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-light opacity-75">Courses</a></li>
+            <li class="mb-2"><a href="<?= htmlspecialchars(\App\Core\Url::to('/products'), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-light opacity-75">Products & Materials</a></li>
+            <li class="mb-2"><a href="<?= htmlspecialchars(\App\Core\Url::to('/contact'), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-light opacity-75">Contact Us</a></li>
           </ul>
         </div>
 
@@ -396,10 +396,10 @@ $siteUrl = 'https://smartstudypro.com';
 
     <div class="container text-center border-top border-secondary pt-3 mt-3 opacity-75 small">
       <div class="small mb-3 d-flex flex-wrap justify-content-center gap-3">
-        <a href="privacy.php" class="text-light opacity-75 text-decoration-none">Privacy</a>
-        <a href="terms.php" class="text-light opacity-75 text-decoration-none">Terms of Use</a>
+        <a href="<?= htmlspecialchars(\App\Core\Url::to('/privacy'), ENT_QUOTES, 'UTF-8') ?>" class="text-light opacity-75 text-decoration-none">Privacy</a>
+        <a href="<?= htmlspecialchars(\App\Core\Url::to('/terms'), ENT_QUOTES, 'UTF-8') ?>" class="text-light opacity-75 text-decoration-none">Terms of Use</a>
         <a href="cookies.php" class="text-light opacity-75 text-decoration-none">Cookies</a>
-        <a href="refunds.php" class="text-light opacity-75 text-decoration-none">Refunds</a>
+        <a href="<?= htmlspecialchars(\App\Core\Url::to('/refunds'), ENT_QUOTES, 'UTF-8') ?>" class="text-light opacity-75 text-decoration-none">Refunds</a>
         <a href="accessibility.php" class="text-light opacity-75 text-decoration-none">Accessibility</a>
         <a href="eula.php" class="text-light opacity-75 text-decoration-none">Client Software Licence</a>
       </div>
