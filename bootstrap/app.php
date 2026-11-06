@@ -21,14 +21,9 @@ if (is_file($vendorAutoload)) require_once $vendorAutoload;
 Security::sendHeaders();
 Session::start();
 
-if (PHP_SAPI !== 'cli' && !headers_sent()) {
-    ob_start(static function (string $html): string {
-        if (!preg_match('/<head\b[^>]*>/i', $html) || preg_match('/<base\b/i', $html)) return $html;
-
-        $baseUrl = htmlspecialchars(Url::documentBase(), ENT_QUOTES, 'UTF-8');
-        return preg_replace('/(<head\b[^>]*>)/i', '$1' . PHP_EOL . '<base href="' . $baseUrl . '">', $html, 1) ?? $html;
-    });
-}
+// NOTE: Automatic <base href> injection was removed.
+// Url::to() already emits root-relative paths (e.g. /courses/testing).
+// A <base> tag was causing browsers to resolve links as http://courses/ on localhost.
 
 if (PHP_SAPI !== 'cli' && !App\Core\Installer::isInstalled()) {
     $installPath = App\Core\Url::applicationBasePath() . '/install';
