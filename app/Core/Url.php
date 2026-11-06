@@ -82,21 +82,25 @@ final class Url
     public static function to(string $path = '/'): string
     {
         $path = trim($path);
-        if ($path === '') return self::basePath() . '/';
-
-        // Never allow protocol-relative or absolute URLs to leak into internal links
-        if (preg_match('/^https?:\/\//i', $path)) {
-            return $path; // already absolute – leave alone (rare for internal use)
+        if ($path === '') {
+            return self::basePath() . '/';
         }
-        if (str_starts_with($path, '//')) {
-            // Protocol-relative → force to root-relative so browser never treats it as host
-            $path = '/' . ltrim($path, '/');
+
+        // Already a full absolute URL – leave it alone
+        if (preg_match('/^https?:\/\//i', $path)) {
+            return $path;
         }
 
         $parts = preg_split('/([?#])/', $path, 2, PREG_SPLIT_DELIM_CAPTURE);
         $pathname = str_replace('\\', '/', (string) ($parts[0] ?? ''));
         $pathname = preg_replace('#/+#', '/', $pathname) ?: '/';
         $suffix = isset($parts[1]) ? $parts[1] . ($parts[2] ?? '') : '';
+
+        // After normalizing backslashes, anything that still looks protocol-relative
+        // (started with // or \\ ) is treated as an external-host attempt and rejected.
+        if (str_starts_with($pathname, '//')) {
+            return self::basePath() . '/';
+        }
 
         if ($pathname === '' || $pathname === '/') {
             return self::basePath() . '/' . $suffix;
@@ -109,7 +113,7 @@ final class Url
 
         $result = self::basePath() . '/' . ltrim($pathname, '/') . $suffix;
 
-        // Final safety: never start with //
+        // Final safety net: never emit a protocol-relative result
         if (str_starts_with($result, '//')) {
             $result = '/' . ltrim($result, '/');
         }
