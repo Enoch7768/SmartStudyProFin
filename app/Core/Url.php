@@ -83,17 +83,38 @@ final class Url
     {
         $path = trim($path);
         if ($path === '') return self::basePath() . '/';
-        if (preg_match('/^https?:\/\//i', $path)) return $path;
+
+        // Never allow protocol-relative or absolute URLs to leak into internal links
+        if (preg_match('/^https?:\/\//i', $path)) {
+            return $path; // already absolute – leave alone (rare for internal use)
+        }
+        if (str_starts_with($path, '//')) {
+            // Protocol-relative → force to root-relative so browser never treats it as host
+            $path = '/' . ltrim($path, '/');
+        }
 
         $parts = preg_split('/([?#])/', $path, 2, PREG_SPLIT_DELIM_CAPTURE);
         $pathname = str_replace('\\', '/', (string) ($parts[0] ?? ''));
-        if (str_starts_with($pathname, '//')) return self::basePath() . '/';
         $pathname = preg_replace('#/+#', '/', $pathname) ?: '/';
         $suffix = isset($parts[1]) ? $parts[1] . ($parts[2] ?? '') : '';
-        if ($pathname === '' || $pathname === '/') return self::basePath() . '/' . $suffix;
-        if (preg_match('/^[a-z][a-z0-9+.-]*:/i', $pathname)) return self::basePath() . '/';
 
-        return self::basePath() . '/' . ltrim($pathname, '/') . $suffix;
+        if ($pathname === '' || $pathname === '/') {
+            return self::basePath() . '/' . $suffix;
+        }
+
+        // Reject anything that looks like a scheme
+        if (preg_match('/^[a-z][a-z0-9+.-]*:/i', $pathname)) {
+            return self::basePath() . '/';
+        }
+
+        $result = self::basePath() . '/' . ltrim($pathname, '/') . $suffix;
+
+        // Final safety: never start with //
+        if (str_starts_with($result, '//')) {
+            $result = '/' . ltrim($result, '/');
+        }
+
+        return $result;
     }
 
     /**
