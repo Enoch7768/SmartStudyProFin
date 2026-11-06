@@ -49,7 +49,12 @@ final class Url
     public static function resolve(string $path): string
     {
         $path = trim($path);
-        if ($path === '' || str_starts_with($path, '//') || preg_match('/^[a-z][a-z0-9+.-]*:/i', $path) || preg_match('/[\r\n\\\\]/', $path)) {
+        // Reject anything that already looks protocol-relative or contains control chars / backslashes that could escape
+        if ($path === '' || str_starts_with($path, '//') || preg_match('/^[a-z][a-z0-9+.-]*:/i', $path) || preg_match('/[\r\n]/', $path)) {
+            return self::to('/');
+        }
+        // Also reject raw leading double-backslash before any normalization
+        if (str_starts_with($path, '\\\\') || str_starts_with(str_replace('\\', '/', $path), '//')) {
             return self::to('/');
         }
 
@@ -92,15 +97,21 @@ final class Url
         }
 
         $parts = preg_split('/([?#])/', $path, 2, PREG_SPLIT_DELIM_CAPTURE);
-        $pathname = str_replace('\\', '/', (string) ($parts[0] ?? ''));
-        $pathname = preg_replace('#/+#', '/', $pathname) ?: '/';
+        $rawPathname = (string) ($parts[0] ?? '');
         $suffix = isset($parts[1]) ? $parts[1] . ($parts[2] ?? '') : '';
 
-        // After normalizing backslashes, anything that still looks protocol-relative
-        // (started with // or \\ ) is treated as an external-host attempt and rejected.
+        // Normalize Windows backslashes FIRST
+        $pathname = str_replace('\\', '/', $rawPathname);
+
+        // CRITICAL: detect protocol-relative form BEFORE collapsing multiple slashes.
+        // Input "\\\\courses\\testing" becomes "//courses/testing" here.
+        // If we collapsed first it would become "/courses/testing" and escape the check.
         if (str_starts_with($pathname, '//')) {
             return self::basePath() . '/';
         }
+
+        // Now safe to collapse multiple slashes
+        $pathname = preg_replace('#/+#', '/', $pathname) ?: '/';
 
         if ($pathname === '' || $pathname === '/') {
             return self::basePath() . '/' . $suffix;
