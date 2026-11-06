@@ -95,4 +95,36 @@ final class Url
 
         return self::basePath() . '/' . ltrim($pathname, '/') . $suffix;
     }
+
+    /**
+     * Build an absolute URL suitable for Open Graph, schema.org, emails and redirects.
+     * Prefers APP_URL from Config; falls back to the current request host + base path.
+     */
+    public static function absolute(string $path = '/'): string
+    {
+        $configured = '';
+        if (class_exists(Config::class)) {
+            $configured = rtrim((string) Config::get('app.url', ''), '/');
+        }
+
+        if ($configured !== '') {
+            $relative = self::to($path);
+            $basePath = self::basePath();
+            // Strip the installation base path so we do not double-prefix when APP_URL already includes it.
+            if ($basePath !== '' && str_starts_with($relative, $basePath)) {
+                $relative = substr($relative, strlen($basePath)) ?: '/';
+            }
+            return $configured . ($relative === '/' ? '' : $relative);
+        }
+
+        $scheme = (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off') ? 'https' : 'http';
+        $host = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
+        return $scheme . '://' . $host . self::to($path);
+    }
+
+    /** Convenience: the canonical site origin (no trailing path). */
+    public static function site(): string
+    {
+        return rtrim(self::absolute('/'), '/');
+    }
 }
