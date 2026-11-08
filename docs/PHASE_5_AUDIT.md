@@ -67,6 +67,14 @@ This is a living audit record. A green CI run is a baseline, not proof that ever
 - The current order creation path still prices courses using the legacy course-level `price_ugx`; it does not yet create a distinct order line for each self-paced/live/in-person offering.
 - This means separate offering prices and entitlements need an end-to-end checkout and enrolment integration before the delivery-mode pricing model is complete.
 
+### P2 — Refund allocation and entitlement isolation
+
+- Added migration `016_refund_item_allocations` to snapshot refund-to-order-line allocations.
+- Refund requests now use `BEGIN IMMEDIATE`, validate course/digital-product eligibility, reserve the selected line's remaining refundable balance, and reject physical product lines.
+- Refund resolution updates the order/payment totals, revokes only a fully refunded digital product's download access, and revokes course enrolment only when the course line is fully refunded and no other paid purchase grants access.
+- The administrator refund screen lists eligible line items and their remaining balances instead of accepting an unallocated order-level amount.
+- PHP commerce regression coverage now checks partial line refunds, cumulative over-refund rejection, independent product/course entitlement revocation and audit history. Shipping and read/download entitlements remain Phase 2 work.
+
 ### P2 — Operational and UX opportunities under review
 
 - Validate backup restore as well as backup creation/integrity verification.

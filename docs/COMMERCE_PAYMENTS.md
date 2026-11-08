@@ -37,7 +37,7 @@ The administrator refund ledger records the request, amount, reason, requesting 
 
 The refund screen records and audits provider actions; it does not claim to move money or call an undocumented provider refund API. An administrator must first process the refund in the relevant PayPal or DPO merchant console, then record the provider-confirmed refund reference and resolution. Never mark a refund successful before provider confirmation.
 
-The required reimbursement workflow is restricted to online activities: self-paced courses, live online course/session fees and digital product access/download entitlements. Physical products, shipping and in-person course fees are excluded. It must allocate refunds to eligible order lines, revoke only the refunded entitlement and prevent mixed-order refunds from reimbursing physical goods or delivery charges. The current payment/order-level ledger does not yet meet this line-level requirement.
+The reimbursement workflow is restricted to online activities: course purchases and digital products. Refund requests now reference a specific order line, reserve pending and succeeded amounts against that line's purchase-time total, and reject physical product lines. A fully refunded digital product loses its private file access independently of other order items; course access is revoked only when that course line is fully refunded and no other paid purchase grants access. Physical delivery and in-person course fees remain excluded.
 
 ## Reconciliation
 
@@ -56,7 +56,7 @@ The administrator order screen flags missing paid-payment records, paid payments
 - DPO BackURL is https://YOUR_DOMAIN/dpo-webhook.php; the redirect URL returns to the authenticated order owner.
 - PHP cURL is required for provider API calls. PHP SimpleXML is additionally required for DPO XML responses.
 
-This release covers one-time course and product orders, secure multi-file delivery and an audited administrator refund ledger. Provider refund execution is manual through the merchant console and must be confirmed before the corresponding refund record is marked successful. Physical shipping, fulfilment, dual-priced digital entitlements and online-only line-item refunds remain implementation requirements. Coupon campaigns, recurring subscriptions and tax are not enabled. Live provider credentials, merchant account configuration, DPO service type, PayPal conversion setup, webhook registration and end-to-end transactions must be verified by the site owner before launch.
+This release covers one-time course and product orders, secure multi-file delivery and an audited administrator refund ledger. Provider refund execution is manual through the merchant console and must be confirmed before the corresponding refund record is marked successful. Physical shipping, fulfilment and dual-priced digital entitlements remain implementation requirements. Refund allocations are now line-specific and exclude physical goods. Coupon campaigns, recurring subscriptions and tax are not enabled. Live provider credentials, merchant account configuration, DPO service type, PayPal conversion setup, webhook registration and end-to-end transactions must be verified by the site owner before launch.
 
 ## Simulated demo payments
 
