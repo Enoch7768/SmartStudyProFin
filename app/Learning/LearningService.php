@@ -199,6 +199,13 @@ final class LearningService
         return ['questions' => $questions, 'time_limit_minutes' => (int) $lesson['quiz_time_limit_minutes'], 'pass_mark' => (int) $lesson['quiz_pass_mark'], 'started_at' => (int) $_SESSION[$timerKey]];
     }
 
+    public function offeringEnrolments(int $userId): array
+    {
+        $statement = $this->pdo->prepare("SELECT oe.id, oe.offering_id, oe.status AS enrolment_status, oe.created_at, o.mode, o.title AS offering_title, o.description, c.id AS course_id, c.slug AS course_slug, c.title AS course_title, (SELECT COUNT(*) FROM course_sessions s WHERE s.offering_id = o.id AND s.status IN ('scheduled', 'rescheduled')) AS upcoming_sessions, (SELECT MIN(s.starts_at_utc) FROM course_sessions s WHERE s.offering_id = o.id AND s.status IN ('scheduled', 'rescheduled') AND s.starts_at_utc >= :now) AS next_session_utc FROM course_offering_enrolments oe INNER JOIN course_offerings o ON o.id = oe.offering_id INNER JOIN cms_courses c ON c.id = o.course_id WHERE oe.user_id = :user_id AND oe.status IN ('active', 'completed') AND o.mode IN ('live_online', 'in_person') AND c.status = 'published' ORDER BY CASE WHEN oe.status = 'active' THEN 0 ELSE 1 END, next_session_utc, oe.created_at DESC");
+        $statement->execute(['now' => gmdate('Y-m-d H:i:s'), 'user_id' => $userId]);
+        return $statement->fetchAll();
+    }
+
     public function dashboard(int $userId): array
     {
         $courses = $this->courses($userId);
