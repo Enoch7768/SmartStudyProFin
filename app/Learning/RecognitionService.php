@@ -21,6 +21,13 @@ final class RecognitionService
             $courseId = (int) $enrolment['course_id'];
             $this->notify($userId, 'course-enrolled:' . $courseId, 'course', 'Course added to your learning', 'You are enrolled in ' . $enrolment['title'] . '. Your lessons are ready when you are.', 'study.php?course_id=' . $courseId);
         }
+        $offeringEnrolments = $this->pdo->prepare("SELECT oe.offering_id, o.title AS offering_title, c.title AS course_title, o.mode FROM course_offering_enrolments oe INNER JOIN course_offerings o ON o.id = oe.offering_id INNER JOIN cms_courses c ON c.id = o.course_id WHERE oe.user_id = :user_id AND oe.status IN ('active', 'completed') AND o.mode IN ('live_online', 'in_person') AND c.status = 'published'");
+        $offeringEnrolments->execute(['user_id' => $userId]);
+        foreach ($offeringEnrolments->fetchAll() as $offering) {
+            $offeringId = (int) $offering['offering_id'];
+            $modeLabel = $offering['mode'] === 'in_person' ? 'in-person' : 'live online';
+            $this->notify($userId, 'offering-enrolled:' . $offeringId, 'course', 'Course place confirmed', 'You are enrolled in ' . $offering['course_title'] . ' · ' . $offering['offering_title'] . ' (' . $modeLabel . '). Check My Sessions for schedules and booking.', '/meetings');
+        }
         $stats = $this->stats($userId);
         $catalog = $this->pdo->query('SELECT id, slug, name, description, threshold, metric FROM achievements ORDER BY id')->fetchAll();
         $now = gmdate('Y-m-d H:i:s');
