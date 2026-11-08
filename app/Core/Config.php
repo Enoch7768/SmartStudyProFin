@@ -72,7 +72,7 @@ final class Config
                 'client_id' => (string) $read('GOOGLE_CLIENT_ID', ''),
                 'client_secret' => (string) $readPrivate('GOOGLE_CLIENT_SECRET', ''),
             ],
-            'ai' => ['gemini_api_key' => (string) $read('GEMINI_API_KEY', ''), 'gemini_model' => (string) $read('GEMINI_MODEL', 'gemini-2.5-flash')],
+            'ai' => ['gemini_api_key' => (string) $read('GEMINI_API_KEY', ''), 'gemini_model' => (string) $read('GEMINI_MODEL', 'gemini-2.5-flash'), 'groq_api_key' => (string) $readPrivate('GROQ_API_KEY', ''), 'groq_model' => (string) $read('GROQ_MODEL', 'llama-3.3-70b-versatile'), 'groq_input_budget' => max(1000, (int) $read('GROQ_INPUT_TOKEN_BUDGET', 6000)), 'groq_output_budget' => max(128, (int) $read('GROQ_OUTPUT_TOKEN_BUDGET', 1200)), 'groq_daily_requests' => max(1, (int) $read('GROQ_DAILY_REQUEST_LIMIT', 20)), 'groq_daily_tokens' => max(2000, (int) $read('GROQ_DAILY_TOKEN_LIMIT', 30000)), 'groq_enabled' => filter_var($read('GROQ_MEETINGS_ENABLED', 'true'), FILTER_VALIDATE_BOOL)],
             'payments' => [
                 'paypal_mode' => (string) $read('PAYPAL_MODE', 'sandbox'),
                 'paypal_client_id' => (string) $read('PAYPAL_CLIENT_ID', ''),
