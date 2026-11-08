@@ -12,7 +12,7 @@ $address = strip_tags($contact['address']);
 
 $seoTitle = 'Contact Us | SmartStudyPro Uganda';
 $seoDescription = 'Get in touch with SmartStudyPro for inquiries about our online courses, private tutoring, and educational packages in Kampala, Uganda.';
-$siteUrl = 'https://smartstudypro.com';
+$siteUrl = \App\Core\Url::site();
 ?>
 <!DOCTYPE html>
 <html lang="en">
