@@ -21,8 +21,8 @@ if (is_file($vendorAutoload)) require_once $vendorAutoload;
 Security::sendHeaders();
 Session::start();
 
-// NOTE: Automatic <base href> injection was removed.
-// Url::to() already emits root-relative paths (e.g. /courses/testing).
-// A <base> tag was causing browsers to resolve links as http://courses/ on localhost.
+// URL generation is explicit through Url::to() and Url::resolve().
+// HTML page templates provide a root-relative base element where relative
+// legacy links remain in use; the bootstrap intentionally emits no markup.
 
 return ['root' => $root, 'config' => Config::all()];
