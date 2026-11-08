@@ -81,6 +81,20 @@ final class MeetingPlannerService {
   $q=$this->pdo->prepare("UPDATE course_sessions SET status=:status,updated_at=:now WHERE id=:id AND status IN('scheduled','rescheduled','completed')");$now=gmdate('Y-m-d H:i:s');$q->execute(['status'=>$status,'now'=>$now,'id'=>$session]);if(!$q->rowCount())throw new RuntimeException('Session status cannot be changed.');
   $this->audit($session,$actor,'session.'.$status,[]);
  }
+ public function dispatchDueReminders(?DateTimeImmutable $now=null): int {
+  $now=($now??new DateTimeImmutable('now',new DateTimeZone('UTC')))->setTimezone(new DateTimeZone('UTC'));$stamp=$now->format('Y-m-d H:i:s');$delivered=0;
+  $windows=[['24h','+23 hours 45 minutes','+24 hours'],['1h','+45 minutes','+1 hour']];
+  foreach($windows as [$type,$lower,$upper]){
+   $q=$this->pdo->prepare("SELECT s.id AS session_id,s.title,e.user_id FROM course_sessions s JOIN session_enrolments e ON e.session_id=s.id AND e.status='confirmed' WHERE s.status IN('scheduled','rescheduled') AND s.starts_at_utc>datetime(:lower) AND s.starts_at_utc<=datetime(:upper)");
+   $q->execute(['lower'=>$stamp.' '.$lower,'upper'=>$stamp.' '.$upper]);
+   foreach($q->fetchAll() as $row){
+    $insert=$this->pdo->prepare('INSERT OR IGNORE INTO meeting_reminders(session_id,user_id,reminder_type,sent_at) VALUES(:session,:user,:type,:sent)');$insert->execute(['session'=>(int)$row['session_id'],'user'=>(int)$row['user_id'],'type'=>$type,'sent'=>$stamp]);if($insert->rowCount()!==1)continue;
+    $event='meeting-reminder-'.$row['session_id'].'-'.$row['user_id'].'-'.$type;$notice=$this->pdo->prepare("INSERT OR IGNORE INTO notifications(user_id,event_key,type,title,message,target_url,created_at) VALUES(:user,:event,'course',:title,:message,'/meetings',:now)");
+    $notice->execute(['user'=>(int)$row['user_id'],'event'=>$event,'title'=>$type==='24h'?'Course session tomorrow':'Course session starting soon','message'=>trim((string)$row['title']).($type==='24h'?' starts in about 24 hours.':' starts in about one hour.').' Open My Sessions for details.','now'=>$stamp]);$delivered+=$notice->rowCount();
+   }
+  }
+  return $delivered;
+ }
  public function attendanceHistory(int $user): array {
   $q=$this->pdo->prepare("SELECT s.title,s.starts_at_utc,s.timezone,c.title AS course_title,a.status,a.reason,a.recorded_at FROM session_attendance a JOIN course_sessions s ON s.id=a.session_id JOIN course_offerings o ON o.id=s.offering_id JOIN cms_courses c ON c.id=o.course_id WHERE a.user_id=:user ORDER BY s.starts_at_utc DESC");$q->execute(['user'=>$user]);return $q->fetchAll();
  }
