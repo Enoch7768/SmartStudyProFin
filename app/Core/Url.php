@@ -18,7 +18,7 @@ final class Url
         if (!is_string($scriptPath) || $scriptPath === '') $scriptPath = '/index.php';
         $scriptPath = '/' . ltrim(preg_replace('#/+#', '/', $scriptPath) ?: '/index.php', '/');
         $directory = dirname($scriptPath);
-        if (in_array(strtolower(basename($directory)), ['admin', 'forms', 'install'], true)) {
+        if (in_array(strtolower(basename($directory)), ['admin', 'forms'], true)) {
             $directory = dirname($directory);
         }
 
