@@ -24,12 +24,12 @@ Customers may buy either or both. Catalogue, cart, order lines, receipts and acc
 
 SmartStudyPro does **not** run antivirus or malware scans. There is no scanner service, scan queue, quarantine workflow or scan status.
 
-- Allow common content formats needed for digital products: PDF; DOC/DOCX; XLS/XLSX; PPT/PPTX; ODT; RTF; TXT; CSV; JPEG; PNG; WebP; GIF; MP3; and MP4. Keep the allowlist explicit and configurable in code; unknown formats are rejected.
-- Never allow server-side code or executable formats, including PHP, PHAR, CGI, EXE, DLL, scripts, shell/batch files, JavaScript, HTML, SVG, installers, disk images, shortcut files or archives uploaded as deliverable content.
+- Allow common content formats needed for digital products: PDF; DOC/DOCX; XLS/XLSX; PPT/PPTX; ODT; RTF; TXT; CSV; JPEG; PNG; WebP; GIF; MP3; MP4; and ZIP archives as opaque downloads only. Keep the allowlist explicit and configurable in code; unknown formats are rejected.
+- Never allow server-side code or executable formats, including PHP, PHAR, CGI, EXE, DLL, scripts, shell/batch files, JavaScript, HTML, SVG, installers, disk images, shortcut files or unsupported archives uploaded as deliverable content. ZIP is the sole archive exception and is never extracted, inspected, previewed or executed by the application.
 - Determine the stored extension and MIME type on the server, not from the browser's Content-Type. Reject unsupported detected types and obvious extension/type mismatches. The client filename is display metadata only and must never determine a storage path.
 - Generate random storage names. Store uploads outside the public web root in a private directory with restrictive directory/file permissions. Refuse to upload if the configured storage directory resolves inside the web root.
 - Uploaded files must never be included, required, evaluated, interpreted, passed to a shell, used as templates, or routed through PHP/CGI or any other server execution handler.
-- Deliver files only through application endpoints that check administrator access or the buyer's entitlement. Use a server-selected Content-Type, X-Content-Type-Options: nosniff, safe Content-Disposition and private caching headers. Force documents and unknown inline-capable types to download; only deliberately supported preview types may render inline.
+- Deliver files only through application endpoints that check administrator access or the buyer's entitlement. Use a server-selected Content-Type, X-Content-Type-Options: nosniff, safe Content-Disposition and private caching headers. Force documents, ZIP archives and unknown inline-capable types to download; only deliberately supported preview types may render inline.
 - Keep the upload size limit and enforce it server-side. Use generated storage paths and verify path containment when reading files.
 - This is file isolation, not malware detection. A permitted document can still contain content that is unsafe when opened in a separate desktop application. Users should only open files from sources they trust.
 
