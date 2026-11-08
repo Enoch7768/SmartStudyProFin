@@ -27,7 +27,7 @@ $address = strip_tags($contact['address']);
 
 $seoTitle = $course['SEO-Title'] ?? ($displayTitle . ' | Course at SmartStudyPro');
 $seoDescription = $course['SEO-Description'] ?? strip_tags($course['Description'] ?? $displaySubtitle);
-$siteUrl = 'https://smartstudypro.com';
+$siteUrl = \App\Core\Url::site();
 
 $cImgData = $course['Image'] ?? null;
 $ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/') : $siteUrl . '/assets/img/course-1.jpg';
