@@ -6,6 +6,7 @@ namespace App\Cms;
 
 use PDO;
 use RuntimeException;
+use Throwable;
 
 final class MediaManager
 {
@@ -30,6 +31,22 @@ final class MediaManager
         'audio/mpeg' => 'mp3',
         'application/zip' => 'zip'
     ];
+
+    private const EXTENSIONS = [
+        'image/jpeg' => ['jpg', 'jpeg'], 'image/png' => ['png'], 'image/webp' => ['webp'], 'image/gif' => ['gif'],
+        'application/pdf' => ['pdf'], 'text/plain' => ['txt', 'csv'], 'text/csv' => ['csv'],
+        'application/msword' => ['doc'], 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => ['docx'],
+        'application/vnd.ms-excel' => ['xls'], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => ['xlsx'],
+        'application/vnd.ms-powerpoint' => ['ppt'], 'application/vnd.openxmlformats-officedocument.presentationml.presentation' => ['pptx'],
+        'application/rtf' => ['rtf'], 'text/rtf' => ['rtf'], 'application/vnd.oasis.opendocument.text' => ['odt'],
+        'video/mp4' => ['mp4'], 'audio/mpeg' => ['mp3'], 'application/zip' => ['zip', 'docx', 'xlsx', 'pptx', 'odt']
+    ];
+
+    private static function extensionMatches(string $mime, string $filename): bool
+    {
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        return $extension !== '' && in_array($extension, self::EXTENSIONS[$mime] ?? [], true);
+    }
 
     public function __construct(private readonly PDO $pdo, private readonly string $storagePath)
     {
@@ -82,7 +99,8 @@ final class MediaManager
         $originalName = substr($originalName, 0, 180);
         $relative = 'media/' . $year . '/' . $month . '/' . $name;
         $statement = $this->pdo->prepare('INSERT INTO media_assets (storage_path, original_name, mime_type, file_size, checksum_sha256, alt_text, visibility, uploaded_by, created_at) VALUES (:storage_path, :original_name, :mime_type, :file_size, :checksum_sha256, :alt_text, :visibility, :uploaded_by, :created_at)');
-        $statement->execute([
+        try {
+            $statement->execute([
             'storage_path' => $relative,
             'original_name' => $originalName,
             'mime_type' => $mime,
@@ -92,7 +110,11 @@ final class MediaManager
             'visibility' => $visibility === 'public' && str_starts_with($mime, 'image/') ? 'public' : 'private',
             'uploaded_by' => $userId,
             'created_at' => gmdate('Y-m-d H:i:s')
-        ]);
+            ]);
+        } catch (Throwable $exception) {
+            if (is_file($destination)) @unlink($destination);
+            throw $exception;
+        }
         return (int) $this->pdo->lastInsertId();
     }
 
