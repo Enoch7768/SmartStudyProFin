@@ -1,51 +1,20 @@
 <?php
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $name = trim($_POST['name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $subject = trim($_POST['subject'] ?? '');
-    $message = trim($_POST['message'] ?? '');
-
-    if ($name === '' || $subject === '' || $message === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        http_response_code(400);
-        echo "Please fill in all fields with a valid email address.";
-        exit;
-    }
-
-    try {
-        $db_file = __DIR__ . "/database/bookings.db";
-
-        if (!file_exists(dirname($db_file))) mkdir(dirname($db_file), 0777, true);
-
-        $db = new PDO("sqlite:$db_file");
-        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        $db->exec("CREATE TABLE IF NOT EXISTS contact_messages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            email TEXT,
-            subject TEXT,
-            message TEXT,
-            status TEXT DEFAULT 'unread',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )");
-
-        $stmt = $db->prepare("INSERT INTO contact_messages (name, email, subject, message) 
-                              VALUES (:name, :email, :subject, :message)");
-        $stmt->execute([
-            ':name' => $name,
-            ':email' => $email,
-            ':subject' => $subject,
-            ':message' => $message
-        ]);
-
-        echo "OK"; 
-
-    } catch (Exception $e) {
-        error_log("contact-process.php DB error: " . $e->getMessage());
-        http_response_code(500);
-        echo "Sorry, something went wrong sending your message. Please try again later.";
-    }
-} else {
-    echo "Invalid Request";
+declare(strict_types=1);
+require __DIR__ . '/bootstrap/app.php';
+use App\Contact\ContactMessageService;
+use App\Core\Config;
+use App\Core\Database;
+use App\Core\Security;
+if(($_SERVER['REQUEST_METHOD']??'GET')!=='POST'){http_response_code(405);header('Allow: POST');exit('Method not allowed.');}
+if(!Security::verifyCsrf($_POST['_csrf']??null)){http_response_code(400);exit('Your session expired. Refresh the contact page and try again.');}
+if(trim((string)($_POST['website']??''))!==''){Security::redirect('/contact?sent=1');}
+$ip=(string)($_SERVER['REMOTE_ADDR']??'unknown');$key=(string)Config::get('app.key','');$ipHash=$key!==''?hash_hmac('sha256',$ip,$key):hash('sha256',$ip);
+try{
+ (new ContactMessageService(Database::connect()))->submit((string)($_POST['name']??''),(string)($_POST['email']??''),(string)($_POST['subject']??''),(string)($_POST['message']??''),$ipHash);
+ Security::redirect('/contact?sent=1');
+}catch(RuntimeException $e){
+ Security::redirect('/contact?error=1');
+}catch(Throwable $e){
+ error_log('Contact message submission failed: '.$e->getMessage());
+ Security::redirect('/contact?error=1');
 }
-?>
