@@ -338,12 +338,14 @@ $fullImgUrl = str_starts_with($imgUrl, 'http') ? $imgUrl : $siteUrl . '/' . ltri
                 <form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>"><input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="type" value="product"><input type="hidden" name="id" value="<?= $productId ?>"><input type="hidden" name="entitlement" value="download"><button type="submit" class="btn-ssp-primary w-100 py-2">Add download access</button></form>
               </div>
               <?php else: ?>
+              <?php if (empty($product['StockAvailable'])): ?><div class="alert alert-secondary mb-0">Currently out of stock. Please check back later.</div><?php else: ?>
               <form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>">
                 <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" name="type" value="product">
                 <input type="hidden" name="id" value="<?= $productId ?>">
                 <button type="submit" class="btn-ssp-primary w-100 py-2 mt-2">Add to cart · delivery at checkout</button>
               </form>
+              <?php endif; ?>
               <?php endif; ?>
             </div>
           </div>

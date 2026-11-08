@@ -36,13 +36,17 @@ if (!in_array($type, ['course', 'product'], true) || $id < 1) {
 }
 
 $table = $type === 'course' ? 'cms_courses' : 'cms_products';
-$columns = $type === 'product' ? 'id, slug, price_ugx, product_type' : 'id, slug, price_ugx';
+$columns = $type === 'product' ? 'id, slug, price_ugx, product_type, stock_quantity, stock_reserved' : 'id, slug, price_ugx';
 $statement = $pdo->prepare("SELECT {$columns} FROM {$table} WHERE id = :id AND status = 'published' LIMIT 1");
 $statement->execute(['id' => $id]);
 $item = $statement->fetch();
 if (!$item) {
     http_response_code(404);
     exit('This item is no longer available.');
+}
+if ($type === 'product' && ($item['product_type'] ?? '') === 'physical' && $item['stock_quantity'] !== null && ((int)$item['stock_quantity'] - (int)$item['stock_reserved']) < 1) {
+    http_response_code(409);
+    exit('This physical product is currently out of stock.');
 }
 
 $offeringId = filter_var($_POST['offering_id'] ?? null, FILTER_VALIDATE_INT) ?: 0;

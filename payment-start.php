@@ -36,7 +36,7 @@ try {
     $payment = $service->createPayment((int) $order['id'], (int) $user['id'], $provider);
     $gateway = new PaymentGateway();
     $result = $provider === 'paypal'
-        ? $gateway->startPayPal($payment, $order, $base . '/payment-return.php?provider=paypal', $base . '/payment-return.php?provider=cancel')
+        ? $gateway->startPayPal($payment, $order, $base . '/payment-return.php?provider=paypal', $base . '/payment-return.php?provider=cancel&order=' . (int) $order['id'])
         : ($provider === 'dpo'
             ? $gateway->startDpo($payment, $order, $base . '/dpo-webhook.php', $base . '/payment-return.php?provider=dpo')
             : throw new RuntimeException('Choose PayPal or DPO.'));

@@ -86,24 +86,36 @@ try {
     $shipping = new ShippingService($pdo);
     $zoneId = $shipping->saveZone(null, 'Kampala delivery', 'UG', 'Kampala', true);
     $methodId = $shipping->saveMethod(null, $zoneId, 'Standard delivery', 'Door-to-door delivery', 2500, 1, 3, true);
-    $physicalProductId = $content->save('products', null, ['title' => 'Printed Study Workbook', 'description_html' => 'Physical workbook.', 'price_ugx' => '7000', 'category' => 'Books', 'product_type' => 'physical', 'status' => 'published']);
+    $physicalProductId = $content->save('products', null, ['title' => 'Printed Study Workbook', 'description_html' => 'Physical workbook.', 'price_ugx' => '7000', 'category' => 'Books', 'product_type' => 'physical', 'stock_quantity' => '2', 'status' => 'published']);
     $regionRejected = false;
     try { $shipping->quote($methodId, 'UG', 'Wakiso'); } catch (RuntimeException) { $regionRejected = true; }
     if (!$regionRejected) throw new RuntimeException('A district-specific delivery method was offered outside its configured region.');
     $delivery = ['method_id'=>$methodId,'name'=>'Test Recipient','phone'=>'+256700000001','address'=>'Plot 10 Test Road','city'=>'Kampala','region'=>'Kampala','country'=>'UG'];
     $physicalOrder = $commerce->createOrder($adminId, [['type'=>'product','id'=>$physicalProductId,'quantity'=>1]], $delivery);
     if ((int)$physicalOrder['subtotal_ugx'] !== 7000 || (int)$physicalOrder['delivery_fee_ugx'] !== 2500 || (int)$physicalOrder['total_ugx'] !== 9500 || $physicalOrder['fulfillment_status'] !== 'pending') throw new RuntimeException('Physical checkout did not snapshot the server-calculated delivery price and recipient details.');
+    $stockState=$pdo->query('SELECT stock_quantity,stock_reserved FROM cms_products WHERE id='.(int)$physicalProductId)->fetch();
+    if ((int)$stockState['stock_quantity']!==2 || (int)$stockState['stock_reserved']!==1) throw new RuntimeException('Physical checkout did not reserve finite inventory.');
     $mixedOrder = $commerce->createOrder($adminId, [['type'=>'product','id'=>$productId,'quantity'=>1],['type'=>'product','id'=>$physicalProductId,'quantity'=>1]], $delivery);
     if ((int)$mixedOrder['total_ugx'] !== 19500 || (int)$mixedOrder['delivery_fee_ugx'] !== 2500) throw new RuntimeException('A mixed cart did not apply delivery once to its physical items only.');
+    $stockState=$pdo->query('SELECT stock_reserved FROM cms_products WHERE id='.(int)$physicalProductId)->fetchColumn();
+    if ((int)$stockState!==2) throw new RuntimeException('Mixed checkout did not reserve the additional physical quantity.');
     $digitalOnlyOrder = $commerce->createOrder($adminId, [['type'=>'product','id'=>$productId,'quantity'=>1]]);
     if ((int)$digitalOnlyOrder['delivery_fee_ugx'] !== 0 || $digitalOnlyOrder['shipping_method_id'] !== null) throw new RuntimeException('A digital-only order was charged delivery.');
     $physicalPayment = $commerce->createPayment((int)$physicalOrder['id'], $adminId, 'dpo');
     $commerce->updateProviderReference((int)$physicalPayment['id'], 'phase2-physical-token', 'CREATED');
     if (!$commerce->confirmPayment((int)$physicalPayment['id'], 'dpo', 'phase2-physical-token', 'phase2-physical-tx', 9500, 'UGX', 'COMPLETED', 'phase2-physical-event')) throw new RuntimeException('Physical order payment did not complete.');
+    $stockState=$pdo->query('SELECT stock_quantity,stock_reserved FROM cms_products WHERE id='.(int)$physicalProductId)->fetch();
+    if ((int)$stockState['stock_quantity']!==1 || (int)$stockState['stock_reserved']!==1) throw new RuntimeException('Paid physical checkout did not commit its stock reservation.');
     $physicalItemId = (int)$physicalOrder['items'][0]['id'];
     $physicalRefundRejected = false;
     try { (new RefundService($pdo))->request($physicalItemId, $adminId, 1000, 'Physical goods are not refundable through this online refund ledger.'); } catch (RuntimeException) { $physicalRefundRejected = true; }
     if (!$physicalRefundRejected) throw new RuntimeException('The online refund ledger accepted a physical product.');
+    $commerce->cancelPendingOrder((int)$mixedOrder['id'],$adminId);
+    $stockState=$pdo->query('SELECT stock_quantity,stock_reserved FROM cms_products WHERE id='.(int)$physicalProductId)->fetch();
+    if ((int)$stockState['stock_quantity']!==1 || (int)$stockState['stock_reserved']!==0) throw new RuntimeException('Cancelling an unpaid physical order did not release its inventory reservation.');
+    $outOfStockRejected=false;
+    try{$commerce->createOrder($adminId,[['type'=>'product','id'=>$physicalProductId,'quantity'=>2]],$delivery);}catch(RuntimeException){$outOfStockRejected=true;}
+    if(!$outOfStockRejected) throw new RuntimeException('Checkout allowed more physical units than remaining stock.');
     $shipping->updateFulfillment((int)$physicalOrder['id'], $adminId, 'processing', '', '');
     $shipping->updateFulfillment((int)$physicalOrder['id'], $adminId, 'shipped', 'Test Courier', 'TRACK-100');
     $shipping->updateFulfillment((int)$physicalOrder['id'], $adminId, 'delivered', 'Test Courier', 'TRACK-100');
@@ -194,7 +206,7 @@ try {
     if ($learning->hasAccess($adminId, $courseId)) throw new RuntimeException('A fully refunded course remained accessible without another paid purchase.');
     if (count($refunds->auditTrail($firstRefund)) !== 2 || count($refunds->auditTrail($secondRefund)) !== 2 || count($refunds->auditTrail($thirdRefund)) !== 2) throw new RuntimeException('Refund requests and provider-confirmed resolutions were not fully audited.');
 
-    echo "PASS server-priced physical delivery and region-specific shipping\n";
+    echo "PASS server-priced physical delivery, inventory reservation and release\n";
     echo "PASS mixed-cart shipping separation and delivery-free digital orders\n";
     echo "PASS physical order fulfilment tracking and physical refund exclusion\n";
     echo "PASS multi-file product snapshots and secure owner-bound delivery\n";

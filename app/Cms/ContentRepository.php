@@ -14,7 +14,7 @@ final class ContentRepository
         'chapters' => ['cms_chapters', ['course_id', 'title', 'sort_order']],
         'lessons' => ['cms_lessons', ['chapter_id', 'title', 'content_html', 'video_url', 'video_media_id', 'resource_media_id', 'resource_title', 'quiz_time_limit_minutes', 'quiz_pass_mark', 'sort_order', 'status']],
         'questions' => ['cms_quiz_questions', ['lesson_id', 'content', 'question', 'options_json', 'correct_answer', 'sort_order']],
-        'products' => ['cms_products', ['title', 'slug', 'description_html', 'price_ugx', 'read_price_ugx', 'download_price_ugx', 'category', 'image_media_id', 'product_type', 'product_file_media_id', 'status', 'sort_order']]
+        'products' => ['cms_products', ['title', 'slug', 'description_html', 'price_ugx', 'read_price_ugx', 'download_price_ugx', 'stock_quantity', 'category', 'image_media_id', 'product_type', 'product_file_media_id', 'status', 'sort_order']]
     ];
 
     public function __construct(private readonly PDO $pdo)
@@ -49,7 +49,7 @@ final class ContentRepository
             if (!array_key_exists($field, $input)) continue;
             $value = $input[$field];
             if (in_array($field, ['description_html', 'content_html', 'body_html'], true)) $value = HtmlSanitizer::clean((string) $value);
-            if (in_array($field, ['price_ugx', 'read_price_ugx', 'download_price_ugx', 'sort_order', 'course_id', 'chapter_id', 'lesson_id', 'image_media_id', 'video_media_id', 'product_file_media_id', 'resource_media_id', 'quiz_time_limit_minutes', 'quiz_pass_mark'], true)) {
+            if (in_array($field, ['price_ugx', 'read_price_ugx', 'download_price_ugx', 'stock_quantity', 'sort_order', 'course_id', 'chapter_id', 'lesson_id', 'image_media_id', 'video_media_id', 'product_file_media_id', 'resource_media_id', 'quiz_time_limit_minutes', 'quiz_pass_mark'], true)) {
                 $value = $value === '' || $value === null ? null : filter_var($value, FILTER_VALIDATE_INT);
                 if ($value === false || ($value !== null && $value < 0)) throw new RuntimeException('A numeric field contains an invalid value.');
             }
@@ -69,6 +69,10 @@ final class ContentRepository
                 $value = json_encode($options, JSON_THROW_ON_ERROR);
             }
             $data[$field] = $value;
+        }
+        if ($type === 'products' && array_key_exists('stock_quantity', $data) && $data['stock_quantity'] !== null && $id !== null) {
+            $existingStock = $this->find('products', $id);
+            if ($existingStock && (int) ($data['stock_quantity']) < (int) ($existingStock['stock_reserved'] ?? 0)) throw new RuntimeException('Stock quantity cannot be lower than units already reserved for pending orders.');
         }
         if ($type === 'products' && ($data['product_type'] ?? ($id !== null ? ($this->find('products', $id)['product_type'] ?? 'physical') : 'physical')) === 'online') {
             $existingProduct = $id === null ? [] : ($this->find('products', $id) ?? []);

@@ -35,7 +35,7 @@ final class CommerceService
             if (isset($seen[$cartKey])) throw new RuntimeException('The same item and access option cannot appear more than once in an order.');
             $seen[$cartKey] = true;
             $table = $type === 'course' ? 'cms_courses' : 'cms_products';
-            $query = $this->pdo->prepare("SELECT id, title, price_ugx" . ($type === 'product' ? ", product_type, product_file_media_id, read_price_ugx, download_price_ugx" : "") . " FROM {$table} WHERE id = :id AND status = 'published'");
+            $query = $this->pdo->prepare("SELECT id, title, price_ugx" . ($type === 'product' ? ", product_type, product_file_media_id, read_price_ugx, download_price_ugx, stock_quantity, stock_reserved" : "") . " FROM {$table} WHERE id = :id AND status = 'published'");
             $query->execute(['id' => $id]);
             $item = $query->fetch();
             if (!$item) throw new RuntimeException('A cart item is no longer available.');
@@ -103,7 +103,7 @@ final class CommerceService
             $line = $price * $quantity;
             if ($line > 1000000000 || $subtotal > 1000000000 - $line) throw new RuntimeException('Your order total is too large.');
             $subtotal += $line;
-            $items[] = ['type' => $type, 'id' => $id, 'title' => (string) $item['title'] . ($courseOffering ? ' · ' . $courseOffering['title'] : ''), 'product_type' => $item['product_type'] ?? null, 'file_id' => $item['product_file_media_id'] ?? null, 'entitlement' => $entitlement, 'offering_id' => $courseOffering ? (int) $courseOffering['id'] : null, 'offering_mode' => $courseOffering['mode'] ?? 'legacy', 'offering_title' => $courseOffering['title'] ?? '', 'offering_capacity' => $courseOffering['capacity'] ?? null, 'assets' => $assets, 'price' => $price, 'quantity' => $quantity, 'line' => $line];
+            $items[] = ['type' => $type, 'id' => $id, 'title' => (string) $item['title'] . ($courseOffering ? ' · ' . $courseOffering['title'] : ''), 'product_type' => $item['product_type'] ?? null, 'file_id' => $item['product_file_media_id'] ?? null, 'entitlement' => $entitlement, 'offering_id' => $courseOffering ? (int) $courseOffering['id'] : null, 'offering_mode' => $courseOffering['mode'] ?? 'legacy', 'offering_title' => $courseOffering['title'] ?? '', 'offering_capacity' => $courseOffering['capacity'] ?? null, 'stock_quantity' => $item['stock_quantity'] ?? null, 'stock_reserved' => (int)($item['stock_reserved'] ?? 0), 'assets' => $assets, 'price' => $price, 'quantity' => $quantity, 'line' => $line];
         }
         if ($subtotal < 1) throw new RuntimeException('The order total must be greater than zero.');
         $shippingQuote = null;
@@ -131,6 +131,15 @@ final class CommerceService
             foreach ($items as $item) {
                 $lineInsert->execute(['order_id' => $orderId, 'type' => $item['type'], 'item_id' => $item['id'], 'title' => $item['title'], 'product_type' => $item['product_type'], 'file_id' => $item['file_id'], 'price' => $item['price'], 'quantity' => $item['quantity'], 'line' => $item['line'], 'entitlement' => $item['entitlement'], 'offering_id' => $item['offering_id'], 'offering_mode' => $item['offering_mode'], 'offering_title' => $item['offering_title'], 'created_at' => $now]);
                 $orderItemId = (int) $this->pdo->lastInsertId();
+                if ($item['type'] === 'product' && $item['product_type'] === 'physical') {
+                    if ($item['stock_quantity'] !== null) {
+                        $reserveStock = $this->pdo->prepare('UPDATE cms_products SET stock_reserved=stock_reserved+:quantity WHERE id=:product_id AND stock_quantity IS NOT NULL AND stock_quantity-stock_reserved>=:quantity');
+                        $reserveStock->execute(['quantity'=>$item['quantity'],'product_id'=>$item['id']]);
+                        if ($reserveStock->rowCount() !== 1) throw new RuntimeException('This physical product does not have enough stock available.');
+                    }
+                    $reservation = $this->pdo->prepare("INSERT INTO product_stock_reservations(order_item_id,product_id,quantity,status,created_at,updated_at) VALUES(:item,:product,:quantity,'reserved',:now,:now)");
+                    $reservation->execute(['item'=>$orderItemId,'product'=>$item['id'],'quantity'=>$item['quantity'],'now'=>$now]);
+                }
                 if ($item['offering_id'] !== null) {
                     $sameUser = $this->pdo->prepare("SELECT 1 FROM orders o INNER JOIN order_items oi ON oi.order_id=o.id WHERE o.user_id=:user AND o.status='pending' AND oi.course_offering_id=:offering AND o.id!=:order_id AND datetime(o.created_at)>=datetime('now','-1 hour') LIMIT 1");
                     $sameUser->execute(['user'=>$userId,'offering'=>$item['offering_id'],'order_id'=>$orderId]);
@@ -203,6 +212,35 @@ final class CommerceService
         }
     }
 
+    public function cancelPendingOrder(int $orderId, ?int $userId = null): void
+    {
+        if ($orderId < 1) throw new RuntimeException('Choose a valid order to cancel.');
+        $this->pdo->beginTransaction();
+        try {
+            $query=$this->pdo->prepare('SELECT id,user_id,status FROM orders WHERE id=:id');
+            $query->execute(['id'=>$orderId]);
+            $order=$query->fetch();
+            if (!$order || $order['status']!=='pending' || ($userId !== null && (int)$order['user_id'] !== $userId)) throw new RuntimeException('Only your own pending order can be cancelled.');
+            $now=gmdate('Y-m-d H:i:s');
+            $reservations=$this->pdo->prepare("SELECT r.*,p.stock_quantity FROM product_stock_reservations r INNER JOIN cms_products p ON p.id=r.product_id INNER JOIN order_items oi ON oi.id=r.order_item_id WHERE oi.order_id=:order_id AND r.status='reserved'");
+            $reservations->execute(['order_id'=>$orderId]);
+            foreach($reservations->fetchAll() as $reservation) {
+                if($reservation['stock_quantity'] !== null) {
+                    $release=$this->pdo->prepare('UPDATE cms_products SET stock_reserved=stock_reserved-:quantity WHERE id=:product_id AND stock_reserved>=:quantity');
+                    $release->execute(['quantity'=>(int)$reservation['quantity'],'product_id'=>(int)$reservation['product_id']]);
+                    if($release->rowCount()!==1) throw new RuntimeException('Reserved product stock could not be released safely.');
+                }
+                $this->pdo->prepare("UPDATE product_stock_reservations SET status='released',updated_at=:now WHERE id=:id AND status='reserved'")->execute(['now'=>$now,'id'=>(int)$reservation['id']]);
+            }
+            $this->pdo->prepare("UPDATE payments SET status='cancelled',updated_at=:now WHERE order_id=:order_id AND status IN ('created','pending')")->execute(['now'=>$now,'order_id'=>$orderId]);
+            $this->pdo->prepare("UPDATE orders SET status='cancelled',updated_at=:now WHERE id=:order_id AND status='pending'")->execute(['now'=>$now,'order_id'=>$orderId]);
+            $this->pdo->commit();
+        } catch(Throwable $exception) {
+            if($this->pdo->inTransaction()) $this->pdo->rollBack();
+            throw $exception;
+        }
+    }
+
     public function updateProviderReference(int $paymentId, string $providerOrderId, string $providerStatus, array $metadata = []): void
     {
         if ($providerOrderId === '' || strlen($providerOrderId) > 190) throw new RuntimeException('The payment provider returned an invalid reference.');
@@ -233,6 +271,16 @@ final class CommerceService
             $this->pdo->prepare("UPDATE orders SET status = 'paid', paid_at = :paid_at, updated_at = :updated_at WHERE id = :id AND status = 'pending'")->execute(['paid_at' => $now, 'updated_at' => $now, 'id' => $payment['order_id']]);
             $lines = $this->pdo->prepare('SELECT id AS order_item_id,item_type,item_id,course_offering_id,course_offering_mode FROM order_items WHERE order_id = :order_id');
             $lines->execute(['order_id' => $payment['order_id']]);
+            $stockReservations = $this->pdo->prepare("SELECT r.*,p.stock_quantity FROM product_stock_reservations r INNER JOIN cms_products p ON p.id=r.product_id INNER JOIN order_items oi ON oi.id=r.order_item_id WHERE oi.order_id=:order_id AND r.status='reserved'");
+            $stockReservations->execute(['order_id'=>$payment['order_id']]);
+            foreach ($stockReservations->fetchAll() as $reservation) {
+                if ($reservation['stock_quantity'] !== null) {
+                    $commitStock = $this->pdo->prepare('UPDATE cms_products SET stock_quantity=stock_quantity-:quantity,stock_reserved=stock_reserved-:quantity WHERE id=:product_id AND stock_quantity>=:quantity AND stock_reserved>=:quantity');
+                    $commitStock->execute(['quantity'=>(int)$reservation['quantity'],'product_id'=>(int)$reservation['product_id']]);
+                    if ($commitStock->rowCount() !== 1) throw new RuntimeException('Reserved product stock could not be committed. Administrator reconciliation is required.');
+                }
+                $this->pdo->prepare("UPDATE product_stock_reservations SET status='committed',updated_at=:now WHERE id=:id AND status='reserved'")->execute(['now'=>$now,'id'=>(int)$reservation['id']]);
+            }
             $enrol = $this->pdo->prepare("INSERT INTO course_enrolments (user_id, course_id, status, source, enrolled_at, updated_at) VALUES (:user_id, :course_id, 'active', 'payment', :enrolled_at, :updated_at) ON CONFLICT(user_id, course_id) DO UPDATE SET status = CASE WHEN course_enrolments.status = 'revoked' THEN 'active' ELSE course_enrolments.status END, source = 'payment', updated_at = excluded.updated_at");
             $offeringEnrol = $this->pdo->prepare("INSERT INTO course_offering_enrolments (user_id,offering_id,order_item_id,source,status,created_at,updated_at) VALUES (:user_id,:offering_id,:order_item_id,'payment','active',:created_at,:updated_at) ON CONFLICT(user_id,offering_id) DO UPDATE SET order_item_id=excluded.order_item_id,source='payment',status='active',updated_at=excluded.updated_at");
             foreach ($lines->fetchAll() as $line) {

@@ -49,7 +49,9 @@ try {
         $success = ($service->providerPayment('dpo', $companyRef)['status'] ?? '') === 'paid';
         }
     } elseif ($provider === 'cancel') {
-        $message = 'Payment was cancelled. Your order has not been paid and no course access has been granted.';
+        $orderId = filter_var($_GET['order'] ?? null, FILTER_VALIDATE_INT) ?: 0;
+        if ($orderId > 0) $service->cancelPendingOrder($orderId, (int) $user['id']);
+        $message = 'Payment was cancelled. Your order has been cancelled and any reserved physical stock has been released.';
     } else {
         throw new RuntimeException('Unknown payment return.');
     }

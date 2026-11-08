@@ -108,6 +108,7 @@ final class PublicContent
             'Price' => (int) $row['price_ugx'],
             'ReadPrice' => (int) ($row['read_price_ugx'] ?? $row['price_ugx']),
             'DownloadPrice' => (int) ($row['download_price_ugx'] ?? $row['price_ugx']),
+            'StockAvailable' => $row['stock_quantity'] === null || ((int) $row['stock_quantity'] - (int) ($row['stock_reserved'] ?? 0)) > 0,
             'Category' => $row['category'],
             'Image' => $this->image($row['image_media_id']),
             'ProductType' => ucfirst($row['product_type']),
