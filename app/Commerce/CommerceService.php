@@ -133,9 +133,13 @@ final class CommerceService
                 $orderItemId = (int) $this->pdo->lastInsertId();
                 if ($item['type'] === 'product' && $item['product_type'] === 'physical') {
                     if ($item['stock_quantity'] !== null) {
-                        $reserveStock = $this->pdo->prepare('UPDATE cms_products SET stock_reserved=stock_reserved+:add_quantity WHERE id=:product_id AND stock_quantity IS NOT NULL AND stock_quantity-stock_reserved>=:required_quantity');
-                        $reserveStock->execute(['add_quantity'=>$item['quantity'],'required_quantity'=>$item['quantity'],'product_id'=>$item['id']]);
-                        if ($reserveStock->rowCount() !== 1) throw new RuntimeException('This physical product does not have enough stock available.');
+                        $stockQuery=$this->pdo->prepare('SELECT stock_quantity,stock_reserved FROM cms_products WHERE id=:product_id');
+                        $stockQuery->execute(['product_id'=>$item['id']]);
+                        $stock=$stockQuery->fetch();
+                        if (!$stock || (int)$stock['stock_quantity']-(int)$stock['stock_reserved'] < (int)$item['quantity']) throw new RuntimeException('This physical product does not have enough stock available.');
+                        $reserveStock=$this->pdo->prepare('UPDATE cms_products SET stock_reserved=stock_reserved+:quantity WHERE id=:product_id AND stock_quantity IS NOT NULL');
+                        $reserveStock->execute(['quantity'=>$item['quantity'],'product_id'=>$item['id']]);
+                        if ($reserveStock->rowCount() !== 1) throw new RuntimeException('The physical product stock reservation could not be recorded.');
                     }
                     $reservation = $this->pdo->prepare("INSERT INTO product_stock_reservations(order_item_id,product_id,quantity,status,created_at,updated_at) VALUES(:item,:product,:quantity,'reserved',:now,:now)");
                     $reservation->execute(['item'=>$orderItemId,'product'=>$item['id'],'quantity'=>$item['quantity'],'now'=>$now]);
