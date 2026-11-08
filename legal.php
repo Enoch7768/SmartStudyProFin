@@ -103,6 +103,7 @@ $seoDescription = $page['intro'];
 <!doctype html>
 <html lang="en">
 <head>
+  <base href="<?= htmlspecialchars(\App\Core\Url::to('/'), ENT_QUOTES, 'UTF-8') ?>">
 <link href="<?= htmlspecialchars(\App\Core\Url::to('/favicon.php'), ENT_QUOTES, 'UTF-8') ?>" rel="icon">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
