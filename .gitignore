@@ -32,3 +32,12 @@
 /uploads/avatars/*
 !/uploads/avatars/.htaccess
 /Income Statement and distribution.xlsx
+
+# Legacy CMS runtime state and generated media
+/cms/storage/data/*
+!/cms/storage/data/.gitkeep
+/cms/storage/cache/*
+!/cms/storage/cache/.gitkeep
+/cms/storage/tmp/*
+!/cms/storage/tmp/.gitkeep
+/cms/storage/tmp/thumbs/*
