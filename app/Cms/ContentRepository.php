@@ -70,6 +70,12 @@ final class ContentRepository
             }
             $data[$field] = $value;
         }
+        if ($type === 'products' && ($data['product_type'] ?? ($id !== null ? ($this->find('products', $id)['product_type'] ?? 'physical') : 'physical')) === 'online') {
+            $existingProduct = $id === null ? [] : ($this->find('products', $id) ?? []);
+            foreach (['read_price_ugx', 'download_price_ugx'] as $priceField) {
+                if (!array_key_exists($priceField, $data)) $data[$priceField] = (int) ($existingProduct[$priceField] ?? $data['price_ugx'] ?? 0);
+            }
+        }
         if ($type === 'questions') {
             $existing = $id === null ? [] : ($this->find('questions', $id) ?? []);
             $optionsJson = $data['options_json'] ?? $existing['options_json'] ?? null;
