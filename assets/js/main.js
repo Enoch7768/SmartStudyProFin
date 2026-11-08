@@ -96,27 +96,4 @@
     window.addEventListener('load', initializeAnimations, { once: true });
   }
 
-  if (!reducedMotion && typeof GLightbox === 'function') GLightbox({ selector: '.glightbox' });
-  if (!reducedMotion && typeof PureCounter === 'function') new PureCounter();
-
-  function initSwiper() {
-    if (typeof Swiper !== 'function') return;
-    document.querySelectorAll('.init-swiper').forEach(function(element) {
-      const configElement = element.querySelector('.swiper-config');
-      if (!configElement) return;
-      let config;
-      try {
-        config = JSON.parse(configElement.textContent.trim());
-      } catch (error) {
-        return;
-      }
-      if (element.classList.contains('swiper-tab') && typeof initSwiperWithCustomPagination === 'function') {
-        initSwiperWithCustomPagination(element, config);
-      } else {
-        new Swiper(element, config);
-      }
-    });
-  }
-
-  window.addEventListener('load', initSwiper);
 })();
