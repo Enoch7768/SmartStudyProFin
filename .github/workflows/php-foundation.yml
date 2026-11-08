@@ -92,6 +92,7 @@ jobs:
           test -f /tmp/smartstudypro-release-check/database/migrations/011_demo_payments.php
           test -f /tmp/smartstudypro-release-check/database/migrations/012_commerce_delivery_refunds.php
           test -f /tmp/smartstudypro-release-check/database/migrations/013_meeting_planner.php
+          test -f /tmp/smartstudypro-release-check/database/migrations/014_meeting_reminders.php
           test -f /tmp/smartstudypro-release-check/PRIVACY_POLICY.md
           test -f /tmp/smartstudypro-release-check/EULA.md
           test ! -e /tmp/smartstudypro-release-check/cms
