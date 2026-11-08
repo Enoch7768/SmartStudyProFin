@@ -14,7 +14,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET' && ($_SERVER['REQUEST_METHOD
 }
 $token = (string) ($_GET['TransactionToken'] ?? $_GET['transToken'] ?? $_POST['TransactionToken'] ?? $_POST['transToken'] ?? '');
 $companyRef = (string) ($_GET['CompanyRef'] ?? $_POST['CompanyRef'] ?? '');
-if ($token === '' || $companyRef === '') {
+if ($token === '' || strlen($token) > 190 || $companyRef === '' || strlen($companyRef) > 190) {
     http_response_code(400);
     exit('Missing transaction reference.');
 }
@@ -30,7 +30,9 @@ try {
         exit('OK');
     }
     $verified = (new PaymentGateway())->verifyDpo($token, $companyRef);
-    $amount = (int) round((float) $verified['amount']);
+    $amountValue = trim((string) $verified['amount']);
+    if (!preg_match('/^([0-9]+)(?:\\.0+)?$/D', $amountValue, $amountMatch)) { http_response_code(409); exit('Payment amount not verified.'); }
+    $amount = (int) $amountMatch[1];
     if ($verified['result'] !== '000' || !in_array($verified['fraud_alert'], ['000', '001'], true) || $verified['company_ref'] !== $companyRef || $verified['currency'] !== 'UGX' || $amount !== (int) $payment['total_ugx'] || $verified['approval'] === '') {
         http_response_code(409);
         exit('Payment not verified.');
