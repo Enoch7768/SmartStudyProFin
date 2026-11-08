@@ -27,14 +27,14 @@ $pages = [
     'eula.php', 'favicon.php', 'forms/contact.php', 'forms/newsletter.php',
     'google-auth.php', 'grade-quiz.php', 'learning.php',
     'legal-consent.php', 'legal.php', 'lesson-media.php', 'login.php', 'logout.php',
-    'media.php', 'notifications.php', 'orders.php', 'payment-choice.php',
+    'media.php', 'meetings.php', 'notifications.php', 'orders.php', 'payment-choice.php',
     'payment-demo.php', 'payment-return.php', 'payment-start.php',
     'payment-webhook.php', 'privacy.php', 'process_payment.php',
     'product-details.php', 'products.php', 'profile.php', 'receipt.php',
     'refunds.php', 'register.php', 'reset.php', 'stream.php', 'study.php',
     'terms.php', 'theme-preference.php', 'verify-certificate.php', 'view.php', 'admin/analytics.php',
     'admin/backups.php', 'admin/cms.php', 'admin/diagnostics.php',
-    'admin/media-preview.php', 'admin/orders.php', 'admin/payment-demo-settings.php',
+    'admin/media-preview.php', 'admin/meetings.php', 'admin/orders.php', 'admin/payment-demo-settings.php',
     'admin/product-assets.php', 'admin/refunds.php', 'admin/updates.php'
 ];
 
