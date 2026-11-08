@@ -40,6 +40,8 @@ jobs:
         run: php -l login.php && php -l legal-consent.php && php -l register.php && php -l logout.php && php -l reset.php && php -l profile.php && php -l admin.php && php -l google-auth.php && php -l learning.php && php -l study.php && php -l lesson-media.php && php -l cart.php && php -l cart-add.php && php -l checkout.php && php -l process_payment.php && php -l dpo-webhook.php && php -l payment-start.php && php -l payment-return.php && php -l payment-webhook.php && php -l receipt.php && php -l view.php && php -l payment-choice.php && php -l payment-demo.php && php -l admin/payment-demo-settings.php && php -l orders.php && php -l admin/orders.php && php -l admin/refunds.php && php -l admin/product-assets.php && php -l stream.php && php -l grade-quiz.php && php -l download.php && php -l index.php && php -l legal.php && php -l privacy.php && php -l terms.php && php -l eula.php && php -l cookies.php && php -l accessibility.php && php -l refunds.php && php -l courses.php && php -l course-details.php && php -l about.php && php -l products.php && php -l product-details.php && php -l contact.php && php -l booking.php && php -l notifications.php && php -l meetings.php && php -l admin/meetings.php && php -l achievements.php && php -l certificates.php && php -l verify-certificate.php && php -l admin/analytics.php && php -l admin/backups.php && php -l admin/diagnostics.php && php -l admin/updates.php
       - name: Test private configuration secrets
         run: php tests/config-secrets.php
+      - name: Test contact inbox and abuse controls
+        run: php tests/contact.php
       - name: Test security and routing
         run: php tests/unit.php
       - name: Lint media endpoints
