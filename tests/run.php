@@ -61,7 +61,7 @@ try {
     $_SERVER['SCRIPT_NAME'] = '/index.php';
     if ($previousScriptName === null) unset($_SERVER['SCRIPT_NAME']); else $_SERVER['SCRIPT_NAME'] = $previousScriptName;
 
-    if (!str_contains($routeRules, 'RewriteRule ^admin/?$ index.php [QSA,L]') || !str_contains($routeRules, 'RewriteRule ^ index.php [QSA,L]')) throw new RuntimeException('Apache must send admin and clean URLs through the index.php front controller.');
+    if (!str_contains($routeRules, 'RewriteRule ^install(?:/|$) - [R=404,L,NC]') || !str_contains($routeRules, 'RewriteRule ^admin/?$ index.php [QSA,L]') || !str_contains($routeRules, 'RewriteRule ^ index.php [QSA,L]')) throw new RuntimeException('Apache must send admin and clean URLs through the index.php front controller.');
     if (!str_contains($routeRules, 'RewriteRule ^about\\.php$ about [R=301,L]') || !str_contains($routeRules, 'RewriteRule ^(?:learning|study)/?$ learn [R=301,L]') || !str_contains($routeRules, 'RewriteRule ^index\\.php$ ./ [R=301,L]')) throw new RuntimeException('Canonical redirects must preserve subdirectory installations.');
     if (preg_match('/^RewriteRule\\s+\\S+\\s+\\/[A-Za-z]/m', $routeRules)) throw new RuntimeException('Canonical rewrite targets must not discard the application subdirectory.');
     $frontController = (string) file_get_contents(dirname(__DIR__) . '/index.php');
