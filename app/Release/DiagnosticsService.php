@@ -21,6 +21,17 @@ final class DiagnosticsService
         $storage = (string) Config::get('storage.path');
         $databasePath = (string) Config::get('database.path');
         $checks = Installer::requirements();
+        $appUrl = trim((string) Config::get('app.url', ''));
+        $appUrlParts = $appUrl !== '' ? (parse_url($appUrl) ?: []) : [];
+        $appUrlScheme = strtolower((string) ($appUrlParts['scheme'] ?? ''));
+        $appUrlHost = strtolower((string) ($appUrlParts['host'] ?? ''));
+        $localAppHost = in_array($appUrlHost, ['localhost', '127.0.0.1', '::1', '[::1]'], true);
+        $checks['Canonical APP_URL configured'] = $appUrlHost !== ''
+            && ($appUrlScheme === 'https' || ($appUrlScheme === 'http' && $localAppHost))
+            && !isset($appUrlParts['user'])
+            && !isset($appUrlParts['pass'])
+            && !isset($appUrlParts['query'])
+            && !isset($appUrlParts['fragment']);
         $checks['Private storage configured'] = $storage !== '';
         $checks['Storage outside public web root'] = Installer::storageIsPrivate($this->root);
         $checks['Database inside private storage'] = Installer::databaseIsPrivate();
