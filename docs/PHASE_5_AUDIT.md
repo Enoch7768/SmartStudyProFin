@@ -25,6 +25,11 @@ This is a living audit record. A green CI run is a baseline, not proof that ever
 - Release packaging excludes several of these paths, which protects the deployed ZIP but does not protect the public source repository or old Git history.
 - Before production launch, classify each tracked data artifact. Remove private/business records, database snapshots, user uploads and personal images from the public repository; rotate any credentials found; consider Git-history scrubbing because ordinary deletion does not erase prior commits. Preserve only intentional synthetic test fixtures.
 
+### P0 — Historical authentication secret
+
+- Removed the obsolete root `auth.php` endpoint from the current branch and added an explicit web-server 404 rule. It contained a hardcoded legacy signing secret and a parallel authentication/database implementation that was not part of the active account service.
+- Removing the file from `main` does not remove it from prior public Git commits. Treat the old signing key as disclosed; rotate it if any active media/token integration ever relied on it, and scrub repository history if the project owner wants the old secret and personal artifacts removed from public history.
+
 ### P1 — Private credential configuration
 
 - The private storage `APP_STORAGE_PATH/.env` loader was used for Google and Groq secrets, but Gemini, PayPal and DPO credentials were still read only from the project environment file/process environment.
@@ -35,6 +40,19 @@ This is a living audit record. A green CI run is a baseline, not proof that ever
 
 - Homepage JSON-LD previously interpolated contact and site values directly into a script block.
 - Replaced manual interpolation with `json_encode` and HTML-sensitive JSON flags to prevent malformed structured data and script-context injection.
+
+### P1 — Contact handling and administrator workflow
+
+- Replaced the legacy contact handler that wrote to a separate project-directory database with the private application SQLite database.
+- Added CSRF protection, server-side validation, a honeypot and a transactional per-IP rate limit. Added an administrator contact inbox with new/read/archived states.
+- Retired the broken template contact/newsletter endpoints that referenced a missing third-party PHP Email Form library.
+
+### P1 — Upload and session hardening
+
+- Added server-detected MIME plus filename-extension agreement checks for the configured safe formats, including ZIP. ZIPs remain private downloads; the application does not extract or execute archive contents.
+- Failed media metadata writes now remove the just-stored file rather than leaving orphaned private files.
+- Session cookies now use the configured application base path, and HTTPS cookie/HSTS decisions also respect the canonical HTTPS `APP_URL` for reverse-proxy deployments.
+- PayPal webhook bodies are size-bounded. DPO callbacks now require the provider-returned CompanyRef and an exact UGX amount, and payment confirmation requires a non-empty provider transaction reference.
 
 ### P1 — Legacy CMS boundary
 
@@ -85,6 +103,12 @@ This is a living audit record. A green CI run is a baseline, not proof that ever
 - CI must pass PHP 8.2 and 8.3, migration tests, security tests, browser behavior tests and release-package checks before a phase is considered complete.
 
 ## Current hardening changes
+
+- Removed the retired `auth.php` implementation and explicitly blocked its URL.
+- Moved contact submissions to private SQLite storage and added the administrator inbox, CSRF, rate limiting and input validation.
+- Added ZIP-aware MIME/extension validation and upload orphan cleanup.
+- Scoped session cookies to the installed base path and tightened DPO/PayPal callback validation.
+- Added regression tests for contact abuse controls, ZIP extension handling, subdirectory cookies, DPO callback checks and blank provider transaction references.
 
 - Private-storage secret loading regression test added.
 - Homepage JSON-LD safely encoded.
