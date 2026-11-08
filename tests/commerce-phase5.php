@@ -55,6 +55,34 @@ try {
     if (count($product['Files'] ?? []) !== 2 || isset($product['Files'][0]['url'])) throw new RuntimeException('The product page did not expose safe file descriptions without private download URLs.');
 
     $commerce = new CommerceService($pdo);
+    $offeringCourseId = $content->save('courses', null, ['title'=>'Live Chemistry Programme','description_html'=>'Live course offering checkout.','content_html'=>'','price_ugx'=>'0','category'=>'Science','status'=>'published']);
+    $meetingPlanner = new App\Learning\MeetingPlannerService($pdo);
+    $liveOfferingId = $meetingPlanner->saveOffering($offeringCourseId,'live_online','Live Chemistry Cohort','Weekly live sessions',15000,1,true);
+    $offeringOrder = $commerce->createOrder($adminId,[['type'=>'course','id'=>$offeringCourseId,'offering_id'=>$liveOfferingId,'quantity'=>1]]);
+    if ((int)$offeringOrder['total_ugx']!==15000 || (int)$offeringOrder['items'][0]['course_offering_id']!==$liveOfferingId || $offeringOrder['items'][0]['course_offering_mode']!=='live_online') throw new RuntimeException('Course checkout did not use the selected published offering price and delivery mode.');
+    $offeringPayment=$commerce->createPayment((int)$offeringOrder['id'],$adminId,'dpo');
+    $commerce->updateProviderReference((int)$offeringPayment['id'],'phase3-offering-token','CREATED');
+    if(!$commerce->confirmPayment((int)$offeringPayment['id'],'dpo','phase3-offering-token','phase3-offering-tx',15000,'UGX','COMPLETED','phase3-offering-event')) throw new RuntimeException('Paid course offering did not confirm.');
+    $offeringEnrolment=$pdo->prepare("SELECT status FROM course_offering_enrolments WHERE user_id=:user AND offering_id=:offering");
+    $offeringEnrolment->execute(['user'=>$adminId,'offering'=>$liveOfferingId]);
+    if($offeringEnrolment->fetchColumn()!=='active') throw new RuntimeException('Live course purchase did not grant offering-specific enrolment.');
+    $capacityRejected=false;
+    try{$commerce->createOrder($otherUserId,[['type'=>'course','id'=>$offeringCourseId,'offering_id'=>$liveOfferingId,'quantity'=>1]]);}catch(RuntimeException){$capacityRejected=true;}
+    if(!$capacityRejected) throw new RuntimeException('A full course offering accepted another pending checkout.');
+    $offeringItemId=(int)$offeringOrder['items'][0]['id'];
+    $offeringRefund=(new RefundService($pdo))->request($offeringItemId,$adminId,15000,'Course offering refund.');
+    (new RefundService($pdo))->resolve($offeringRefund,$adminId,'succeeded','DPO-OFFERING-REFUND','Live course offering refund confirmed.');
+    $offeringEnrolment->execute(['user'=>$adminId,'offering'=>$liveOfferingId]);
+    if($offeringEnrolment->fetchColumn()!=='revoked') throw new RuntimeException('Refunding a live course purchase did not revoke its specific offering access.');
+    $inPersonCourseId=$content->save('courses',null,['title'=>'In-person Workshop Course','description_html'=>'','content_html'=>'','price_ugx'=>'0','category'=>'Testing','status'=>'published']);
+    $inPersonOfferingId=$meetingPlanner->saveOffering($inPersonCourseId,'in_person','Kampala Workshop','',12000,5,true);
+    $inPersonOrder=$commerce->createOrder($adminId,[['type'=>'course','id'=>$inPersonCourseId,'offering_id'=>$inPersonOfferingId,'quantity'=>1]]);
+    $inPersonPayment=$commerce->createPayment((int)$inPersonOrder['id'],$adminId,'dpo');
+    $commerce->updateProviderReference((int)$inPersonPayment['id'],'phase3-inperson-token','CREATED');
+    if(!$commerce->confirmPayment((int)$inPersonPayment['id'],'dpo','phase3-inperson-token','phase3-inperson-tx',12000,'UGX','COMPLETED','phase3-inperson-event')) throw new RuntimeException('In-person course purchase did not confirm.');
+    $inPersonRefundRejected=false;
+    try{(new RefundService($pdo))->request((int)$inPersonOrder['items'][0]['id'],$adminId,12000,'In-person fee must not use the online refund ledger.');}catch(RuntimeException){$inPersonRefundRejected=true;}
+    if(!$inPersonRefundRejected) throw new RuntimeException('The online refund ledger accepted an in-person course fee.');
     $shipping = new ShippingService($pdo);
     $zoneId = $shipping->saveZone(null, 'Kampala delivery', 'UG', 'Kampala', true);
     $methodId = $shipping->saveMethod(null, $zoneId, 'Standard delivery', 'Door-to-door delivery', 2500, 1, 3, true);

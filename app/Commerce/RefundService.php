@@ -32,6 +32,9 @@ final class RefundService
             if (!($item['item_type'] === 'course' || ($item['item_type'] === 'product' && $item['product_type'] === 'online'))) {
                 throw new RuntimeException('Refunds are limited to courses and digital products. Physical products and delivery are excluded.');
             }
+            if ($item['item_type'] === 'course' && ($item['course_offering_mode'] ?? 'legacy') === 'in_person') {
+                throw new RuntimeException('In-person course fees are excluded from the online refund workflow.');
+            }
 
             $reserved = $this->pdo->prepare("SELECT COALESCE(SUM(ri.amount_ugx), 0) FROM refund_items ri INNER JOIN refunds r ON r.id = ri.refund_id WHERE ri.order_item_id = :item_id AND r.status IN ('pending', 'succeeded')");
             $reserved->execute(['item_id' => $orderItemId]);
@@ -100,19 +103,28 @@ final class RefundService
                 $this->pdo->prepare('UPDATE payments SET status = :status, updated_at = :updated_at WHERE id = :id')->execute(['status' => $paymentStatus, 'updated_at' => $now, 'id' => (int) $refund['payment_id']]);
                 $this->pdo->prepare('UPDATE orders SET status = :status, updated_at = :updated_at WHERE id = :id')->execute(['status' => $orderStatus, 'updated_at' => $now, 'id' => (int) $refund['order_id']]);
 
-                $allocations = $this->pdo->prepare('SELECT ri.order_item_id, oi.item_type, oi.item_id, oi.line_total_ugx FROM refund_items ri INNER JOIN order_items oi ON oi.id = ri.order_item_id WHERE ri.refund_id = :refund_id');
+                $allocations = $this->pdo->prepare('SELECT ri.order_item_id,oi.item_type,oi.item_id,oi.course_offering_id,oi.course_offering_mode,oi.line_total_ugx FROM refund_items ri INNER JOIN order_items oi ON oi.id=ri.order_item_id WHERE ri.refund_id=:refund_id');
                 $allocations->execute(['refund_id' => $refundId]);
                 $lineRefunded = $this->pdo->prepare("SELECT COALESCE(SUM(ri.amount_ugx), 0) FROM refund_items ri INNER JOIN refunds r ON r.id = ri.refund_id WHERE ri.order_item_id = :item_id AND r.status = 'succeeded'");
                 $otherPurchase = $this->pdo->prepare("SELECT 1 FROM orders o INNER JOIN payments p ON p.order_id = o.id AND p.status = 'paid' INNER JOIN order_items oi ON oi.order_id = o.id AND oi.item_type = 'course' WHERE o.user_id = :user_id AND oi.item_id = :course_id AND oi.id != :item_id AND o.status IN ('paid', 'partially_refunded') AND COALESCE((SELECT SUM(ri.amount_ugx) FROM refund_items ri INNER JOIN refunds r ON r.id = ri.refund_id WHERE ri.order_item_id = oi.id AND r.status = 'succeeded'), 0) < oi.line_total_ugx LIMIT 1");
                 $revoke = $this->pdo->prepare("UPDATE course_enrolments SET status = 'revoked', updated_at = :updated_at WHERE user_id = :user_id AND course_id = :course_id AND source = 'payment' AND status IN ('active', 'completed')");
+                $otherOfferingPurchase = $this->pdo->prepare("SELECT 1 FROM orders o INNER JOIN payments p ON p.order_id=o.id AND p.status='paid' INNER JOIN order_items oi ON oi.order_id=o.id WHERE o.user_id=:user_id AND oi.course_offering_id=:offering_id AND oi.id!=:item_id AND o.status IN ('paid','partially_refunded') AND COALESCE((SELECT SUM(ri.amount_ugx) FROM refund_items ri INNER JOIN refunds r ON r.id=ri.refund_id WHERE ri.order_item_id=oi.id AND r.status='succeeded'),0)<oi.line_total_ugx LIMIT 1");
+                $revokeOffering = $this->pdo->prepare("UPDATE course_offering_enrolments SET status='revoked',updated_at=:updated_at WHERE user_id=:user_id AND offering_id=:offering_id AND status IN ('active','completed')");
+                $cancelOfferingSessions = $this->pdo->prepare("UPDATE session_enrolments SET status='cancelled',updated_at=:updated_at WHERE user_id=:user_id AND status='confirmed' AND session_id IN (SELECT id FROM course_sessions WHERE offering_id=:offering_id)");
 
                 foreach ($allocations->fetchAll() as $allocation) {
                     $lineRefunded->execute(['item_id' => (int) $allocation['order_item_id']]);
                     if ((int) $lineRefunded->fetchColumn() < (int) $allocation['line_total_ugx']) continue;
                     if ($allocation['item_type'] === 'course') {
-                        $otherPurchase->execute(['user_id' => (int) $refund['user_id'], 'course_id' => (int) $allocation['item_id'], 'item_id' => (int) $allocation['order_item_id']]);
-                        if (!$otherPurchase->fetchColumn()) {
-                            $revoke->execute(['updated_at' => $now, 'user_id' => (int) $refund['user_id'], 'course_id' => (int) $allocation['item_id']]);
+                        if (!empty($allocation['course_offering_id']) && in_array($allocation['course_offering_mode'], ['live_online','in_person'], true)) {
+                            $otherOfferingPurchase->execute(['user_id'=>(int)$refund['user_id'],'offering_id'=>(int)$allocation['course_offering_id'],'item_id'=>(int)$allocation['order_item_id']]);
+                            if (!$otherOfferingPurchase->fetchColumn()) {
+                                $revokeOffering->execute(['updated_at'=>$now,'user_id'=>(int)$refund['user_id'],'offering_id'=>(int)$allocation['course_offering_id']]);
+                                $cancelOfferingSessions->execute(['updated_at'=>$now,'user_id'=>(int)$refund['user_id'],'offering_id'=>(int)$allocation['course_offering_id']]);
+                            }
+                        } else {
+                            $otherPurchase->execute(['user_id' => (int) $refund['user_id'], 'course_id' => (int) $allocation['item_id'], 'item_id' => (int) $allocation['order_item_id']]);
+                            if (!$otherPurchase->fetchColumn()) $revoke->execute(['updated_at' => $now, 'user_id' => (int) $refund['user_id'], 'course_id' => (int) $allocation['item_id']]);
                         }
                     }
                 }

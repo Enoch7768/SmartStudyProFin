@@ -48,8 +48,14 @@ foreach ($_SESSION['ssp_cart'] ?? [] as $entry) {
     $id = (int) ($entry['id'] ?? 0);
     if (!in_array($type, ['course', 'product'], true) || $id < 1) continue;
     $table = $type === 'course' ? 'cms_courses' : 'cms_products';
-    $query = $pdo->prepare("SELECT title, price_ugx" . ($type === 'product' ? ', product_type, read_price_ugx, download_price_ugx' : '') . " FROM {$table} WHERE id = :id AND status = 'published'");
-    $query->execute(['id' => $id]);
+    $offeringId = (int) ($entry['offering_id'] ?? 0);
+    if ($type === 'course' && $offeringId > 0) {
+        $query = $pdo->prepare("SELECT c.title || ' · ' || o.title AS title,o.price_ugx FROM course_offerings o INNER JOIN cms_courses c ON c.id=o.course_id WHERE o.id=:offering AND o.course_id=:id AND o.is_published=1 AND c.status='published'");
+        $query->execute(['offering'=>$offeringId,'id'=>$id]);
+    } else {
+        $query = $pdo->prepare("SELECT title, price_ugx" . ($type === 'product' ? ', product_type, read_price_ugx, download_price_ugx' : '') . " FROM {$table} WHERE id = :id AND status = 'published'");
+        $query->execute(['id' => $id]);
+    }
     $item = $query->fetch();
     if (!$item) continue;
     $quantity = $type === 'course' ? 1 : max(1, min(20, (int) ($entry['quantity'] ?? 1)));
