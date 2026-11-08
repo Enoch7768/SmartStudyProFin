@@ -67,6 +67,23 @@ final class MeetingPlannerService {
   $q=$this->pdo->prepare("SELECT oe.user_id,oe.status,oe.source,oe.created_at,oe.completed_at,u.name,u.email,(SELECT COUNT(*) FROM session_enrolments se JOIN course_sessions s ON s.id=se.session_id WHERE s.offering_id=oe.offering_id AND se.user_id=oe.user_id AND se.status='confirmed') AS booked_sessions,(SELECT COUNT(*) FROM session_attendance a JOIN course_sessions s ON s.id=a.session_id WHERE s.offering_id=oe.offering_id AND a.user_id=oe.user_id AND a.status IN('present','late','excused')) AS attended_sessions FROM course_offering_enrolments oe JOIN users u ON u.id=oe.user_id WHERE oe.offering_id=:offering ORDER BY CASE oe.status WHEN 'active' THEN 0 WHEN 'completed' THEN 1 ELSE 2 END,u.name");
   $q->execute(['offering'=>$offeringId]);return $q->fetchAll();
  }
+ public function revokeOfferingEnrolment(int $actor,int $offeringId,int $userId): void {
+  $this->pdo->exec('BEGIN IMMEDIATE');
+  try {
+   $q=$this->pdo->prepare("SELECT oe.status,oe.source,o.title FROM course_offering_enrolments oe JOIN course_offerings o ON o.id=oe.offering_id WHERE oe.offering_id=:offering AND oe.user_id=:user");
+   $q->execute(['offering'=>$offeringId,'user'=>$userId]);$row=$q->fetch();
+   if(!$row||!in_array($row['status'],['active','completed'],true))throw new RuntimeException('This learner does not have active cohort access.');
+   if($row['source']==='payment')throw new RuntimeException('Paid cohort access must be revoked through the refund workflow.');
+   $now=gmdate('Y-m-d H:i:s');
+   $this->pdo->prepare("UPDATE course_offering_enrolments SET status='revoked',updated_at=:now WHERE offering_id=:offering AND user_id=:user")->execute(['now'=>$now,'offering'=>$offeringId,'user'=>$userId]);
+   $this->pdo->prepare("UPDATE session_enrolments SET status='cancelled',updated_at=:now WHERE user_id=:user AND status='confirmed' AND session_id IN(SELECT id FROM course_sessions WHERE offering_id=:offering)")->execute(['now'=>$now,'user'=>$userId,'offering'=>$offeringId]);
+   $this->pdo->prepare('DELETE FROM offering_certificates WHERE user_id=:user AND offering_id=:offering')->execute(['user'=>$userId,'offering'=>$offeringId]);
+   $details=json_encode(['source'=>$row['source'],'status_before'=>$row['status']],JSON_THROW_ON_ERROR);
+   $this->pdo->prepare("INSERT INTO course_offering_audit_events(offering_id,actor_user_id,learner_user_id,event_type,details_json,created_at) VALUES(:offering,:actor,:learner,'enrolment.revoked',:details,:now)")->execute(['offering'=>$offeringId,'actor'=>$actor,'learner'=>$userId,'details'=>$details,'now'=>$now]);
+   $this->pdo->prepare("INSERT OR IGNORE INTO notifications(user_id,event_key,type,title,message,target_url,created_at) VALUES(:user,:event,'course','Course cohort access updated','Your access to '.$row['title'].' has been withdrawn. Contact the course administrator if you believe this is a mistake.','/courses',:now)")->execute(['user'=>$userId,'event'=>'offering-revoked-'.$offeringId,'now'=>$now]);
+   $this->pdo->exec('COMMIT');
+  }catch(Throwable $e){try{$this->pdo->exec('ROLLBACK');}catch(Throwable){}throw $e;}
+ }
  public function completeOfferingEnrolment(int $actor,int $offeringId,int $userId): void {
   $this->pdo->exec('BEGIN IMMEDIATE');
   try {
