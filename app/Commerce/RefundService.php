@@ -47,10 +47,10 @@ final class RefundService
             $allocation = $this->pdo->prepare('INSERT INTO refund_items (refund_id, order_item_id, amount_ugx, created_at) VALUES (:refund_id, :item_id, :amount, :created_at)');
             $allocation->execute(['refund_id' => $refundId, 'item_id' => $orderItemId, 'amount' => $amount, 'created_at' => $now]);
             $this->audit($refundId, $adminId, 'requested', $amount, $reason, '', $now);
-            $this->pdo->commit();
+            $this->pdo->exec('COMMIT');
             return $refundId;
         } catch (Throwable $exception) {
-            if ($this->pdo->inTransaction()) $this->pdo->rollBack();
+            try { $this->pdo->exec('ROLLBACK'); } catch (Throwable) {}
             throw $exception;
         }
     }
@@ -110,9 +110,9 @@ final class RefundService
                     }
                 }
             }
-            $this->pdo->commit();
+            $this->pdo->exec('COMMIT');
         } catch (Throwable $exception) {
-            if ($this->pdo->inTransaction()) $this->pdo->rollBack();
+            try { $this->pdo->exec('ROLLBACK'); } catch (Throwable) {}
             throw $exception;
         }
     }
