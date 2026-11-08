@@ -16,6 +16,20 @@ final class MeetingPlannerService {
   $now=gmdate('Y-m-d H:i:s');$q=$this->pdo->prepare('INSERT INTO course_offerings(course_id,mode,title,description,price_ugx,capacity,is_published,created_at,updated_at) VALUES(:course,:mode,:title,:description,:price,:capacity,:published,:now,:now)');
   $q->execute(['course'=>$courseId,'mode'=>$mode,'title'=>trim($title),'description'=>trim($description),'price'=>$price,'capacity'=>$capacity,'published'=>$published?1:0,'now'=>$now]);return (int)$this->pdo->lastInsertId();
  }
+ public function instructorCandidates(): array {
+  return $this->pdo->query("SELECT u.id,u.name,u.email FROM users u WHERE u.status='active' AND NOT EXISTS(SELECT 1 FROM user_roles ur JOIN roles r ON r.id=ur.role_id WHERE ur.user_id=u.id AND r.slug='instructor') ORDER BY u.name")->fetchAll();
+ }
+ public function grantInstructorRole(int $actor,int $userId): void {
+  $q=$this->pdo->prepare("SELECT 1 FROM users WHERE id=:user AND status='active'");$q->execute(['user'=>$userId]);if(!$q->fetchColumn())throw new RuntimeException('Select an active account to grant instructor access.');
+  $roleId=(int)$this->pdo->query("SELECT id FROM roles WHERE slug='instructor'")->fetchColumn();if($roleId<1)throw new RuntimeException('Instructor role is not installed.');
+  $q=$this->pdo->prepare("INSERT OR IGNORE INTO user_roles(user_id,role_id,assigned_at) VALUES(:user,:role,:now)");$q->execute(['user'=>$userId,'role'=>$roleId,'now'=>gmdate('Y-m-d H:i:s')]);
+  if($q->rowCount()===1)$this->pdo->prepare("INSERT INTO audit_logs(actor_user_id,action,entity_type,entity_id,details_json,created_at) VALUES(:actor,'instructor.role_granted','user',:entity,:details,:now)")->execute(['actor'=>$actor,'entity'=>(string)$userId,'details'=>json_encode(['role'=>'instructor'],JSON_THROW_ON_ERROR),'now'=>gmdate('Y-m-d H:i:s')]);
+ }
+ public function revokeInstructorRole(int $actor,int $userId): void {
+  $assigned=$this->pdo->prepare("SELECT COUNT(*) FROM course_offering_instructors WHERE user_id=:user");$assigned->execute(['user'=>$userId]);if((int)$assigned->fetchColumn()>0)throw new RuntimeException('Remove this instructor from every course offering before revoking the instructor role.');
+  $q=$this->pdo->prepare("DELETE FROM user_roles WHERE user_id=:user AND role_id=(SELECT id FROM roles WHERE slug='instructor')");$q->execute(['user'=>$userId]);if($q->rowCount()!==1)throw new RuntimeException('Instructor role is not assigned to this account.');
+  $this->pdo->prepare("INSERT INTO audit_logs(actor_user_id,action,entity_type,entity_id,details_json,created_at) VALUES(:actor,'instructor.role_revoked','user',:entity,:details,:now)")->execute(['actor'=>$actor,'entity'=>(string)$userId,'details'=>json_encode(['role'=>'instructor'],JSON_THROW_ON_ERROR),'now'=>gmdate('Y-m-d H:i:s')]);
+ }
  public function instructors(): array {
   return $this->pdo->query("SELECT u.id,u.name,u.email FROM users u JOIN user_roles ur ON ur.user_id=u.id JOIN roles r ON r.id=ur.role_id WHERE r.slug='instructor' AND u.status='active' ORDER BY u.name")->fetchAll();
  }
