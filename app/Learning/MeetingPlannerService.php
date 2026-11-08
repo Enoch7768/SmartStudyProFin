@@ -25,10 +25,12 @@ final class MeetingPlannerService {
  public function assignInstructor(int $actor,int $offeringId,int $instructorId): void {
   $q=$this->pdo->prepare("SELECT 1 FROM course_offerings WHERE id=:id");$q->execute(['id'=>$offeringId]);if(!$q->fetchColumn())throw new RuntimeException('Course offering not found.');
   $q=$this->pdo->prepare("SELECT 1 FROM users u JOIN user_roles ur ON ur.user_id=u.id JOIN roles r ON r.id=ur.role_id WHERE u.id=:user AND u.status='active' AND r.slug='instructor'");$q->execute(['user'=>$instructorId]);if(!$q->fetchColumn())throw new RuntimeException('Select an active account with the instructor role.');
-  $q=$this->pdo->prepare("INSERT OR IGNORE INTO course_offering_instructors(offering_id,user_id,assigned_by,assigned_at) VALUES(:offering,:user,:actor,:now)");$q->execute(['offering'=>$offeringId,'user'=>$instructorId,'actor'=>$actor,'now'=>gmdate('Y-m-d H:i:s')]);
+  $now=gmdate('Y-m-d H:i:s');$q=$this->pdo->prepare("INSERT OR IGNORE INTO course_offering_instructors(offering_id,user_id,assigned_by,assigned_at) VALUES(:offering,:user,:actor,:now)");$q->execute(['offering'=>$offeringId,'user'=>$instructorId,'actor'=>$actor,'now'=>$now]);
+  if($q->rowCount()===1)$this->pdo->prepare("INSERT INTO course_offering_audit_events(offering_id,actor_user_id,learner_user_id,event_type,details_json,created_at) VALUES(:offering,:actor,:learner,'instructor.assigned','{}',:now)")->execute(['offering'=>$offeringId,'actor'=>$actor,'learner'=>$instructorId,'now'=>$now]);
  }
- public function unassignInstructor(int $offeringId,int $instructorId): void {
+ public function unassignInstructor(int $actor,int $offeringId,int $instructorId): void {
   $q=$this->pdo->prepare("DELETE FROM course_offering_instructors WHERE offering_id=:offering AND user_id=:user");$q->execute(['offering'=>$offeringId,'user'=>$instructorId]);
+  if($q->rowCount()===1)$this->pdo->prepare("INSERT INTO course_offering_audit_events(offering_id,actor_user_id,learner_user_id,event_type,details_json,created_at) VALUES(:offering,:actor,:learner,'instructor.unassigned','{}',:now)")->execute(['offering'=>$offeringId,'actor'=>$actor,'learner'=>$instructorId,'now'=>gmdate('Y-m-d H:i:s')]);
  }
  public function updateOffering(int $offeringId,string $title,string $description,int $price,?int $capacity,bool $published): void {
   if(trim($title)===''||strlen($title)>160||$price<0||$price>1000000000||($capacity!==null&&$capacity<1))throw new RuntimeException('Check the offering name, price and capacity.');
