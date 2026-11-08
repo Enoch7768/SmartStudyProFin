@@ -20,6 +20,8 @@ if(($_SERVER['REQUEST_METHOD']??'GET')==='POST'){
   elseif($action==='update-offering'){$service->updateOffering((int)($_POST['offering_id']??0),(string)($_POST['title']??''),(string)($_POST['description']??''),(int)($_POST['price_ugx']??0),($_POST['capacity']??'')===''?null:(int)$_POST['capacity'],isset($_POST['published']));$success='Course offering updated.';}
   elseif($action==='complete-enrolment'){$learnerId=(int)($_POST['learner_id']??0);$service->completeOfferingEnrolment((int)$user['id'],(int)($_POST['offering_id']??0),$learnerId);(new RecognitionService($pdo))->sync($learnerId);$success='Learner cohort completion confirmed and certificate issued.';}
   elseif($action==='revoke-enrolment'){$service->revokeOfferingEnrolment((int)$user['id'],(int)($_POST['offering_id']??0),(int)($_POST['learner_id']??0));$success='Manual cohort access revoked and bookings/certificates withdrawn.';}
+  elseif($action==='grant-instructor-role'){$service->grantInstructorRole((int)$user['id'],(int)($_POST['instructor_id']??0));$success='Instructor role granted.';}
+  elseif($action==='revoke-instructor-role'){$service->revokeInstructorRole((int)$user['id'],(int)($_POST['instructor_id']??0));$success='Instructor role revoked.';}
   elseif($action==='assign-instructor'){$service->assignInstructor((int)$user['id'],(int)($_POST['offering_id']??0),(int)($_POST['instructor_id']??0));$success='Instructor assigned to the course offering.';}
   elseif($action==='unassign-instructor'){$service->unassignInstructor((int)$user['id'],(int)($_POST['offering_id']??0),(int)($_POST['instructor_id']??0));$success='Instructor removed from the course offering.';}
   elseif($action==='session'){$service->createSession((int)$user['id'],(int)($_POST['offering_id']??0),$_POST);$success='Session scheduled.';}
@@ -33,6 +35,7 @@ if(($_SERVER['REQUEST_METHOD']??'GET')==='POST'){
 }
 $courses=$service->courses();$offerings=$service->offerings();
 $instructors=$service->instructors();
+$instructorCandidates=$service->instructorCandidates();
 $sessions=$pdo->query("SELECT s.*,o.title AS offering_title,o.mode,c.title AS course_title FROM course_sessions s JOIN course_offerings o ON o.id=s.offering_id JOIN cms_courses c ON c.id=o.course_id ORDER BY s.starts_at_utc DESC LIMIT 100")->fetchAll();
 $csrf=Security::csrfToken();$esc=static fn($v)=>Security::escape((string)$v);
 ?>
@@ -47,6 +50,8 @@ $csrf=Security::csrfToken();$esc=static fn($v)=>Security::escape((string)$v);
 <div class="field"><label>Capacity (optional)</label><input type="number" name="capacity" min="1"></div>
 <div class="field"><label>Description</label><input name="description"></div>
 </div><label><input type="checkbox" name="published" value="1"> Publish offering</label><p><button class="btn-main">Save offering</button></p></form></section>
+<section class="panel"><h2>Instructor accounts</h2><p class="muted">Grant the instructor role to an active account before assigning that person to course cohorts. Assigned instructors must be removed from their cohorts before their role can be revoked.</p><form method="post" class="d-flex flex-wrap gap-2 align-items-end"><input type="hidden" name="_csrf" value="<?= $esc($csrf) ?>"><input type="hidden" name="action" value="grant-instructor-role"><div class="field flex-grow-1"><label>Active account</label><select name="instructor_id" required><option value="">Choose an account</option><?php foreach($instructorCandidates as $candidate): ?><option value="<?= (int)$candidate['id'] ?>"><?= $esc($candidate['name'].' · '.$candidate['email']) ?></option><?php endforeach; ?></select></div><button class="btn btn-outline-primary">Grant instructor role</button></form>
+<?php if($instructors): ?><div class="d-flex flex-wrap gap-2 mt-3"><?php foreach($instructors as $instructor): ?><form method="post" class="border rounded-3 p-2 d-flex gap-2 align-items-center"><input type="hidden" name="_csrf" value="<?= $esc($csrf) ?>"><input type="hidden" name="action" value="revoke-instructor-role"><input type="hidden" name="instructor_id" value="<?= (int)$instructor['id'] ?>"><span><?= $esc($instructor['name'].' · '.$instructor['email']) ?></span><button class="btn btn-sm btn-outline-danger">Revoke role</button></form><?php endforeach; ?></div><?php else: ?><p class="muted mt-3 mb-0">No instructor accounts yet.</p><?php endif; ?></section>
 <section class="panel"><h2>Manage cohorts & learner enrolments</h2><p class="muted">Update published offering details, review each cohort roster and confirm completion only after all sessions and attendance are verified.</p>
 <?php foreach($offerings as $o): $cohortLearners=$service->offeringEnrolments((int)$o['id']); ?>
 <article class="session"><div class="d-flex flex-wrap justify-content-between gap-2"><div><strong><?= $esc($o['course_title'].' · '.$o['title']) ?></strong><div class="muted"><?= $esc($o['mode'].' · UGX '.number_format((int)$o['price_ugx']).' · '.($o['is_published']?'Published':'Draft').' · '.count($cohortLearners).' enrolments') ?></div></div></div>
