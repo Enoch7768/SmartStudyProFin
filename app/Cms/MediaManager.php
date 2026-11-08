@@ -27,7 +27,8 @@ final class MediaManager
         'text/rtf' => 'rtf',
         'application/vnd.oasis.opendocument.text' => 'odt',
         'video/mp4' => 'mp4',
-        'audio/mpeg' => 'mp3'
+        'audio/mpeg' => 'mp3',
+        'application/zip' => 'zip'
     ];
 
     public function __construct(private readonly PDO $pdo, private readonly string $storagePath)
