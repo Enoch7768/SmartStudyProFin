@@ -21,6 +21,7 @@ foreach (['sqlite', 'sqlite3', 'db', 'sql', 'bak', 'backup', 'zip', 'tar', 'gz']
 if (is_file($root . '/auth.php') || !str_contains($rules, 'RewriteRule ^auth')) throw new RuntimeException('The retired legacy authentication endpoint must not remain executable.');
 if (str_contains($rules, 'test.php') || is_file($root . '/test.php') || is_file($root . '/cms-init.php')) throw new RuntimeException('A legacy CMS diagnostic endpoint is still present.');
 if (!str_contains($avatarRules, 'Options -Indexes -ExecCGI') || !str_contains($avatarRules, 'phtml|phar')) throw new RuntimeException('Avatar uploads are not protected against script execution.');
+if (!str_contains($security, 'Content-Security-Policy-Report-Only:') || !str_contains($security, "object-src 'none'") || !str_contains($security, "base-uri 'self'") || !str_contains($security, "frame-ancestors 'none'")) throw new RuntimeException('The staged Content Security Policy is missing core containment directives.');
 foreach (['X-Content-Type-Options: nosniff', 'X-Frame-Options: DENY', 'Referrer-Policy:', 'Permissions-Policy:'] as $header) {
     if (!str_contains($security, $header)) throw new RuntimeException('A global security header is missing: ' . $header);
 }
@@ -33,4 +34,4 @@ if (!preg_match("/DUMMY_PASSWORD_HASH = '([^']+)'/", $auth, $dummyHash) || !pass
 if (str_contains($gateway, "'CompanyRef'] ?? \$companyRef") || !str_contains($gateway, "'CompanyRef'] ?? ''") || !str_contains($dpoCallback, 'amount not verified')) throw new RuntimeException('DPO verification must require the provider-returned company reference and an exact integer amount.');
 if (!str_contains($gateway, 'LIBXML_NONET') || !str_contains($gateway, 'CURLOPT_FOLLOWLOCATION => false') || !str_contains($gateway, 'www.sandbox.paypal.com')) throw new RuntimeException('Payment provider transport hardening is incomplete.');
 
-echo "PASS web root and legacy endpoint protections\nPASS upload script execution protection\nPASS global response security headers\nPASS authentication timing and CSRF rotation controls\nPASS payment transport and XML parser hardening\n";
+echo "PASS web root and legacy endpoint protections\nPASS upload script execution protection\nPASS global response security headers and staged CSP\nPASS authentication timing and CSRF rotation controls\nPASS payment transport and XML parser hardening\n";
