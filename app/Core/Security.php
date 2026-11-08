@@ -14,6 +14,7 @@ final class Security
         header('Referrer-Policy: strict-origin-when-cross-origin');
         header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
         header('X-Permitted-Cross-Domain-Policies: none');
+        header("Content-Security-Policy-Report-Only: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https:; connect-src 'self' https:; media-src 'self' blob: https:; frame-src 'self' https:");
         header('Cross-Origin-Opener-Policy: same-origin-allow-popups');
         if (self::secureRequest()) header('Strict-Transport-Security: max-age=31536000');
     }
