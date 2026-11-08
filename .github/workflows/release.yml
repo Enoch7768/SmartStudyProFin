@@ -29,6 +29,7 @@ jobs:
         run: |
           find app admin bootstrap database scripts tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l
           php tests/release-package.php
+          php tests/config-secrets.php
           php tests/unit.php
           php tests/run.php
           php tests/assistant.php
