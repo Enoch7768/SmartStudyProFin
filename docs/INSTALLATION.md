@@ -19,7 +19,7 @@ SmartStudyPro has no browser installer. The public `/install` endpoint and insta
 2. Configure `APP_STORAGE_PATH` to a writable directory outside the public web root.
 3. Configure `DB_PATH` to a SQLite file inside that private storage directory.
 4. Configure `APP_URL`, `APP_ENV=production`, and `APP_DEBUG=false`.
-5. Install the exact Composer dependencies from `composer.lock` in the deployment build environment. The web application never downloads dependencies.
+5. No Composer installation or third-party PHP vendor directory is required. The deployed application uses native PHP code and SQLite.
 6. Generate a 64-character hexadecimal `APP_KEY` and store it in the server environment or private storage. Never commit it.
 7. Set the three provisioning environment variables and run `php scripts/provision.php` from the application root. Never put the administrator password in command-line arguments.
 8. Configure provider credentials and verify email delivery and payment webhooks before production use.
