@@ -86,7 +86,7 @@ final class MediaManager
             throw new RuntimeException('This file type is not supported.');
         }
 
-        $originalName = basename(str_replace('\\\\', '/', (string) ($file['name'] ?? 'upload')));
+        $originalName = basename(str_replace('\\', '/', (string) ($file['name'] ?? 'upload')));
         $originalName = preg_replace('/[\\x00-\\x1F\\x7F]/u', '', $originalName) ?: 'upload';
         if (!self::extensionMatches($mime, $originalName)) {
             throw new RuntimeException('The file extension does not match its detected file type.');
