@@ -19,6 +19,8 @@ SmartStudyPro has no browser installer. The public `/install` endpoint and insta
 2. Configure `APP_STORAGE_PATH` to a writable directory outside the public web root.
 3. Configure `DB_PATH` to a SQLite file inside that private storage directory.
 4. Configure `APP_URL`, `APP_ENV=production`, and `APP_DEBUG=false`.
+
+`APP_URL` is the canonical base URL used by the application for absolute links, redirects, OAuth callbacks, and the installation base path. Set it from the server environment or the project `.env` file, without a trailing slash. For a subdirectory installation, include that path, for example `https://example.com/smartstudypro`. Do not hardcode the domain or installation path in PHP templates.
 5. No Composer installation or third-party PHP vendor directory is required. The deployed application uses native PHP code and SQLite.
 6. Generate a 64-character hexadecimal `APP_KEY` and store it in the server environment or private storage. Never commit it.
 7. Set the three provisioning environment variables and run `php scripts/provision.php` from the application root. Never put the administrator password in command-line arguments.
