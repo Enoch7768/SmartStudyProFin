@@ -41,6 +41,32 @@ final class MeetingPlannerService {
   foreach($enrolled->fetchAll(PDO::FETCH_COLUMN) as $learner)$notice->execute(['user'=>(int)$learner,'event'=>'session-created-'.$id,'title'=>'New course session scheduled','message'=>trim((string)$data['title']).' has been scheduled. Open My Sessions for details.','url'=>'/meetings','now'=>$now]);
   return $id;
  }
+ public function offeringEnrolments(int $offeringId): array {
+  $q=$this->pdo->prepare("SELECT oe.user_id,oe.status,oe.source,oe.created_at,oe.completed_at,u.name,u.email,(SELECT COUNT(*) FROM session_enrolments se JOIN course_sessions s ON s.id=se.session_id WHERE s.offering_id=oe.offering_id AND se.user_id=oe.user_id AND se.status='confirmed') AS booked_sessions,(SELECT COUNT(*) FROM session_attendance a JOIN course_sessions s ON s.id=a.session_id WHERE s.offering_id=oe.offering_id AND a.user_id=oe.user_id AND a.status IN('present','late','excused')) AS attended_sessions FROM course_offering_enrolments oe JOIN users u ON u.id=oe.user_id WHERE oe.offering_id=:offering ORDER BY CASE oe.status WHEN 'active' THEN 0 WHEN 'completed' THEN 1 ELSE 2 END,u.name");
+  $q->execute(['offering'=>$offeringId]);return $q->fetchAll();
+ }
+ public function completeOfferingEnrolment(int $actor,int $offeringId,int $userId): void {
+  $this->pdo->exec('BEGIN IMMEDIATE');
+  try {
+   $q=$this->pdo->prepare("SELECT oe.status,o.mode,o.title,c.title AS course_title FROM course_offering_enrolments oe JOIN course_offerings o ON o.id=oe.offering_id JOIN cms_courses c ON c.id=o.course_id WHERE oe.offering_id=:offering AND oe.user_id=:user");
+   $q->execute(['offering'=>$offeringId,'user'=>$userId]);$enrolment=$q->fetch();
+   if(!$enrolment||$enrolment['status']!=='active'||!in_array($enrolment['mode'],['live_online','in_person'],true))throw new RuntimeException('Only active live or in-person enrolments can be completed.');
+   $sessions=$this->pdo->prepare("SELECT COUNT(*) FROM course_sessions WHERE offering_id=:offering AND status IN('scheduled','rescheduled','draft')");
+   $sessions->execute(['offering'=>$offeringId]);if((int)$sessions->fetchColumn()>0)throw new RuntimeException('Finish, cancel or archive every scheduled session before completing this cohort enrolment.');
+   $completed=$this->pdo->prepare("SELECT COUNT(*) FROM course_sessions WHERE offering_id=:offering AND status='completed'");
+   $completed->execute(['offering'=>$offeringId]);$required=(int)$completed->fetchColumn();
+   if($required<1)throw new RuntimeException('At least one completed session is required before course completion.');
+   $attendance=$this->pdo->prepare("SELECT COUNT(*) FROM course_sessions s JOIN session_enrolments e ON e.session_id=s.id AND e.user_id=:user AND e.status='confirmed' JOIN session_attendance a ON a.session_id=s.id AND a.user_id=e.user_id AND a.status IN('present','late','excused') WHERE s.offering_id=:offering AND s.status='completed'");
+   $attendance->execute(['user'=>$userId,'offering'=>$offeringId]);if((int)$attendance->fetchColumn()!==$required)throw new RuntimeException('Attendance must be recorded as present, late or excused for every completed session before issuing completion.');
+   $now=gmdate('Y-m-d H:i:s');
+   $update=$this->pdo->prepare("UPDATE course_offering_enrolments SET status='completed',completed_at=:now,updated_at=:now WHERE offering_id=:offering AND user_id=:user AND status='active'");
+   $update->execute(['now'=>$now,'offering'=>$offeringId,'user'=>$userId]);if($update->rowCount()!==1)throw new RuntimeException('This enrolment has already changed.');
+   $this->pdo->prepare("INSERT INTO meeting_audit_events(session_id,actor_user_id,event_type,details_json,created_at) SELECT id,:actor,'offering.learner_completed',:details,:now FROM course_sessions WHERE offering_id=:offering AND status='completed' ORDER BY id LIMIT 1")->execute(['actor'=>$actor,'details'=>json_encode(['user_id'=>$userId,'offering_id'=>$offeringId],JSON_THROW_ON_ERROR),'now'=>$now,'offering'=>$offeringId]);
+   $notice=$this->pdo->prepare("INSERT OR IGNORE INTO notifications(user_id,event_key,type,title,message,target_url,created_at) VALUES(:user,:event,'course','Course cohort completed',:message,'/certificates',:now)");
+   $notice->execute(['user'=>$userId,'event'=>'offering-completed-'.$offeringId,'message'=>'You completed '.$enrolment['course_title'].' · '.$enrolment['title'].'. Your certificate will be available in Certificates.','now'=>$now]);
+   $this->pdo->exec('COMMIT');
+  }catch(Throwable $e){try{$this->pdo->exec('ROLLBACK');}catch(Throwable){}throw $e;}
+ }
  public function sessionsForLearner(int $user): array {
   $q=$this->pdo->prepare("SELECT s.id,s.title,s.agenda,s.provider,s.join_url,s.venue_name,s.venue_address,s.venue_notes,s.starts_at_utc,s.ends_at_utc,s.timezone,s.capacity,s.status,o.mode,o.title AS offering_title,c.title AS course_title,e.status AS booking_status,(SELECT COUNT(*) FROM session_enrolments x WHERE x.session_id=s.id AND x.status='confirmed') AS booked_count FROM course_sessions s JOIN course_offerings o ON o.id=s.offering_id JOIN cms_courses c ON c.id=o.course_id JOIN course_offering_enrolments oe ON oe.offering_id=o.id AND oe.user_id=:user AND oe.status IN('active','completed') LEFT JOIN session_enrolments e ON e.session_id=s.id AND e.user_id=:booking WHERE o.is_published=1 AND s.status IN('scheduled','rescheduled','cancelled','completed','archived') ORDER BY s.starts_at_utc DESC");
   $q->execute(['user'=>$user,'booking'=>$user]);$rows=$q->fetchAll();foreach($rows as &$row)if($row['provider']!=='in_person'&&(!in_array($row['status'],['scheduled','rescheduled'],true)||$row['booking_status']!=='confirmed'))$row['join_url']='';return $rows;
