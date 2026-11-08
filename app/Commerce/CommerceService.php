@@ -14,7 +14,7 @@ final class CommerceService
     {
     }
 
-    public function createOrder(int $userId, array $cart): array
+    public function createOrder(int $userId, array $cart, array $shipping = []): array
     {
         if (!$cart || count($cart) > 20) throw new RuntimeException('Your cart is empty or contains too many items.');
         $userQuery = $this->pdo->prepare("SELECT name, email FROM users WHERE id = :id AND status = 'active'");
@@ -24,6 +24,7 @@ final class CommerceService
         $items = [];
         $seen = [];
         $subtotal = 0;
+        $hasPhysical = false;
         foreach ($cart as $entry) {
             $type = (string) ($entry['type'] ?? '');
             $id = filter_var($entry['id'] ?? null, FILTER_VALIDATE_INT);
@@ -44,6 +45,7 @@ final class CommerceService
                 if ($access->fetchColumn()) throw new RuntimeException('You already have access to this course.');
             }
             $assets = [];
+            if ($type === 'product' && ($item['product_type'] ?? '') === 'physical') $hasPhysical = true;
             if ($type === 'product' && ($item['product_type'] ?? '') === 'online') {
                 $assetQuery = $this->pdo->prepare("SELECT m.id, m.storage_path, m.original_name, m.mime_type, m.file_size, m.checksum_sha256 FROM cms_product_assets pa INNER JOIN media_assets m ON m.id = pa.media_asset_id WHERE pa.product_id = :product_id AND pa.asset_role = 'download' AND m.visibility = 'private' ORDER BY pa.sort_order, pa.id");
                 $assetQuery->execute(['product_id' => $id]);
@@ -71,12 +73,26 @@ final class CommerceService
             $items[] = ['type' => $type, 'id' => $id, 'title' => (string) $item['title'], 'product_type' => $item['product_type'] ?? null, 'file_id' => $item['product_file_media_id'] ?? null, 'assets' => $assets, 'price' => $price, 'quantity' => $quantity, 'line' => $line];
         }
         if ($subtotal < 1) throw new RuntimeException('The order total must be greater than zero.');
+        $shippingQuote = null;
+        $shippingSnapshot = ['name'=>'','phone'=>'','address'=>'','city'=>'','region'=>'','country'=>'UG'];
+        if ($hasPhysical) {
+            foreach (['name'=>120,'phone'=>40,'address'=>240,'city'=>100,'region'=>100] as $field=>$limit) {
+                $value = trim((string) ($shipping[$field] ?? ''));
+                if ($value === '' || strlen($value) > $limit) throw new RuntimeException('Complete the delivery name, phone, street address, city and region.');
+                $shippingSnapshot[$field] = $value;
+            }
+            $shippingSnapshot['country'] = strtoupper(trim((string) ($shipping['country'] ?? 'UG')));
+            $shippingQuote = (new ShippingService($this->pdo))->quote((int) ($shipping['method_id'] ?? 0), $shippingSnapshot['country'], $shippingSnapshot['region']);
+        }
+        $deliveryFee = (int) ($shippingQuote['fee_ugx'] ?? 0);
+        if ($deliveryFee < 0 || $subtotal > 1000000000 - $deliveryFee) throw new RuntimeException('Your order total is too large.');
+        $total = $subtotal + $deliveryFee;
         $now = gmdate('Y-m-d H:i:s');
         $publicId = 'SSP-' . strtoupper(bin2hex(random_bytes(8)));
         $this->pdo->beginTransaction();
         try {
-            $insert = $this->pdo->prepare("INSERT INTO orders (public_id, user_id, status, currency, subtotal_ugx, total_ugx, customer_name, customer_email, created_at, updated_at) VALUES (:public_id, :user_id, 'pending', 'UGX', :subtotal, :total, :name, :email, :created_at, :updated_at)");
-            $insert->execute(['public_id' => $publicId, 'user_id' => $userId, 'subtotal' => $subtotal, 'total' => $subtotal, 'name' => $user['name'], 'email' => $user['email'], 'created_at' => $now, 'updated_at' => $now]);
+            $insert = $this->pdo->prepare("INSERT INTO orders (public_id, user_id, status, currency, subtotal_ugx, total_ugx, customer_name, customer_email, created_at, updated_at, shipping_method_id, shipping_method_name, delivery_fee_ugx, shipping_name, shipping_phone, shipping_address, shipping_city, shipping_region, shipping_country, fulfillment_status) VALUES (:public_id, :user_id, 'pending', 'UGX', :subtotal, :total, :name, :email, :created_at, :updated_at, :method_id, :method_name, :delivery_fee, :shipping_name, :shipping_phone, :shipping_address, :shipping_city, :shipping_region, :shipping_country, :fulfillment_status)");
+            $insert->execute(['public_id' => $publicId, 'user_id' => $userId, 'subtotal' => $subtotal, 'total' => $total, 'name' => $user['name'], 'email' => $user['email'], 'created_at' => $now, 'updated_at' => $now, 'method_id' => $shippingQuote ? (int) $shippingQuote['id'] : null, 'method_name' => $shippingQuote['name'] ?? '', 'delivery_fee' => $deliveryFee, 'shipping_name' => $shippingSnapshot['name'], 'shipping_phone' => $shippingSnapshot['phone'], 'shipping_address' => $shippingSnapshot['address'], 'shipping_city' => $shippingSnapshot['city'], 'shipping_region' => $shippingSnapshot['region'], 'shipping_country' => $shippingSnapshot['country'], 'fulfillment_status' => $hasPhysical ? 'pending' : 'not_required']);
             $orderId = (int) $this->pdo->lastInsertId();
             $lineInsert = $this->pdo->prepare('INSERT INTO order_items (order_id, item_type, item_id, item_title, product_type, product_file_media_id, unit_price_ugx, quantity, line_total_ugx, created_at) VALUES (:order_id, :type, :item_id, :title, :product_type, :file_id, :price, :quantity, :line, :created_at)');
             foreach ($items as $item) {

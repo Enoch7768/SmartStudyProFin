@@ -27,7 +27,7 @@ if (!mkdir($temporary, 0700, true)) throw new RuntimeException('Could not create
 try {
     $pdo = Database::connect($temporary . '/test.sqlite');
     $migrationPath = dirname(__DIR__) . '/database/migrations';
-    if (Migrator::run($pdo, $migrationPath) !== ['001_identity', '002_cms_content', '003_student_identity', '004_learning_engine', '005_lesson_resources_quiz_settings', '006_commerce_payments', '007_ai_learning_assistant', '008_notifications_recognition_analytics', '009_production_indexes', '010_legal_acceptance', '011_demo_payments', '012_commerce_delivery_refunds', '013_meeting_planner', '014_meeting_reminders', '015_contact_messages', '016_refund_item_allocations']) throw new RuntimeException('Foundation and CMS migrations did not run.');
+    if (Migrator::run($pdo, $migrationPath) !== ['001_identity', '002_cms_content', '003_student_identity', '004_learning_engine', '005_lesson_resources_quiz_settings', '006_commerce_payments', '007_ai_learning_assistant', '008_notifications_recognition_analytics', '009_production_indexes', '010_legal_acceptance', '011_demo_payments', '012_commerce_delivery_refunds', '013_meeting_planner', '014_meeting_reminders', '015_contact_messages', '016_refund_item_allocations', '017_physical_shipping_fulfillment']) throw new RuntimeException('Foundation and CMS migrations did not run.');
     if (Migrator::run($pdo, $migrationPath) !== []) throw new RuntimeException('Migrations are not idempotent.');
     $routeRules = (string) file_get_contents(dirname(__DIR__) . '/.htaccess');
     $previousScriptName = $_SERVER['SCRIPT_NAME'] ?? null;

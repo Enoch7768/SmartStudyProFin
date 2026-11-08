@@ -332,15 +332,11 @@ $fullImgUrl = str_starts_with($imgUrl, 'http') ? $imgUrl : $siteUrl . '/' . ltri
                 <button type="submit" class="btn-ssp-primary w-100 py-2 mt-2">Add to cart</button>
               </form>
               <?php else: ?>
-              <form action="<?= htmlspecialchars(\App\Core\Url::to('/booking'), ENT_QUOTES, 'UTF-8') ?>" method="post">
+              <form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>">
                 <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
-                <input type="hidden" name="product_id" value="<?= $productId ?>">
-                <input type="hidden" name="item_name" value="<?= htmlspecialchars($displayTitle) ?>">
-                <input type="hidden" name="item_price" value="<?= htmlspecialchars((string) $displayPrice, ENT_QUOTES, 'UTF-8') ?>">
-                <div class="mb-3"><label class="form-label small fw-semibold">Full Name</label><input type="text" name="name" class="form-control rounded-3" placeholder="John Doe" required></div>
-                <div class="mb-3"><label class="form-label small fw-semibold">Email Address</label><input type="email" name="email" class="form-control rounded-3" placeholder="example@mail.com" required></div>
-                <div class="mb-3"><label class="form-label small fw-semibold">Shipping Address</label><textarea name="address" class="form-control rounded-3" rows="2" placeholder="Your delivery address..." required></textarea></div>
-                <button type="submit" class="btn-ssp-primary w-100 py-2 mt-2">Request this product</button>
+                <input type="hidden" name="type" value="product">
+                <input type="hidden" name="id" value="<?= $productId ?>">
+                <button type="submit" class="btn-ssp-primary w-100 py-2 mt-2">Add to cart · delivery at checkout</button>
               </form>
               <?php endif; ?>
             </div>

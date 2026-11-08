@@ -40,7 +40,7 @@ $columns = $type === 'product' ? 'id, slug, price_ugx, product_type' : 'id, slug
 $statement = $pdo->prepare("SELECT {$columns} FROM {$table} WHERE id = :id AND status = 'published' LIMIT 1");
 $statement->execute(['id' => $id]);
 $item = $statement->fetch();
-if (!$item || ($type === 'product' && ($item['product_type'] ?? '') !== 'online')) {
+if (!$item) {
     http_response_code(404);
     exit('This item is no longer available.');
 }

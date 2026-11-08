@@ -13,6 +13,7 @@ use App\Cms\ContentRepository;
 use App\Cms\PublicContent;
 use App\Commerce\CommerceService;
 use App\Commerce\RefundService;
+use App\Commerce\ShippingService;
 use App\Core\Database;
 use App\Core\Migrator;
 
@@ -54,6 +55,33 @@ try {
     if (count($product['Files'] ?? []) !== 2 || isset($product['Files'][0]['url'])) throw new RuntimeException('The product page did not expose safe file descriptions without private download URLs.');
 
     $commerce = new CommerceService($pdo);
+    $shipping = new ShippingService($pdo);
+    $zoneId = $shipping->saveZone(null, 'Kampala delivery', 'UG', 'Kampala', true);
+    $methodId = $shipping->saveMethod(null, $zoneId, 'Standard delivery', 'Door-to-door delivery', 2500, 1, 3, true);
+    $physicalProductId = $content->save('products', null, ['title' => 'Printed Study Workbook', 'description_html' => 'Physical workbook.', 'price_ugx' => '7000', 'category' => 'Books', 'product_type' => 'physical', 'status' => 'published']);
+    $regionRejected = false;
+    try { $shipping->quote($methodId, 'UG', 'Wakiso'); } catch (RuntimeException) { $regionRejected = true; }
+    if (!$regionRejected) throw new RuntimeException('A district-specific delivery method was offered outside its configured region.');
+    $delivery = ['method_id'=>$methodId,'name'=>'Test Recipient','phone'=>'+256700000001','address'=>'Plot 10 Test Road','city'=>'Kampala','region'=>'Kampala','country'=>'UG'];
+    $physicalOrder = $commerce->createOrder($adminId, [['type'=>'product','id'=>$physicalProductId,'quantity'=>1]], $delivery);
+    if ((int)$physicalOrder['subtotal_ugx'] !== 7000 || (int)$physicalOrder['delivery_fee_ugx'] !== 2500 || (int)$physicalOrder['total_ugx'] !== 9500 || $physicalOrder['fulfillment_status'] !== 'pending') throw new RuntimeException('Physical checkout did not snapshot the server-calculated delivery price and recipient details.');
+    $mixedOrder = $commerce->createOrder($adminId, [['type'=>'product','id'=>$productId,'quantity'=>1],['type'=>'product','id'=>$physicalProductId,'quantity'=>1]], $delivery);
+    if ((int)$mixedOrder['total_ugx'] !== 19500 || (int)$mixedOrder['delivery_fee_ugx'] !== 2500) throw new RuntimeException('A mixed cart did not apply delivery once to its physical items only.');
+    $digitalOnlyOrder = $commerce->createOrder($adminId, [['type'=>'product','id'=>$productId,'quantity'=>1]]);
+    if ((int)$digitalOnlyOrder['delivery_fee_ugx'] !== 0 || $digitalOnlyOrder['shipping_method_id'] !== null) throw new RuntimeException('A digital-only order was charged delivery.');
+    $physicalPayment = $commerce->createPayment((int)$physicalOrder['id'], $adminId, 'dpo');
+    $commerce->updateProviderReference((int)$physicalPayment['id'], 'phase2-physical-token', 'CREATED');
+    if (!$commerce->confirmPayment((int)$physicalPayment['id'], 'dpo', 'phase2-physical-token', 'phase2-physical-tx', 9500, 'UGX', 'COMPLETED', 'phase2-physical-event')) throw new RuntimeException('Physical order payment did not complete.');
+    $physicalItemId = (int)$physicalOrder['items'][0]['id'];
+    $physicalRefundRejected = false;
+    try { (new RefundService($pdo))->request($physicalItemId, $adminId, 1000, 'Physical goods are not refundable through this online refund ledger.'); } catch (RuntimeException) { $physicalRefundRejected = true; }
+    if (!$physicalRefundRejected) throw new RuntimeException('The online refund ledger accepted a physical product.');
+    $shipping->updateFulfillment((int)$physicalOrder['id'], $adminId, 'processing', '', '');
+    $shipping->updateFulfillment((int)$physicalOrder['id'], $adminId, 'shipped', 'Test Courier', 'TRACK-100');
+    $shipping->updateFulfillment((int)$physicalOrder['id'], $adminId, 'delivered', 'Test Courier', 'TRACK-100');
+    $fulfilled = $pdo->query('SELECT fulfillment_status,carrier_name,tracking_reference,shipped_at,delivered_at FROM orders WHERE id='.(int)$physicalOrder['id'])->fetch();
+    if ($fulfilled['fulfillment_status'] !== 'delivered' || $fulfilled['carrier_name'] !== 'Test Courier' || $fulfilled['tracking_reference'] !== 'TRACK-100' || !$fulfilled['shipped_at'] || !$fulfilled['delivered_at']) throw new RuntimeException('Physical order fulfilment and tracking history were not recorded.');
+
     $emptyProductId = $content->save('products', null, ['title' => 'Incomplete Digital Product', 'description_html' => 'Must not be purchasable without files.', 'price_ugx' => '1000', 'category' => 'Testing', 'product_type' => 'online', 'status' => 'published']);
     $missingFilesRejected = false;
     try {
@@ -76,6 +104,7 @@ try {
     $pdo->prepare('DELETE FROM cms_product_assets WHERE product_id = :product_id AND media_asset_id = :media_id')->execute(['product_id' => $productId, 'media_id' => $unsupportedAssetId]);
 
     $order = $commerce->createOrder($adminId, [['type' => 'product', 'id' => $productId, 'quantity' => 1], ['type' => 'course', 'id' => $courseId, 'quantity' => 1]]);
+    if ((int) $order['delivery_fee_ugx'] !== 0) throw new RuntimeException('Course and digital purchases unexpectedly incurred delivery fees.');
     $itemId = (int) $order['items'][0]['id'];
     $courseItemId = (int) $order['items'][1]['id'];
     if ((int) $order['total_ugx'] !== 20000 || (int) $pdo->query('SELECT COUNT(*) FROM order_item_assets WHERE order_item_id = ' . $itemId)->fetchColumn() !== 2) throw new RuntimeException('The order did not snapshot every private product asset.');
@@ -126,6 +155,9 @@ try {
     if ($learning->hasAccess($adminId, $courseId)) throw new RuntimeException('A fully refunded course remained accessible without another paid purchase.');
     if (count($refunds->auditTrail($firstRefund)) !== 2 || count($refunds->auditTrail($secondRefund)) !== 2 || count($refunds->auditTrail($thirdRefund)) !== 2) throw new RuntimeException('Refund requests and provider-confirmed resolutions were not fully audited.');
 
+    echo "PASS server-priced physical delivery and region-specific shipping\n";
+    echo "PASS mixed-cart shipping separation and delivery-free digital orders\n";
+    echo "PASS physical order fulfilment tracking and physical refund exclusion\n";
     echo "PASS multi-file product snapshots and secure owner-bound delivery\n";
     echo "PASS public product gallery separation\n";
     echo "PASS idempotent active payment creation and verified payment completion\n";
