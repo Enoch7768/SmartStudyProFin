@@ -2,6 +2,7 @@ Options -Indexes -MultiViews
 RewriteEngine On
 
 RewriteRule ^install(?:/|$) - [R=404,L,NC]
+RewriteRule ^auth\.php$ - [R=404,L,NC]
 
 RewriteRule ^favicon\.ico$ index.php [L,QSA]
 
