@@ -95,6 +95,13 @@ try {
     if (!$commerce->purchasedAsset($adminId, (int) $files[0]['asset_id']) || $commerce->purchasedAsset($otherUserId, (int) $files[0]['asset_id']) !== null) throw new RuntimeException('A private purchase asset escaped order ownership checks.');
 
     $refunds = new RefundService($pdo);
+    $legacyReservation = $pdo->prepare("INSERT INTO refunds (payment_id, amount_ugx, reason, status, created_at, requested_by, updated_at) VALUES (:payment_id, 19000, 'Legacy pre-allocation refund', 'pending', :created_at, :admin_id, :updated_at)");
+    $legacyReservation->execute(['payment_id' => (int) $payment['id'], 'created_at' => $now, 'admin_id' => $adminId, 'updated_at' => $now]);
+    $legacyRefundId = (int) $pdo->lastInsertId();
+    $legacyBalanceRejected = false;
+    try { $refunds->request($itemId, $adminId, 2000, 'Must respect a legacy payment-level reservation.'); } catch (RuntimeException) { $legacyBalanceRejected = true; }
+    if (!$legacyBalanceRejected) throw new RuntimeException('A new item refund ignored a pending legacy payment-level refund.');
+    $refunds->resolve($legacyRefundId, $adminId, 'failed', '', 'Legacy refund request was not submitted to the provider.');
     $firstRefund = $refunds->request($itemId, $adminId, 8000, 'Customer requested a partial refund.');
     $overRefundRejected = false;
     try {

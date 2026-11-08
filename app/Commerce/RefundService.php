@@ -40,6 +40,13 @@ final class RefundService
                 throw new RuntimeException('The refund exceeds this item’s remaining refundable balance.');
             }
 
+            $paymentReserved = $this->pdo->prepare("SELECT COALESCE(SUM(amount_ugx), 0) FROM refunds WHERE payment_id = :payment_id AND status IN ('pending', 'succeeded')");
+            $paymentReserved->execute(['payment_id' => (int) $item['payment_id']]);
+            $paymentRemaining = (int) $item['payment_amount'] - (int) $paymentReserved->fetchColumn();
+            if ($amount > $paymentRemaining) {
+                throw new RuntimeException('The refund exceeds the payment’s remaining refundable balance.');
+            }
+
             $now = gmdate('Y-m-d H:i:s');
             $insert = $this->pdo->prepare("INSERT INTO refunds (payment_id, amount_ugx, reason, status, created_at, requested_by, updated_at) VALUES (:payment_id, :amount, :reason, 'pending', :created_at, :requested_by, :updated_at)");
             $insert->execute(['payment_id' => (int) $item['payment_id'], 'amount' => $amount, 'reason' => $reason, 'created_at' => $now, 'requested_by' => $adminId, 'updated_at' => $now]);
