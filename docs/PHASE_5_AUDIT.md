@@ -19,6 +19,8 @@ This is a living audit record. A green CI run is a baseline, not proof that ever
 
 ### P0 — Public repository data hygiene
 
+**Phase 1 remediation:** Removed 88 tracked runtime/private artifacts from the current `main` tree: legacy CMS SQLite databases, 38 CMS uploads, generated thumbnails/cache, three legacy booking databases, two avatar images and the root financial-looking spreadsheet. Kept intentional public brand/site assets, migration source files and `.gitkeep` placeholders. Expanded `.gitignore` to prevent CMS runtime data and generated thumbnails/cache from being reintroduced. This does not erase prior Git history; history scrubbing and any required credential rotation remain separate follow-up work.
+
 - The public repository currently tracks legacy SQLite databases under `cms/storage/data/`, `database/` and `db/`, plus historical uploaded media and a ZIP archive under `cms/storage/uploads/`.
 - A spreadsheet named `Income Statement and distribution.xlsx` is tracked at the repository root. It is excluded from the release archive, but remains downloadable from the public Git repository and its history.
 - Avatar images are tracked under `uploads/avatars/`. The release process excludes these files, but the public Git repository still exposes them.
@@ -79,7 +81,7 @@ This is a living audit record. A green CI run is a baseline, not proof that ever
 
 | Area | Status |
 |---|---|
-| Repository inventory and release boundaries | Initial pass complete; data cleanup decision pending |
+| Repository inventory and release boundaries | Current-branch data cleanup complete; history review and release recheck pending |
 | Core configuration, sessions, authentication and URL handling | Reviewed; private-secret loading hardened; deeper regression pass ongoing |
 | Identity, Google OAuth and account lifecycle | Initial source review; full journey tests pending |
 | CMS, rich-text sanitization and media | Initial source review; full permission and upload matrix pending |
@@ -89,7 +91,7 @@ This is a living audit record. A green CI run is a baseline, not proof that ever
 | AI tutor and meeting companion | Initial source review; quotas, error handling and privacy tests ongoing |
 | Admin experience and permissions | Initial source review; page-by-page task audit pending |
 | Browser assets, accessibility and responsive behavior | Inventory complete; visual/browser validation pending |
-| Legacy CMS and historical artifacts | Inventory complete; archive/removal decision pending |
+| Legacy CMS and historical artifacts | Current-branch private data removed; history scrubbing decision pending |
 | Release, backup, restore and cPanel operations | Initial source review; restore drill pending |
 
 ## Validation rules
