@@ -21,19 +21,15 @@ PayPal's Orders API uses USD for provider settlement in this integration. The ap
 
 DPO is configured for UGX. The server creates a hosted-checkout token and verifies the DPO callback using verifyToken. The callback endpoint is dpo-webhook.php.
 
-## Digital product delivery and upload policy
+## Digital product delivery and file safety
 
 Online products support private digital assets. Public gallery images are separate. Private files must be stored outside the public web root and never exposed through storage paths.
 
-The required upload policy is a strict server-side allowlist, **not antivirus scanning**. Initial supported formats are sanitized PDF; UTF-8 plain text and CSV; re-encoded JPEG, PNG and WebP; validated/canonicalized MP3 and MP4; and macro-free DOCX/XLSX/PPTX only when a dedicated package validator is available. If that validator is unavailable, reject those Office formats.
+No antivirus scanning is performed or required. The application uses a straightforward server-side allowlist for common useful content formats: PDF, DOC/DOCX, XLS/XLSX, PPT/PPTX, ODT, RTF, TXT, CSV, JPEG, PNG, WebP, GIF, MP3 and MP4. Server-side scripts, executables, HTML, JavaScript, SVG, archives, installers and unknown formats are not accepted.
 
-Reject PHP and other scripts, executables, shell/batch files, JavaScript, HTML, SVG, XML, macro-enabled Office formats, RTF, archives, installers, disk images, fonts, shortcut files and unknown formats.
+The server determines the stored extension and MIME type; client-supplied MIME and filenames are not trusted for storage decisions. Files receive random server-generated storage names and restrictive permissions. The configured storage path must resolve outside the public web root. Uploaded files are never included, evaluated, interpreted, executed or passed to a command or template engine.
 
-Every upload must pass filename normalization, detected MIME, signature and full structural validation. All signals must agree. Reject double extensions, spoofed MIME, polyglots, malformed containers, ambiguous names, unsupported codecs and parser errors. Client-provided MIME is never trusted. Images are decoded/re-encoded; PDF active features are removed or rejected; Office packages are inspected for macros, OLE, ActiveX, embedded files and external relationships. If a safe parser/transformer is unavailable or fails, reject the file. Bound file size, image dimensions, media duration/resolution, parser time and container entry counts.
-
-No antivirus engine, background malware scan, scan status or scanner dependency is part of this design. This policy reduces attack surface but cannot guarantee that every accepted file is malware-free. Uploads remain outside the web root in non-executable private storage with random storage names and restrictive permissions. Deliver files only through authenticated entitlement-checking endpoints with server-selected MIME, X-Content-Type-Options: nosniff, safe content disposition and sandboxed previews. Never execute user uploads.
-
-The current implementation supports private digital assets, MIME allowlisting, secure paid-order delivery, browser preview for PDF/text/CSV/images and an audited refund ledger. The stricter format-specific validation above is a target requirement, not a claim that existing upload handling already implements it.
+Private downloads are served only after checking the authenticated buyer's paid order entitlement. Administrator previews require administrator permission. Responses use server-selected MIME types, X-Content-Type-Options: nosniff, safe Content-Disposition and private caching. Documents are delivered as attachments; only selected preview formats are rendered inline. This prevents server-side execution, but it is not a guarantee that a document is free of malicious content when opened by a user.
 
 ## Refund operations
 
