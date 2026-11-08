@@ -66,6 +66,8 @@ try {
     if (preg_match('/^RewriteRule\\s+\\S+\\s+\\/[A-Za-z]/m', $routeRules)) throw new RuntimeException('Canonical rewrite targets must not discard the application subdirectory.');
     $frontController = (string) file_get_contents(dirname(__DIR__) . '/index.php');
     if (!str_contains($frontController, "preg_match('#^/install(?:/|$)#i', \$path)")) throw new RuntimeException('Removed installer paths must be explicitly rejected by the front controller.');
+    $provisionScript = (string) file_get_contents(dirname(__DIR__) . '/scripts/provision.php');
+    if (!str_contains($provisionScript, "PHP_SAPI !== 'cli'") || !str_contains($provisionScript, "getenv('SSP_ADMIN_PASSWORD')") || str_contains($provisionScript, '$argv[3]') || is_dir(dirname(__DIR__) . '/install')) throw new RuntimeException('First-run provisioning must be CLI-only, keep passwords out of command arguments and ship no public installer directory.');
     foreach (["'/profile' => 'profile.php'", "'/cart/add' => 'cart-add.php'", "'/assistant' => 'assistant.php'", "'/learn' => 'learning.php'", "course_slug"] as $route) {
         if (!str_contains($frontController, $route)) throw new RuntimeException('The index.php front controller is missing route support: ' . $route);
     }
