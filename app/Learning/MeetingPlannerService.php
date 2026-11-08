@@ -26,11 +26,11 @@ final class MeetingPlannerService {
   $q=$this->pdo->prepare("SELECT 1 FROM course_offerings WHERE id=:id");$q->execute(['id'=>$offeringId]);if(!$q->fetchColumn())throw new RuntimeException('Course offering not found.');
   $q=$this->pdo->prepare("SELECT 1 FROM users u JOIN user_roles ur ON ur.user_id=u.id JOIN roles r ON r.id=ur.role_id WHERE u.id=:user AND u.status='active' AND r.slug='instructor'");$q->execute(['user'=>$instructorId]);if(!$q->fetchColumn())throw new RuntimeException('Select an active account with the instructor role.');
   $now=gmdate('Y-m-d H:i:s');$q=$this->pdo->prepare("INSERT OR IGNORE INTO course_offering_instructors(offering_id,user_id,assigned_by,assigned_at) VALUES(:offering,:user,:actor,:now)");$q->execute(['offering'=>$offeringId,'user'=>$instructorId,'actor'=>$actor,'now'=>$now]);
-  if($q->rowCount()===1)$this->pdo->prepare("INSERT INTO course_offering_audit_events(offering_id,actor_user_id,learner_user_id,event_type,details_json,created_at) VALUES(:offering,:actor,:learner,'instructor.assigned','{}',:now)")->execute(['offering'=>$offeringId,'actor'=>$actor,'learner'=>$instructorId,'now'=>$now]);
+  if($q->rowCount()===1)$this->pdo->prepare("INSERT INTO course_offering_audit_events(offering_id,actor_user_id,subject_user_id,event_type,details_json,created_at) VALUES(:offering,:actor,:learner,'instructor.assigned','{}',:now)")->execute(['offering'=>$offeringId,'actor'=>$actor,'learner'=>$instructorId,'now'=>$now]);
  }
  public function unassignInstructor(int $actor,int $offeringId,int $instructorId): void {
   $q=$this->pdo->prepare("DELETE FROM course_offering_instructors WHERE offering_id=:offering AND user_id=:user");$q->execute(['offering'=>$offeringId,'user'=>$instructorId]);
-  if($q->rowCount()===1)$this->pdo->prepare("INSERT INTO course_offering_audit_events(offering_id,actor_user_id,learner_user_id,event_type,details_json,created_at) VALUES(:offering,:actor,:learner,'instructor.unassigned','{}',:now)")->execute(['offering'=>$offeringId,'actor'=>$actor,'learner'=>$instructorId,'now'=>gmdate('Y-m-d H:i:s')]);
+  if($q->rowCount()===1)$this->pdo->prepare("INSERT INTO course_offering_audit_events(offering_id,actor_user_id,subject_user_id,event_type,details_json,created_at) VALUES(:offering,:actor,:learner,'instructor.unassigned','{}',:now)")->execute(['offering'=>$offeringId,'actor'=>$actor,'learner'=>$instructorId,'now'=>gmdate('Y-m-d H:i:s')]);
  }
  public function updateOffering(int $offeringId,string $title,string $description,int $price,?int $capacity,bool $published): void {
   if(trim($title)===''||strlen($title)>160||$price<0||$price>1000000000||($capacity!==null&&$capacity<1))throw new RuntimeException('Check the offering name, price and capacity.');
@@ -81,7 +81,7 @@ final class MeetingPlannerService {
    $this->pdo->prepare("UPDATE session_enrolments SET status='cancelled',updated_at=:now WHERE user_id=:user AND status='confirmed' AND session_id IN(SELECT id FROM course_sessions WHERE offering_id=:offering)")->execute(['now'=>$now,'user'=>$userId,'offering'=>$offeringId]);
    $this->pdo->prepare('DELETE FROM offering_certificates WHERE user_id=:user AND offering_id=:offering')->execute(['user'=>$userId,'offering'=>$offeringId]);
    $details=json_encode(['source'=>$row['source'],'status_before'=>$row['status']],JSON_THROW_ON_ERROR);
-   $this->pdo->prepare("INSERT INTO course_offering_audit_events(offering_id,actor_user_id,learner_user_id,event_type,details_json,created_at) VALUES(:offering,:actor,:learner,'enrolment.revoked',:details,:now)")->execute(['offering'=>$offeringId,'actor'=>$actor,'learner'=>$userId,'details'=>$details,'now'=>$now]);
+   $this->pdo->prepare("INSERT INTO course_offering_audit_events(offering_id,actor_user_id,subject_user_id,event_type,details_json,created_at) VALUES(:offering,:actor,:learner,'enrolment.revoked',:details,:now)")->execute(['offering'=>$offeringId,'actor'=>$actor,'learner'=>$userId,'details'=>$details,'now'=>$now]);
    $notice=$this->pdo->prepare("INSERT OR IGNORE INTO notifications(user_id,event_key,type,title,message,target_url,created_at) VALUES(:user,:event,'course','Course cohort access updated',:message,'/courses',:now)");
    $notice->execute(['user'=>$userId,'event'=>'offering-revoked-'.$offeringId.'-'.$now,'message'=>'Your access to '.$row['title'].' has been withdrawn. Contact the course administrator if you believe this is a mistake.','now'=>$now]);
    $this->pdo->exec('COMMIT');
@@ -103,7 +103,7 @@ final class MeetingPlannerService {
    $now=gmdate('Y-m-d H:i:s');
    $update=$this->pdo->prepare("UPDATE course_offering_enrolments SET status='completed',completed_at=:now,updated_at=:now WHERE offering_id=:offering AND user_id=:user AND status='active'");
    $update->execute(['now'=>$now,'offering'=>$offeringId,'user'=>$userId]);if($update->rowCount()!==1)throw new RuntimeException('This enrolment has already changed.');
-   $this->pdo->prepare("INSERT INTO course_offering_audit_events(offering_id,actor_user_id,learner_user_id,event_type,details_json,created_at) VALUES(:offering,:actor,:learner,'enrolment.completed',:details,:now)")->execute(['offering'=>$offeringId,'actor'=>$actor,'learner'=>$userId,'details'=>json_encode(['mode'=>$enrolment['mode']],JSON_THROW_ON_ERROR),'now'=>$now]);
+   $this->pdo->prepare("INSERT INTO course_offering_audit_events(offering_id,actor_user_id,subject_user_id,event_type,details_json,created_at) VALUES(:offering,:actor,:learner,'enrolment.completed',:details,:now)")->execute(['offering'=>$offeringId,'actor'=>$actor,'learner'=>$userId,'details'=>json_encode(['mode'=>$enrolment['mode']],JSON_THROW_ON_ERROR),'now'=>$now]);
    $notice=$this->pdo->prepare("INSERT OR IGNORE INTO notifications(user_id,event_key,type,title,message,target_url,created_at) VALUES(:user,:event,'course','Course cohort completed',:message,'/certificates',:now)");
    $notice->execute(['user'=>$userId,'event'=>'offering-completed-'.$offeringId,'message'=>'You completed '.$enrolment['course_title'].' · '.$enrolment['title'].'. Your certificate will be available in Certificates.','now'=>$now]);
    $this->pdo->exec('COMMIT');
