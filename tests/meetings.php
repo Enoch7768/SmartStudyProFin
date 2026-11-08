@@ -2,7 +2,7 @@
 declare(strict_types=1);
 if(!extension_loaded('pdo_sqlite')){fwrite(STDERR,"BLOCKED PDO SQLite is not installed.\n");exit(2);}
 require dirname(__DIR__).'/bootstrap/app.php';
-use App\Cms\ContentRepository;use App\Core\Database;use App\Core\Migrator;use App\Learning\MeetingPlannerService;use App\AI\MeetingCompanionService;
+use App\Cms\ContentRepository;use App\Core\Database;use App\Core\Migrator;use App\Learning\MeetingPlannerService;use App\Learning\LearningService;use App\Learning\RecognitionService;use App\AI\MeetingCompanionService;
 $dir=sys_get_temp_dir().'/ssp-meeting-test-'.bin2hex(random_bytes(6));mkdir($dir,0700,true);
 try{
  $pdo=Database::connect($dir.'/test.sqlite');$ran=Migrator::run($pdo,dirname(__DIR__).'/database/migrations');
@@ -14,6 +14,8 @@ try{
  $repo=new ContentRepository($pdo);$course=$repo->save('courses',null,['title'=>'Physics','description_html'=>'','content_html'=>'','price_ugx'=>'0','category'=>'Science','status'=>'published','sort_order'=>'1']);
  $pdo->prepare("INSERT INTO course_enrolments(user_id,course_id,status,source,enrolled_at,updated_at) VALUES(:u,:c,'active','free',:n,:n)")->execute(['u'=>$learner,'c'=>$course,'n'=>$now]);
  $planner=new MeetingPlannerService($pdo);$off=$planner->saveOffering($course,'live_online','Live Physics','',0,1,true);$pdo->prepare("INSERT INTO course_offering_enrolments(user_id,offering_id,source,status,created_at,updated_at) VALUES(:user,:offering,'manual','active',:now,:now)")->execute(['user'=>$learner,'offering'=>$off,'now'=>$now]);
+ $learnerOfferings=(new LearningService($pdo))->offeringEnrolments($learner);if(count($learnerOfferings)!==1||$learnerOfferings[0]['offering_id']!==$off||$learnerOfferings[0]['mode']!=='live_online')throw new RuntimeException('Live course enrolment was missing from the learner dashboard data.');
+ (new RecognitionService($pdo))->sync($learner);$offeringNotice=$pdo->prepare("SELECT COUNT(*) FROM notifications WHERE user_id=:user AND event_key=:event AND target_url='/meetings'");$offeringNotice->execute(['user'=>$learner,'event'=>'offering-enrolled:'.$off]);if((int)$offeringNotice->fetchColumn()!==1)throw new RuntimeException('Live course enrolment did not create its learner notification.');
  $publicCourse=(new App\Cms\PublicContent($pdo))->course($course);if(count($publicCourse['Offerings']??[])!==1||$publicCourse['Offerings'][0]['mode']!=='live_online')throw new RuntimeException('Published course delivery options were not exposed in the public catalogue.');
  $session=$planner->createSession($admin,$off,['title'=>'Forces workshop','provider'=>'google_meet','timezone'=>'Africa/Kampala','starts_at'=>'2027-01-10T10:00','ends_at'=>'2027-01-10T11:00','join_url'=>'https://meet.google.com/abc-defg-hij','host_url'=>'https://meet.google.com/abc-defg-hij','capacity'=>'1']);
  $sessions=$planner->sessionsForLearner($learner);if(count($sessions)!==1||$sessions[0]['join_url']!=='')throw new RuntimeException('Meeting link was exposed before booking.');
