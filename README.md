@@ -38,7 +38,7 @@ There is no browser installer and no `/install` endpoint. First-time setup is pe
 4. Configure `APP_URL`, `APP_ENV=production`, and `APP_DEBUG=false`.
 5. Install Composer dependencies from the committed `composer.lock` in the deployment build environment. The web runtime does not download or install dependencies.
 6. Generate a 64-character hexadecimal `APP_KEY` and keep it in the server environment or private storage.
-7. Run `php scripts/provision.php "Administrator Name" admin@example.com "a-long-unique-password"` from the application root to create the schema and first administrator.
+7. Set `SSP_ADMIN_NAME`, `SSP_ADMIN_EMAIL` and `SSP_ADMIN_PASSWORD` in the command environment, then run `php scripts/provision.php` from the application root. Do not pass passwords as command-line arguments; process listings can expose them.
 8. Configure provider credentials and verify email delivery and payment webhooks before production use.
 
 See [docs/INSTALLATION.md](docs/INSTALLATION.md) for deployment details. Never commit secrets, database files, logs, backups, or private media.
@@ -67,7 +67,7 @@ http://localhost:8000/google-auth.php?action=callback
 
 Google accepts HTTP for localhost development only. Keep the client ID in the project environment and the client secret in the server environment or `$APP_STORAGE_PATH/.env`. Restart the PHP server after changing environment configuration.
 
-Run PHP lint, unit, SQLite integration, assistant, recognition, operations, content-security, performance and security tests, plus JavaScript syntax and behaviour tests. GitHub Actions validates the PHP 8.2 and 8.3 runtimes, the dependency installer, and the complete application test suite. Provider credentials and real-money payment flows must be tested separately in provider sandbox environments before production activation.
+Run PHP lint, unit, SQLite integration, assistant, recognition, operations, content-security, performance and security tests, plus JavaScript syntax and behaviour tests. GitHub Actions validates the PHP 8.2 and 8.3 runtimes, provisioning boundaries, and the application test suite. Provider credentials and real-money payment flows must be tested separately in provider sandbox environments before production activation.
 
 ## Legal and intellectual property
 
