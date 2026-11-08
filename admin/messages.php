@@ -1,0 +1,21 @@
+<?php
+declare(strict_types=1);
+require dirname(__DIR__).'/bootstrap/app.php';
+use App\Contact\ContactMessageService;
+use App\Core\Auth;
+use App\Core\Database;
+use App\Core\Security;
+use App\Core\Url;
+$pdo=Database::connect();$user=Auth::user($pdo);
+if(!$user)Security::redirect('/login?redirect='.rawurlencode(Url::to('/admin/messages')));
+if(!Auth::hasRole($pdo,(int)$user['id'],'administrator')){http_response_code(403);exit('You do not have permission to access the contact inbox.');}
+$service=new ContactMessageService($pdo);$error='';$notice='';
+if(($_SERVER['REQUEST_METHOD']??'GET')==='POST'){
+ if(!Security::verifyCsrf($_POST['_csrf']??null))$error='Your session expired. Refresh and try again.';
+ else try{$service->setStatus((int)($_POST['message_id']??0),(string)($_POST['status']??''));Security::redirect('/admin/messages?updated=1');}catch(Throwable $e){$error=$e->getMessage();}
+}
+$notice=($_GET['updated']??'')==='1'?'Message status updated.':'';$messages=$service->inbox();
+?>
+<!DOCTYPE html><html lang="en"><head><base href="<?= Security::escape(Url::to('/')) ?>"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Contact inbox | SmartStudyPro</title><link href="<?= Security::escape(Url::to('/assets/vendor/bootstrap/css/bootstrap.min.css')) ?>" rel="stylesheet"><link href="<?= Security::escape(Url::to('/assets/css/device-responsive.css')) ?>" rel="stylesheet"></head><body class="bg-body-tertiary"><main class="container py-4 py-lg-5" style="max-width:1100px"><div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4"><div><p class="text-uppercase small fw-bold text-primary mb-1">Administration</p><h1 class="h2 mb-1">Contact inbox</h1><p class="text-secondary mb-0">Review messages sent through the public contact form.</p></div><div class="d-flex gap-2"><a class="btn btn-outline-secondary" href="<?= Security::escape(Url::to('/admin/cms.php')) ?>">Content manager</a><a class="btn btn-outline-secondary" href="<?= Security::escape(Url::to('/admin/meetings')) ?>">Course delivery</a></div></div>
+<?php if($notice!==''):?><div class="alert alert-success" role="status"><?= Security::escape($notice) ?></div><?php endif;?><?php if($error!==''):?><div class="alert alert-danger" role="alert"><?= Security::escape($error) ?></div><?php endif;?>
+<?php if(!$messages):?><section class="card border-0 shadow-sm"><div class="card-body p-5 text-center"><h2 class="h5">Your inbox is clear</h2><p class="text-secondary mb-0">New contact messages will appear here.</p></div></section><?php else:foreach($messages as $message):?><article class="card border-0 shadow-sm mb-3"><div class="card-body p-3 p-md-4"><div class="d-flex flex-wrap justify-content-between gap-2"><div><h2 class="h5 mb-1"><?= Security::escape($message['subject']) ?></h2><div class="small text-secondary"><?= Security::escape($message['name']) ?> · <a href="mailto:<?= Security::escape($message['email']) ?>"><?= Security::escape($message['email']) ?></a></div></div><span class="badge <?= $message['status']==='new'?'text-bg-primary':($message['status']==='read'?'text-bg-success':'text-bg-secondary') ?> align-self-start"><?= Security::escape(ucfirst($message['status'])) ?></span></div><p class="my-3" style="white-space:pre-wrap;overflow-wrap:anywhere"><?= Security::escape($message['message']) ?></p><div class="d-flex flex-wrap justify-content-between align-items-center gap-2"><small class="text-secondary"><?= Security::escape($message['created_at']) ?> UTC</small><form method="post" class="d-flex gap-2 align-items-center"><input type="hidden" name="_csrf" value="<?= Security::escape(Security::csrfToken()) ?>"><input type="hidden" name="message_id" value="<?= (int)$message['id'] ?>"><select class="form-select form-select-sm" name="status" aria-label="Message status"><option value="new" <?= $message['status']==='new'?'selected':'' ?>>New</option><option value="read" <?= $message['status']==='read'?'selected':'' ?>>Read</option><option value="archived" <?= $message['status']==='archived'?'selected':'' ?>>Archived</option></select><button class="btn btn-sm btn-primary">Save</button></form></div></div></article><?php endforeach;endif;?></main></body></html>
