@@ -24,6 +24,9 @@ $extensionCheck = new ReflectionMethod(MediaManager::class, 'extensionMatches');
 if (!$extensionCheck->invoke(null, 'application/zip', 'course.docx') || !$extensionCheck->invoke(null, 'application/zip', 'course.xlsx') || !$extensionCheck->invoke(null, 'text/plain', 'notes.csv')) throw new RuntimeException('An approved safe upload extension was rejected.');
 if (!$extensionCheck->invoke(null, 'application/zip', 'archive.zip')) throw new RuntimeException('A ZIP archive intended for private download was rejected.');
 if ($extensionCheck->invoke(null, 'application/zip', 'payload.php') || $extensionCheck->invoke(null, 'application/pdf', 'document.zip')) throw new RuntimeException('A misleading upload extension was accepted.');
+$previewEndpoint = (string) file_get_contents(dirname(__DIR__) . '/view.php');
+$downloadEndpoint = (string) file_get_contents(dirname(__DIR__) . '/download.php');
+if (str_contains($previewEndpoint, "'application/zip'") || !str_contains($downloadEndpoint, "Content-Disposition: attachment")) throw new RuntimeException('ZIP files must be downloadable only as private attachments and never rendered inline.');
 $oversized = false;
 try {
     HtmlSanitizer::clean(str_repeat('x', 524289));
