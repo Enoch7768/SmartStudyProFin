@@ -142,6 +142,7 @@ $navActive = static function (string $section) use ($navRequestPath): bool {
         'about' => $navRequestPath === '/about',
         'courses' => $navRequestPath === '/courses' || str_starts_with($navRequestPath, '/courses/'),
         'learning' => in_array($navRequestPath, ['/learn', '/learning', '/study'], true) || str_starts_with($navRequestPath, '/learn/'),
+        'meetings' => $navRequestPath === '/meetings',
         'assistant' => $navRequestPath === '/assistant',
         'products' => $navRequestPath === '/products' || str_starts_with($navRequestPath, '/products/'),
         'contact' => $navRequestPath === '/contact',
@@ -161,6 +162,7 @@ $navActive = static function (string $section) use ($navRequestPath): bool {
         <li><a href="<?= htmlspecialchars($navRoute('/about'), ENT_QUOTES, 'UTF-8') ?>"<?= $navActive('about') ? ' class="active" aria-current="page"' : '' ?>>About Us</a></li>
         <li><a href="<?= htmlspecialchars($navRoute('/courses'), ENT_QUOTES, 'UTF-8') ?>"<?= $navActive('courses') ? ' class="active" aria-current="page"' : '' ?>>Courses</a></li>
         <li><a href="<?= htmlspecialchars($navRoute('/learn'), ENT_QUOTES, 'UTF-8') ?>"<?= $navActive('learning') ? ' class="active" aria-current="page"' : '' ?>>My Learning</a></li>
+        <li><a href="<?= htmlspecialchars($navRoute('/meetings'), ENT_QUOTES, 'UTF-8') ?>"<?= $navActive('meetings') ? ' class="active" aria-current="page"' : '' ?>>My Sessions</a></li>
         <li><a href="<?= htmlspecialchars($navRoute('/assistant'), ENT_QUOTES, 'UTF-8') ?>"<?= $navActive('assistant') ? ' class="active" aria-current="page"' : '' ?>>AI Tutor</a></li>
         <li><a href="<?= htmlspecialchars($navRoute('/products'), ENT_QUOTES, 'UTF-8') ?>"<?= $navActive('products') ? ' class="active" aria-current="page"' : '' ?>>Products</a></li>
         <li><a href="<?= htmlspecialchars($navRoute('/contact'), ENT_QUOTES, 'UTF-8') ?>"<?= $navActive('contact') ? ' class="active" aria-current="page"' : '' ?>>Contact</a></li>
