@@ -53,6 +53,7 @@ try {
     $address = stream_socket_get_name($socket, false);
     fclose($socket);
     $port = (int) substr(strrchr($address, ':'), 1);
+    putenv('APP_URL=http://127.0.0.1:' . $port);
     $command = [PHP_BINARY, '-S', '127.0.0.1:' . $port, '-t', $root, $root . '/index.php'];
     $serverLog = $storage . '/server.log';
     $descriptors = [0 => ['pipe', 'r'], 1 => ['file', $serverLog, 'a'], 2 => ['file', $serverLog, 'a']];
