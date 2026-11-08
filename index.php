@@ -101,9 +101,6 @@ $routes = [
 
 $script = $routes[$path] ?? null;
 
-if ($path === '/install') {
-    $script = 'install/index.php';
-}
 
 if ($script === null && preg_match('#^/courses/([a-z0-9][a-z0-9-]*)$#i', $path, $matches)) {
     $_GET['slug'] = $matches[1];

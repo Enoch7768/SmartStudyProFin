@@ -25,14 +25,4 @@ Session::start();
 // Url::to() already emits root-relative paths (e.g. /courses/testing).
 // A <base> tag was causing browsers to resolve links as http://courses/ on localhost.
 
-if (PHP_SAPI !== 'cli' && !App\Core\Installer::isInstalled()) {
-    $installPath = App\Core\Url::applicationBasePath() . '/install';
-    $requestPath = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
-
-    if (!in_array($requestPath, [$installPath, $installPath . '/', $installPath . '/index.php'], true)) {
-        header('Location: ' . $installPath, true, 303);
-        exit;
-    }
-}
-
 return ['root' => $root, 'config' => Config::all()];

@@ -28,17 +28,20 @@ The application is designed for conventional PHP hosting with SQLite. It uses se
 
 Optional integrations require their own credentials: PayPal, DPO and Google Gemini.
 
-## Installation
+## Deployment and provisioning
 
-1. Deploy the clean release package and configure the document root to the application directory.
-2. Set APP_STORAGE_PATH to a writable directory outside the public web root. The installer stores the verified PHP dependency autoloader, application key, database, logs and private media there.
-3. Set DB_PATH to a SQLite file inside that private storage directory.
-4. Configure APP_URL, APP_ENV=production and APP_DEBUG=false.
-5. Open /install over HTTPS. When `/install` is opened, the installer automatically downloads a pinned prebuilt dependency archive from GitHub into private storage and verifies every package version against `composer.lock`. It then runs migrations and creates the first administrator. No Composer executable, PHP CLI, SSH, or `proc_open` is required on the hosting account.
-6. Add provider credentials to the hosting environment or private storage; never commit secrets.
-7. Configure and test payment-provider webhooks and email delivery before accepting live transactions. The installer locks itself after successful setup.
+There is no browser installer and no `/install` endpoint. First-time setup is performed by the operator from the command line after configuring private storage, the database path, the application key, and runtime dependencies.
 
-See docs/INSTALLATION.md for installation and deployment details; Readme.txt is retained only as a pointer to current safe operating guidance.
+1. Deploy the release package and point the document root at the application directory.
+2. Set `APP_STORAGE_PATH` to a writable directory outside the public web root.
+3. Set `DB_PATH` to a SQLite file inside that private storage directory.
+4. Configure `APP_URL`, `APP_ENV=production`, and `APP_DEBUG=false`.
+5. Install Composer dependencies from the committed `composer.lock` in the deployment build environment. The web runtime does not download or install dependencies.
+6. Generate a 64-character hexadecimal `APP_KEY` and keep it in the server environment or private storage.
+7. Run `php scripts/provision.php "Administrator Name" admin@example.com "a-long-unique-password"` from the application root to create the schema and first administrator.
+8. Configure provider credentials and verify email delivery and payment webhooks before production use.
+
+See [docs/INSTALLATION.md](docs/INSTALLATION.md) for deployment details. Never commit secrets, database files, logs, backups, or private media.
 
 ## Configuration
 
@@ -54,7 +57,7 @@ The application uses `index.php` as its single front controller. No separate `ro
 php -S 127.0.0.1:8000 index.php
 ```
 
-The same front controller handles clean URLs such as `/profile`, dynamic course and product slugs, learning routes and `/install`. Existing public PHP endpoints and static assets are passed through, while unknown paths return a real 404. Apache deployments use the included `.htaccess` to send clean URLs to `index.php`; conventional PHP hosting can point its document root at the project directory.
+The same front controller handles clean URLs such as `/profile`, dynamic course and product slugs, and learning routes. `/install` is intentionally not a route and returns 404. Existing public PHP endpoints and static assets are passed through, while unknown paths return a real 404. Apache deployments use the included `.htaccess` to send clean URLs to `index.php`; conventional PHP hosting can point its document root at the project directory.
 
 For local Google OAuth, set `APP_URL=http://localhost:8000` and add this exact authorized redirect URI to the Google OAuth web client:
 
