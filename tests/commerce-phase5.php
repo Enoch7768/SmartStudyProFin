@@ -66,6 +66,7 @@ try {
     $offeringEnrolment=$pdo->prepare("SELECT status FROM course_offering_enrolments WHERE user_id=:user AND offering_id=:offering");
     $offeringEnrolment->execute(['user'=>$adminId,'offering'=>$liveOfferingId]);
     if($offeringEnrolment->fetchColumn()!=='active') throw new RuntimeException('Live course purchase did not grant offering-specific enrolment.');
+    $pdo->prepare('INSERT INTO offering_certificates(user_id,offering_id,verification_code,issued_at) VALUES(:user,:offering,:code,:issued)')->execute(['user'=>$adminId,'offering'=>$liveOfferingId,'code'=>strtoupper(bin2hex(random_bytes(12))),'issued'=>gmdate('Y-m-d H:i:s')]);
     $capacityRejected=false;
     try{$commerce->createOrder($otherUserId,[['type'=>'course','id'=>$offeringCourseId,'offering_id'=>$liveOfferingId,'quantity'=>1]]);}catch(RuntimeException){$capacityRejected=true;}
     if(!$capacityRejected) throw new RuntimeException('A full course offering accepted another pending checkout.');
@@ -74,6 +75,7 @@ try {
     (new RefundService($pdo))->resolve($offeringRefund,$adminId,'succeeded','DPO-OFFERING-REFUND','Live course offering refund confirmed.');
     $offeringEnrolment->execute(['user'=>$adminId,'offering'=>$liveOfferingId]);
     if($offeringEnrolment->fetchColumn()!=='revoked') throw new RuntimeException('Refunding a live course purchase did not revoke its specific offering access.');
+    $certificateCount=$pdo->prepare('SELECT COUNT(*) FROM offering_certificates WHERE user_id=:user AND offering_id=:offering');$certificateCount->execute(['user'=>$adminId,'offering'=>$liveOfferingId]);if((int)$certificateCount->fetchColumn()!==0)throw new RuntimeException('Refunding the final offering purchase did not revoke its completion certificate.');
     $inPersonCourseId=$content->save('courses',null,['title'=>'In-person Workshop Course','description_html'=>'','content_html'=>'','price_ugx'=>'0','category'=>'Testing','status'=>'published']);
     $inPersonOfferingId=$meetingPlanner->saveOffering($inPersonCourseId,'in_person','Kampala Workshop','',12000,5,true);
     $inPersonOrder=$commerce->createOrder($adminId,[['type'=>'course','id'=>$inPersonCourseId,'offering_id'=>$inPersonOfferingId,'quantity'=>1]]);
