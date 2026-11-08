@@ -188,27 +188,25 @@ $siteUrl = \App\Core\Url::site();
   <meta property="og:description" content="<?= htmlspecialchars($seoDescription) ?>">
   <meta property="og:image" content="<?= $siteUrl ?>/Smart_Study_Logo_Fin-removebg-preview.png">
 
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "EducationalOrganization",
-    "name": "SmartStudyPro",
-    "url": "<?= $siteUrl ?>",
-    "logo": "<?= $siteUrl ?>/Smart_Study_Logo_Fin-removebg-preview.png",
-    "slogan": "Study Made Simple, Success Made Sure",
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "telephone": "<?= $phone ?>",
-      "contactType": "customer service",
-      "email": "<?= $email ?>"
-    },
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "Kampala",
-      "addressCountry": "UG"
-    }
-  }
-  </script>
+  <script type="application/ld+json"><?= json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'EducationalOrganization',
+    'name' => 'SmartStudyPro',
+    'url' => $siteUrl,
+    'logo' => $siteUrl . '/Smart_Study_Logo_Fin-removebg-preview.png',
+    'slogan' => 'Study Made Simple, Success Made Sure',
+    'contactPoint' => [
+      '@type' => 'ContactPoint',
+      'telephone' => $phone,
+      'contactType' => 'customer service',
+      'email' => $email
+    ],
+    'address' => [
+      '@type' => 'PostalAddress',
+      'addressLocality' => 'Kampala',
+      'addressCountry' => 'UG'
+    ]
+  ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) ?></script>
 
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/favicon.php'), ENT_QUOTES, 'UTF-8') ?>" rel="icon">
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/Smart_Study_Logo_Fin-removebg-preview.png'), ENT_QUOTES, 'UTF-8') ?>" rel="apple-touch-icon">
