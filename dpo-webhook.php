@@ -31,7 +31,7 @@ try {
     }
     $verified = (new PaymentGateway())->verifyDpo($token, $companyRef);
     $amountValue = trim((string) $verified['amount']);
-    if (!preg_match('/^([0-9]+)(?:\\.0+)?$/D', $amountValue, $amountMatch)) { http_response_code(409); exit('Payment amount not verified.'); }
+    if (!preg_match('/^([0-9]+)(?:[.]0+)?$/D', $amountValue, $amountMatch)) { http_response_code(409); exit('Payment amount not verified.'); }
     $amount = (int) $amountMatch[1];
     if ($verified['result'] !== '000' || !in_array($verified['fraud_alert'], ['000', '001'], true) || $verified['company_ref'] !== $companyRef || $verified['currency'] !== 'UGX' || $amount !== (int) $payment['total_ugx'] || $verified['approval'] === '') {
         http_response_code(409);
