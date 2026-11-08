@@ -116,8 +116,9 @@ try {
         }
         if (str_contains(strtolower($body), '<html')) {
             if ($status === 200 && in_array($page, $navigationPages, true)) {
-                if (!str_contains($body, '<base href="/">')) {
-                    $failures[] = $page . ': shared root URL base is missing; nested links and assets can resolve against the current route';
+                if (!preg_match('~<base\b[^>]*href="/[^"]*"[^>]*>~i', $body, $baseMatch)) {
+                    preg_match_all('~<base\b[^>]*>~i', $body, $baseTags);
+                    $failures[] = $page . ': shared root URL base is missing or not root-relative; found: ' . implode(' ', $baseTags[0] ?? []);
                 }
                 foreach (['id="navmenu"', 'id="theme-toggle"', 'assets/js/main.js', 'assets/css/device-responsive.css'] as $sharedFeature) {
                     if (!str_contains($body, $sharedFeature)) {
