@@ -28,6 +28,6 @@ The installer applies the versioned migrations, including the native CMS content
 
 Uploads are stored below the private storage directory, not in a public upload folder. Files are assigned random names and SHA-256 checksums. MIME types are detected from file contents. The upload limit is 50 MB. Only image assets explicitly marked public can be delivered through `/media.php?id=...`; other media stays private.
 
-## Current migration boundary
+## Runtime boundary
 
-This phase adds the native CMS schema, admin interface, repository, and media handling. Home, About, Courses, Course Details, Products, Product Details, Contact, and booking item validation now read from the native SQLite CMS. The study portal and quiz grading still depend on the legacy Cockpit learning-content structure and are scheduled for the learning-engine migration. Keep the Cockpit runtime and original media assets until that migration is complete. No existing Cockpit records are imported because the old database contents are not available to the project owner.
+The native SQLite CMS and the native PHP learning engine are the production implementation. Public catalogue pages read from the native CMS, while `learning.php`, `study.php`, and the `App\\Learning` services handle enrolment, lessons, progress, quizzes, and assessments. The legacy `cms/` Cockpit source is excluded from release packages and blocked by the front controller; it is retained in the repository only as historical migration material. The production application does not load Cockpit or its Composer dependency tree. No legacy Cockpit database is required or imported.
