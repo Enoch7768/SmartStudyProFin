@@ -89,7 +89,7 @@ $ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/
   <?php endif; ?>
 
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/favicon.php'), ENT_QUOTES, 'UTF-8') ?>" rel="icon">
-  <link href="Smart_Study_Logo_Fin-removebg-preview.png" rel="apple-touch-icon">
+  <link href="<?= htmlspecialchars(\App\Core\Url::to('/Smart_Study_Logo_Fin-removebg-preview.png'), ENT_QUOTES, 'UTF-8') ?>" rel="apple-touch-icon">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
