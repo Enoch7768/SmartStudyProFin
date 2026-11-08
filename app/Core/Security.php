@@ -46,6 +46,7 @@ final class Security
 
     private static function secureRequest(): bool
     {
-        return !empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off';
+        $appUrl = strtolower((string) Config::get('app.url', ''));
+        return str_starts_with($appUrl, 'https://') || (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off');
     }
 }
