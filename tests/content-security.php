@@ -21,7 +21,7 @@ if (class_exists(DOMDocument::class)) {
 if (strlen($output) > 524288) throw new RuntimeException('Sanitized content exceeded its size limit.');
 
 $extensionCheck = new ReflectionMethod(MediaManager::class, 'extensionMatches');
-if (!$extensionCheck->invoke(null, 'application/zip', 'course.zip') || !$extensionCheck->invoke(null, 'application/zip', 'course.docx') || !$extensionCheck->invoke(null, 'text/plain', 'notes.csv')) throw new RuntimeException('An approved safe upload extension was rejected.');
+if (!$extensionCheck->invoke(null, 'application/zip', 'course.docx') || !$extensionCheck->invoke(null, 'application/zip', 'course.xlsx') || !$extensionCheck->invoke(null, 'text/plain', 'notes.csv')) throw new RuntimeException('An approved safe upload extension was rejected.');
 if ($extensionCheck->invoke(null, 'application/zip', 'payload.php') || $extensionCheck->invoke(null, 'application/zip', 'archive.zip') || $extensionCheck->invoke(null, 'application/pdf', 'document.zip')) throw new RuntimeException('A misleading or archive upload extension was accepted.');
 $oversized = false;
 try {
