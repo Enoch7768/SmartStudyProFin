@@ -54,6 +54,8 @@ jobs:
         run: php tests/demo-payments.php
       - name: Test course delivery modes and meeting planner
         run: php tests/meetings.php
+      - name: Test instructor workspace permissions
+        run: php tests/instructor-workspace.php
       - name: Test AI assistant retrieval and privacy
         run: php tests/assistant.php
       - name: Test notifications, achievements and certificates
