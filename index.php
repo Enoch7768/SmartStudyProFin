@@ -619,8 +619,8 @@ $siteUrl = \App\Core\Url::site();
             </p>
 
             <div class="d-flex flex-column flex-sm-row flex-wrap gap-3 justify-content-center justify-content-lg-start" data-aos="fade-up" data-aos-delay="300">
-              <a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/courses'), ENT_QUOTES, 'UTF-8') ?>" class="btn-ssp-primary text-decoration-none">Start Learning Today</a>
-              <a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/about'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-light rounded-3 px-4 py-2 fw-bold text-decoration-none">Discover SmartStudyPro</a>
+              <a href="<?= htmlspecialchars(\App\Core\Url::to('/courses'), ENT_QUOTES, 'UTF-8') ?>" class="btn-ssp-primary text-decoration-none">Start Learning Today</a>
+              <a href="<?= htmlspecialchars(\App\Core\Url::to('/about'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-light rounded-3 px-4 py-2 fw-bold text-decoration-none">Discover SmartStudyPro</a>
             </div>
 
           </div>
@@ -670,7 +670,7 @@ $siteUrl = \App\Core\Url::site();
               </div>
             </div>
 
-            <a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/about'), ENT_QUOTES, 'UTF-8') ?>" class="btn-ssp-navy text-decoration-none d-inline-block">Read More About Us <i class="bi bi-arrow-right ms-1"></i></a>
+            <a href="<?= htmlspecialchars(\App\Core\Url::to('/about'), ENT_QUOTES, 'UTF-8') ?>" class="btn-ssp-navy text-decoration-none d-inline-block">Read More About Us <i class="bi bi-arrow-right ms-1"></i></a>
           </div>
         </div>
       </div>
@@ -706,7 +706,7 @@ $siteUrl = \App\Core\Url::site();
                     </div>
 
                     <h3 class="h5 fw-bold mb-2">
-                      <a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/courses/' . rawurlencode((string) ($course['slug'] ?? $course['_id']))), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none" style="color: var(--ssp-navy);">
+                      <a href="<?= htmlspecialchars(\App\Core\Url::to('/courses/' . rawurlencode((string) ($course['slug'] ?? $course['_id']))), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none" style="color: var(--ssp-navy);">
                         <?= htmlspecialchars($course['Title'] ?? 'Untitled Course') ?>
                       </a>
                     </h3>
@@ -715,7 +715,7 @@ $siteUrl = \App\Core\Url::site();
                       <?= htmlspecialchars(substr(strip_tags($course['Description'] ?? $course['description'] ?? ''), 0, 110)) ?>...
                     </p>
 
-                    <a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/courses/' . rawurlencode((string) ($course['slug'] ?? $course['_id']))), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-primary w-100 mt-auto rounded-3 fw-bold text-decoration-none" style="color: var(--ssp-navy); border-color: var(--ssp-navy);">
+                    <a href="<?= htmlspecialchars(\App\Core\Url::to('/courses/' . rawurlencode((string) ($course['slug'] ?? $course['_id']))), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-primary w-100 mt-auto rounded-3 fw-bold text-decoration-none" style="color: var(--ssp-navy); border-color: var(--ssp-navy);">
                       View Details
                     </a>
                   </div>
@@ -738,7 +738,7 @@ $siteUrl = \App\Core\Url::site();
       <div class="row gy-4">
         
         <div class="col-12 col-md-6 col-lg-4">
-          <a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/'), ENT_QUOTES, 'UTF-8') ?>" class="ssp-footer-brand text-decoration-none mb-3 d-inline-block">
+          <a href="<?= htmlspecialchars(\App\Core\Url::to('/'), ENT_QUOTES, 'UTF-8') ?>" class="ssp-footer-brand text-decoration-none mb-3 d-inline-block">
             SmartStudy<span>Pro</span>
           </a>
           <p class="small text-white opacity-90 mb-3">Study Made Simple, Success Made Sure.</p>
@@ -760,11 +760,11 @@ $siteUrl = \App\Core\Url::site();
         <div class="col-12 col-sm-6 col-md-6 col-lg-3">
           <h5 class="text-white fw-bold mb-3">Quick Navigation</h5>
           <ul class="list-unstyled small">
-            <li class="mb-2"><a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/'), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-white opacity-90">Home</a></li>
-            <li class="mb-2"><a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/about'), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-white opacity-90">About Us</a></li>
-            <li class="mb-2"><a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/courses'), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-white opacity-90">Courses</a></li>
-            <li class="mb-2"><a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/products'), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-white opacity-90">Products & Materials</a></li>
-            <li class="mb-2"><a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/contact'), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-white opacity-90">Contact Us</a></li>
+            <li class="mb-2"><a href="<?= htmlspecialchars(\App\Core\Url::to('/'), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-white opacity-90">Home</a></li>
+            <li class="mb-2"><a href="<?= htmlspecialchars(\App\Core\Url::to('/about'), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-white opacity-90">About Us</a></li>
+            <li class="mb-2"><a href="<?= htmlspecialchars(\App\Core\Url::to('/courses'), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-white opacity-90">Courses</a></li>
+            <li class="mb-2"><a href="<?= htmlspecialchars(\App\Core\Url::to('/products'), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-white opacity-90">Products & Materials</a></li>
+            <li class="mb-2"><a href="<?= htmlspecialchars(\App\Core\Url::to('/contact'), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-white opacity-90">Contact Us</a></li>
           </ul>
         </div>
 
@@ -784,12 +784,12 @@ $siteUrl = \App\Core\Url::site();
 
     <div class="container text-center border-top border-secondary pt-3 mt-3 text-white opacity-90 small">
       <div class="small mb-3 d-flex flex-wrap justify-content-center gap-3">
-        <a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/privacy'), ENT_QUOTES, 'UTF-8') ?>" class="text-white text-decoration-none">Privacy</a>
-        <a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/terms'), ENT_QUOTES, 'UTF-8') ?>" class="text-white text-decoration-none">Terms of Use</a>
-        <a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/cookies'), ENT_QUOTES, 'UTF-8') ?>" class="text-white text-decoration-none">Cookies</a>
-        <a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/refunds'), ENT_QUOTES, 'UTF-8') ?>" class="text-white text-decoration-none">Refunds</a>
-        <a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/accessibility'), ENT_QUOTES, 'UTF-8') ?>" class="text-white text-decoration-none">Accessibility</a>
-        <a href="<?= htmlspecialchars(\\App\\Core\\Url::to('/eula'), ENT_QUOTES, 'UTF-8') ?>" class="text-white text-decoration-none">Client Software Licence</a>
+        <a href="<?= htmlspecialchars(\App\Core\Url::to('/privacy'), ENT_QUOTES, 'UTF-8') ?>" class="text-white text-decoration-none">Privacy</a>
+        <a href="<?= htmlspecialchars(\App\Core\Url::to('/terms'), ENT_QUOTES, 'UTF-8') ?>" class="text-white text-decoration-none">Terms of Use</a>
+        <a href="<?= htmlspecialchars(\App\Core\Url::to('/cookies'), ENT_QUOTES, 'UTF-8') ?>" class="text-white text-decoration-none">Cookies</a>
+        <a href="<?= htmlspecialchars(\App\Core\Url::to('/refunds'), ENT_QUOTES, 'UTF-8') ?>" class="text-white text-decoration-none">Refunds</a>
+        <a href="<?= htmlspecialchars(\App\Core\Url::to('/accessibility'), ENT_QUOTES, 'UTF-8') ?>" class="text-white text-decoration-none">Accessibility</a>
+        <a href="<?= htmlspecialchars(\App\Core\Url::to('/eula'), ENT_QUOTES, 'UTF-8') ?>" class="text-white text-decoration-none">Client Software Licence</a>
       </div>
       <p class="mb-0">&copy; <?= date('Y') ?> <strong>SmartStudyPro</strong>. All Rights Reserved. Empowering Education in Uganda.</p>
     </div>
