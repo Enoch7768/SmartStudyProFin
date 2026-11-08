@@ -2,7 +2,7 @@
 
 ## Release packages
 
-The release workflow runs PHP lint, dependency-manifest checks, application integration tests, security and performance checks, and the site-wide HTTP page/asset smoke test for version tags. It creates a versioned ZIP package and SHA-256 checksum, then attaches both to a GitHub Release. Packages exclude environment secrets, installed Composer and Node dependency trees, private storage, database files, legacy CMS storage, tests, and user avatar uploads. The Composer manifests and required browser assets under assets/vendor are retained.
+The release workflow runs PHP lint, dependency-policy checks, application integration tests, security and performance checks, and the site-wide HTTP page/asset smoke test for version tags. It creates a versioned ZIP package and SHA-256 checksum, then attaches both to a GitHub Release. Packages exclude environment secrets, third-party Composer and Node dependency trees, private storage, database files, legacy CMS source and storage, tests, and user avatar uploads. No Composer manifests or PHP vendor runtime are required; the browser assets under assets/vendor are retained.
 
 The VERSION file is the installed semantic version. Tag names use the vMAJOR.MINOR.PATCH format and must match VERSION without the leading v.
 
