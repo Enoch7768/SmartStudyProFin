@@ -48,6 +48,22 @@ final class MediaManager
         return $extension !== '' && in_array($extension, self::EXTENSIONS[$mime] ?? [], true);
     }
 
+    private const EXTENSIONS = [
+        'image/jpeg' => ['jpg', 'jpeg'], 'image/png' => ['png'], 'image/webp' => ['webp'], 'image/gif' => ['gif'],
+        'application/pdf' => ['pdf'], 'text/plain' => ['txt', 'csv'], 'text/csv' => ['csv'],
+        'application/msword' => ['doc'], 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => ['docx'],
+        'application/vnd.ms-excel' => ['xls'], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => ['xlsx'],
+        'application/vnd.ms-powerpoint' => ['ppt'], 'application/vnd.openxmlformats-officedocument.presentationml.presentation' => ['pptx'],
+        'application/rtf' => ['rtf'], 'text/rtf' => ['rtf'], 'application/vnd.oasis.opendocument.text' => ['odt'],
+        'video/mp4' => ['mp4'], 'audio/mpeg' => ['mp3'], 'application/zip' => ['zip', 'docx', 'xlsx', 'pptx', 'odt']
+    ];
+
+    private static function extensionMatches(string $mime, string $filename): bool
+    {
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        return $extension !== '' && in_array($extension, self::EXTENSIONS[$mime] ?? [], true);
+    }
+
     public function __construct(private readonly PDO $pdo, private readonly string $storagePath)
     {
     }
@@ -69,6 +85,13 @@ final class MediaManager
         if (!is_string($mime) || !isset(self::TYPES[$mime])) {
             throw new RuntimeException('This file type is not supported.');
         }
+
+        $originalName = basename(str_replace('\\\\', '/', (string) ($file['name'] ?? 'upload')));
+        $originalName = preg_replace('/[\\x00-\\x1F\\x7F]/u', '', $originalName) ?: 'upload';
+        if (!self::extensionMatches($mime, $originalName)) {
+            throw new RuntimeException('The file extension does not match its detected file type.');
+        }
+        $originalName = substr($originalName, 0, 180);
 
         $year = gmdate('Y');
         $month = gmdate('m');
@@ -94,9 +117,6 @@ final class MediaManager
         }
         chmod($destination, 0600);
 
-        $originalName = basename(str_replace('\\', '/', (string) ($file['name'] ?? 'upload')));
-        $originalName = preg_replace('/[\x00-\x1F\x7F]/u', '', $originalName) ?: 'upload';
-        $originalName = substr($originalName, 0, 180);
         $relative = 'media/' . $year . '/' . $month . '/' . $name;
         $statement = $this->pdo->prepare('INSERT INTO media_assets (storage_path, original_name, mime_type, file_size, checksum_sha256, alt_text, visibility, uploaded_by, created_at) VALUES (:storage_path, :original_name, :mime_type, :file_size, :checksum_sha256, :alt_text, :visibility, :uploaded_by, :created_at)');
         try {
