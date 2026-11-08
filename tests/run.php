@@ -223,7 +223,10 @@ try {
     $download = $commerce->purchasedFile($userId, (int) $paidOrder['items'][1]['id']);
     if (!$download || $download['storage_path'] !== 'media/store/guide.pdf') throw new RuntimeException('A paid digital product did not receive a secure file entitlement.');
     if ($commerce->purchasedFile($outsideUserId, (int) $paidOrder['items'][1]['id']) !== null) throw new RuntimeException('A different user accessed a purchased digital product.');
-    $unpaidOrder = $commerce->createOrder($outsideUserId, [['type'=>'product','id'=>$productId,'quantity'=>1]]);
+    $shipping = new ShippingService($pdo);
+    $zoneId = $shipping->saveZone(null, 'Test zone', 'UG', 'Kampala', true);
+    $methodId = $shipping->saveMethod(null, $zoneId, 'Test delivery', '', 0, 1, 2, true);
+    $unpaidOrder = $commerce->createOrder($outsideUserId, [['type'=>'product','id'=>$productId,'quantity'=>1]], ['method_id'=>$methodId,'name'=>'Test Recipient','phone'=>'+256700000002','address'=>'Test Road','city'=>'Kampala','region'=>'Kampala','country'=>'UG']);
     if ((int) $unpaidOrder['total_ugx'] !== 10000 || $unpaidOrder['status'] !== 'pending') throw new RuntimeException('Order ownership or pending status was not enforced.');
 
     $public = new PublicContent($pdo);
