@@ -17,6 +17,7 @@ try{
  $planner=new MeetingPlannerService($pdo);$offering=$planner->saveOffering($course,'live_online','Biology cohort','',0,10,true);$planner->grantInstructorRole(1,$instructor);$planner->grantInstructorRole(1,$other);$planner->assignInstructor(1,$offering,$instructor);
  $pdo->prepare("INSERT INTO course_offering_enrolments(user_id,offering_id,source,status,created_at,updated_at) VALUES(:user,:offering,'manual','active',:now,:now)")->execute(['user'=>$learner,'offering'=>$offering,'now'=>$now]);
  $session=$planner->createSession($instructor,$offering,['title'=>'Cell biology','provider'=>'google_meet','timezone'=>'Africa/Kampala','starts_at'=>'2027-03-10T10:00','ends_at'=>'2027-03-10T11:00','join_url'=>'https://meet.google.com/abc-defg-hij','host_url'=>'https://meet.google.com/abc-defg-hij','capacity'=>'10']);
+ $planner->book($learner,$session);
  $workspace=new InstructorWorkspaceService($pdo);
  if(count($workspace->offerings($instructor))!==1||count($workspace->sessions($instructor))!==1||count($workspace->roster($instructor,$session))!==1)throw new RuntimeException('Assigned instructor could not see the correct offering, session and roster.');
  if($workspace->offerings($other)!==[]||$workspace->sessions($other)!==[])throw new RuntimeException('An unassigned instructor could see another instructor\'s cohort.');
