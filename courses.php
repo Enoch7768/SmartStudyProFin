@@ -20,6 +20,7 @@ $siteUrl = \App\Core\Url::site();
 <html lang="en">
 
 <head>
+  <base href="<?= htmlspecialchars(\App\Core\Url::to('/'), ENT_QUOTES, 'UTF-8') ?>">
   <script>
     (function() {
       const savedTheme = localStorage.getItem('ssp-theme');
