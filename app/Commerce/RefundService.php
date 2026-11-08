@@ -110,6 +110,7 @@ final class RefundService
                 $revoke = $this->pdo->prepare("UPDATE course_enrolments SET status = 'revoked', updated_at = :updated_at WHERE user_id = :user_id AND course_id = :course_id AND source = 'payment' AND status IN ('active', 'completed')");
                 $otherOfferingPurchase = $this->pdo->prepare("SELECT 1 FROM orders o INNER JOIN payments p ON p.order_id=o.id AND p.status='paid' INNER JOIN order_items oi ON oi.order_id=o.id WHERE o.user_id=:user_id AND oi.course_offering_id=:offering_id AND oi.id!=:item_id AND o.status IN ('paid','partially_refunded') AND COALESCE((SELECT SUM(ri.amount_ugx) FROM refund_items ri INNER JOIN refunds r ON r.id=ri.refund_id WHERE ri.order_item_id=oi.id AND r.status='succeeded'),0)<oi.line_total_ugx LIMIT 1");
                 $revokeOffering = $this->pdo->prepare("UPDATE course_offering_enrolments SET status='revoked',updated_at=:updated_at WHERE user_id=:user_id AND offering_id=:offering_id AND status IN ('active','completed')");
+                $revokeOfferingCertificate = $this->pdo->prepare('DELETE FROM offering_certificates WHERE user_id=:user_id AND offering_id=:offering_id');
                 $cancelOfferingSessions = $this->pdo->prepare("UPDATE session_enrolments SET status='cancelled',updated_at=:updated_at WHERE user_id=:user_id AND status='confirmed' AND session_id IN (SELECT id FROM course_sessions WHERE offering_id=:offering_id)");
 
                 foreach ($allocations->fetchAll() as $allocation) {
@@ -120,6 +121,7 @@ final class RefundService
                             $otherOfferingPurchase->execute(['user_id'=>(int)$refund['user_id'],'offering_id'=>(int)$allocation['course_offering_id'],'item_id'=>(int)$allocation['order_item_id']]);
                             if (!$otherOfferingPurchase->fetchColumn()) {
                                 $revokeOffering->execute(['updated_at'=>$now,'user_id'=>(int)$refund['user_id'],'offering_id'=>(int)$allocation['course_offering_id']]);
+                                $revokeOfferingCertificate->execute(['user_id'=>(int)$refund['user_id'],'offering_id'=>(int)$allocation['course_offering_id']]);
                                 $cancelOfferingSessions->execute(['updated_at'=>$now,'user_id'=>(int)$refund['user_id'],'offering_id'=>(int)$allocation['course_offering_id']]);
                             }
                         } else {
