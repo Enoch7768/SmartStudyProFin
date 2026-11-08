@@ -48,7 +48,9 @@ jobs:
         run: php tests/commerce-phase5.php
       - name: Test simulated payment mode
         run: php tests/demo-payments.php
-      - name: Test course delivery modes and meeting planner\n        run: php tests/meetings.php\n      - name: Test AI assistant retrieval and privacy
+      - name: Test course delivery modes and meeting planner
+        run: php tests/meetings.php
+      - name: Test AI assistant retrieval and privacy
         run: php tests/assistant.php
       - name: Test notifications, achievements and certificates
         run: php tests/recognition.php
@@ -88,7 +90,8 @@ jobs:
           test -f /tmp/smartstudypro-release-check/database/migrations/009_production_indexes.php
           test -f /tmp/smartstudypro-release-check/database/migrations/010_legal_acceptance.php
           test -f /tmp/smartstudypro-release-check/database/migrations/011_demo_payments.php
-          test -f /tmp/smartstudypro-release-check/database/migrations/012_commerce_delivery_refunds.php\n          test -f /tmp/smartstudypro-release-check/database/migrations/013_meeting_planner.php
+          test -f /tmp/smartstudypro-release-check/database/migrations/012_commerce_delivery_refunds.php
+          test -f /tmp/smartstudypro-release-check/database/migrations/013_meeting_planner.php
           test -f /tmp/smartstudypro-release-check/PRIVACY_POLICY.md
           test -f /tmp/smartstudypro-release-check/EULA.md
           test ! -e /tmp/smartstudypro-release-check/cms
