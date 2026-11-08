@@ -13,6 +13,8 @@ $address = strip_tags($contact['address']);
 $seoTitle = 'Contact Us | SmartStudyPro Uganda';
 $seoDescription = 'Get in touch with SmartStudyPro for inquiries about our online courses, private tutoring, and educational packages in Kampala, Uganda.';
 $siteUrl = \App\Core\Url::site();
+$contactSent = ($_GET['sent'] ?? '') === '1';
+$contactError = ($_GET['error'] ?? '') === '1';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -348,19 +350,22 @@ $siteUrl = \App\Core\Url::site();
           <div class="col-lg-8">
             <div class="contact-form-container">
               <h4 class="fw-bold mb-3" style="color: var(--ssp-navy);">Send Us A Message</h4>
+              <?php if ($contactSent): ?><div class="alert alert-success" role="status">Your message has been received. Our team will get back to you.</div><?php elseif ($contactError): ?><div class="alert alert-danger" role="alert">We couldn't submit your message. Check your details and try again in a moment.</div><?php endif; ?>
               <form action="<?= htmlspecialchars(\App\Core\Url::to('/contact-process.php'), ENT_QUOTES, 'UTF-8') ?>" method="post" class="php-email-form">
+                <input type="hidden" name="_csrf" value="<?= \App\Core\Security::escape(\App\Core\Security::csrfToken()) ?>">
+                <div class="position-absolute top-0 start-0" style="width:1px;height:1px;overflow:hidden" aria-hidden="true"><label for="contact-website">Leave this field empty</label><input id="contact-website" type="text" name="website" tabindex="-1" autocomplete="off"></div>
                 <div class="row gy-3">
                   <div class="col-md-6">
-                    <input type="text" name="name" class="form-control" placeholder="Your Name" required>
+                    <input type="text" name="name" class="form-control" placeholder="Your Name" maxlength="120" autocomplete="name" required>
                   </div>
                   <div class="col-md-6">
-                    <input type="email" class="form-control" name="email" placeholder="Your Email" required>
+                    <input type="email" class="form-control" name="email" placeholder="Your Email" maxlength="254" autocomplete="email" required>
                   </div>
                   <div class="col-md-12">
                     <input type="text" class="form-control" name="subject" placeholder="Subject" required>
                   </div>
                   <div class="col-md-12">
-                    <textarea class="form-control" name="message" rows="5" placeholder="Message" required></textarea>
+                    <textarea class="form-control" name="message" rows="5" maxlength="5000" placeholder="Message (up to 5,000 characters)" required></textarea>
                   </div>
                   <div class="col-md-12">
                     <button type="submit" class="btn-ssp-primary w-100">Send Message</button>
