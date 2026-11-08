@@ -16,6 +16,12 @@ if ($basePath !== '' && ($requestPath === $basePath || str_starts_with($requestP
 $path = '/' . trim(preg_replace('#/+#', '/', $requestPath) ?: '/', '/');
 if ($path !== '/') $path = rtrim($path, '/');
 
+if (preg_match('#^/install(?:/|$)#i', $path)) {
+    http_response_code(404);
+    header('Content-Type: text/plain; charset=utf-8');
+    exit('Page not found');
+}
+
 if (
     preg_match('#^/(?:app|bootstrap|config|database|scripts|storage|cms|docs|tests|vendor|\.git|\.github)(?:/|$)#i', $path)
     || preg_match('#(?:^|/)\.(?!well-known(?:/|$))#i', $path)
