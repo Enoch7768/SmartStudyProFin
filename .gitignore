@@ -18,3 +18,17 @@
 /storage/cache/
 /storage/sessions/
 /storage/backups/
+
+# Private data, legacy runtime state and generated media must never be committed
+/database/*.db
+/database/*.sqlite*
+/db/
+/cms/storage/data/*.sqlite*
+/cms/storage/uploads/*
+!/cms/storage/uploads/.gitkeep
+/cms/storage/tmp/thumbs/*
+/cms/storage/cache/*
+!/cms/storage/cache/.gitkeep
+/uploads/avatars/*
+!/uploads/avatars/.htaccess
+/Income Statement and distribution.xlsx
