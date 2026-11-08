@@ -3,11 +3,14 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__);
-$manifest = json_decode((string) file_get_contents($root . '/composer.json'), true);
-$lock = json_decode((string) file_get_contents($root . '/composer.lock'), true);
 
-if (!is_array($manifest) || !is_array($lock) || !isset($manifest['require'], $lock['packages'])) {
-    throw new RuntimeException('The Composer dependency manifests must remain valid and available to the installer.');
+if (is_file($root . '/composer.json') || is_file($root . '/composer.lock')) {
+    throw new RuntimeException('The production application must not require Composer manifests.');
+}
+
+$bootstrap = (string) file_get_contents($root . '/bootstrap/app.php');
+if (str_contains($bootstrap, 'vendor/autoload.php')) {
+    throw new RuntimeException('The production bootstrap must not load a third-party Composer runtime.');
 }
 
 $iterator = new RecursiveIteratorIterator(
@@ -28,7 +31,7 @@ foreach ($iterator as $entry) {
         throw new RuntimeException('The legacy Composer dependency tree must not be committed.');
     }
     if (strtolower(basename($relative)) === 'composer.phar') {
-        throw new RuntimeException('The Composer executable must be downloaded by the installer, not committed.');
+        throw new RuntimeException('The Composer executable must not be committed.');
     }
 }
 
@@ -45,7 +48,7 @@ foreach (['assets/vendor/bootstrap/css/bootstrap.min.css', 'assets/vendor/bootst
     }
 }
 
-echo "PASS Composer manifests retained for deterministic installer setup\n";
+echo "PASS no Composer manifests or third-party PHP runtime required\n";
 echo "PASS installed Composer and Node dependency trees excluded from source\n";
 echo "PASS Composer executable excluded from source\n";
 echo "PASS browser runtime assets retained\n";
