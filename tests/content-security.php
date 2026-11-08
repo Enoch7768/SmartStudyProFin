@@ -5,6 +5,7 @@ declare(strict_types=1);
 require dirname(__DIR__) . '/bootstrap/app.php';
 
 use App\Cms\HtmlSanitizer;
+use App\Cms\MediaManager;
 
 $input = '<p onclick="alert(1)">Keep <strong>formatted text</strong>.</p><script>alert(2)</script><a href="javascript:alert(3)" onclick="alert(4)">unsafe</a><a href="https://example.com" target="_blank">safe link</a><img src="data:image/svg+xml,evil"><iframe src="https://evil.example">frame text</iframe><font><script>alert(5)</script><em>nested text</em></font>';
 $output = HtmlSanitizer::clean($input);
@@ -19,7 +20,7 @@ if (class_exists(DOMDocument::class)) {
 }
 if (strlen($output) > 524288) throw new RuntimeException('Sanitized content exceeded its size limit.');
 
-$extensionCheck = new ReflectionMethod(\\App\\Cms\\MediaManager::class, 'extensionMatches');
+$extensionCheck = new ReflectionMethod(MediaManager::class, 'extensionMatches');
 if (!$extensionCheck->invoke(null, 'application/zip', 'course.zip') || !$extensionCheck->invoke(null, 'application/zip', 'course.docx') || !$extensionCheck->invoke(null, 'text/plain', 'notes.csv')) throw new RuntimeException('An approved safe upload extension was rejected.');
 if ($extensionCheck->invoke(null, 'application/zip', 'payload.php') || $extensionCheck->invoke(null, 'application/pdf', 'document.zip')) throw new RuntimeException('A misleading upload extension was accepted.');
 $oversized = false;
