@@ -64,5 +64,25 @@ final class MeetingPlannerService {
   $notice=$this->pdo->prepare("INSERT OR IGNORE INTO notifications(user_id,event_key,type,title,message,target_url,created_at) VALUES(:user,:event,'course','Course session cancelled','A course session you booked has been cancelled. Check My Sessions for updates.','/meetings',:now)");
   foreach($learners->fetchAll(PDO::FETCH_COLUMN) as $learner)$notice->execute(['user'=>(int)$learner,'event'=>'session-cancelled-'.$session,'now'=>$now]);
  }
+ public function rescheduleSession(int $actor,int $session,string $startsAt,string $endsAt,string $timezone): void {
+  try{$zone=new DateTimeZone($timezone);$start=(new DateTimeImmutable($startsAt,$zone))->setTimezone(new DateTimeZone('UTC'));$end=(new DateTimeImmutable($endsAt,$zone))->setTimezone(new DateTimeZone('UTC'));}catch(Throwable){throw new RuntimeException('Enter valid dates and an IANA timezone.');}
+  if($end<=$start||$end->getTimestamp()-$start->getTimestamp()>86400)throw new RuntimeException('Session end must be after start and within 24 hours.');
+  $q=$this->pdo->prepare("SELECT created_by FROM course_sessions WHERE id=:id AND status IN('scheduled','rescheduled')");$q->execute(['id'=>$session]);$row=$q->fetch();if(!$row)throw new RuntimeException('Only scheduled sessions can be rescheduled.');
+  $startUtc=$start->format('Y-m-d H:i:s');$endUtc=$end->format('Y-m-d H:i:s');
+  $conflict=$this->pdo->prepare("SELECT 1 FROM course_sessions WHERE id<>:id AND created_by=:actor AND status IN('scheduled','rescheduled') AND starts_at_utc<:end AND ends_at_utc>:start LIMIT 1");$conflict->execute(['id'=>$session,'actor'=>(int)$row['created_by'],'end'=>$endUtc,'start'=>$startUtc]);if($conflict->fetchColumn())throw new RuntimeException('This host already has another session scheduled during that time.');
+  $now=gmdate('Y-m-d H:i:s');$update=$this->pdo->prepare("UPDATE course_sessions SET starts_at_utc=:start,ends_at_utc=:end,timezone=:timezone,status='rescheduled',updated_at=:now WHERE id=:id");$update->execute(['start'=>$startUtc,'end'=>$endUtc,'timezone'=>$timezone,'now'=>$now,'id'=>$session]);
+  $this->audit($session,$actor,'session.rescheduled',['starts_at_utc'=>$startUtc,'ends_at_utc'=>$endUtc,'timezone'=>$timezone]);
+  $learners=$this->pdo->prepare("SELECT user_id FROM session_enrolments WHERE session_id=:session AND status='confirmed'");$learners->execute(['session'=>$session]);
+  $notice=$this->pdo->prepare("INSERT OR IGNORE INTO notifications(user_id,event_key,type,title,message,target_url,created_at) VALUES(:user,:event,'course','Course session rescheduled','A session you booked has a new date or time. Check My Sessions for the updated schedule.','/meetings',:now)");
+  foreach($learners->fetchAll(PDO::FETCH_COLUMN) as $learner)$notice->execute(['user'=>(int)$learner,'event'=>'session-rescheduled-'.$session.'-'.$now,'now'=>$now]);
+ }
+ public function setSessionStatus(int $actor,int $session,string $status): void {
+  if(!in_array($status,['completed','archived'],true))throw new RuntimeException('Invalid session status.');
+  $q=$this->pdo->prepare("UPDATE course_sessions SET status=:status,updated_at=:now WHERE id=:id AND status IN('scheduled','rescheduled','completed')");$now=gmdate('Y-m-d H:i:s');$q->execute(['status'=>$status,'now'=>$now,'id'=>$session]);if(!$q->rowCount())throw new RuntimeException('Session status cannot be changed.');
+  $this->audit($session,$actor,'session.'.$status,[]);
+ }
+ public function attendanceHistory(int $user): array {
+  $q=$this->pdo->prepare("SELECT s.title,s.starts_at_utc,s.timezone,c.title AS course_title,a.status,a.reason,a.recorded_at FROM session_attendance a JOIN course_sessions s ON s.id=a.session_id JOIN course_offerings o ON o.id=s.offering_id JOIN cms_courses c ON c.id=o.course_id WHERE a.user_id=:user ORDER BY s.starts_at_utc DESC");$q->execute(['user'=>$user]);return $q->fetchAll();
+ }
  public function audit(int $session,int $actor,string $event,array $details): void {$q=$this->pdo->prepare('INSERT INTO meeting_audit_events(session_id,actor_user_id,event_type,details_json,created_at) VALUES(:s,:a,:e,:d,:n)');$q->execute(['s'=>$session,'a'=>$actor,'e'=>$event,'d'=>json_encode($details,JSON_THROW_ON_ERROR),'n'=>gmdate('Y-m-d H:i:s')]);}
 }
