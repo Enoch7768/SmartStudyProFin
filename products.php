@@ -14,7 +14,7 @@ $address = strip_tags($contact['address']);
 
 $seoTitle = 'Educational Products & Learning Materials | SmartStudyPro';
 $seoDescription = 'Browse physical and digital learning materials, holiday packages, and study resources from SmartStudyPro in Uganda.';
-$siteUrl = 'https://smartstudypro.com';
+$siteUrl = \App\Core\Url::site();
 ?>
 <!DOCTYPE html>
 <html lang="en">
