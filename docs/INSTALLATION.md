@@ -24,7 +24,8 @@ SmartStudyPro has no browser installer. The public `/install` endpoint and insta
 5. No Composer installation or third-party PHP vendor directory is required. The deployed application uses native PHP code and SQLite.
 6. Generate a 64-character hexadecimal `APP_KEY` and store it in the server environment or private storage. Never commit it.
 7. Set the three provisioning environment variables and run `php scripts/provision.php` from the application root. Never put the administrator password in command-line arguments.
-8. Configure provider credentials and verify email delivery and payment webhooks before production use.
+8. Configure provider credentials and verify email delivery and payment webhooks before production use. For the optional Groq meeting companion, set `GROQ_API_KEY` only in the server environment or private storage `.env` file (never the project `.env.example` or a public file). Configure `GROQ_MODEL`, input/output budgets, per-user daily limits and `GROQ_MEETINGS_ENABLED` as needed.
+9. In cPanel Cron Jobs, run `php /absolute/path/to/SmartStudyProFin/scripts/meeting-reminders.php` every 15 minutes. This creates in-app reminders for confirmed session bookings about 24 hours and one hour before the meeting. The reminder ledger makes repeated runs safe. Verify the cron PHP binary and application file permissions on the host.
 
 ### Provision the first administrator (PowerShell)
 
