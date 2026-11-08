@@ -16,6 +16,14 @@ final class MeetingPlannerService {
   $now=gmdate('Y-m-d H:i:s');$q=$this->pdo->prepare('INSERT INTO course_offerings(course_id,mode,title,description,price_ugx,capacity,is_published,created_at,updated_at) VALUES(:course,:mode,:title,:description,:price,:capacity,:published,:now,:now)');
   $q->execute(['course'=>$courseId,'mode'=>$mode,'title'=>trim($title),'description'=>trim($description),'price'=>$price,'capacity'=>$capacity,'published'=>$published?1:0,'now'=>$now]);return (int)$this->pdo->lastInsertId();
  }
+ public function updateOffering(int $offeringId,string $title,string $description,int $price,?int $capacity,bool $published): void {
+  if(trim($title)===''||strlen($title)>160||$price<0||$price>1000000000||($capacity!==null&&$capacity<1))throw new RuntimeException('Check the offering name, price and capacity.');
+  $q=$this->pdo->prepare("SELECT is_published FROM course_offerings WHERE id=:id");$q->execute(['id'=>$offeringId]);$current=$q->fetch();if(!$current)throw new RuntimeException('Course offering not found.');
+  $counts=$this->pdo->prepare("SELECT COUNT(*) FROM course_offering_enrolments WHERE offering_id=:id AND status IN('active','completed')");$counts->execute(['id'=>$offeringId]);$enrolled=(int)$counts->fetchColumn();
+  if($capacity!==null&&$capacity<$enrolled)throw new RuntimeException('Capacity cannot be lower than the number of active and completed learners.');
+  if(!$published&&$enrolled>0)throw new RuntimeException('An offering with enrolled learners cannot be unpublished. Revoke access or complete the cohort first.');
+  $this->pdo->prepare('UPDATE course_offerings SET title=:title,description=:description,price_ugx=:price,capacity=:capacity,is_published=:published,updated_at=:now WHERE id=:id')->execute(['title'=>trim($title),'description'=>trim($description),'price'=>$price,'capacity'=>$capacity,'published'=>$published?1:0,'now'=>gmdate('Y-m-d H:i:s'),'id'=>$offeringId]);
+ }
  public function createSession(int $actor,int $offeringId,array $data): int {
   $q=$this->pdo->prepare('SELECT mode,capacity FROM course_offerings WHERE id=:id');$q->execute(['id'=>$offeringId]);$offering=$q->fetch();if(!$offering)throw new RuntimeException('Offering not found.');
   $mode=$offering['mode'];$provider=(string)($data['provider']??'none');$tz=(string)($data['timezone']??'');
