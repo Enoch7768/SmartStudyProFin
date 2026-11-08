@@ -27,8 +27,7 @@ jobs:
           test "$VERSION" = "$TAG"
       - name: Run release validation
         run: |
-          find app admin bootstrap database install scripts tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l
-          php tests/dependency-installer.php
+          find app admin bootstrap database scripts tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l
           php tests/release-package.php
           php tests/unit.php
           php tests/run.php

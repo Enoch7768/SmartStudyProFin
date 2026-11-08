@@ -25,7 +25,7 @@ $pages = [
     'checkout.php', 'contact.php', 'contact-process.php', 'cookies.php',
     'course-details.php', 'courses.php', 'download.php', 'dpo-webhook.php',
     'eula.php', 'favicon.php', 'forms/contact.php', 'forms/newsletter.php',
-    'google-auth.php', 'grade-quiz.php', 'install/index.php', 'learning.php',
+    'google-auth.php', 'grade-quiz.php', 'learning.php',
     'legal-consent.php', 'legal.php', 'lesson-media.php', 'login.php', 'logout.php',
     'media.php', 'notifications.php', 'orders.php', 'payment-choice.php',
     'payment-demo.php', 'payment-return.php', 'payment-start.php',

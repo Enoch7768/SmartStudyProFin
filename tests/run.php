@@ -67,11 +67,11 @@ try {
     $_SERVER['SCRIPT_NAME'] = '/index.php';
     if ($previousScriptName === null) unset($_SERVER['SCRIPT_NAME']); else $_SERVER['SCRIPT_NAME'] = $previousScriptName;
 
-    if (!str_contains($routeRules, 'RewriteRule ^(?:admin|install)/?$ index.php [QSA,L]') || !str_contains($routeRules, 'RewriteRule ^ index.php [QSA,L]')) throw new RuntimeException('Apache must send installer and clean URLs through the index.php front controller.');
+    if (!str_contains($routeRules, 'RewriteRule ^admin/?$ index.php [QSA,L]') || !str_contains($routeRules, 'RewriteRule ^ index.php [QSA,L]')) throw new RuntimeException('Apache must send admin and clean URLs through the index.php front controller.');
     if (!str_contains($routeRules, 'RewriteRule ^about\\.php$ about [R=301,L]') || !str_contains($routeRules, 'RewriteRule ^(?:learning|study)/?$ learn [R=301,L]') || !str_contains($routeRules, 'RewriteRule ^index\\.php$ ./ [R=301,L]')) throw new RuntimeException('Canonical redirects must preserve subdirectory installations.');
     if (preg_match('/^RewriteRule\\s+\\S+\\s+\\/[A-Za-z]/m', $routeRules)) throw new RuntimeException('Canonical rewrite targets must not discard the application subdirectory.');
     $frontController = (string) file_get_contents(dirname(__DIR__) . '/index.php');
-    foreach (["install/index.php", "'/profile' => 'profile.php'", "'/cart/add' => 'cart-add.php'", "'/assistant' => 'assistant.php'", "'/learn' => 'learning.php'", "course_slug"] as $route) {
+    foreach (["'/profile' => 'profile.php'", "'/cart/add' => 'cart-add.php'", "'/assistant' => 'assistant.php'", "'/learn' => 'learning.php'", "course_slug"] as $route) {
         if (!str_contains($frontController, $route)) throw new RuntimeException('The index.php front controller is missing route support: ' . $route);
     }
     if (is_file(dirname(__DIR__) . '/router.php') || str_contains((string) file_get_contents(dirname(__DIR__) . '/README.md'), 'php -S 127.0.0.1:8000 router.php')) throw new RuntimeException('A separate router.php must not be required by the application.');
@@ -96,7 +96,7 @@ try {
     if (!str_contains($cmsMarkup, 'if(' . '$asset' . "['visibility']!=='public'") || !str_contains($cmsMarkup, 'image/jpeg')) throw new RuntimeException('CMS page hero selectors must only offer public supported image assets.');
     if (!str_contains($cmsMarkup, "if(\$field==='image_media_id')") || !str_contains($cmsMarkup, "visibility']==='public'") || !str_contains($cmsMarkup, "mime_type']==='application/pdf' && \$asset['visibility']==='private'") || !str_contains($cmsMarkup, "mime_type']==='video/mp4' && \$asset['visibility']==='private'")) throw new RuntimeException('CMS content selectors must only offer media that matches its public or private delivery rules.');
     $applicationBootstrap = (string) file_get_contents(dirname(__DIR__) . '/bootstrap/app.php');
-    if (!str_contains($applicationBootstrap, 'Installer::isInstalled()') || !str_contains($applicationBootstrap, "header('Location: ' . \$installPath, true, 303);") || str_contains($applicationBootstrap, "header('Location: ' . \$installPath . '/',")) throw new RuntimeException('An uninstalled web request must be redirected to first-run setup before opening the database.');
+    if (str_contains($applicationBootstrap, 'Installer::isInstalled()') || str_contains($applicationBootstrap, '/install')) throw new RuntimeException('Web bootstrap must not contain installer redirects or first-run setup logic.');
     $cartPage = (string) file_get_contents(dirname(__DIR__) . '/cart.php');
     if (!str_contains($cartPage, "Url::to('/checkout')") || str_contains($cartPage, 'action="checkout.php"')) throw new RuntimeException('The cart must open the checkout review before creating an order.');
     $checkoutPage = (string) file_get_contents(dirname(__DIR__) . '/checkout.php');
