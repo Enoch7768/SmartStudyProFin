@@ -406,6 +406,13 @@ if (!$oauthReplayRejected) throw new RuntimeException('A Google OAuth callback w
     Config::load($root);
     if (Config::get('google.client_secret') !== 'private-google-secret') throw new RuntimeException('Google OAuth credentials were not loaded from private storage.');
     if ((fileperms($privateEnvironmentFile) & 0777) !== 0600) throw new RuntimeException('The private environment file permissions are unsafe.');
+    putenv('APP_URL=http://localhost:8989/SmartStudyProFin');
+    Config::load($root);
+    $_SERVER['SCRIPT_NAME'] = '/index.php';
+    if (App\\Core\\Url::basePath() !== '/SmartStudyProFin' || App\\Core\\Url::to('/courses/testing') !== '/SmartStudyProFin/courses/testing' || App\\Core\\Url::absolute('/courses/testing') !== 'http://localhost:8989/SmartStudyProFin/courses/testing') throw new RuntimeException('APP_URL must control canonical host and subdirectory routing when the front controller is at the document root.');
+    putenv('APP_URL=http://localhost:8989');
+    Config::load($root);
+    if (App\\Core\\Url::basePath() !== '' || App\\Core\\Url::to('/courses/testing') !== '/courses/testing' || App\\Core\\Url::absolute('/courses/testing') !== 'http://localhost:8989/courses/testing') throw new RuntimeException('Root APP_URL must produce root-relative routes without host-like paths.');
     putenv('APP_URL=http://localhost:8000');
     putenv('GOOGLE_CLIENT_ID=test-client.apps.googleusercontent.com');
     putenv('GOOGLE_CLIENT_SECRET=test-private-client-secret');
