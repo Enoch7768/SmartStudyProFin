@@ -21,7 +21,7 @@ The application is designed for conventional PHP hosting with SQLite. It uses se
 
 - PHP 8.2 or later, 64-bit
 - PDO SQLite and SQLite3 extensions
-- cURL, ZIP, GD, mbstring, SimpleXML, MongoDB, OpenSSL and Fileinfo
+- cURL, ZIP, GD, mbstring, SimpleXML, OpenSSL and Fileinfo
 - HTTPS in production
 - Apache with mod_rewrite and .htaccess support, or equivalent web-server rules
 - A writable private storage directory outside the public web root
@@ -36,7 +36,7 @@ There is no browser installer and no `/install` endpoint. First-time setup is pe
 2. Set `APP_STORAGE_PATH` to a writable directory outside the public web root.
 3. Set `DB_PATH` to a SQLite file inside that private storage directory.
 4. Configure `APP_URL`, `APP_ENV=production`, and `APP_DEBUG=false`.
-5. Install Composer dependencies from the committed `composer.lock` in the deployment build environment. The web runtime does not download or install dependencies.
+5. No Composer or Node.js installation is required for the production PHP application. Its application and learning code use native PHP classes and SQLite.
 6. Generate a 64-character hexadecimal `APP_KEY` and keep it in the server environment or private storage.
 7. Set `SSP_ADMIN_NAME`, `SSP_ADMIN_EMAIL` and `SSP_ADMIN_PASSWORD` in the command environment, then run `php scripts/provision.php` from the application root. Do not pass passwords as command-line arguments; process listings can expose them.
 8. Configure provider credentials and verify email delivery and payment webhooks before production use.
