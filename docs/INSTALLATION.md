@@ -21,8 +21,24 @@ SmartStudyPro has no browser installer. The public `/install` endpoint and insta
 4. Configure `APP_URL`, `APP_ENV=production`, and `APP_DEBUG=false`.
 5. Install the exact Composer dependencies from `composer.lock` in the deployment build environment. The web application never downloads dependencies.
 6. Generate a 64-character hexadecimal `APP_KEY` and store it in the server environment or private storage. Never commit it.
-7. Run `php scripts/provision.php "Administrator Name" admin@example.com "a-long-unique-password"` from the application root to create the database schema and first administrator.
+7. Set the three provisioning environment variables and run `php scripts/provision.php` from the application root. Never put the administrator password in command-line arguments.
 8. Configure provider credentials and verify email delivery and payment webhooks before production use.
+
+### Provision the first administrator (PowerShell)
+
+Run this from the application root after configuring the application environment:
+
+```powershell
+$env:SSP_ADMIN_NAME = "Administrator"
+$env:SSP_ADMIN_EMAIL = "admin@example.com"
+$secure = Read-Host "Create a strong administrator password" -AsSecureString
+$env:SSP_ADMIN_PASSWORD = [System.Net.NetworkCredential]::new("", $secure).Password
+php scripts/provision.php
+Remove-Item Env:SSP_ADMIN_NAME, Env:SSP_ADMIN_EMAIL, Env:SSP_ADMIN_PASSWORD
+Remove-Variable secure
+```
+
+The password is read from the process environment, not command-line arguments. Keep the shell session private and clear the variables immediately after provisioning.
 
 ## Local development
 
