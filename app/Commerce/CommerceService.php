@@ -54,7 +54,7 @@ final class CommerceService
                     $legacyAsset = $legacy->fetch();
                     if ($legacyAsset) array_unshift($assets, $legacyAsset);
                 }
-                $allowedMimes = ['application/pdf', 'text/plain', 'text/csv', 'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/rtf', 'text/rtf', 'application/vnd.oasis.opendocument.text'];
+                $allowedMimes = ['application/pdf', 'text/plain', 'text/csv', 'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/rtf', 'text/rtf', 'application/vnd.oasis.opendocument.text', 'application/zip'];
                 $assetBytes = 0;
                 if (!$assets || count($assets) > 25) throw new RuntimeException('Add at least one private digital file before publishing this product.');
                 foreach ($assets as $asset) {
