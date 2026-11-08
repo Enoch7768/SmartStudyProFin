@@ -126,6 +126,7 @@ final class MeetingPlannerService {
  }
  public function setSessionStatus(int $actor,int $session,string $status): void {
   if(!in_array($status,['completed','archived'],true))throw new RuntimeException('Invalid session status.');
+  if($status==='completed'){$end=$this->pdo->prepare("SELECT ends_at_utc FROM course_sessions WHERE id=:id AND status IN('scheduled','rescheduled')");$end->execute(['id'=>$session]);$endsAt=$end->fetchColumn();if($endsAt===false||$endsAt>gmdate('Y-m-d H:i:s'))throw new RuntimeException('A session can only be marked completed after its scheduled end time.');}
   $q=$this->pdo->prepare("UPDATE course_sessions SET status=:status,updated_at=:now WHERE id=:id AND status IN('scheduled','rescheduled','completed')");$now=gmdate('Y-m-d H:i:s');$q->execute(['status'=>$status,'now'=>$now,'id'=>$session]);if(!$q->rowCount())throw new RuntimeException('Session status cannot be changed.');
   $this->audit($session,$actor,'session.'.$status,[]);
  }
