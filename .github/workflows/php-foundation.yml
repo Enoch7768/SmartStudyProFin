@@ -30,7 +30,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: pdo_sqlite, sqlite3, fileinfo, openssl, curl, zip, gd, mbstring, simplexml, mongodb
+          extensions: pdo_sqlite, sqlite3, fileinfo, openssl, curl, zip, gd, mbstring, simplexml
           coverage: none
       - name: Lint foundation PHP
         run: find . -path './.git' -prune -o -path './cms' -prune -o -path './assets' -prune -o -type f -name '*.php' -print0 | xargs -0 -n1 php -l
