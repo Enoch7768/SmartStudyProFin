@@ -28,6 +28,19 @@ final class RecognitionService
             $modeLabel = $offering['mode'] === 'in_person' ? 'in-person' : 'live online';
             $this->notify($userId, 'offering-enrolled:' . $offeringId, 'course', 'Course place confirmed', 'You are enrolled in ' . $offering['course_title'] . ' · ' . $offering['offering_title'] . ' (' . $modeLabel . '). Check My Sessions for schedules and booking.', '/meetings');
         }
+        $completedOfferings = $this->pdo->prepare("SELECT oe.offering_id, oe.completed_at, o.title AS offering_title, c.title AS course_title FROM course_offering_enrolments oe INNER JOIN course_offerings o ON o.id = oe.offering_id INNER JOIN cms_courses c ON c.id = o.course_id WHERE oe.user_id = :user_id AND oe.status = 'completed' AND o.mode IN ('live_online', 'in_person') ORDER BY oe.completed_at, oe.offering_id");
+        $completedOfferings->execute(['user_id' => $userId]);
+        foreach ($completedOfferings->fetchAll() as $offering) {
+            $existing = $this->pdo->prepare('SELECT id FROM offering_certificates WHERE user_id = :user_id AND offering_id = :offering_id');
+            $existing->execute(['user_id' => $userId, 'offering_id' => (int) $offering['offering_id']]);
+            if ($existing->fetchColumn()) continue;
+            $code = strtoupper(bin2hex(random_bytes(12)));
+            $issue = $this->pdo->prepare('INSERT OR IGNORE INTO offering_certificates (user_id, offering_id, verification_code, issued_at) VALUES (:user_id, :offering_id, :code, :issued_at)');
+            $issue->execute(['user_id' => $userId, 'offering_id' => (int) $offering['offering_id'], 'code' => $code, 'issued_at' => $offering['completed_at'] ?: $now]);
+            if ($issue->rowCount() === 1) {
+                $this->notify($userId, 'offering-certificate:' . (int) $offering['offering_id'], 'certificate', 'Your cohort certificate is ready', 'You completed ' . $offering['course_title'] . ' · ' . $offering['offering_title'] . '. Your certificate is ready to view and verify.', 'certificates.php');
+            }
+        }
         $stats = $this->stats($userId);
         $catalog = $this->pdo->query('SELECT id, slug, name, description, threshold, metric FROM achievements ORDER BY id')->fetchAll();
         $now = gmdate('Y-m-d H:i:s');
@@ -113,8 +126,8 @@ final class RecognitionService
 
     public function certificates(int $userId): array
     {
-        $statement = $this->pdo->prepare('SELECT cert.verification_code, cert.issued_at, c.title AS course_title FROM certificates cert INNER JOIN cms_courses c ON c.id = cert.course_id WHERE cert.user_id = :user_id ORDER BY cert.issued_at DESC, cert.id DESC');
-        $statement->execute(['user_id' => $userId]);
+        $statement = $this->pdo->prepare("SELECT cert.verification_code, cert.issued_at, c.title AS course_title, '' AS offering_title, 'course' AS certificate_type FROM certificates cert INNER JOIN cms_courses c ON c.id = cert.course_id WHERE cert.user_id = :course_user UNION ALL SELECT cert.verification_code, cert.issued_at, c.title AS course_title, o.title AS offering_title, 'offering' AS certificate_type FROM offering_certificates cert INNER JOIN course_offerings o ON o.id = cert.offering_id INNER JOIN cms_courses c ON c.id = o.course_id WHERE cert.user_id = :offering_user ORDER BY issued_at DESC");
+        $statement->execute(['course_user' => $userId, 'offering_user' => $userId]);
         return $statement->fetchAll();
     }
 
@@ -122,8 +135,8 @@ final class RecognitionService
     {
         $code = strtoupper(trim($code));
         if (!preg_match('/^[A-F0-9]{24}$/', $code)) return null;
-        $statement = $this->pdo->prepare("SELECT cert.verification_code, cert.issued_at, c.title AS course_title, u.name AS learner_name FROM certificates cert INNER JOIN cms_courses c ON c.id = cert.course_id INNER JOIN users u ON u.id = cert.user_id WHERE cert.verification_code = :code LIMIT 1");
-        $statement->execute(['code' => $code]);
+        $statement = $this->pdo->prepare("SELECT cert.verification_code, cert.issued_at, c.title AS course_title, '' AS offering_title, u.name AS learner_name FROM certificates cert INNER JOIN cms_courses c ON c.id = cert.course_id INNER JOIN users u ON u.id = cert.user_id WHERE cert.verification_code = :course_code UNION ALL SELECT cert.verification_code, cert.issued_at, c.title AS course_title, o.title AS offering_title, u.name AS learner_name FROM offering_certificates cert INNER JOIN course_offerings o ON o.id = cert.offering_id INNER JOIN cms_courses c ON c.id = o.course_id INNER JOIN users u ON u.id = cert.user_id WHERE cert.verification_code = :offering_code LIMIT 1");
+        $statement->execute(['course_code' => $code, 'offering_code' => $code]);
         return $statement->fetch() ?: null;
     }
 
@@ -138,8 +151,8 @@ final class RecognitionService
 
     private function stats(int $userId): array
     {
-        $statement = $this->pdo->prepare("SELECT (SELECT COUNT(*) FROM lesson_progress lp INNER JOIN cms_lessons l ON l.id = lp.lesson_id INNER JOIN cms_chapters ch ON ch.id = l.chapter_id WHERE lp.user_id = :lessons_user AND lp.status = 'completed' AND l.status = 'published') AS lessons_completed, (SELECT COUNT(DISTINCT q.lesson_id) FROM quiz_attempts q INNER JOIN cms_lessons l ON l.id = q.lesson_id INNER JOIN cms_chapters ch ON ch.id = l.chapter_id WHERE q.user_id = :quizzes_user AND q.passed = 1 AND l.status = 'published') AS quizzes_passed, (SELECT COUNT(*) FROM course_enrolments WHERE user_id = :courses_user AND status = 'completed') AS courses_completed");
-        $statement->execute(['lessons_user' => $userId, 'quizzes_user' => $userId, 'courses_user' => $userId]);
+        $statement = $this->pdo->prepare("SELECT (SELECT COUNT(*) FROM lesson_progress lp INNER JOIN cms_lessons l ON l.id = lp.lesson_id INNER JOIN cms_chapters ch ON ch.id = l.chapter_id WHERE lp.user_id = :lessons_user AND lp.status = 'completed' AND l.status = 'published') AS lessons_completed, (SELECT COUNT(DISTINCT q.lesson_id) FROM quiz_attempts q INNER JOIN cms_lessons l ON l.id = q.lesson_id INNER JOIN cms_chapters ch ON ch.id = l.chapter_id WHERE q.user_id = :quizzes_user AND q.passed = 1 AND l.status = 'published') AS quizzes_passed, ((SELECT COUNT(*) FROM course_enrolments WHERE user_id = :courses_user AND status = 'completed') + (SELECT COUNT(*) FROM course_offering_enrolments WHERE user_id = :offerings_user AND status = 'completed')) AS courses_completed");
+        $statement->execute(['lessons_user' => $userId, 'quizzes_user' => $userId, 'courses_user' => $userId, 'offerings_user' => $userId]);
         return $statement->fetch() ?: [];
     }
 
