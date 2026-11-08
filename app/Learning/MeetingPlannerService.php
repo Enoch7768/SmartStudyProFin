@@ -85,8 +85,9 @@ final class MeetingPlannerService {
   $now=($now??new DateTimeImmutable('now',new DateTimeZone('UTC')))->setTimezone(new DateTimeZone('UTC'));$stamp=$now->format('Y-m-d H:i:s');$delivered=0;
   $windows=[['24h','+23 hours 45 minutes','+24 hours'],['1h','+45 minutes','+1 hour']];
   foreach($windows as [$type,$lower,$upper]){
-   $q=$this->pdo->prepare("SELECT s.id AS session_id,s.title,e.user_id FROM course_sessions s JOIN session_enrolments e ON e.session_id=s.id AND e.status='confirmed' WHERE s.status IN('scheduled','rescheduled') AND s.starts_at_utc>datetime(:lower) AND s.starts_at_utc<=datetime(:upper)");
-   $q->execute(['lower'=>$stamp.' '.$lower,'upper'=>$stamp.' '.$upper]);
+   $lowerTime=$now->modify($lower)->format('Y-m-d H:i:s');$upperTime=$now->modify($upper)->format('Y-m-d H:i:s');
+   $q=$this->pdo->prepare("SELECT s.id AS session_id,s.title,e.user_id FROM course_sessions s JOIN session_enrolments e ON e.session_id=s.id AND e.status='confirmed' WHERE s.status IN('scheduled','rescheduled') AND s.starts_at_utc>:lower AND s.starts_at_utc<=:upper");
+   $q->execute(['lower'=>$lowerTime,'upper'=>$upperTime]);
    foreach($q->fetchAll() as $row){
     $insert=$this->pdo->prepare('INSERT OR IGNORE INTO meeting_reminders(session_id,user_id,reminder_type,sent_at) VALUES(:session,:user,:type,:sent)');$insert->execute(['session'=>(int)$row['session_id'],'user'=>(int)$row['user_id'],'type'=>$type,'sent'=>$stamp]);if($insert->rowCount()!==1)continue;
     $event='meeting-reminder-'.$row['session_id'].'-'.$row['user_id'].'-'.$type;$notice=$this->pdo->prepare("INSERT OR IGNORE INTO notifications(user_id,event_key,type,title,message,target_url,created_at) VALUES(:user,:event,'course',:title,:message,'/meetings',:now)");
