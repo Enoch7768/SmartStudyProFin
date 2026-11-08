@@ -19,6 +19,8 @@ if (!$product) http_response_code(404);
 
 $displayTitle = $product['Title'] ?? 'Product Details';
 $displayPrice = $product['Price'] ?? '0';
+$readPrice = (int) ($product['ReadPrice'] ?? $displayPrice);
+$downloadPrice = (int) ($product['DownloadPrice'] ?? $displayPrice);
 $displayDesc = $product['Description'] ?? 'No description available.';
 $productType = $product['ProductType'] ?? 'Online';
 $category = $product['Category'] ?? 'General';
@@ -318,19 +320,23 @@ $fullImgUrl = str_starts_with($imgUrl, 'http') ? $imgUrl : $siteUrl . '/' . ltri
           <div class="col-lg-4">
             <div class="p-4 ssp-card-box">
               <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="m-0 fw-bold" style="color: var(--ssp-navy);">Price</h4>
-                <span class="h3 m-0 fw-bold" style="color: var(--ssp-orange);">UGX <?= number_format(floatval($displayPrice ?? 0)) ?></span>
+                <h4 class="m-0 fw-bold" style="color: var(--ssp-navy);"><?= strtolower($productType) === 'online' ? 'Choose your access' : 'Price' ?></h4>
+                <?php if (strtolower($productType) !== 'online'): ?><span class="h3 m-0 fw-bold" style="color: var(--ssp-orange);">UGX <?= number_format(floatval($displayPrice ?? 0)) ?></span><?php else: ?><span class="small text-muted">Two independent purchase options</span><?php endif; ?>
               </div>
               <p class="small" style="color: var(--ssp-text-muted);"><i class="bi bi-info-circle me-1"></i> Type: <strong><?= htmlspecialchars($productType) ?></strong></p>
               <hr class="my-3" style="border-color: var(--ssp-card-border);">
               
               <?php if (strtolower($productType) === 'online'): ?>
-              <form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>">
-                <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
-                <input type="hidden" name="type" value="product">
-                <input type="hidden" name="id" value="<?= $productId ?>">
-                <button type="submit" class="btn-ssp-primary w-100 py-2 mt-2">Add to cart</button>
-              </form>
+              <div class="border rounded-3 p-3 mb-3">
+                <div class="d-flex justify-content-between gap-2"><strong>Read / view online</strong><strong style="color:var(--ssp-orange)">UGX <?= number_format($readPrice) ?></strong></div>
+                <p class="small text-muted mb-2">Read supported content in your browser. Original-file download is not included.</p>
+                <form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>"><input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="type" value="product"><input type="hidden" name="id" value="<?= $productId ?>"><input type="hidden" name="entitlement" value="read"><button type="submit" class="btn-ssp-primary w-100 py-2">Add read access</button></form>
+              </div>
+              <div class="border rounded-3 p-3">
+                <div class="d-flex justify-content-between gap-2"><strong>Download original files</strong><strong style="color:var(--ssp-orange)">UGX <?= number_format($downloadPrice) ?></strong></div>
+                <p class="small text-muted mb-2">Download approved original files to your device. Browser reading is not included.</p>
+                <form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>"><input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="type" value="product"><input type="hidden" name="id" value="<?= $productId ?>"><input type="hidden" name="entitlement" value="download"><button type="submit" class="btn-ssp-primary w-100 py-2">Add download access</button></form>
+              </div>
               <?php else: ?>
               <form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>">
                 <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>">

@@ -106,6 +106,8 @@ final class PublicContent
             'Title' => $row['title'],
             'Description' => HtmlSanitizer::clean((string) $row['description_html']),
             'Price' => (int) $row['price_ugx'],
+            'ReadPrice' => (int) ($row['read_price_ugx'] ?? $row['price_ugx']),
+            'DownloadPrice' => (int) ($row['download_price_ugx'] ?? $row['price_ugx']),
             'Category' => $row['category'],
             'Image' => $this->image($row['image_media_id']),
             'ProductType' => ucfirst($row['product_type']),

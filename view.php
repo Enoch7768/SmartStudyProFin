@@ -18,7 +18,7 @@ if (!$user) {
 $assetId = filter_var($_GET['asset'] ?? null, FILTER_VALIDATE_INT) ?: 0;
 $itemId = filter_var($_GET['item'] ?? null, FILTER_VALIDATE_INT) ?: 0;
 $commerce = new CommerceService($pdo);
-$file = $assetId > 0 ? $commerce->purchasedAsset((int) $user['id'], $assetId) : ($itemId > 0 ? $commerce->purchasedFile((int) $user['id'], $itemId) : null);
+$file = $assetId > 0 ? $commerce->purchasedReadableAsset((int) $user['id'], $assetId) : ($itemId > 0 ? $commerce->purchasedReadableFile((int) $user['id'], $itemId) : null);
 $inlineTypes = ['application/pdf', 'text/plain', 'text/csv', 'image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 if (!$file || !in_array($file['mime_type'], $inlineTypes, true)) {
     http_response_code(404);

@@ -14,7 +14,7 @@ final class ContentRepository
         'chapters' => ['cms_chapters', ['course_id', 'title', 'sort_order']],
         'lessons' => ['cms_lessons', ['chapter_id', 'title', 'content_html', 'video_url', 'video_media_id', 'resource_media_id', 'resource_title', 'quiz_time_limit_minutes', 'quiz_pass_mark', 'sort_order', 'status']],
         'questions' => ['cms_quiz_questions', ['lesson_id', 'content', 'question', 'options_json', 'correct_answer', 'sort_order']],
-        'products' => ['cms_products', ['title', 'slug', 'description_html', 'price_ugx', 'category', 'image_media_id', 'product_type', 'product_file_media_id', 'status', 'sort_order']]
+        'products' => ['cms_products', ['title', 'slug', 'description_html', 'price_ugx', 'read_price_ugx', 'download_price_ugx', 'category', 'image_media_id', 'product_type', 'product_file_media_id', 'status', 'sort_order']]
     ];
 
     public function __construct(private readonly PDO $pdo)
@@ -49,13 +49,13 @@ final class ContentRepository
             if (!array_key_exists($field, $input)) continue;
             $value = $input[$field];
             if (in_array($field, ['description_html', 'content_html', 'body_html'], true)) $value = HtmlSanitizer::clean((string) $value);
-            if (in_array($field, ['price_ugx', 'sort_order', 'course_id', 'chapter_id', 'lesson_id', 'image_media_id', 'video_media_id', 'product_file_media_id', 'resource_media_id', 'quiz_time_limit_minutes', 'quiz_pass_mark'], true)) {
+            if (in_array($field, ['price_ugx', 'read_price_ugx', 'download_price_ugx', 'sort_order', 'course_id', 'chapter_id', 'lesson_id', 'image_media_id', 'video_media_id', 'product_file_media_id', 'resource_media_id', 'quiz_time_limit_minutes', 'quiz_pass_mark'], true)) {
                 $value = $value === '' || $value === null ? null : filter_var($value, FILTER_VALIDATE_INT);
                 if ($value === false || ($value !== null && $value < 0)) throw new RuntimeException('A numeric field contains an invalid value.');
             }
             if (in_array($field, ['title', 'question'], true) && trim((string) $value) === '') throw new RuntimeException('Title and question fields cannot be empty.');
             if ($field === 'slug') $value = $this->slug((string) $value);
-            if ($field === 'price_ugx' && $value === null) $value = 0;
+            if (in_array($field, ['price_ugx','read_price_ugx','download_price_ugx'], true) && $value === null) $value = 0;
             if ($field === 'sort_order' && $value === null) $value = 0;
             if ($field === 'quiz_time_limit_minutes' && $value === null) $value = 0;
             if ($field === 'quiz_pass_mark' && $value === null) $value = 70;

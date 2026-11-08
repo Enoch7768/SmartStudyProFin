@@ -35,7 +35,7 @@ final class CommerceService
             if (isset($seen[$cartKey])) throw new RuntimeException('The same item cannot appear more than once in an order.');
             $seen[$cartKey] = true;
             $table = $type === 'course' ? 'cms_courses' : 'cms_products';
-            $query = $this->pdo->prepare("SELECT id, title, price_ugx" . ($type === 'product' ? ", product_type, product_file_media_id" : "") . " FROM {$table} WHERE id = :id AND status = 'published'");
+            $query = $this->pdo->prepare("SELECT id, title, price_ugx" . ($type === 'product' ? ", product_type, product_file_media_id, read_price_ugx, download_price_ugx" : "") . " FROM {$table} WHERE id = :id AND status = 'published'");
             $query->execute(['id' => $id]);
             $item = $query->fetch();
             if (!$item) throw new RuntimeException('A cart item is no longer available.');
@@ -45,7 +45,15 @@ final class CommerceService
                 if ($access->fetchColumn()) throw new RuntimeException('You already have access to this course.');
             }
             $assets = [];
-            if ($type === 'product' && ($item['product_type'] ?? '') === 'physical') $hasPhysical = true;
+            $entitlement = '';
+            if ($type === 'product' && ($item['product_type'] ?? '') === 'physical') {
+                $hasPhysical = true;
+                $entitlement = 'physical';
+            }
+            if ($type === 'product' && ($item['product_type'] ?? '') === 'online') {
+                $entitlement = (string) ($entry['entitlement'] ?? 'download');
+                if (!in_array($entitlement, ['read', 'download'], true)) throw new RuntimeException('Choose read access or a downloadable copy for this digital product.');
+            }
             if ($type === 'product' && ($item['product_type'] ?? '') === 'online') {
                 $assetQuery = $this->pdo->prepare("SELECT m.id, m.storage_path, m.original_name, m.mime_type, m.file_size, m.checksum_sha256 FROM cms_product_assets pa INNER JOIN media_assets m ON m.id = pa.media_asset_id WHERE pa.product_id = :product_id AND pa.asset_role = 'download' AND m.visibility = 'private' ORDER BY pa.sort_order, pa.id");
                 $assetQuery->execute(['product_id' => $id]);
@@ -65,12 +73,14 @@ final class CommerceService
                     if ($assetBytes > 262144000) throw new RuntimeException('A digital product cannot exceed 250 MB of downloadable files.');
                 }
             }
-            $price = (int) $item['price_ugx'];
+            $price = $type === 'product' && ($item['product_type'] ?? '') === 'online'
+                ? (int) ($entitlement === 'read' ? $item['read_price_ugx'] : $item['download_price_ugx'])
+                : (int) $item['price_ugx'];
             if ($price < 0 || $price > 1000000000) throw new RuntimeException('A product price is invalid.');
             $line = $price * $quantity;
             if ($line > 1000000000 || $subtotal > 1000000000 - $line) throw new RuntimeException('Your order total is too large.');
             $subtotal += $line;
-            $items[] = ['type' => $type, 'id' => $id, 'title' => (string) $item['title'], 'product_type' => $item['product_type'] ?? null, 'file_id' => $item['product_file_media_id'] ?? null, 'assets' => $assets, 'price' => $price, 'quantity' => $quantity, 'line' => $line];
+            $items[] = ['type' => $type, 'id' => $id, 'title' => (string) $item['title'], 'product_type' => $item['product_type'] ?? null, 'file_id' => $item['product_file_media_id'] ?? null, 'entitlement' => $entitlement, 'assets' => $assets, 'price' => $price, 'quantity' => $quantity, 'line' => $line];
         }
         if ($subtotal < 1) throw new RuntimeException('The order total must be greater than zero.');
         $shippingQuote = null;
@@ -94,9 +104,9 @@ final class CommerceService
             $insert = $this->pdo->prepare("INSERT INTO orders (public_id, user_id, status, currency, subtotal_ugx, total_ugx, customer_name, customer_email, created_at, updated_at, shipping_method_id, shipping_method_name, delivery_fee_ugx, shipping_name, shipping_phone, shipping_address, shipping_city, shipping_region, shipping_country, fulfillment_status) VALUES (:public_id, :user_id, 'pending', 'UGX', :subtotal, :total, :name, :email, :created_at, :updated_at, :method_id, :method_name, :delivery_fee, :shipping_name, :shipping_phone, :shipping_address, :shipping_city, :shipping_region, :shipping_country, :fulfillment_status)");
             $insert->execute(['public_id' => $publicId, 'user_id' => $userId, 'subtotal' => $subtotal, 'total' => $total, 'name' => $user['name'], 'email' => $user['email'], 'created_at' => $now, 'updated_at' => $now, 'method_id' => $shippingQuote ? (int) $shippingQuote['id'] : null, 'method_name' => $shippingQuote['name'] ?? '', 'delivery_fee' => $deliveryFee, 'shipping_name' => $shippingSnapshot['name'], 'shipping_phone' => $shippingSnapshot['phone'], 'shipping_address' => $shippingSnapshot['address'], 'shipping_city' => $shippingSnapshot['city'], 'shipping_region' => $shippingSnapshot['region'], 'shipping_country' => $shippingSnapshot['country'], 'fulfillment_status' => $hasPhysical ? 'pending' : 'not_required']);
             $orderId = (int) $this->pdo->lastInsertId();
-            $lineInsert = $this->pdo->prepare('INSERT INTO order_items (order_id, item_type, item_id, item_title, product_type, product_file_media_id, unit_price_ugx, quantity, line_total_ugx, created_at) VALUES (:order_id, :type, :item_id, :title, :product_type, :file_id, :price, :quantity, :line, :created_at)');
+            $lineInsert = $this->pdo->prepare('INSERT INTO order_items (order_id, item_type, item_id, item_title, product_type, product_file_media_id, unit_price_ugx, quantity, line_total_ugx, product_entitlement, created_at) VALUES (:order_id, :type, :item_id, :title, :product_type, :file_id, :price, :quantity, :line, :entitlement, :created_at)');
             foreach ($items as $item) {
-                $lineInsert->execute(['order_id' => $orderId, 'type' => $item['type'], 'item_id' => $item['id'], 'title' => $item['title'], 'product_type' => $item['product_type'], 'file_id' => $item['file_id'], 'price' => $item['price'], 'quantity' => $item['quantity'], 'line' => $item['line'], 'created_at' => $now]);
+                $lineInsert->execute(['order_id' => $orderId, 'type' => $item['type'], 'item_id' => $item['id'], 'title' => $item['title'], 'product_type' => $item['product_type'], 'file_id' => $item['file_id'], 'price' => $item['price'], 'quantity' => $item['quantity'], 'line' => $item['line'], 'entitlement' => $item['entitlement'], 'created_at' => $now]);
                 $orderItemId = (int) $this->pdo->lastInsertId();
                 if ($item['assets']) {
                     $assetInsert = $this->pdo->prepare('INSERT INTO order_item_assets (order_item_id, media_asset_id, storage_path, original_name, mime_type, file_size, checksum_sha256, sort_order, created_at) VALUES (:order_item_id, :media_asset_id, :storage_path, :original_name, :mime_type, :file_size, :checksum, :sort_order, :created_at)');
@@ -218,13 +228,13 @@ final class CommerceService
 
     public function purchasedFile(int $userId, int $orderItemId): ?array
     {
-        $query = $this->pdo->prepare("SELECT oi.item_title, m.storage_path, m.original_name, m.mime_type, m.file_size FROM order_items oi INNER JOIN orders o ON o.id = oi.order_id INNER JOIN payments p ON p.order_id = o.id AND p.status = 'paid' INNER JOIN media_assets m ON m.id = oi.product_file_media_id WHERE oi.id = :item_id AND oi.item_type = 'product' AND oi.product_type = 'online' AND o.user_id = :user_id AND o.status IN ('paid', 'partially_refunded') AND COALESCE((SELECT SUM(ri.amount_ugx) FROM refund_items ri INNER JOIN refunds r ON r.id = ri.refund_id WHERE ri.order_item_id = oi.id AND r.status = 'succeeded'), 0) < oi.line_total_ugx AND m.visibility = 'private' LIMIT 1");
+        $query = $this->pdo->prepare("SELECT oi.item_title, m.storage_path, m.original_name, m.mime_type, m.file_size FROM order_items oi INNER JOIN orders o ON o.id = oi.order_id INNER JOIN payments p ON p.order_id = o.id AND p.status = 'paid' INNER JOIN media_assets m ON m.id = oi.product_file_media_id WHERE oi.id = :item_id AND oi.item_type = 'product' AND oi.product_type = 'online' AND oi.product_entitlement IN ('download','both') AND o.user_id = :user_id AND o.status IN ('paid', 'partially_refunded') AND COALESCE((SELECT SUM(ri.amount_ugx) FROM refund_items ri INNER JOIN refunds r ON r.id = ri.refund_id WHERE ri.order_item_id = oi.id AND r.status = 'succeeded'), 0) < oi.line_total_ugx AND m.visibility = 'private' LIMIT 1");
         $query->execute(['item_id' => $orderItemId, 'user_id' => $userId]);
         return $query->fetch() ?: null;
     }
     public function purchasedFiles(int $userId, int $orderItemId): array
     {
-        $query = $this->pdo->prepare("SELECT a.id AS asset_id, a.order_item_id, oi.item_title, a.storage_path, a.original_name, a.mime_type, a.file_size, a.checksum_sha256 FROM order_item_assets a INNER JOIN order_items oi ON oi.id = a.order_item_id INNER JOIN orders o ON o.id = oi.order_id WHERE oi.id = :item_id AND oi.item_type = 'product' AND oi.product_type = 'online' AND o.user_id = :user_id AND o.status IN ('paid', 'partially_refunded') AND COALESCE((SELECT SUM(ri.amount_ugx) FROM refund_items ri INNER JOIN refunds r ON r.id = ri.refund_id WHERE ri.order_item_id = oi.id AND r.status = 'succeeded'), 0) < oi.line_total_ugx AND EXISTS (SELECT 1 FROM payments p WHERE p.order_id = o.id AND p.status = 'paid') ORDER BY a.sort_order, a.id");
+        $query = $this->pdo->prepare("SELECT a.id AS asset_id, a.order_item_id, oi.item_title, a.storage_path, a.original_name, a.mime_type, a.file_size, a.checksum_sha256 FROM order_item_assets a INNER JOIN order_items oi ON oi.id = a.order_item_id INNER JOIN orders o ON o.id = oi.order_id WHERE oi.id = :item_id AND oi.item_type = 'product' AND oi.product_type = 'online' AND oi.product_entitlement IN ('download','both') AND o.user_id = :user_id AND o.status IN ('paid', 'partially_refunded') AND COALESCE((SELECT SUM(ri.amount_ugx) FROM refund_items ri INNER JOIN refunds r ON r.id = ri.refund_id WHERE ri.order_item_id = oi.id AND r.status = 'succeeded'), 0) < oi.line_total_ugx AND EXISTS (SELECT 1 FROM payments p WHERE p.order_id = o.id AND p.status = 'paid') ORDER BY a.sort_order, a.id");
         $query->execute(['item_id' => $orderItemId, 'user_id' => $userId]);
         $files = $query->fetchAll();
         if ($files) return $files;
@@ -232,9 +242,28 @@ final class CommerceService
         return $legacy ? [['asset_id' => null] + $legacy] : [];
     }
 
+    public function purchasedReadableFiles(int $userId, int $orderItemId): array
+    {
+        $query = $this->pdo->prepare("SELECT a.id AS asset_id, a.order_item_id, oi.item_title, a.storage_path, a.original_name, a.mime_type, a.file_size, a.checksum_sha256 FROM order_item_assets a INNER JOIN order_items oi ON oi.id = a.order_item_id INNER JOIN orders o ON o.id = oi.order_id WHERE oi.id = :item_id AND oi.item_type = 'product' AND oi.product_type = 'online' AND oi.product_entitlement IN ('read','both') AND o.user_id = :user_id AND o.status IN ('paid','partially_refunded') AND COALESCE((SELECT SUM(ri.amount_ugx) FROM refund_items ri INNER JOIN refunds r ON r.id = ri.refund_id WHERE ri.order_item_id = oi.id AND r.status = 'succeeded'),0) < oi.line_total_ugx AND EXISTS (SELECT 1 FROM payments p WHERE p.order_id = o.id AND p.status = 'paid') ORDER BY a.sort_order,a.id");
+        $query->execute(['item_id'=>$orderItemId,'user_id'=>$userId]);
+        return $query->fetchAll();
+    }
+
+    public function purchasedReadableAsset(int $userId, int $assetId): ?array
+    {
+        $query = $this->pdo->prepare("SELECT a.id AS asset_id,a.order_item_id,oi.item_title,a.storage_path,a.original_name,a.mime_type,a.file_size,a.checksum_sha256 FROM order_item_assets a INNER JOIN order_items oi ON oi.id=a.order_item_id INNER JOIN orders o ON o.id=oi.order_id WHERE a.id=:asset_id AND oi.item_type='product' AND oi.product_type='online' AND oi.product_entitlement IN ('read','both') AND o.user_id=:user_id AND o.status IN ('paid','partially_refunded') AND COALESCE((SELECT SUM(ri.amount_ugx) FROM refund_items ri INNER JOIN refunds r ON r.id=ri.refund_id WHERE ri.order_item_id=oi.id AND r.status='succeeded'),0)<oi.line_total_ugx AND EXISTS(SELECT 1 FROM payments p WHERE p.order_id=o.id AND p.status='paid') LIMIT 1");
+        $query->execute(['asset_id'=>$assetId,'user_id'=>$userId]);
+        return $query->fetch() ?: null;
+    }
+
+    public function purchasedReadableFile(int $userId, int $orderItemId): ?array
+    {
+        return $this->purchasedReadableFiles($userId,$orderItemId)[0] ?? null;
+    }
+
     public function purchasedAsset(int $userId, int $assetId): ?array
     {
-        $query = $this->pdo->prepare("SELECT a.id AS asset_id, oi.id AS order_item_id, oi.item_title, a.storage_path, a.original_name, a.mime_type, a.file_size, a.checksum_sha256 FROM order_item_assets a INNER JOIN order_items oi ON oi.id = a.order_item_id INNER JOIN orders o ON o.id = oi.order_id WHERE a.id = :asset_id AND o.user_id = :user_id AND o.status IN ('paid', 'partially_refunded') AND COALESCE((SELECT SUM(ri.amount_ugx) FROM refund_items ri INNER JOIN refunds r ON r.id = ri.refund_id WHERE ri.order_item_id = oi.id AND r.status = 'succeeded'), 0) < oi.line_total_ugx AND EXISTS (SELECT 1 FROM payments p WHERE p.order_id = o.id AND p.status = 'paid') LIMIT 1");
+        $query = $this->pdo->prepare("SELECT a.id AS asset_id, oi.id AS order_item_id, oi.item_title, a.storage_path, a.original_name, a.mime_type, a.file_size, a.checksum_sha256 FROM order_item_assets a INNER JOIN order_items oi ON oi.id = a.order_item_id INNER JOIN orders o ON o.id = oi.order_id WHERE a.id = :asset_id AND oi.item_type = 'product' AND oi.product_type = 'online' AND oi.product_entitlement IN ('download','both') AND o.user_id = :user_id AND o.status IN ('paid', 'partially_refunded') AND COALESCE((SELECT SUM(ri.amount_ugx) FROM refund_items ri INNER JOIN refunds r ON r.id = ri.refund_id WHERE ri.order_item_id = oi.id AND r.status = 'succeeded'), 0) < oi.line_total_ugx AND EXISTS (SELECT 1 FROM payments p WHERE p.order_id = o.id AND p.status = 'paid') LIMIT 1");
         $query->execute(['asset_id' => $assetId, 'user_id' => $userId]);
         return $query->fetch() ?: null;
     }

@@ -43,7 +43,7 @@ try {
 
     $content = new ContentRepository($pdo);
     $courseId = $content->save('courses', null, ['title' => 'Refundable Course', 'description_html' => 'Paid course access test.', 'content_html' => 'Course content.', 'price_ugx' => '10000', 'category' => 'Testing', 'status' => 'published']);
-    $productId = $content->save('products', null, ['title' => 'Phase Five Study Pack', 'description_html' => 'A collection of study resources.', 'price_ugx' => '10000', 'category' => 'Study materials', 'product_type' => 'online', 'status' => 'published']);
+    $productId = $content->save('products', null, ['title' => 'Phase Five Study Pack', 'description_html' => 'A collection of study resources.', 'price_ugx' => '10000', 'read_price_ugx' => '6000', 'download_price_ugx' => '10000', 'category' => 'Study materials', 'product_type' => 'online', 'status' => 'published']);
     $attach = $pdo->prepare('INSERT INTO cms_product_assets (product_id, media_asset_id, asset_role, sort_order, created_at) VALUES (:product_id, :media_id, :role, :sort_order, :created_at)');
     $attach->execute(['product_id' => $productId, 'media_id' => $assets[0], 'role' => 'download', 'sort_order' => 0, 'created_at' => $now]);
     $attach->execute(['product_id' => $productId, 'media_id' => $assets[1], 'role' => 'download', 'sort_order' => 1, 'created_at' => $now]);
@@ -121,6 +121,17 @@ try {
     if (!$learning->hasAccess($adminId, $courseId)) throw new RuntimeException('A verified course purchase did not grant course access.');
     $files = $commerce->purchasedFiles($adminId, $itemId);
     if (count($files) !== 2 || $files[0]['original_name'] !== 'guide.pdf' || $files[1]['original_name'] !== 'notes.txt') throw new RuntimeException('Purchased files were not returned in their configured order.');
+    $readOrder = $commerce->createOrder($adminId, [['type'=>'product','id'=>$productId,'quantity'=>1,'entitlement'=>'read']]);
+    $readItemId = (int) $readOrder['items'][0]['id'];
+    if ((int)$readOrder['total_ugx'] !== 6000 || $readOrder['items'][0]['product_entitlement'] !== 'read') throw new RuntimeException('The read entitlement did not use its independent purchase-time price.');
+    $readPayment = $commerce->createPayment((int)$readOrder['id'], $adminId, 'dpo');
+    $commerce->updateProviderReference((int)$readPayment['id'], 'phase2-read-token', 'CREATED');
+    if (!$commerce->confirmPayment((int)$readPayment['id'], 'dpo', 'phase2-read-token', 'phase2-read-tx', 6000, 'UGX', 'COMPLETED', 'phase2-read-event')) throw new RuntimeException('Read-only digital purchase did not complete.');
+    $readFiles = $commerce->purchasedReadableFiles($adminId, $readItemId);
+    if (count($readFiles) !== 2 || $commerce->purchasedFiles($adminId, $readItemId) !== [] || !$commerce->purchasedReadableAsset($adminId, (int)$readFiles[0]['asset_id']) || $commerce->purchasedAsset($adminId, (int)$readFiles[0]['asset_id']) !== null) throw new RuntimeException('Read access incorrectly granted original-file download permission.');
+    $readRefund = (new RefundService($pdo))->request($readItemId, $adminId, 6000, 'Read entitlement cancelled.');
+    (new RefundService($pdo))->resolve($readRefund, $adminId, 'succeeded', 'DPO-READ-REFUND', 'Read access refund confirmed.');
+    if ($commerce->purchasedReadableAsset($adminId, (int)$readFiles[0]['asset_id']) !== null || $commerce->purchasedAsset($adminId, (int)$files[0]['asset_id']) === null) throw new RuntimeException('Refunding read access did not revoke only the read entitlement.');
     if (!$commerce->purchasedAsset($adminId, (int) $files[0]['asset_id']) || $commerce->purchasedAsset($otherUserId, (int) $files[0]['asset_id']) !== null) throw new RuntimeException('A private purchase asset escaped order ownership checks.');
 
     $refunds = new RefundService($pdo);

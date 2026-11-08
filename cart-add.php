@@ -56,6 +56,14 @@ if ($type === 'course') {
     }
 }
 
-$key = $type . ':' . $id;
-$_SESSION['ssp_cart'][$key] = ['type' => $type, 'id' => $id, 'quantity' => 1];
+$entitlement = '';
+if ($type === 'product') {
+    $entitlement = ($item['product_type'] ?? '') === 'online' ? (string) ($_POST['entitlement'] ?? 'download') : 'physical';
+    if (($item['product_type'] ?? '') === 'online' && !in_array($entitlement, ['read','download'], true)) {
+        http_response_code(400);
+        exit('Choose a valid digital access option.');
+    }
+}
+$key = $type . ':' . $id . ($entitlement !== '' ? ':' . $entitlement : '');
+$_SESSION['ssp_cart'][$key] = ['type' => $type, 'id' => $id, 'quantity' => 1, 'entitlement' => $entitlement];
 Security::redirect(Url::to('/cart'));
