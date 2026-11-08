@@ -81,6 +81,7 @@ Authentication, role/permission checks, CSRF, ownership validation, transactions
 - Fresh and upgrade migrations succeed.
 - Existing self-paced courses, progress, bookmarks, quizzes, certificates, payments and notifications remain functional.
 - Admins can create all three offering modes and schedule live/in-person sessions.
+- Instructors can manage only offerings assigned to them; cross-cohort roster reads and mutations are denied.
 - Unenrolled users cannot retrieve meeting links, rosters or attendance.
 - Concurrent bookings cannot exceed capacity; duplicate bookings are prevented.
 - Reschedules/cancellations update learner views and retain audit history.
@@ -94,6 +95,7 @@ Authentication, role/permission checks, CSRF, ownership validation, transactions
 
 - Added additive SQLite migrations for course offerings, live/in-person sessions, enrolments, attendance, meeting AI usage and idempotent reminder tracking.
 - Added administrator workflows for offering creation, meeting scheduling, provider link validation, host conflict detection, roster/attendance, rescheduling, cancellation, completion and archive.
+- Added an instructor self-service workspace. Instructors see only assigned offerings, sessions and learner rosters; they can schedule, reschedule, cancel and complete their own sessions, record attendance with reasons, and use the Groq companion. Every instructor action is checked against the offering assignment server-side.
 - Added learner session booking, capacity enforcement, protected join links, venue details and attendance history.
 - Added in-app notifications for new sessions, bookings, reschedules and cancellations, plus a CLI reminder job for 24-hour and one-hour reminders.
 - Added the Groq meeting companion with private server-side API key, configurable model and token budgets, per-user daily limits, usage logging, bounded rate-limit retry, timeout, safe fallback and environment kill switch. Gemini course tutor remains separate.
