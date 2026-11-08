@@ -48,22 +48,6 @@ final class MediaManager
         return $extension !== '' && in_array($extension, self::EXTENSIONS[$mime] ?? [], true);
     }
 
-    private const EXTENSIONS = [
-        'image/jpeg' => ['jpg', 'jpeg'], 'image/png' => ['png'], 'image/webp' => ['webp'], 'image/gif' => ['gif'],
-        'application/pdf' => ['pdf'], 'text/plain' => ['txt', 'csv'], 'text/csv' => ['csv'],
-        'application/msword' => ['doc'], 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => ['docx'],
-        'application/vnd.ms-excel' => ['xls'], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => ['xlsx'],
-        'application/vnd.ms-powerpoint' => ['ppt'], 'application/vnd.openxmlformats-officedocument.presentationml.presentation' => ['pptx'],
-        'application/rtf' => ['rtf'], 'text/rtf' => ['rtf'], 'application/vnd.oasis.opendocument.text' => ['odt'],
-        'video/mp4' => ['mp4'], 'audio/mpeg' => ['mp3'], 'application/zip' => ['zip', 'docx', 'xlsx', 'pptx', 'odt']
-    ];
-
-    private static function extensionMatches(string $mime, string $filename): bool
-    {
-        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-        return $extension !== '' && in_array($extension, self::EXTENSIONS[$mime] ?? [], true);
-    }
-
     public function __construct(private readonly PDO $pdo, private readonly string $storagePath)
     {
     }
