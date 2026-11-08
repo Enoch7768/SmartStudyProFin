@@ -153,7 +153,7 @@ final class CommerceService
 
     public function confirmPayment(int $paymentId, string $provider, string $providerReference, string $transactionReference, int $amount, string $currency, string $providerStatus, string $eventId): bool
     {
-        if ($amount < 1 || $currency !== 'UGX' || $providerStatus !== 'COMPLETED' || $eventId === '') throw new RuntimeException('The payment confirmation is incomplete.');
+        if ($amount < 1 || $currency !== 'UGX' || $providerStatus !== 'COMPLETED' || $eventId === '' || trim($providerReference) === '' || trim($transactionReference) === '' || strlen($transactionReference) > 190) throw new RuntimeException('The payment confirmation is incomplete.');
         $this->pdo->beginTransaction();
         try {
             $query = $this->pdo->prepare('SELECT p.*, o.user_id, o.total_ugx, o.status AS order_status FROM payments p INNER JOIN orders o ON o.id = p.order_id WHERE p.id = :id AND p.provider = :provider');
