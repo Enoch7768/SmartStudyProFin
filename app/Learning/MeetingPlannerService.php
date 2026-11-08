@@ -75,10 +75,10 @@ final class MeetingPlannerService {
    if(!$enrolment||$enrolment['status']!=='active'||!in_array($enrolment['mode'],['live_online','in_person'],true))throw new RuntimeException('Only active live or in-person enrolments can be completed.');
    $sessions=$this->pdo->prepare("SELECT COUNT(*) FROM course_sessions WHERE offering_id=:offering AND status IN('scheduled','rescheduled','draft')");
    $sessions->execute(['offering'=>$offeringId]);if((int)$sessions->fetchColumn()>0)throw new RuntimeException('Finish, cancel or archive every scheduled session before completing this cohort enrolment.');
-   $completed=$this->pdo->prepare("SELECT COUNT(*) FROM course_sessions WHERE offering_id=:offering AND status='completed'");
+   $completed=$this->pdo->prepare("SELECT COUNT(*) FROM course_sessions WHERE offering_id=:offering AND status IN('completed','archived')");
    $completed->execute(['offering'=>$offeringId]);$required=(int)$completed->fetchColumn();
    if($required<1)throw new RuntimeException('At least one completed session is required before course completion.');
-   $attendance=$this->pdo->prepare("SELECT COUNT(*) FROM course_sessions s JOIN session_enrolments e ON e.session_id=s.id AND e.user_id=:user AND e.status='confirmed' JOIN session_attendance a ON a.session_id=s.id AND a.user_id=e.user_id AND a.status IN('present','late','excused') WHERE s.offering_id=:offering AND s.status='completed'");
+   $attendance=$this->pdo->prepare("SELECT COUNT(*) FROM course_sessions s JOIN session_enrolments e ON e.session_id=s.id AND e.user_id=:user AND e.status='confirmed' JOIN session_attendance a ON a.session_id=s.id AND a.user_id=e.user_id AND a.status IN('present','late','excused') WHERE s.offering_id=:offering AND s.status IN('completed','archived')");
    $attendance->execute(['user'=>$userId,'offering'=>$offeringId]);if((int)$attendance->fetchColumn()!==$required)throw new RuntimeException('Attendance must be recorded as present, late or excused for every completed session before issuing completion.');
    $now=gmdate('Y-m-d H:i:s');
    $update=$this->pdo->prepare("UPDATE course_offering_enrolments SET status='completed',completed_at=:now,updated_at=:now WHERE offering_id=:offering AND user_id=:user AND status='active'");
@@ -129,7 +129,8 @@ final class MeetingPlannerService {
  public function setSessionStatus(int $actor,int $session,string $status): void {
   if(!in_array($status,['completed','archived'],true))throw new RuntimeException('Invalid session status.');
   if($status==='completed'){$end=$this->pdo->prepare("SELECT ends_at_utc FROM course_sessions WHERE id=:id AND status IN('scheduled','rescheduled')");$end->execute(['id'=>$session]);$endsAt=$end->fetchColumn();if($endsAt===false||$endsAt>gmdate('Y-m-d H:i:s'))throw new RuntimeException('A session can only be marked completed after its scheduled end time.');}
-  $q=$this->pdo->prepare("UPDATE course_sessions SET status=:status,updated_at=:now WHERE id=:id AND status IN('scheduled','rescheduled','completed')");$now=gmdate('Y-m-d H:i:s');$q->execute(['status'=>$status,'now'=>$now,'id'=>$session]);if(!$q->rowCount())throw new RuntimeException('Session status cannot be changed.');
+  $allowedPrevious=$status==='archived'?"'completed'":"'scheduled','rescheduled','completed'";
+  $q=$this->pdo->prepare("UPDATE course_sessions SET status=:status,updated_at=:now WHERE id=:id AND status IN(".$allowedPrevious.")");$now=gmdate('Y-m-d H:i:s');$q->execute(['status'=>$status,'now'=>$now,'id'=>$session]);if(!$q->rowCount())throw new RuntimeException($status==='archived'?'Only a completed session can be archived.':'Session status cannot be changed.');
   $this->audit($session,$actor,'session.'.$status,[]);
  }
  public function dispatchDueReminders(?DateTimeImmutable $now=null): int {
