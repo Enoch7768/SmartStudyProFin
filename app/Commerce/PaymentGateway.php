@@ -129,6 +129,6 @@ final class PaymentGateway
         $xml = '<API3G><CompanyToken>' . htmlspecialchars($companyToken, ENT_XML1) . '</CompanyToken><Request>verifyToken</Request><TransactionToken>' . htmlspecialchars($token, ENT_XML1) . '</TransactionToken><CompanyRef>' . htmlspecialchars($companyRef, ENT_XML1) . '</CompanyRef></API3G>';
         $response = $this->request($base, 'POST', ['Content-Type: application/xml; charset=utf-8', 'Accept: application/xml'], $xml);
         $parsed = $this->parseDpoResponse((string) ($response['raw'] ?? ''));
-        return ['result' => (string) ($parsed['Result'] ?? ''), 'amount' => (string) ($parsed['TransactionAmount'] ?? ''), 'currency' => (string) ($parsed['TransactionCurrency'] ?? ''), 'approval' => (string) ($parsed['TransactionApproval'] ?? ''), 'company_ref' => (string) ($parsed['CompanyRef'] ?? $companyRef), 'fraud_alert' => (string) ($parsed['FraudAlert'] ?? '')];
+        return ['result' => (string) ($parsed['Result'] ?? ''), 'amount' => (string) ($parsed['TransactionAmount'] ?? ''), 'currency' => (string) ($parsed['TransactionCurrency'] ?? ''), 'approval' => (string) ($parsed['TransactionApproval'] ?? ''), 'company_ref' => (string) ($parsed['CompanyRef'] ?? ''), 'fraud_alert' => (string) ($parsed['FraudAlert'] ?? '')];
     }
 }
