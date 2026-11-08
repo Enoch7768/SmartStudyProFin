@@ -83,7 +83,7 @@ final class MeetingPlannerService {
    $details=json_encode(['source'=>$row['source'],'status_before'=>$row['status']],JSON_THROW_ON_ERROR);
    $this->pdo->prepare("INSERT INTO course_offering_audit_events(offering_id,actor_user_id,learner_user_id,event_type,details_json,created_at) VALUES(:offering,:actor,:learner,'enrolment.revoked',:details,:now)")->execute(['offering'=>$offeringId,'actor'=>$actor,'learner'=>$userId,'details'=>$details,'now'=>$now]);
    $notice=$this->pdo->prepare("INSERT OR IGNORE INTO notifications(user_id,event_key,type,title,message,target_url,created_at) VALUES(:user,:event,'course','Course cohort access updated',:message,'/courses',:now)");
-   $notice->execute(['user'=>$userId,'event'=>'offering-revoked-'.$offeringId,'message'=>'Your access to '.$row['title'].' has been withdrawn. Contact the course administrator if you believe this is a mistake.','now'=>$now]);
+   $notice->execute(['user'=>$userId,'event'=>'offering-revoked-'.$offeringId.'-'.$now,'message'=>'Your access to '.$row['title'].' has been withdrawn. Contact the course administrator if you believe this is a mistake.','now'=>$now]);
    $this->pdo->exec('COMMIT');
   }catch(Throwable $e){try{$this->pdo->exec('ROLLBACK');}catch(Throwable){}throw $e;}
  }
