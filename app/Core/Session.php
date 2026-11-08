@@ -15,7 +15,7 @@ final class Session
         session_name('smartstudypro_session');
         session_set_cookie_params([
             'lifetime' => 0,
-            'path' => '/',
+            'path' => Url::basePath() !== '' ? Url::basePath() : '/',
             'secure' => self::secureRequest(),
             'httponly' => true,
             'samesite' => 'Lax',
@@ -49,6 +49,7 @@ final class Session
 
     private static function secureRequest(): bool
     {
-        return !empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off';
+        $appUrl = strtolower((string) Config::get('app.url', ''));
+        return str_starts_with($appUrl, 'https://') || (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off');
     }
 }
