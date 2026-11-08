@@ -12,8 +12,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
     http_response_code(405);
     exit;
 }
-$raw = file_get_contents('php://input');
-$event = json_decode((string) $raw, true);
+$raw = file_get_contents('php://input', false, null, 0, 1048577);
+if (!is_string($raw) || strlen($raw) > 1048576) { http_response_code(413); exit; }
+$event = json_decode($raw, true);
 if (!is_array($event) || empty($event['id'])) {
     http_response_code(400);
     exit;
