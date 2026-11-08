@@ -1,4 +1,4 @@
-# Commerce requirements — shipping, digital access, strict upload allowlist and refunds
+# Commerce requirements — shipping, digital access, safe file handling and refunds
 
 This document defines required work, not claims of completed functionality. Preserve existing commerce behaviour until each feature has migrations, tests and UI.
 
@@ -20,25 +20,18 @@ For online books, videos, audio, documents and images, administrators configure 
 
 Customers may buy either or both. Catalogue, cart, order lines, receipts and account library identify entitlements separately. Each entitlement has its own server-enforced permission and immutable purchase-time price snapshot. Samples/previews are separate admin-controlled settings.
 
-## Upload policy — strict allowlist, no antivirus scanning
+## Uploads — allow useful formats, never execute them
 
-SmartStudyPro will **not run antivirus or malware scans**. Upload security is based on a narrow deny-by-default allowlist, full format validation, safe transformation and private non-executable storage. This reduces attack surface but cannot guarantee every accepted file is malware-free.
+SmartStudyPro does **not** run antivirus or malware scans. There is no scanner service, scan queue, quarantine workflow or scan status.
 
-- Store every upload outside the public web root in private storage not mapped to PHP, CGI, script handlers or other executable handlers. Use restrictive permissions, random server-generated storage names, path containment checks and SHA-256 hashes.
-- Accept only explicitly enabled formats. Initial allowed families:
-  - PDF only after structural parsing and sanitization that rejects/removes JavaScript, launch actions, embedded files, rich media, XFA and unsafe external actions.
-  - UTF-8 plain text and CSV, treated strictly as text and never rendered as HTML.
-  - JPEG, PNG and WebP images, decoded and re-encoded by a maintained image library; discard metadata and trailing/polyglot payloads.
-  - MP3 audio and MP4 video with approved codecs only, validated by a media parser and preferably transcoded to a canonical output profile.
-  - DOCX, XLSX and PPTX only if a dedicated OOXML package validator confirms macro-free formats and rejects embedded OLE objects, ActiveX, macros, external relationships, embedded packages and unexpected archive entries. If unavailable, reject these formats.
-- Reject PHP and all server scripts, executables, shell/batch files, JavaScript, HTML, SVG, XML, macro-enabled Office formats, RTF, archives (ZIP/RAR/7z), disk images, installers, fonts, shortcut files and unknown formats.
-- Reject double extensions, trailing dots/spaces, path separators, control characters, Unicode lookalike extensions, alternate data stream syntax, null bytes and ambiguous normalized filenames. Never use the supplied filename as a storage path.
-- Validate normalized extension, detected MIME type, file signature/magic bytes and full format structure. All must agree. Client-provided Content-Type is untrusted. Reject MIME/signature mismatches, polyglots, malformed/truncated files, unsupported codecs, unexpected container entries and trailing data where detectable.
-- Do not rely on extension or fileinfo/magic bytes alone. Use maintained format-specific parsers, enforce parser time/memory limits and keep libraries updated. If a safe parser/transformer is unavailable, disable that format.
-- Enforce individual/aggregate size, file count, parser timeout, image pixel, media duration/resolution and container entry-count limits.
-- Validate and transform before a file becomes attachable, previewable, publishable or downloadable. Any error, timeout, unsupported feature or ambiguous result means reject. There is no scan-pending or scan-clean state.
-- Serve private files only through authenticated entitlement-checking controllers. Set X-Content-Type-Options: nosniff, server-selected content type and safe Content-Disposition. Render previews in a sandboxed viewer, preferably on a separate cookieless content origin. Never execute uploads.
-- Maintain security tests for disguised executables, double extensions, MIME spoofing, signature mismatch, polyglots, malformed/active PDFs, macro-enabled Office files, embedded OLE/ActiveX/external relationships, SVG/HTML/JS, archive bombs, path traversal and oversized media. All prohibited cases must be rejected.
+- Allow common content formats needed for digital products: PDF; DOC/DOCX; XLS/XLSX; PPT/PPTX; ODT; RTF; TXT; CSV; JPEG; PNG; WebP; GIF; MP3; and MP4. Keep the allowlist explicit and configurable in code; unknown formats are rejected.
+- Never allow server-side code or executable formats, including PHP, PHAR, CGI, EXE, DLL, scripts, shell/batch files, JavaScript, HTML, SVG, installers, disk images, shortcut files or archives uploaded as deliverable content.
+- Determine the stored extension and MIME type on the server, not from the browser's Content-Type. Reject unsupported detected types and obvious extension/type mismatches. The client filename is display metadata only and must never determine a storage path.
+- Generate random storage names. Store uploads outside the public web root in a private directory with restrictive directory/file permissions. Refuse to upload if the configured storage directory resolves inside the web root.
+- Uploaded files must never be included, required, evaluated, interpreted, passed to a shell, used as templates, or routed through PHP/CGI or any other server execution handler.
+- Deliver files only through application endpoints that check administrator access or the buyer's entitlement. Use a server-selected Content-Type, X-Content-Type-Options: nosniff, safe Content-Disposition and private caching headers. Force documents and unknown inline-capable types to download; only deliberately supported preview types may render inline.
+- Keep the upload size limit and enforce it server-side. Use generated storage paths and verify path containment when reading files.
+- This is file isolation, not malware detection. A permitted document can still contain content that is unsafe when opened in a separate desktop application. Users should only open files from sources they trust.
 
 ## Administrator reimbursements — online activities only
 
@@ -53,15 +46,15 @@ Refund workflow is limited to self-paced course purchases, live online course/se
 
 ## Existing behaviour and implementation status
 
-Current code supports online/physical product types, private digital assets, MIME allowlisting, paid-order secure delivery, browser preview for PDF/text/CSV/images, and an audited refund ledger. It does not yet provide physical shipping/fulfilment, separate read/download prices, distinct entitlements or online-only line-item reimbursements. The strict upload policy above is a target requirement, not a claim that current uploads already meet it.
+Current code supports online/physical product types, private digital assets, MIME allowlisting, paid-order secure delivery, browser preview for PDF/text/CSV/images, and an audited refund ledger. The upload manager uses a server-side MIME allowlist, generated storage names and private file permissions. New uploads must also be refused when storage resolves inside the web root. Shipping/fulfilment, separate read/download prices, distinct entitlements and online-only line-item reimbursements remain target requirements.
 
 ## Acceptance criteria
 
 - Physical-only checkout calculates delivery price; digital-only checkout has no shipping; mixed checkout charges only physical lines.
 - Digital access and download can be purchased and revoked independently.
-- Disallowed, ambiguous, disguised, malformed, unsupported or parser-failing uploads are rejected before publication or delivery.
-- Uploads remain outside the web root, non-executable and served only through authorized controllers.
-- No antivirus dependency, scanner service, scan-pending state or scan-clean state is introduced.
+- Unsupported, executable, script and archive uploads are rejected.
+- Uploads are stored outside the web root, have no execute permissions and are served only through authorized controllers.
+- No antivirus dependency, scanner service, scan queue or quarantine workflow is introduced.
 - Admin refunds cannot include physical goods, shipping or in-person course fees.
 - Partial refunds revoke only the affected entitlement; payment/order reconciliation remains correct.
 - Fresh/upgrade migrations and PHP 8.2/8.3 tests cover all cases.
