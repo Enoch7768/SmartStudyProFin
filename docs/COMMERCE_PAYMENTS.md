@@ -25,7 +25,7 @@ DPO is configured for UGX. The server creates a hosted-checkout token and verifi
 
 Online products support private digital assets. Public gallery images are separate. Private files must be stored outside the public web root and never exposed through storage paths.
 
-No antivirus scanning is performed or required. The application uses a straightforward server-side allowlist for common useful content formats: PDF, DOC/DOCX, XLS/XLSX, PPT/PPTX, ODT, RTF, TXT, CSV, JPEG, PNG, WebP, GIF, MP3 and MP4. ZIP archives are rejected. Office document containers detected as ZIP data are accepted only with a matching DOCX, XLSX, PPTX or ODT extension and are never extracted or executed by the application. Server-side scripts, executables, HTML, JavaScript, SVG, archives, installers and unknown formats are not accepted.
+No antivirus scanning is performed. The application uses a server-side allowlist for useful content formats: PDF, DOC/DOCX, XLS/XLSX, PPT/PPTX, ODT, RTF, TXT, CSV, JPEG, PNG, WebP, GIF, MP3, MP4 and ZIP. ZIP files are private-only download attachments: they cannot be previewed, extracted, indexed or executed. Office document containers detected as ZIP data are accepted only with a matching DOCX, XLSX, PPTX or ODT extension. Server-side scripts, executables, HTML, JavaScript, SVG, other archive formats, installers and unknown formats are not accepted.
 
 The server determines the stored extension and MIME type; client-supplied MIME and filenames are not trusted for storage decisions. Files receive random server-generated storage names and restrictive permissions. The configured storage path must resolve outside the public web root. Uploaded files are never included, evaluated, interpreted, executed or passed to a command or template engine.
 
