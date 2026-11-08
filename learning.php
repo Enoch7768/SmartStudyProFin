@@ -17,6 +17,7 @@ if (!$user) Security::redirect(Url::to('/login?redirect=' . rawurlencode(Url::to
 $recognition = new RecognitionService($pdo);
 $recognition->sync((int) $user['id']);
 $dashboard = (new LearningService($pdo))->dashboard((int) $user['id']);
+$offeringEnrolments = (new LearningService($pdo))->offeringEnrolments((int) $user['id']);
 $courseSlugs = array_column($dashboard['courses'], 'slug', 'id');
 $unreadNotifications = $recognition->unreadCount((int) $user['id']);
 $completedCourses = count(array_filter($dashboard['enrolled'], static fn (array $course): bool => $course['enrolment_status'] === 'completed'));
@@ -50,6 +51,16 @@ $seoDescription = 'Continue your courses, review progress, bookmarks and quiz re
 </div>
 <?php $available = array_values(array_filter($dashboard['courses'], static fn (array $course): bool => !in_array($course['enrolment_status'], ['active', 'completed'], true))); ?>
 <?php if ($available): ?><div class="d-flex justify-content-between align-items-end mb-3"><div><div class="eyebrow">Discover</div><h2 class="h3 mb-0">Available courses</h2></div></div><div class="row g-3 mb-5"><?php foreach ($available as $course): ?><div class="col-lg-6"><article class="course-card h-100"><h3 class="h5"><?= Security::escape($course['title']) ?></h3><p class="muted"><?= Security::escape(strip_tags($course['description_html'])) ?></p><div class="d-flex justify-content-between align-items-center"><strong><?= (int)$course['price_ugx']===0?'Free':'UGX '.number_format((int)$course['price_ugx']) ?></strong><?php if ((int)$course['price_ugx']===0): ?><a class="btn-main" href="<?= \App\Core\Url::to('/learn/' . rawurlencode((string) $course['slug'])) ?>">Enrol and start</a><?php else: ?><a class="btn-main" href="<?= \App\Core\Url::to('/courses/' . rawurlencode((string) $course['slug'])) ?>">View course</a><?php endif; ?></div></article></div><?php endforeach; ?></div><?php endif; ?>
+<?php if ($offeringEnrolments): ?>
+<div class="d-flex justify-content-between align-items-end mb-3"><div><div class="eyebrow">Live and in-person learning</div><h2 class="h3 mb-0">My course cohorts</h2></div><a href="<?= Url::to('/meetings') ?>" class="fw-bold text-decoration-none">Open My Sessions <i class="bi bi-arrow-right"></i></a></div>
+<div class="row g-3 mb-5">
+<?php foreach ($offeringEnrolments as $offering): ?>
+<div class="col-lg-6"><article class="course-card h-100"><div class="d-flex justify-content-between gap-3"><div><h3 class="h5 mb-1"><?= Security::escape($offering['course_title']) ?></h3><p class="muted mb-2"><?= Security::escape($offering['offering_title']) ?> · <?= $offering['mode'] === 'in_person' ? 'In person' : 'Live online' ?></p></div><span class="badge rounded-pill text-bg-light align-self-start"><?= $offering['enrolment_status'] === 'completed' ? 'Completed' : 'Enrolled' ?></span></div>
+<?php if ($offering['next_session_utc']): ?><p class="muted mb-2">Next session: <?= Security::escape(date('d M Y, H:i', strtotime($offering['next_session_utc'] . ' UTC'))) ?> UTC</p><?php else: ?><p class="muted mb-2"><?= (int)$offering['upcoming_sessions'] ?> upcoming sessions</p><?php endif; ?>
+<a class="btn-main" href="<?= Url::to('/meetings') ?>">View schedule and attendance</a></article></div>
+<?php endforeach; ?>
+</div>
+<?php endif; ?>
 <div class="row g-4">
 <div class="col-lg-6"><section class="learning-card"><div class="eyebrow">Pick up again</div><h2 class="h4 mb-3">Recently studied</h2><?php foreach($dashboard['recent'] as $item): ?><div class="d-flex justify-content-between align-items-center gap-2 border-bottom py-2"><div><strong><?= Security::escape($item['lesson_title']) ?></strong><div class="muted"><?= Security::escape($item['course_title']) ?></div></div><a class="fw-bold text-decoration-none" href="<?= Url::to('/learn/' . rawurlencode((string) ($courseSlugs[(int)$item['course_id']] ?? '')) . '/' . (int) $item['lesson_id']) ?>">Resume</a></div><?php endforeach; ?><?php if(!$dashboard['recent']): ?><p class="muted mb-0">Lessons you start will appear here.</p><?php endif; ?></section></div>
 <div class="col-lg-6"><section class="learning-card"><div class="eyebrow">Saved lessons</div><h2 class="h4 mb-3">Bookmarks</h2><?php foreach($dashboard['bookmarks'] as $item): ?><div class="d-flex justify-content-between align-items-center gap-2 border-bottom py-2"><div><strong><?= Security::escape($item['lesson_title']) ?></strong><div class="muted"><?= Security::escape($item['course_title']) ?></div></div><a class="fw-bold text-decoration-none" href="<?= Url::to('/learn/' . rawurlencode((string) ($courseSlugs[(int)$item['course_id']] ?? '')) . '/' . (int) $item['lesson_id']) ?>">Open</a></div><?php endforeach; ?><?php if(!$dashboard['bookmarks']): ?><p class="muted mb-0">Bookmark a lesson to save it for later.</p><?php endif; ?></section></div>
