@@ -6,7 +6,7 @@ use App\Cms\ContentRepository;use App\Core\Database;use App\Core\Migrator;use Ap
 $dir=sys_get_temp_dir().'/ssp-meeting-test-'.bin2hex(random_bytes(6));mkdir($dir,0700,true);
 try{
  $pdo=Database::connect($dir.'/test.sqlite');$ran=Migrator::run($pdo,dirname(__DIR__).'/database/migrations');
- if(!in_array('013_meeting_planner',$ran,true))throw new RuntimeException('Meeting planner migration missing.');
+ if(!in_array('013_meeting_planner',$ran,true)||!in_array('014_meeting_reminders',$ran,true))throw new RuntimeException('Meeting planner or reminder migration missing.');
  if(Migrator::run($pdo,dirname(__DIR__).'/database/migrations')!==[])throw new RuntimeException('Meeting migrations are not idempotent.');
  $now=gmdate('Y-m-d H:i:s');$q=$pdo->prepare("INSERT INTO users(name,email,password_hash,status,created_at,updated_at) VALUES(:n,:e,:p,'active',:t,:t)");
  $q->execute(['n'=>'Admin','e'=>'admin@test.local','p'=>password_hash('a-long-password',PASSWORD_DEFAULT),'t'=>$now]);$admin=(int)$pdo->lastInsertId();
@@ -14,7 +14,7 @@ try{
  $repo=new ContentRepository($pdo);$course=$repo->save('courses',null,['title'=>'Physics','description_html'=>'','content_html'=>'','price_ugx'=>'0','category'=>'Science','status'=>'published','sort_order'=>'1']);
  $pdo->prepare("INSERT INTO course_enrolments(user_id,course_id,status,source,enrolled_at,updated_at) VALUES(:u,:c,'active','free',:n,:n)")->execute(['u'=>$learner,'c'=>$course,'n'=>$now]);
  $planner=new MeetingPlannerService($pdo);$off=$planner->saveOffering($course,'live_online','Live Physics','',0,1,true);
- $publicCourse=(new App\\Cms\\PublicContent($pdo))->course($course);if(count($publicCourse['Offerings']??[])!==1||$publicCourse['Offerings'][0]['mode']!=='live_online')throw new RuntimeException('Published course delivery options were not exposed in the public catalogue.');
+ $publicCourse=(new App\Cms\PublicContent($pdo))->course($course);if(count($publicCourse['Offerings']??[])!==1||$publicCourse['Offerings'][0]['mode']!=='live_online')throw new RuntimeException('Published course delivery options were not exposed in the public catalogue.');
  $session=$planner->createSession($admin,$off,['title'=>'Forces workshop','provider'=>'google_meet','timezone'=>'Africa/Kampala','starts_at'=>'2027-01-10T10:00','ends_at'=>'2027-01-10T11:00','join_url'=>'https://meet.google.com/abc-defg-hij','host_url'=>'https://meet.google.com/abc-defg-hij','capacity'=>'1']);
  $sessions=$planner->sessionsForLearner($learner);if(count($sessions)!==1||$sessions[0]['join_url']!=='')throw new RuntimeException('Meeting link was exposed before booking.');
  $planner->book($learner,$session);$reminderTime=new DateTimeImmutable('2027-01-09T07:00:00+00:00');if($planner->dispatchDueReminders($reminderTime)!==1||$planner->dispatchDueReminders($reminderTime)!==0)throw new RuntimeException('24-hour reminders were not idempotent.');$sessions=$planner->sessionsForLearner($learner);if($sessions[0]['join_url']!=='https://meet.google.com/abc-defg-hij')throw new RuntimeException('Confirmed booking did not unlock the learner join link.');
