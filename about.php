@@ -54,8 +54,6 @@ $siteUrl = \App\Core\Url::site();
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/css/bootstrap.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap-icons/bootstrap-icons.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/aos/aos.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
-  <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/glightbox/css/glightbox.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
-  <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/swiper/swiper-bundle.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/main.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 
   <style>
@@ -392,8 +390,6 @@ $siteUrl = \App\Core\Url::site();
 
   <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/js/bootstrap.bundle.min.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
   <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/aos/aos.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
-  <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/glightbox/js/glightbox.min.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
-  <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/swiper/swiper-bundle.min.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
   <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/js/main.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 
 </body>
