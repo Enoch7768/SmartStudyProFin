@@ -248,11 +248,11 @@ $siteUrl = \App\Core\Url::site();
                 <div class="course-item w-100">
                   <?php 
                     $cImgData = $course['Image'] ?? $course['image'] ?? null;
-                    $cImg = !empty(\App\Core\Url::to((string) $cImgData['url'])) 
-                            ? $cImgData['url'] 
+                    $cImg = is_array($cImgData) && !empty($cImgData['url'])
+                            ? \App\Core\Url::to((string) $cImgData['url'])
                             : \App\Core\Url::to('/assets/img/course-1.jpg'); 
                   ?>
-                  <img src="<?= $cImg ?>" class="img-fluid" style="height: 200px; object-fit: cover;" alt="<?= htmlspecialchars($course['Title'] ?? 'Course') ?>">
+                  <img src="<?= htmlspecialchars($cImg, ENT_QUOTES, 'UTF-8') ?>" class="img-fluid" style="height: 200px; object-fit: cover;" alt="<?= htmlspecialchars($course['Title'] ?? 'Course') ?>">
                   
                   <div class="course-content">
                     <div class="d-flex justify-content-between align-items-center mb-3">
