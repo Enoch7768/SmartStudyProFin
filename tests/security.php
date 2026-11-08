@@ -17,6 +17,7 @@ foreach (['app', 'bootstrap', 'config', 'database', 'scripts', 'tests', 'storage
 foreach (['sqlite', 'sqlite3', 'db', 'sql', 'bak', 'backup', 'zip', 'tar', 'gz'] as $extension) {
     if (!str_contains($rules, $extension)) throw new RuntimeException('The web server rules do not deny .' . $extension . ' files.');
 }
+if (is_file($root . '/auth.php') || !str_contains($rules, 'RewriteRule ^auth')) throw new RuntimeException('The retired legacy authentication endpoint must not remain executable.');
 if (str_contains($rules, 'test.php') || is_file($root . '/test.php') || is_file($root . '/cms-init.php')) throw new RuntimeException('A legacy CMS diagnostic endpoint is still present.');
 if (!str_contains($avatarRules, 'Options -Indexes -ExecCGI') || !str_contains($avatarRules, 'phtml|phar')) throw new RuntimeException('Avatar uploads are not protected against script execution.');
 foreach (['X-Content-Type-Options: nosniff', 'X-Frame-Options: DENY', 'Referrer-Policy:', 'Permissions-Policy:'] as $header) {
