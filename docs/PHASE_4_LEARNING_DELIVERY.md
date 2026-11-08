@@ -98,7 +98,7 @@ Authentication, role/permission checks, CSRF, ownership validation, transactions
 - Added an instructor self-service workspace. Instructors see only assigned offerings, sessions and learner rosters; they can schedule, reschedule, cancel and complete their own sessions, record attendance with reasons, and use the Groq companion. Every instructor action is checked against the offering assignment server-side.
 - Added learner session booking, capacity enforcement, protected join links, venue details and attendance history.
 - Added in-app notifications for new sessions, bookings, reschedules and cancellations, plus a CLI reminder job for 24-hour and one-hour reminders.
-- Added the Groq meeting companion with private server-side API key, configurable model and token budgets, per-user daily limits, usage logging, bounded rate-limit retry, timeout, safe fallback and environment kill switch. Gemini course tutor remains separate.
+- Added the Groq meeting companion with a private server-side API key, configurable model and input/output budgets, per-user daily quotas, per-meeting request/token quotas, usage logging, bounded rate-limit retry, timeout, safe fallback and environment kill switch. Gemini course tutor remains separate.
 - Added PHP 8.2/8.3 tests for migrations, provider link validation, protected links, bookings, attendance, lifecycle actions, reminder idempotency and the AI kill switch.
 
 Provider API automation is deliberately deferred: the first release uses administrator-entered Zoom/Google Meet links. It does not join, record, listen to or transcribe meetings. Email delivery depends on the separately configured application mail transport; reminders in this implementation are in-app notifications.
