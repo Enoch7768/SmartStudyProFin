@@ -34,7 +34,7 @@ $pages = [
     'refunds.php', 'register.php', 'reset.php', 'stream.php', 'study.php',
     'terms.php', 'theme-preference.php', 'verify-certificate.php', 'view.php', 'admin/analytics.php',
     'admin/backups.php', 'admin/cms.php', 'admin/diagnostics.php',
-    'admin/media-preview.php', 'admin/meetings.php', 'admin/orders.php', 'admin/payment-demo-settings.php',
+    'admin/media-preview.php', 'admin/meetings.php', 'admin/messages.php', 'admin/orders.php', 'admin/payment-demo-settings.php',
     'admin/product-assets.php', 'admin/refunds.php', 'admin/updates.php'
 ];
 
