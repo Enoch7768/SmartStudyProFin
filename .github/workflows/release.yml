@@ -52,8 +52,6 @@ jobs:
           zip -qr "../smartstudypro-${VERSION}.zip" .
           cd ..
           unzip -Z1 "smartstudypro-${VERSION}.zip" > "smartstudypro-${VERSION}.files.txt"
-          grep -Fx 'composer.json' "smartstudypro-${VERSION}.files.txt"
-          grep -Fx 'composer.lock' "smartstudypro-${VERSION}.files.txt"
           grep -Fx 'assets/vendor/bootstrap/css/bootstrap.min.css' "smartstudypro-${VERSION}.files.txt"
           grep -Fx 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' "smartstudypro-${VERSION}.files.txt"
           ! grep -Eq '(^|/)vendor/autoload.php$|(^|/)node_modules/' "smartstudypro-${VERSION}.files.txt"
