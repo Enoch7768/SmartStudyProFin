@@ -88,6 +88,7 @@ $routes = [
     '/notifications' => 'notifications.php',
     '/meetings' => 'meetings.php',
     '/admin/meetings' => 'admin/meetings.php',
+    '/admin/messages' => 'admin/messages.php',
     '/orders' => 'orders.php',
     '/payment-choice' => 'payment-choice.php',
     '/payment-demo' => 'payment-demo.php',
