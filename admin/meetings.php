@@ -8,6 +8,7 @@ use App\Core\Database;
 use App\Core\Security;
 use App\Core\Url;
 use App\Learning\MeetingPlannerService;
+use App\Learning\RecognitionService;
 $pdo=Database::connect();$user=Auth::user($pdo);
 if(!$user||!Auth::hasRole($pdo,(int)$user['id'],'administrator')||!Auth::hasPermission($pdo,(int)$user['id'],'manage_content')){http_response_code(403);exit('Administrator access is required.');}
 $service=new MeetingPlannerService($pdo);$error='';$success='';$aiDraft='';
@@ -17,7 +18,7 @@ if(($_SERVER['REQUEST_METHOD']??'GET')==='POST'){
   $action=(string)($_POST['action']??'');
   if($action==='offering'){$service->saveOffering((int)($_POST['course_id']??0),(string)($_POST['mode']??''),(string)($_POST['title']??''),(string)($_POST['description']??''),(int)($_POST['price_ugx']??0),($_POST['capacity']??'')===''?null:(int)$_POST['capacity'],isset($_POST['published']));$success='Course offering saved.';}
   elseif($action==='update-offering'){$service->updateOffering((int)($_POST['offering_id']??0),(string)($_POST['title']??''),(string)($_POST['description']??''),(int)($_POST['price_ugx']??0),($_POST['capacity']??'')===''?null:(int)$_POST['capacity'],isset($_POST['published']));$success='Course offering updated.';}
-  elseif($action==='complete-enrolment'){$service->completeOfferingEnrolment((int)$user['id'],(int)($_POST['offering_id']??0),(int)($_POST['learner_id']??0));$success='Learner cohort completion confirmed. The certificate is now available after learner sync.';}
+  elseif($action==='complete-enrolment'){$learnerId=(int)($_POST['learner_id']??0);$service->completeOfferingEnrolment((int)$user['id'],(int)($_POST['offering_id']??0),$learnerId);(new RecognitionService($pdo))->sync($learnerId);$success='Learner cohort completion confirmed and certificate issued.';}
   elseif($action==='assign-instructor'){$service->assignInstructor((int)$user['id'],(int)($_POST['offering_id']??0),(int)($_POST['instructor_id']??0));$success='Instructor assigned to the course offering.';}
   elseif($action==='unassign-instructor'){$service->unassignInstructor((int)($_POST['offering_id']??0),(int)($_POST['instructor_id']??0));$success='Instructor removed from the course offering.';}
   elseif($action==='session'){$service->createSession((int)$user['id'],(int)($_POST['offering_id']??0),$_POST);$success='Session scheduled.';}
