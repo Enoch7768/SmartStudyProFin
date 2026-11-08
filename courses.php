@@ -268,6 +268,7 @@ $siteUrl = \App\Core\Url::site();
                     <div class="description">
                         <?= substr(strip_tags($course['Description'] ?? $course['description'] ?? ''), 0, 110) ?>...
                     </div>
+                    <?php if (!empty($course['Offerings'])): ?><div class="d-flex flex-wrap gap-2 mb-3"><?php foreach ($course['Offerings'] as $offering): ?><span class="badge bg-light text-dark border"><?= htmlspecialchars(match ($offering['mode']) {'self_paced' => 'Self-paced', 'live_online' => 'Live online', 'in_person' => 'In person', default => 'Course'}) ?> · UGX <?= number_format((int) $offering['price_ugx']) ?></span><?php endforeach; ?></div><?php endif; ?>
                     
                     <div class="trainer">
                         <a href="<?= \App\Core\Url::to('/courses/' . rawurlencode((string) ($course['slug'] ?? $course['_id']))) ?>" class="btn-ssp-primary d-block text-center text-decoration-none">
