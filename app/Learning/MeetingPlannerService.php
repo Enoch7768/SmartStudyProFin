@@ -101,7 +101,7 @@ final class MeetingPlannerService {
    $now=gmdate('Y-m-d H:i:s');
    $update=$this->pdo->prepare("UPDATE course_offering_enrolments SET status='completed',completed_at=:now,updated_at=:now WHERE offering_id=:offering AND user_id=:user AND status='active'");
    $update->execute(['now'=>$now,'offering'=>$offeringId,'user'=>$userId]);if($update->rowCount()!==1)throw new RuntimeException('This enrolment has already changed.');
-   $this->pdo->prepare("INSERT INTO meeting_audit_events(session_id,actor_user_id,event_type,details_json,created_at) SELECT id,:actor,'offering.learner_completed',:details,:now FROM course_sessions WHERE offering_id=:offering AND status='completed' ORDER BY id LIMIT 1")->execute(['actor'=>$actor,'details'=>json_encode(['user_id'=>$userId,'offering_id'=>$offeringId],JSON_THROW_ON_ERROR),'now'=>$now,'offering'=>$offeringId]);
+   $this->pdo->prepare("INSERT INTO course_offering_audit_events(offering_id,actor_user_id,learner_user_id,event_type,details_json,created_at) VALUES(:offering,:actor,:learner,'enrolment.completed',:details,:now)")->execute(['offering'=>$offeringId,'actor'=>$actor,'learner'=>$userId,'details'=>json_encode(['mode'=>$enrolment['mode']],JSON_THROW_ON_ERROR),'now'=>$now]);
    $notice=$this->pdo->prepare("INSERT OR IGNORE INTO notifications(user_id,event_key,type,title,message,target_url,created_at) VALUES(:user,:event,'course','Course cohort completed',:message,'/certificates',:now)");
    $notice->execute(['user'=>$userId,'event'=>'offering-completed-'.$offeringId,'message'=>'You completed '.$enrolment['course_title'].' · '.$enrolment['title'].'. Your certificate will be available in Certificates.','now'=>$now]);
    $this->pdo->exec('COMMIT');
