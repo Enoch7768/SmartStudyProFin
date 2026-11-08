@@ -39,7 +39,7 @@ final class MediaManager
         'application/vnd.ms-excel' => ['xls'], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => ['xlsx'],
         'application/vnd.ms-powerpoint' => ['ppt'], 'application/vnd.openxmlformats-officedocument.presentationml.presentation' => ['pptx'],
         'application/rtf' => ['rtf'], 'text/rtf' => ['rtf'], 'application/vnd.oasis.opendocument.text' => ['odt'],
-        'video/mp4' => ['mp4'], 'audio/mpeg' => ['mp3'], 'application/zip' => ['docx', 'xlsx', 'pptx', 'odt']
+        'video/mp4' => ['mp4'], 'audio/mpeg' => ['mp3'], 'application/zip' => ['docx', 'xlsx', 'pptx', 'odt', 'zip']
     ];
 
     private static function extensionMatches(string $mime, string $filename): bool
