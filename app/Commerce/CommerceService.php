@@ -45,7 +45,7 @@ final class CommerceService
                 if ($access->fetchColumn()) throw new RuntimeException('You already have access to this course.');
             }
             $assets = [];
-            $entitlement = '';
+            $entitlement = 'download';
             if ($type === 'product' && ($item['product_type'] ?? '') === 'physical') {
                 $hasPhysical = true;
                 $entitlement = 'physical';
