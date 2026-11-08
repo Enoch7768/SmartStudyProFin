@@ -11,7 +11,7 @@ final class Url
         $configured = class_exists(Config::class) ? (string) Config::get('app.url', '') : '';
         if ($configured !== '') {
             $url = parse_url($configured);
-            if (is_array($url) && in_array(strtolower((string) ($url['scheme'] ?? '')), ['http', 'https'], true) && !empty($url['host']) && !isset($url['user'], $url['pass'], $url['query'], $url['fragment'])) {
+            if (is_array($url) && in_array(strtolower((string) ($url['scheme'] ?? '')), ['http', 'https'], true) && !empty($url['host']) && !isset($url['user']) && !isset($url['pass']) && !isset($url['query']) && !isset($url['fragment'])) {
                 $configuredPath = (string) ($url['path'] ?? '');
                 if ($configuredPath !== '' && !preg_match('/[\\\\\\x00-\\x1F\\x7F]/', $configuredPath)) {
                     $configuredPath = preg_replace('#/+#', '/', '/' . ltrim($configuredPath, '/')) ?: '/';
@@ -19,7 +19,7 @@ final class Url
                     $safe = true;
                     foreach ($segments as $segment) {
                         $decoded = rawurldecode($segment);
-                        if ($decoded === '.' || $decoded === '..' || str_contains($decoded, '/') || str_contains($decoded, '\\\\')) {
+                        if ($decoded === '.' || $decoded === '..' || str_contains($decoded, '/') || str_contains($decoded, chr(92))) {
                             $safe = false;
                             break;
                         }
