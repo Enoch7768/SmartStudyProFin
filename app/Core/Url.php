@@ -39,7 +39,7 @@ final class Url
         $scriptPath = '/' . ltrim(preg_replace('#/+#', '/', (string) $scriptPath) ?: '/index.php', '/');
         $directory = dirname($scriptPath);
         $baseDirectory = self::basePath();
-        if (in_array(strtolower(basename($directory)), ['admin', 'forms', 'install'], true)) {
+        if (in_array(strtolower(basename($directory)), ['admin', 'forms'], true)) {
             $baseDirectory .= '/' . basename($directory);
         }
 
