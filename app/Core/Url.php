@@ -8,6 +8,27 @@ final class Url
 {
     public static function basePath(): string
     {
+        $configured = class_exists(Config::class) ? (string) Config::get('app.url', '') : '';
+        if ($configured !== '') {
+            $url = parse_url($configured);
+            if (is_array($url) && in_array(strtolower((string) ($url['scheme'] ?? '')), ['http', 'https'], true) && !empty($url['host']) && !isset($url['user'], $url['pass'], $url['query'], $url['fragment'])) {
+                $configuredPath = (string) ($url['path'] ?? '');
+                if ($configuredPath !== '' && !preg_match('/[\\\\\\x00-\\x1F\\x7F]/', $configuredPath)) {
+                    $configuredPath = preg_replace('#/+#', '/', '/' . ltrim($configuredPath, '/')) ?: '/';
+                    $segments = array_values(array_filter(explode('/', $configuredPath), static fn (string $segment): bool => $segment !== ''));
+                    $safe = true;
+                    foreach ($segments as $segment) {
+                        $decoded = rawurldecode($segment);
+                        if ($decoded === '.' || $decoded === '..' || str_contains($decoded, '/') || str_contains($decoded, '\\\\')) {
+                            $safe = false;
+                            break;
+                        }
+                    }
+                    if ($safe) return $configuredPath === '/' ? '' : rtrim($configuredPath, '/');
+                }
+            }
+        }
+
         $scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
         if (preg_match('/^[a-z][a-z0-9+.-]*:\/\//i', $scriptName)) {
             $scriptPath = parse_url($scriptName, PHP_URL_PATH);
