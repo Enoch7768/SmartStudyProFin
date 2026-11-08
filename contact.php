@@ -18,6 +18,7 @@ $siteUrl = \App\Core\Url::site();
 <html lang="en">
 
 <head>
+  <base href="<?= htmlspecialchars(\App\Core\Url::to('/'), ENT_QUOTES, 'UTF-8') ?>">
   <script>
     (function() {
       const savedTheme = localStorage.getItem('ssp-theme');
@@ -42,7 +43,7 @@ $siteUrl = \App\Core\Url::site();
   <meta property="og:image" content="<?= $siteUrl ?>/Smart_Study_Logo_Fin-removebg-preview.png">
 
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/favicon.php'), ENT_QUOTES, 'UTF-8') ?>" rel="icon">
-  <link href="Smart_Study_Logo_Fin-removebg-preview.png" rel="apple-touch-icon">
+  <link href="<?= htmlspecialchars(\App\Core\Url::to('/Smart_Study_Logo_Fin-removebg-preview.png'), ENT_QUOTES, 'UTF-8') ?>" rel="apple-touch-icon">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
