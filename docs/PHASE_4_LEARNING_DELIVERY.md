@@ -90,6 +90,17 @@ Authentication, role/permission checks, CSRF, ownership validation, transactions
 - No recording/transcription occurs without an explicit consent workflow.
 - Routes work with root and subdirectory `APP_URL`; PHP 8.2/8.3, SQLite, security and smoke tests pass.
 
+## Delivered implementation
+
+- Added additive SQLite migrations for course offerings, live/in-person sessions, enrolments, attendance, meeting AI usage and idempotent reminder tracking.
+- Added administrator workflows for offering creation, meeting scheduling, provider link validation, host conflict detection, roster/attendance, rescheduling, cancellation, completion and archive.
+- Added learner session booking, capacity enforcement, protected join links, venue details and attendance history.
+- Added in-app notifications for new sessions, bookings, reschedules and cancellations, plus a CLI reminder job for 24-hour and one-hour reminders.
+- Added the Groq meeting companion with private server-side API key, configurable model and token budgets, per-user daily limits, usage logging, bounded rate-limit retry, timeout, safe fallback and environment kill switch. Gemini course tutor remains separate.
+- Added PHP 8.2/8.3 tests for migrations, provider link validation, protected links, bookings, attendance, lifecycle actions, reminder idempotency and the AI kill switch.
+
+Provider API automation is deliberately deferred: the first release uses administrator-entered Zoom/Google Meet links. It does not join, record, listen to or transcribe meetings. Email delivery depends on the separately configured application mail transport; reminders in this implementation are in-app notifications.
+
 ## Delivery sequence
 
 1. Map existing course, enrolment, payment, quiz, notification, media and AI services.
