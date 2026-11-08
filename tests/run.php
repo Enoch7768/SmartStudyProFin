@@ -45,16 +45,10 @@ try {
     if (App\Core\Url::to('\\\\courses\testing') !== '/SmartStudyProFin/') throw new RuntimeException('Double-leading backslashes must not become an external host URL.');
     if (App\Core\Url::to('https://example.com/path') !== 'https://example.com/path') throw new RuntimeException('Absolute HTTPS URLs must remain absolute.');
     if (App\Core\Url::to('/courses/testing?next=%2Flearn%2Fscience') !== '/SmartStudyProFin/courses/testing?next=%2Flearn%2Fscience') throw new RuntimeException('Query strings must be preserved while generating internal URLs.');
-    $_SERVER['SCRIPT_NAME'] = '/SmartStudyProFin/install/index.php';
-    if (App\Core\Url::applicationBasePath() !== '/SmartStudyProFin') throw new RuntimeException('Installer redirects must use the application base path rather than the install directory.');
-    $_SERVER['SCRIPT_NAME'] = '\\\\SmartStudyProFin\install\index.php';
-    if (App\Core\Url::applicationBasePath() !== '/SmartStudyProFin') throw new RuntimeException('Windows-style installer paths must preserve the application base path.');
     $_SERVER['SCRIPT_NAME'] = '/SmartStudyProFin/admin/orders.php';
     if (App\Core\Url::basePath() !== '/SmartStudyProFin' || App\Core\Url::to('/assets/css/main.css') !== '/SmartStudyProFin/assets/css/main.css' || App\Core\Url::documentBase() !== '/SmartStudyProFin/admin/') throw new RuntimeException('Admin entrypoints must separate application URLs from admin-relative document links.');
     $_SERVER['SCRIPT_NAME'] = '/SmartStudyProFin/forms/contact.php';
     if (App\Core\Url::basePath() !== '/SmartStudyProFin' || App\Core\Url::documentBase() !== '/SmartStudyProFin/forms/') throw new RuntimeException('Form entrypoints must preserve their own relative document base.');
-    $_SERVER['SCRIPT_NAME'] = '/SmartStudyProFin/install/index.php';
-    if (App\Core\Url::documentBase() !== '/SmartStudyProFin/install/') throw new RuntimeException('Installer-relative resources must resolve inside the installer directory.');
     $_SERVER['SCRIPT_NAME'] = '\\SmartStudyProFin\\admin\\orders.php';
     if (App\Core\Url::basePath() !== '/SmartStudyProFin' || App\Core\Url::documentBase() !== '/SmartStudyProFin/admin/') throw new RuntimeException('Windows-style admin paths must resolve against the admin directory and application root.');
     if (App\Core\Url::resolve('orders.php?saved=1') !== '/SmartStudyProFin/admin/orders.php?saved=1' || App\Core\Url::resolve('../login.php?redirect=admin%2Forders.php') !== '/SmartStudyProFin/login.php?redirect=admin%2Forders.php' || App\Core\Url::resolve('/profile') !== '/SmartStudyProFin/profile') throw new RuntimeException('Relative redirects must resolve within their current directory and application base.');
@@ -71,6 +65,7 @@ try {
     if (!str_contains($routeRules, 'RewriteRule ^about\\.php$ about [R=301,L]') || !str_contains($routeRules, 'RewriteRule ^(?:learning|study)/?$ learn [R=301,L]') || !str_contains($routeRules, 'RewriteRule ^index\\.php$ ./ [R=301,L]')) throw new RuntimeException('Canonical redirects must preserve subdirectory installations.');
     if (preg_match('/^RewriteRule\\s+\\S+\\s+\\/[A-Za-z]/m', $routeRules)) throw new RuntimeException('Canonical rewrite targets must not discard the application subdirectory.');
     $frontController = (string) file_get_contents(dirname(__DIR__) . '/index.php');
+    if (!str_contains($frontController, "preg_match('#^/install(?:/|$)#i', \$path)")) throw new RuntimeException('Removed installer paths must be explicitly rejected by the front controller.');
     foreach (["'/profile' => 'profile.php'", "'/cart/add' => 'cart-add.php'", "'/assistant' => 'assistant.php'", "'/learn' => 'learning.php'", "course_slug"] as $route) {
         if (!str_contains($frontController, $route)) throw new RuntimeException('The index.php front controller is missing route support: ' . $route);
     }
