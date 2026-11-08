@@ -133,8 +133,8 @@ final class CommerceService
                 $orderItemId = (int) $this->pdo->lastInsertId();
                 if ($item['type'] === 'product' && $item['product_type'] === 'physical') {
                     if ($item['stock_quantity'] !== null) {
-                        $reserveStock = $this->pdo->prepare('UPDATE cms_products SET stock_reserved=stock_reserved+:quantity WHERE id=:product_id AND stock_quantity IS NOT NULL AND stock_quantity-stock_reserved>=:quantity');
-                        $reserveStock->execute(['quantity'=>$item['quantity'],'product_id'=>$item['id']]);
+                        $reserveStock = $this->pdo->prepare('UPDATE cms_products SET stock_reserved=stock_reserved+:add_quantity WHERE id=:product_id AND stock_quantity IS NOT NULL AND stock_quantity-stock_reserved>=:required_quantity');
+                        $reserveStock->execute(['add_quantity'=>$item['quantity'],'required_quantity'=>$item['quantity'],'product_id'=>$item['id']]);
                         if ($reserveStock->rowCount() !== 1) throw new RuntimeException('This physical product does not have enough stock available.');
                     }
                     $reservation = $this->pdo->prepare("INSERT INTO product_stock_reservations(order_item_id,product_id,quantity,status,created_at,updated_at) VALUES(:item,:product,:quantity,'reserved',:now,:now)");
@@ -226,8 +226,8 @@ final class CommerceService
             $reservations->execute(['order_id'=>$orderId]);
             foreach($reservations->fetchAll() as $reservation) {
                 if($reservation['stock_quantity'] !== null) {
-                    $release=$this->pdo->prepare('UPDATE cms_products SET stock_reserved=stock_reserved-:quantity WHERE id=:product_id AND stock_reserved>=:quantity');
-                    $release->execute(['quantity'=>(int)$reservation['quantity'],'product_id'=>(int)$reservation['product_id']]);
+                    $release=$this->pdo->prepare('UPDATE cms_products SET stock_reserved=stock_reserved-:release WHERE id=:product_id AND stock_reserved>=:required');
+                    $release->execute(['release'=>(int)$reservation['quantity'],'required'=>(int)$reservation['quantity'],'product_id'=>(int)$reservation['product_id']]);
                     if($release->rowCount()!==1) throw new RuntimeException('Reserved product stock could not be released safely.');
                 }
                 $this->pdo->prepare("UPDATE product_stock_reservations SET status='released',updated_at=:now WHERE id=:id AND status='reserved'")->execute(['now'=>$now,'id'=>(int)$reservation['id']]);
@@ -275,8 +275,8 @@ final class CommerceService
             $stockReservations->execute(['order_id'=>$payment['order_id']]);
             foreach ($stockReservations->fetchAll() as $reservation) {
                 if ($reservation['stock_quantity'] !== null) {
-                    $commitStock = $this->pdo->prepare('UPDATE cms_products SET stock_quantity=stock_quantity-:quantity,stock_reserved=stock_reserved-:quantity WHERE id=:product_id AND stock_quantity>=:quantity AND stock_reserved>=:quantity');
-                    $commitStock->execute(['quantity'=>(int)$reservation['quantity'],'product_id'=>(int)$reservation['product_id']]);
+                    $commitStock = $this->pdo->prepare('UPDATE cms_products SET stock_quantity=stock_quantity-:decrement,stock_reserved=stock_reserved-:release WHERE id=:product_id AND stock_quantity>=:available AND stock_reserved>=:reserved');
+                    $commitStock->execute(['decrement'=>(int)$reservation['quantity'],'release'=>(int)$reservation['quantity'],'available'=>(int)$reservation['quantity'],'reserved'=>(int)$reservation['quantity'],'product_id'=>(int)$reservation['product_id']]);
                     if ($commitStock->rowCount() !== 1) throw new RuntimeException('Reserved product stock could not be committed. Administrator reconciliation is required.');
                 }
                 $this->pdo->prepare("UPDATE product_stock_reservations SET status='committed',updated_at=:now WHERE id=:id AND status='reserved'")->execute(['now'=>$now,'id'=>(int)$reservation['id']]);
