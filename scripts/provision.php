@@ -7,8 +7,12 @@ if (PHP_SAPI !== 'cli') {
     exit("Not found\n");
 }
 
-if ($argc !== 4) {
-    fwrite(STDERR, "Usage: php scripts/provision.php \"Administrator Name\" admin@example.com \"Strong unique password\"\n");
+$name = trim((string) getenv('SSP_ADMIN_NAME'));
+$email = trim((string) getenv('SSP_ADMIN_EMAIL'));
+$password = (string) getenv('SSP_ADMIN_PASSWORD');
+
+if ($name === '' || $email === '' || $password === '') {
+    fwrite(STDERR, "Set SSP_ADMIN_NAME, SSP_ADMIN_EMAIL and SSP_ADMIN_PASSWORD in the process environment, then run this command again.\n");
     exit(2);
 }
 
@@ -16,9 +20,11 @@ $root = dirname(__DIR__);
 require $root . '/bootstrap/app.php';
 
 try {
-    App\Core\Installer::install($root, (string) $argv[1], (string) $argv[2], (string) $argv[3]);
+    App\Core\Installer::install($root, $name, $email, $password);
     fwrite(STDOUT, "Database and administrator provisioning completed.\n");
 } catch (Throwable $exception) {
     fwrite(STDERR, $exception->getMessage() . "\n");
     exit(1);
+} finally {
+    unset($password);
 }
