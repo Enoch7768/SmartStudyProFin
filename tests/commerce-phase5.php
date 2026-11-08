@@ -82,6 +82,9 @@ try {
     $samePayment = $commerce->createPayment((int) $order['id'], $adminId, 'dpo');
     if ((int) $payment['id'] !== (int) $samePayment['id']) throw new RuntimeException('Repeated payment creation did not reuse the active idempotent payment.');
     $commerce->updateProviderReference((int) $payment['id'], 'phase5-dpo-token', 'CREATED', ['company_ref' => $order['public_id']]);
+    $blankReferenceRejected = false;
+    try { $commerce->confirmPayment((int) $payment['id'], 'dpo', 'phase5-dpo-token', '', 20000, 'UGX', 'COMPLETED', 'phase5-invalid-event'); } catch (RuntimeException) { $blankReferenceRejected = true; }
+    if (!$blankReferenceRejected) throw new RuntimeException('A payment without a provider transaction reference was accepted.');
     if (!$commerce->confirmPayment((int) $payment['id'], 'dpo', 'phase5-dpo-token', 'phase5-approval', 20000, 'UGX', 'COMPLETED', 'phase5-event')) throw new RuntimeException('A verified payment did not complete the purchase.');
 
     $learning = new App\Learning\LearningService($pdo);
