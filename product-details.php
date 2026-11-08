@@ -36,7 +36,7 @@ $filePath = '';
 
 $seoTitle = $product['SEO-Title'] ?? ($displayTitle . ' | SmartStudyPro Store');
 $seoDescription = $product['SEO-Description'] ?? substr(strip_tags($displayDesc), 0, 160);
-$siteUrl = 'https://smartstudypro.com';
+$siteUrl = \App\Core\Url::site();
 $fullImgUrl = str_starts_with($imgUrl, 'http') ? $imgUrl : $siteUrl . '/' . ltrim($imgUrl, '/');
 ?>
 
