@@ -16,6 +16,20 @@ final class MeetingPlannerService {
   $now=gmdate('Y-m-d H:i:s');$q=$this->pdo->prepare('INSERT INTO course_offerings(course_id,mode,title,description,price_ugx,capacity,is_published,created_at,updated_at) VALUES(:course,:mode,:title,:description,:price,:capacity,:published,:now,:now)');
   $q->execute(['course'=>$courseId,'mode'=>$mode,'title'=>trim($title),'description'=>trim($description),'price'=>$price,'capacity'=>$capacity,'published'=>$published?1:0,'now'=>$now]);return (int)$this->pdo->lastInsertId();
  }
+ public function instructors(): array {
+  return $this->pdo->query("SELECT u.id,u.name,u.email FROM users u JOIN user_roles ur ON ur.user_id=u.id JOIN roles r ON r.id=ur.role_id WHERE r.slug='instructor' AND u.status='active' ORDER BY u.name")->fetchAll();
+ }
+ public function assignedInstructors(int $offeringId): array {
+  $q=$this->pdo->prepare("SELECT u.id,u.name,u.email,oi.assigned_at FROM course_offering_instructors oi JOIN users u ON u.id=oi.user_id WHERE oi.offering_id=:offering ORDER BY u.name");$q->execute(['offering'=>$offeringId]);return $q->fetchAll();
+ }
+ public function assignInstructor(int $actor,int $offeringId,int $instructorId): void {
+  $q=$this->pdo->prepare("SELECT 1 FROM course_offerings WHERE id=:id");$q->execute(['id'=>$offeringId]);if(!$q->fetchColumn())throw new RuntimeException('Course offering not found.');
+  $q=$this->pdo->prepare("SELECT 1 FROM users u JOIN user_roles ur ON ur.user_id=u.id JOIN roles r ON r.id=ur.role_id WHERE u.id=:user AND u.status='active' AND r.slug='instructor'");$q->execute(['user'=>$instructorId]);if(!$q->fetchColumn())throw new RuntimeException('Select an active account with the instructor role.');
+  $q=$this->pdo->prepare("INSERT OR IGNORE INTO course_offering_instructors(offering_id,user_id,assigned_by,assigned_at) VALUES(:offering,:user,:actor,:now)");$q->execute(['offering'=>$offeringId,'user'=>$instructorId,'actor'=>$actor,'now'=>gmdate('Y-m-d H:i:s')]);
+ }
+ public function unassignInstructor(int $offeringId,int $instructorId): void {
+  $q=$this->pdo->prepare("DELETE FROM course_offering_instructors WHERE offering_id=:offering AND user_id=:user");$q->execute(['offering'=>$offeringId,'user'=>$instructorId]);
+ }
  public function updateOffering(int $offeringId,string $title,string $description,int $price,?int $capacity,bool $published): void {
   if(trim($title)===''||strlen($title)>160||$price<0||$price>1000000000||($capacity!==null&&$capacity<1))throw new RuntimeException('Check the offering name, price and capacity.');
   $q=$this->pdo->prepare("SELECT is_published FROM course_offerings WHERE id=:id");$q->execute(['id'=>$offeringId]);$current=$q->fetch();if(!$current)throw new RuntimeException('Course offering not found.');
