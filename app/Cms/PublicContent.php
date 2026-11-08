@@ -82,6 +82,8 @@ final class PublicContent
 
     private function courseShape(array $row): array
     {
+        $offeringsQuery = $this->pdo->prepare("SELECT id, mode, title, description, price_ugx, capacity FROM course_offerings WHERE course_id = :course AND is_published = 1 ORDER BY id");
+        $offeringsQuery->execute(['course' => (int) $row['id']]);
         return [
             '_id' => (int) $row['id'],
             'Title' => $row['title'],
@@ -92,7 +94,8 @@ final class PublicContent
             'Image' => $this->image($row['image_media_id']),
             'SEO-Title' => $row['seo_title'],
             'SEO-Description' => $row['seo_description'],
-            'slug' => $row['slug']
+            'slug' => $row['slug'],
+            'Offerings' => $offeringsQuery->fetchAll()
         ];
     }
 
