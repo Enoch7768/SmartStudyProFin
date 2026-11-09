@@ -83,8 +83,8 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 ### P2 — Backup restore — manual procedure documented; restore drill pending
 
 - Backup creation uses SQLite `VACUUM INTO`, private media and key/lock copies, an HMAC-authenticated manifest and SHA-256 file checksums.
-- Automated tests cover backup creation, integrity, tampering and unsafe backup identifiers.
-- The application documents a manual restore procedure; there is no one-click live restore action. A controlled restore to an isolated staging environment is still required before production release.
+- Automated tests now cover backup creation, integrity, tampering, unsafe backup identifiers and an isolated restore of the database, media, application key and installation lock.
+- The application documents a manual restore procedure; there is no one-click live restore action. A controlled restore on the actual target cPanel/staging environment is still required before production release.
 
 ### P2 — Performance and accessibility — partial automated coverage
 
