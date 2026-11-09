@@ -2,12 +2,14 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 
 const cmsPage = fs.readFileSync('admin/cms.php', 'utf8');
+const cmsLoginStyles = fs.readFileSync('assets/css/admin-cms-login.css', 'utf8');
+const cmsDashboardStyles = fs.readFileSync('assets/css/admin-cms.css', 'utf8');
 assert.equal((cmsPage.match(/id="cms-theme-toggle"/g) || []).length, 2);
 assert.equal((cmsPage.match(/Url::to\('\/assets\/js\/theme\.js'\)/g) || []).length, 2);
 assert.ok(cmsPage.includes('data-theme-endpoint="../theme-preference.php"'));
 assert.ok(cmsPage.includes('data-csrf='));
-assert.ok(cmsPage.includes('html[data-theme="dark"] .panel'));
-assert.ok(cmsPage.includes('z-index:10;width:auto;margin:0;'));
+assert.ok(cmsDashboardStyles.includes('html[data-theme="dark"] .panel'));
+assert.ok(cmsLoginStyles.includes('z-index:10;width:auto;margin:0;'));
 assert.ok(cmsPage.includes('name="site.favicon_media_id"'));
 assert.ok(cmsPage.includes('href="product-assets.php"'));
 const productAssetPage = fs.readFileSync('admin/product-assets.php', 'utf8');
