@@ -197,3 +197,12 @@ A production release must not be called ready until all of the following are tru
 - Fixed a malformed Bootstrap/main stylesheet link in `admin/messages.php` that had combined two link elements into one invalid HTML attribute.
 - Extended the PHP foundation tests to check that these operations pages load the shared operations stylesheet and that the contact inbox references valid Bootstrap and main CSS assets.
 - The new operations migration and test changes are committed, but their CI run must complete before this follow-up can be called green. Browser-level visual and accessibility validation remains outstanding.
+
+### 2026-11-09 — Commerce administration design-system follow-up
+
+- Migrated `admin/product-assets.php` away from a page-local hard-coded light/dark palette and onto `assets/css/admin-operations.css`, with the shared theme tokens and responsive foundation. Product asset selection now has a clear selected-state treatment.
+- Migrated `admin/orders.php` and `admin/refunds.php` onto the shared operations layout, panel, form and table styling while retaining the account-synced theme controller.
+- Extended the shared admin operations stylesheet to cover Bootstrap tables, form surfaces, panels and theme controls consistently in both color schemes.
+- Expanded PHP and Node regression coverage for the shared product asset manager and admin operations styles. The new CI run is pending; this change is not yet confirmed green.
+- Media preview remains a protected streaming endpoint rather than a visual page, and demo payment settings is a POST-only action endpoint; neither needs a page stylesheet. This pass did not alter their behavior.
+- No browser visual or accessibility validation has been performed.
