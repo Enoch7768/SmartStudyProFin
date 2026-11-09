@@ -2,16 +2,16 @@
 
 **Status:** Main-branch hardening in progress — release candidate not approved  
 **Audit branch:** `main`  
-**Inventory snapshot:** `c21b41948124aa03dce81e4ded882f9a640c6f9c`  
+**Inventory snapshot:** `12cfb20d227e94119f4ab96f5b4c9a2623f7692f`  
 **Current source inventory at snapshot:** 257 tracked files: 143 PHP files, 69 shipped asset files, 21 additive SQLite migrations, and 20 test files. The retired `cms/` tree (880 tracked files immediately before cleanup) has been removed from the active source tree.
 
 A green CI run is a baseline, not proof that every user journey, provider integration or production hosting configuration has been validated. This document distinguishes automated checks from staging and owner sign-off still required.
 
 ## Latest independently verified CI snapshot
 
-- Latest validated source commit: `207186bc7abe04fdc01e62300470bfbce4f4f369`.
-- GitHub Actions [run #1253](https://github.com/Enoch7768/SmartStudyProFin/actions/runs/42625849160) completed successfully on 2026-11-09. Both `foundation (8.2)` and `foundation (8.3)` passed.
-- The tested commit includes the shared design-token layer, learner/admin dark-theme token alignment, extraction of navigation CSS from `nav.php` into `main.css`, shared stylesheet loading across all 26 discovered navigation consumers, instructor base stylesheet integration and release-history documentation updates.
+- Latest validated source commit: `12cfb20d227e94119f4ab96f5b4c9a2623f7692f`.
+- GitHub Actions [run #1257](https://github.com/Enoch7768/SmartStudyProFin/actions/runs/42626159674) completed successfully on 2026-11-09. Both `foundation (8.2)` and `foundation (8.3)` passed.
+- The tested commit includes the shared design-token layer, shared typography defaults, learner/admin dark-theme token alignment, extraction of navigation CSS from `nav.php` into `main.css`, shared stylesheet loading across all 26 discovered navigation consumers, instructor base stylesheet integration and release-history documentation updates.
 - The foundation workflow covers PHP lint, the release-package policy test, identity and migrations, commerce/refunds, simulated payments, meetings, instructor permissions, AI privacy, recognition, backup/operations, JavaScript tests, rich-text sanitization, query plans, security configuration and site/asset smoke tests.
 - The release archive rule filters shipped `assets/vendor/` browser libraries before checking forbidden server-side dependency directories. Regression coverage checks both allowed browser assets and forbidden server dependency paths.
 - These are automated default-branch checks only. They are not a tag-triggered release build, provider staging test, production cPanel drill, manual browser/accessibility review, or proof that historical refs have been cleaned.
