@@ -9,9 +9,9 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 
 ## Latest independently verified CI snapshot
 
-- Latest validated source commit: `12cfb20d227e94119f4ab96f5b4c9a2623f7692f`.
-- GitHub Actions [run #1257](https://github.com/Enoch7768/SmartStudyProFin/actions/runs/42626159674) completed successfully on 2026-11-09. Both `foundation (8.2)` and `foundation (8.3)` passed.
-- The tested commit includes the shared design-token layer, shared typography defaults, learner/admin dark-theme token alignment, extraction of navigation CSS from `nav.php` into `main.css`, shared stylesheet loading across all 26 discovered navigation consumers, instructor base stylesheet integration and release-history documentation updates.
+- Latest validated source commit: `005c402e3340c3b5d5175e3ea880bbfd85f2a771`.
+- GitHub Actions [run #1309](https://github.com/Enoch7768/SmartStudyProFin/actions/runs/42655677701) completed successfully on 2026-11-09. Both `foundation (8.2)` and `foundation (8.3)` passed.
+- The tested commit includes the shared design-token and common-state layer, centralized navigation styling across all 26 discovered navigation consumers, learner/admin dark-surface alignment, the shared account-synced theme controller and GET/POST theme preference endpoint, consistent admin operations theme controls, and tokenized instructor/meeting workspace surfaces.
 - The foundation workflow covers PHP lint, the release-package policy test, identity and migrations, commerce/refunds, simulated payments, meetings, instructor permissions, AI privacy, recognition, backup/operations, JavaScript tests, rich-text sanitization, query plans, security configuration and site/asset smoke tests.
 - The release archive rule filters shipped `assets/vendor/` browser libraries before checking forbidden server-side dependency directories. Regression coverage checks both allowed browser assets and forbidden server dependency paths.
 - These are automated default-branch checks only. They are not a tag-triggered release build, provider staging test, production cPanel drill, manual browser/accessibility review, or proof that historical refs have been cleaned.
