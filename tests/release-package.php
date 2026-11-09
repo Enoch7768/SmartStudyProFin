@@ -36,6 +36,7 @@ foreach ([
     '.env.example',
     'docs/INSTALLATION.md',
     'docs/RELEASES_UPDATES_BACKUPS.md',
+    'CHANGELOG.md',
 ] as $requiredFile) {
     if (!is_file($root . '/' . $requiredFile)) {
         throw new RuntimeException('A required release file is missing: ' . $requiredFile);
