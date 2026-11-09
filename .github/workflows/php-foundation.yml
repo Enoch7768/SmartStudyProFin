@@ -66,7 +66,7 @@ jobs:
         with:
           node-version: '20'
       - name: Validate browser JavaScript
-        run: node --check assets/js/main.js && node tests/main-js.test.cjs && node --check assets/js/theme.js && node tests/theme.test.cjs && node --check assets/js/cms-theme.js && node tests/cms-theme.test.cjs && node --check assets/js/media-library.js && node tests/media-library.test.cjs
+        run: node --check assets/js/main.js && node tests/main-js.test.cjs && node --check assets/js/theme.js && node tests/theme.test.cjs && node tests/cms-theme.test.cjs && node --check assets/js/media-library.js && node tests/media-library.test.cjs
       - name: Test CMS rich-text sanitization
         run: php tests/content-security.php
       - name: Validate production SQLite query plans
