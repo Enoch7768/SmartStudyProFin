@@ -13,6 +13,8 @@ assert.ok(cmsPage.includes('href="product-assets.php"'));
 const productAssetPage = fs.readFileSync('admin/product-assets.php', 'utf8');
 assert.ok(productAssetPage.includes('../assets/js/theme.js'));
 assert.ok(productAssetPage.includes('id="cms-theme-toggle"'));
+assert.ok(productAssetPage.includes('data-theme-endpoint="../theme-preference.php"'));
+assert.ok(productAssetPage.includes('data-csrf='));
 assert.ok(productAssetPage.includes('html[data-theme="dark"] .form-select'));
 assert.ok(productAssetPage.includes('Private files delivered after purchase'));
 assert.ok(productAssetPage.includes('Public product gallery images'));
