@@ -1,129 +1,134 @@
-# Phase 5 — Whole-project audit and hardening
+# Phase 5 — Whole-project audit and release readiness
 
-**Status:** In progress  
-**Audit target:** `main`  
-**Baseline commit:** `7628cea8ac3fb4d1d8fe6e2f321876880dd9b53d`  
-**Inventory:** 1,602 tracked entries (1,210 file blobs), including 291 PHP files and 962 entries in the retired `cms/` tree.
+**Status:** In progress — release candidate not approved  
+**Audit branch:** `main`  
+**Inventory snapshot:** `149f4a7ad4e976e00e30db8e7d42d498f71360d3`  
+**Current source inventory at snapshot:** 258 tracked files: 143 PHP files, 69 shipped asset files, 21 additive SQLite migrations, and 20 test files. The retired `cms/` tree (880 tracked files immediately before cleanup) has been removed from the active source tree.
 
-This is a living audit record. A green CI run is a baseline, not proof that every user journey, provider integration or production hosting configuration has been validated.
+A green CI run is a baseline, not proof that every user journey, provider integration or production hosting configuration has been validated. This document distinguishes automated checks from staging and owner sign-off still required.
 
 ## Audit objectives
 
-1. Review every maintained PHP source file and every shipped browser asset, including line-level security, error handling, authorization, validation and accessibility checks.
-2. Verify the full learner, instructor, administrator and commerce journeys against the actual database schema and authorization rules.
-3. Audit release packaging, private storage, deployment, backup/restore, migrations and operational diagnostics.
-4. Improve reliability, usability, accessibility, performance and maintainability without replacing the existing design or adding unnecessary runtime dependencies.
-5. Separate active application code from retired CMS material, historical databases, uploaded files, generated artifacts and private business records.
+1. Review maintained PHP source and shipped browser assets for security, error handling, authorization, validation, accessibility and performance.
+2. Verify learner, instructor, administrator and commerce journeys against the actual schema and authorization rules.
+3. Audit release packaging, private storage, deployment, backups, migrations and operational diagnostics.
+4. Improve reliability, usability, accessibility, performance and maintainability without replacing the established design or adding unnecessary runtime dependencies.
+5. Keep retired code, historical databases, uploads, generated artifacts and private business records out of the active application and release package.
 
-## Confirmed findings
+## Confirmed findings and remediation
 
-### P0 — Public repository data hygiene
+### P0 — Historical public-repository exposure remains
 
-**Phase 1 remediation:** Removed 88 tracked runtime/private artifacts from the current `main` tree: legacy CMS SQLite databases, 38 CMS uploads, generated thumbnails/cache, three legacy booking databases, two avatar images and the root financial-looking spreadsheet. Kept intentional public brand/site assets, migration source files and `.gitkeep` placeholders. Expanded `.gitignore` to prevent CMS runtime data and generated thumbnails/cache from being reintroduced. This does not erase prior Git history; history scrubbing and any required credential rotation remain separate follow-up work.
+- The current `main` tree has had legacy runtime/private artifacts removed, and the retired `cms/` source tree has now been removed from active source.
+- The legacy CMS removal deleted 880 tracked files from `main`. The native PHP CMS under `app/Cms` and its current admin screens remain in place.
+- The current branch no longer contains the retired root `auth.php` implementation, which held a hardcoded legacy signing secret.
+- **Important:** deleting files from `main` does not erase old commits or tags. The old CMS source, historical private artifacts and the legacy authentication secret may remain retrievable from repository history and the published `v0.1.0` tag. No Git history rewrite or credential rotation has been performed as part of this audit.
+- Before public launch, the owner must decide whether to rewrite public history (a coordinated, disruptive operation) and rotate any still-used credential that may have appeared in historical source. Never reuse the legacy signing secret.
 
-- The public repository currently tracks legacy SQLite databases under `cms/storage/data/`, `database/` and `db/`, plus historical uploaded media and a ZIP archive under `cms/storage/uploads/`.
-- A spreadsheet named `Income Statement and distribution.xlsx` is tracked at the repository root. It is excluded from the release archive, but remains downloadable from the public Git repository and its history.
-- Avatar images are tracked under `uploads/avatars/`. The release process excludes these files, but the public Git repository still exposes them.
-- Release packaging excludes several of these paths, which protects the deployed ZIP but does not protect the public source repository or old Git history.
-- Before production launch, classify each tracked data artifact. Remove private/business records, database snapshots, user uploads and personal images from the public repository; rotate any credentials found; consider Git-history scrubbing because ordinary deletion does not erase prior commits. Preserve only intentional synthetic test fixtures.
+### P1 — Release workflow validation parity — remediated
 
-### P0 — Historical authentication secret
+- The tag-triggered release workflow previously omitted several current regression suites and did not run the PHP 8.2/8.3 matrix.
+- The release workflow now runs the full maintained PHP test suite on PHP 8.2 and 8.3 before packaging. It includes configuration secrets, contact abuse controls, commerce/refunds, simulated payments, meeting planner, instructor permissions, AI privacy, recognition, backups, rich-text security, query plans, security and site/asset smoke tests.
+- Browser JavaScript syntax and behaviour suites for the main UI, CMS theme and media library are included.
+- Release packaging now checks the semantic version/tag match, required instructor workspace and latest migration, and rejects CMS, database, backup, environment-secret, vendor and test paths. A file manifest and SHA-256 checksum are attached to the release.
+- Regression tests now guard the release matrix and required current migration history so the tag workflow cannot silently drift behind normal CI.
 
-- Removed the obsolete root `auth.php` endpoint from the current branch and added an explicit web-server 404 rule. It contained a hardcoded legacy signing secret and a parallel authentication/database implementation that was not part of the active account service.
-- Removing the file from `main` does not remove it from prior public Git commits. Treat the old signing key as disclosed; rotate it if any active media/token integration ever relied on it, and scrub repository history if the project owner wants the old secret and personal artifacts removed from public history.
+### P1 — Private credential configuration — remediated
 
-### P1 — Private credential configuration
+- Private storage `APP_STORAGE_PATH/.env` now supports the application key, Google secret, Gemini key, Groq key, PayPal secret and DPO company token.
+- Project environment/process values retain precedence where intended; private credentials are not required in public templates.
+- Regression coverage exists for private secret loading. Production owners must still verify permissions and provider configuration on the target host.
 
-- The private storage `APP_STORAGE_PATH/.env` loader was used for Google and Groq secrets, but Gemini, PayPal and DPO credentials were still read only from the project environment file/process environment.
-- This is inconsistent with the documented private-storage secret workflow and makes those provider secrets unavailable when configured only in private storage.
-- Updated configuration to load `APP_KEY`, Gemini API key, PayPal secret and DPO company token through the private-secret reader as well. Added a regression test for all six secret values.
+### P1 — Homepage structured-data encoding — remediated
 
-### P1 — Homepage structured-data encoding
+- Homepage JSON-LD is encoded with `json_encode` and HTML-sensitive JSON flags instead of interpolating dynamic values into a script block.
 
-- Homepage JSON-LD previously interpolated contact and site values directly into a script block.
-- Replaced manual interpolation with `json_encode` and HTML-sensitive JSON flags to prevent malformed structured data and script-context injection.
+### P1 — Contact handling and administrator workflow — remediated
 
-### P1 — Contact handling and administrator workflow
+- Contact submissions use the private application SQLite database rather than a separate project-directory database.
+- CSRF, server-side validation, honeypot handling and transactional per-IP rate limiting are in place.
+- The administrator contact inbox supports new/read/archived states.
 
-- Replaced the legacy contact handler that wrote to a separate project-directory database with the private application SQLite database.
-- Added CSRF protection, server-side validation, a honeypot and a transactional per-IP rate limit. Added an administrator contact inbox with new/read/archived states.
-- Retired the broken template contact/newsletter endpoints that referenced a missing third-party PHP Email Form library.
+### P1 — Upload and session hardening — automated coverage present
 
-### P1 — Upload and session hardening
+- Upload validation uses server-detected MIME and extension agreement, generated storage names and private storage outside the document root.
+- ZIP files are accepted only as private authenticated downloads; the application does not extract, preview, index or execute archive contents.
+- Failed media metadata writes remove the just-stored file.
+- Session cookies use the installed base path and Secure decisions account for the canonical HTTPS application URL.
+- PayPal webhook bodies are size-bounded. DPO callbacks validate the provider reference and exact UGX amount; payment confirmation requires a non-empty provider transaction reference.
+- This is file isolation and allowlisting, **not antivirus scanning**. The product documentation explicitly states that malware scanning is not provided; users should only open files from trusted sources.
 
-- Added server-detected MIME plus filename-extension agreement checks for the configured safe formats, including ZIP. ZIPs remain private downloads; the application does not extract or execute archive contents.
-- Failed media metadata writes now remove the just-stored file rather than leaving orphaned private files.
-- Session cookies now use the configured application base path, and HTTPS cookie/HSTS decisions also respect the canonical HTTPS `APP_URL` for reverse-proxy deployments.
-- PayPal webhook bodies are size-bounded. DPO callbacks now require the provider-returned CompanyRef and an exact UGX amount, and payment confirmation requires a non-empty provider transaction reference.
+### P1 — Retired CMS source — removed from active tree
 
-### P1 — Legacy CMS boundary
+- The retired CMS was not loaded by the native application, was blocked by the front controller and Apache rules, and was excluded from deployment packages.
+- Its 880 tracked files have now been removed from `main` to reduce attack surface, repository weight and maintenance ambiguity.
+- The historical source remains in Git history and old tags until a separately approved history-retention decision is made.
 
-- The retired `cms/` tree contains 962 tracked entries and includes legacy dynamic-code mechanisms. It is not part of the deployment package and the web server/front controller block its routes.
-- It remains visible in the public Git repository. Keep it out of runtime and releases; decide whether to preserve it in a private archival repository or remove it after validating all content/media migration and history-retention requirements.
+### P2 — Course offering checkout integration — implemented, regression coverage present
 
-### P2 — Course delivery and checkout integration
+- Course offerings are now distinct purchasable order lines with purchase-time mode/title/price snapshots.
+- Self-paced purchases activate course learning access; live-online and in-person purchases create offering-specific enrolments used by session booking and instructor delivery.
+- Refunds revoke only the affected offering entitlement and are restricted to eligible online activities. In-person course fees, physical products and shipping are excluded from the online refund ledger.
+- Continue validating mixed carts, capacity reservations and refunds against staging data and provider settlement evidence.
 
-- Published course offerings are displayed in catalogue/detail pages, and the meeting planner supports live and in-person sessions.
-- The current order creation path still prices courses using the legacy course-level `price_ugx`; it does not yet create a distinct order line for each self-paced/live/in-person offering.
-- This means separate offering prices and entitlements need an end-to-end checkout and enrolment integration before the delivery-mode pricing model is complete.
+### P2 — Refund allocation and entitlement isolation — implemented
 
-### P2 — Refund allocation and entitlement isolation
+- Refunds allocate against a specific eligible order line, reserve pending/succeeded refundable balances and reject physical product lines.
+- A fully refunded digital entitlement loses only its corresponding read/download access. Course access is revoked only when the refunded line is fully refunded and no other valid purchase grants access.
+- Refund resolution is an audited administrator workflow. Actual provider money movement is performed in the PayPal or DPO merchant console and must be verified before the application records a successful refund.
 
-- Added migration `016_refund_item_allocations` to snapshot refund-to-order-line allocations.
-- Refund requests now use `BEGIN IMMEDIATE`, validate course/digital-product eligibility, reserve the selected line's remaining refundable balance, and reject physical product lines.
-- Refund resolution updates the order/payment totals, revokes only a fully refunded digital product's download access, and revokes course enrolment only when the course line is fully refunded and no other paid purchase grants access.
-- The administrator refund screen lists eligible line items and their remaining balances instead of accepting an unallocated order-level amount.
-- PHP commerce regression coverage now checks partial line refunds, cumulative over-refund rejection, independent product/course entitlement revocation and audit history. Shipping and read/download entitlements remain Phase 2 work.
+### P2 — Backup restore — manual procedure documented; restore drill pending
 
-### P2 — Operational and UX opportunities under review
+- Backup creation uses SQLite `VACUUM INTO`, private media and key/lock copies, an HMAC-authenticated manifest and SHA-256 file checksums.
+- Automated tests cover backup creation, integrity, tampering and unsafe backup identifiers.
+- The application documents a manual restore procedure; there is no one-click live restore action. A controlled restore to an isolated staging environment is still required before production release.
 
-- Validate backup restore as well as backup creation/integrity verification.
-- Validate concurrent checkout, duplicate webhook delivery, partial refunds, refund eligibility by item type and entitlement revocation.
-- Verify administrator permission checks on every state-changing action, not just page entry.
-- Verify private media path containment, allowed MIME handling, ZIP attachment delivery, and that no upload path can execute code.
-- Review mobile/tablet layouts, keyboard navigation, focus management, accessible names, empty states, validation feedback and reduced-motion behavior.
-- Review slow queries, N+1 content reads, pagination, image payload sizes and cache headers.
-- Improve diagnostics so operators receive actionable repair steps without exposing secrets or personal data.
+### P2 — Performance and accessibility — partial automated coverage
+
+- Query-plan tests check selected SQLite indexes; browser tests cover important JavaScript behaviour; responsive and reduced-motion styles are present.
+- A source inventory identified several large photographic assets above 2 MB. Their real-world loading impact, responsive variants and compression should be measured on the target site before launch.
+- Automated smoke tests do not replace keyboard-only, screen-reader, zoom/reflow and device-specific visual checks.
 
 ## Audit coverage ledger
 
-| Area | Status |
-|---|---|
-| Repository inventory and release boundaries | Current-branch data cleanup complete; history review and release recheck pending |
-| Core configuration, sessions, authentication and URL handling | Reviewed; private-secret loading hardened; deeper regression pass ongoing |
-| Identity, Google OAuth and account lifecycle | Initial source review; full journey tests pending |
-| CMS, rich-text sanitization and media | Initial source review; full permission and upload matrix pending |
-| Commerce, shipping, digital entitlements and refunds | Initial source review; end-to-end checkout gaps identified |
-| Payment providers and webhooks | Initial source review; sandbox replay and idempotency validation pending |
-| Learning, quizzes, progress and certificates | Initial source review; full journey audit pending |
-| AI tutor and meeting companion | Initial source review; quotas, error handling and privacy tests ongoing |
-| Admin experience and permissions | Initial source review; page-by-page task audit pending |
-| Browser assets, accessibility and responsive behavior | Inventory complete; visual/browser validation pending |
-| Legacy CMS and historical artifacts | Current-branch private data removed; history scrubbing decision pending |
-| Release, backup, restore and cPanel operations | Initial source review; restore drill pending |
+| Area | Current evidence | Remaining work |
+|---|---|---|
+| Repository inventory and release boundaries | Current tree inventory; retired CMS removed from `main`; package exclusions tested | Historical Git/tag review and history-retention decision |
+| Core configuration, sessions, authentication and URL handling | Source review, security tests, private-secret tests, site smoke | Full browser auth and subdirectory-host validation |
+| Identity, Google OAuth and account lifecycle | OAuth state/nonce/PKCE implementation; account and migration tests | Real Google OAuth staging sign-in, reset email delivery |
+| Native CMS, rich text and media | Sanitization, media-library tests, MIME/path controls | Admin task walkthrough, upload format matrix and manual malicious-file review |
+| Commerce, shipping, digital entitlements and refunds | Commerce/refund/demo-payment integration suites | Live/sandbox gateway replay, mixed-cart and shipping-zone staging checks |
+| Payment providers and webhooks | Provider verification and callback tests | Merchant credentials, webhook registration, duplicate callback replay and settlement reconciliation |
+| Learning, quizzes, progress and certificates | Migration, recognition, meeting and instructor tests | Full learner/instructor browser journeys and course content QA |
+| AI tutor and meeting companion | Retrieval/privacy, quotas, kill switch and bounded provider request tests | Provider terms/privacy review and live-key staging test |
+| Admin experience and permissions | Security and feature tests for sensitive workflows | Page-by-page administrator task and permission walkthrough |
+| Browser assets, accessibility and responsive behaviour | JS suites, CSS inventory, site/asset smoke | Manual keyboard/screen-reader/device tests; optimize large imagery |
+| Retired CMS and historical artifacts | 880-file legacy tree removed from current `main` | History rewrite/credential rotation decision |
+| Release, backup, restore and cPanel operations | PHP 8.2/8.3 CI; release matrix parity; package manifest/checksum | Tag-triggered package run, isolated restore drill and target-host deployment drill |
 
-## Validation rules
+## Release gates
 
-- No production data is used as a test fixture.
-- Every database migration must be additive, repeatable and tested on a blank database and an upgrade database.
-- Every state-changing route must validate method, CSRF, authentication, role/permission and ownership.
+A production release must not be called ready until all of the following are true:
+
+- [ ] Maintained PHP and browser source review is complete; all high/critical findings are fixed or explicitly accepted.
+- [x] PHP 8.2 and 8.3 main-branch regression matrix is green.
+- [x] Tag workflow runs the same feature/security regression suites on PHP 8.2 and 8.3.
+- [x] Release packaging excludes retired CMS, tests, databases, logs, backups, private environment files and third-party runtime trees.
+- [x] Release package contains all 21 migrations, instructor workspace and required browser runtime assets.
+- [ ] A tag-triggered release workflow has successfully produced and verified the ZIP, manifest and checksum.
+- [ ] A staging restore drill has restored database, media, application key and installation lock from a verified backup.
+- [ ] Target cPanel/PHP environment passes diagnostics and the full smoke test.
+- [ ] Google OAuth, email delivery, PayPal and DPO have been verified with real staging credentials and duplicate callback tests.
+- [ ] Owner has reviewed legal documents, privacy disclosures, refund policy, provider terms and data-processing implications.
+- [ ] Manual accessibility and responsive QA is complete.
+- [ ] Historical secret/data exposure has an explicit owner decision; any still-used exposed credential is rotated.
+
+## Operational constraints to preserve
+
+- Do not use production records as test fixtures.
+- Keep all database migrations additive and tested on blank and upgrade databases.
+- Every state-changing route must validate request method, CSRF, authentication, role/permission and record ownership.
 - Payment state must only be finalized from verified provider evidence and must be idempotent.
 - Refunds must be calculated from eligible order lines, not blindly from the full payment.
-- Uploads must remain outside the document root, use generated storage names, allow only the configured file types and never be executed or interpreted by the server. ZIPs are allowed as downloads; archive contents are not executed or extracted by the application.
-- CI must pass PHP 8.2 and 8.3, migration tests, security tests, browser behavior tests and release-package checks before a phase is considered complete.
-
-## Current hardening changes
-
-- Removed the retired `auth.php` implementation and explicitly blocked its URL.
-- Moved contact submissions to private SQLite storage and added the administrator inbox, CSRF, rate limiting and input validation.
-- Added ZIP-aware MIME/extension validation and upload orphan cleanup.
-- Scoped session cookies to the installed base path and tightened DPO/PayPal callback validation.
-- Added regression tests for contact abuse controls, ZIP extension handling, subdirectory cookies, DPO callback checks and blank provider transaction references.
-
-- Private-storage secret loading regression test added.
-- Homepage JSON-LD safely encoded.
-- CI and release validation include the private-secret test.
-
-## Completion criteria
-
-Phase 5 is complete only when all maintained source files have been reviewed, all high/critical findings have been resolved or explicitly accepted, all key learner/admin/payment journeys have automated coverage, restore and deployment drills have passed, the release package contains only intended runtime files, and the PHP 8.2/8.3 CI matrix is green.
+- Uploads stay outside the document root, use generated storage names, allow only configured formats and are never executed or interpreted. ZIPs are attachment-only; archive contents are never extracted or executed.
+- Keep the existing PHP + SQLite runtime and shared-hosting deployment model. Do not add dependencies or redesign the interface as part of audit-only fixes.
