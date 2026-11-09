@@ -94,7 +94,7 @@ html[data-theme="dark"] .alert-danger{background:#431f28;border-color:#7f1d1d;co
 <link href="../assets/css/device-responsive.css" rel="stylesheet">
 </head>
 <body>
-<button type="button" id="cms-theme-toggle" class="btn btn-outline-secondary cms-theme-toggle" aria-pressed="false" data-theme-endpoint="../theme-preference.php" data-csrf="<?= Security::escape(Security::csrfToken()) ?>">Dark mode</button>
+<button type="button" id="cms-theme-toggle" data-theme-toggle class="btn btn-outline-secondary cms-theme-toggle" aria-pressed="false" data-theme-endpoint="../theme-preference.php" data-csrf="<?= Security::escape(Security::csrfToken()) ?>">Dark mode</button>
 <main class="container py-4">
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
 <div><p class="small text-uppercase fw-bold mb-1" style="color:#FF7A00">Commerce management</p><h1 class="h2 mb-0">Product files and images</h1></div>
