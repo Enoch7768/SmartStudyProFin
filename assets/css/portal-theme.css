@@ -1,14 +1,14 @@
 [data-theme="dark"] body{background:var(--ssp-page-bg);color:var(--ssp-text)}
 [data-theme="dark"] .achievement,[data-theme="dark"] .certificate,[data-theme="dark"] .panel,[data-theme="dark"] .notice,[data-theme="dark"] .metric,[data-theme="dark"] .learning-card,[data-theme="dark"] .course-card,[data-theme="dark"] .sidebar,[data-theme="dark"] .topbar,[data-theme="dark"] .assistant-panel,[data-theme="dark"] .chat-panel,[data-theme="dark"] .question{background:var(--ssp-surface);color:var(--ssp-text);border-color:var(--ssp-border)}
-[data-theme="dark"] .notice.unread{background:#282116}
+[data-theme="dark"] .notice.unread{background:var(--ssp-surface-muted)}
 [data-theme="dark"] .chapter,[data-theme="dark"] .lesson-link.active,[data-theme="dark"] .message.assistant{background:var(--ssp-surface-muted);color:var(--ssp-text)}
-[data-theme="dark"] .lesson-link{color:#e2e8f0;border-bottom-color:var(--ssp-border)}
-[data-theme="dark"] .lesson-link:hover,[data-theme="dark"] .conversation-link:hover,[data-theme="dark"] .conversation-link.active{background:var(--ssp-surface-muted);color:#ffd2a6}
+[data-theme="dark"] .lesson-link{color:var(--ssp-text);border-bottom-color:var(--ssp-border)}
+[data-theme="dark"] .lesson-link:hover,[data-theme="dark"] .conversation-link:hover,[data-theme="dark"] .conversation-link.active{background:var(--ssp-surface-muted);color:var(--ssp-accent)}
 [data-theme="dark"] .muted,[data-theme="dark"] .hint,[data-theme="dark"] .meta,[data-theme="dark"] .text-muted,[data-theme="dark"] .text-secondary{color:var(--ssp-muted)!important}
-[data-theme="dark"] .code,[data-theme="dark"] .btn-link,[data-theme="dark"] .btn-outline-primary,[data-theme="dark"] .btn-outline-secondary{color:#c7d2fe}
+[data-theme="dark"] .code,[data-theme="dark"] .btn-link,[data-theme="dark"] .btn-outline-primary,[data-theme="dark"] .btn-outline-secondary{color:var(--ssp-accent)}
 [data-theme="dark"] .btn-outline-primary,[data-theme="dark"] .btn-outline-secondary{border-color:var(--ssp-muted)}
 [data-theme="dark"] .composer textarea{background:var(--ssp-page-bg);color:var(--ssp-text);border-color:var(--ssp-border)}
-[data-theme="dark"] .resource{background:#342719;color:#ffd2a6}
+[data-theme="dark"] .resource{background:var(--ssp-surface-muted);color:var(--ssp-accent)}
 [data-theme="dark"] .progress{background:var(--ssp-surface-muted)}
 [data-theme="dark"] .review-item{border-color:var(--ssp-border)}
 [data-theme="dark"] .table{--bs-table-color:var(--ssp-text);--bs-table-bg:var(--ssp-surface);--bs-table-border-color:var(--ssp-border)}
