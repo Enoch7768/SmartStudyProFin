@@ -18,6 +18,7 @@ All notable SmartStudyPro changes are recorded here. The current section is unre
 - Hardened PayPal and DPO callback verification, private secret loading, contact-form abuse controls and application session handling.
 - Updated release validation to run the full regression suite on PHP 8.2 and 8.3 before packaging.
 - Release package checks now verify required migrations, the instructor workspace, excluded private artifacts, package contents and SHA-256 checksum generation.
+- Release archive validation distinguishes shipped browser libraries in `assets/vendor/` from server-side dependency trees, with regression coverage for both allowed and forbidden paths.
 - Removed the retired legacy CMS and private invoice/transcript artifacts from the active source tree.
 
 ### Deployment and operations
