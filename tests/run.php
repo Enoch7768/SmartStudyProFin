@@ -101,7 +101,10 @@ try {
     foreach (['admin/analytics.php', 'admin/backups.php', 'admin/diagnostics.php', 'admin/messages.php', 'admin/shipping.php', 'admin/updates.php', 'admin/product-assets.php'] as $operationsPage) {
         $operationsMarkup = (string) file_get_contents(dirname(__DIR__) . '/' . $operationsPage);
         if (!str_contains($operationsMarkup, 'assets/js/theme.js') || !str_contains($operationsMarkup, 'data-theme-toggle') || !str_contains($operationsMarkup, 'theme-preference.php')) throw new RuntimeException('An administrator operations page is missing the shared account theme control: ' . $operationsPage);
+        if (in_array($operationsPage, ['admin/analytics.php', 'admin/backups.php', 'admin/diagnostics.php', 'admin/messages.php', 'admin/shipping.php', 'admin/updates.php'], true) && (!str_contains($operationsMarkup, 'assets/css/admin-operations.css') || !str_contains($operationsMarkup, 'ssp-admin-operations'))) throw new RuntimeException('An administrator operations page is missing the shared operations design system: ' . $operationsPage);
     }
+    $messagesMarkup = (string) file_get_contents(dirname(__DIR__) . '/admin/messages.php');
+    if (!str_contains($messagesMarkup, 'assets/vendor/bootstrap/css/bootstrap.min.css') || !str_contains($messagesMarkup, 'assets/css/main.css') || str_contains($messagesMarkup, '<link href="../assets/css/main.css" rel="stylesheet">" rel="stylesheet">')) throw new RuntimeException('The administrator contact inbox must load valid Bootstrap and shared design-system stylesheets.');
     $cmsMarkup = (string) file_get_contents(dirname(__DIR__) . '/admin/cms.php');
     $cmsThemeScript = (string) file_get_contents(dirname(__DIR__) . '/assets/js/theme.js');
     if (!str_contains($cmsMarkup, 'data-theme-endpoint="../theme-preference.php"') || !str_contains($cmsMarkup, 'data-csrf=') || !str_contains($cmsMarkup, 'assets/js/theme.js') || !str_contains($cmsThemeScript, 'X-CSRF-Token') || !str_contains($cmsThemeScript, 'JSON.stringify({theme:theme})')) throw new RuntimeException('The CMS theme control is not synchronized with the signed-in account.');
