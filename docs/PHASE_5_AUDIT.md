@@ -9,12 +9,27 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 
 ## Latest independently verified CI snapshot
 
-- Latest source commit after the shared design-token and instructor stylesheet updates: `4bb2aec7f8d5ac7a01a0d9cb9febaf586d34db42`.
-- The preceding main commit `c21b41948124aa03dce81e4ded882f9a640c6f9c` passed both PHP 8.2 and 8.3 foundation jobs in [run #1237](https://github.com/Enoch7768/SmartStudyProFin/actions/runs/42611934220).
-- Design-token commits `9e86659`, `cd913d0` and `e7d7988` each passed the PHP 8.2/8.3 foundation workflow. The instructor stylesheet commits are being validated by the latest run; do not treat them as green until that run completes.
+- Latest repository commit at this audit refresh: `114adb0c3e9affeac37b9641c35aaf1963b84707`.
+- GitHub Actions [run #1245](https://github.com/Enoch7768/SmartStudyProFin/actions/runs/42625391559) completed successfully on 2026-11-09. Both `foundation (8.2)` and `foundation (8.3)` passed.
+- The tested commit includes the shared design-token layer, learner/admin dark-theme token alignment, instructor base stylesheet integration, release-history documentation updates and this audit refresh.
 - The foundation workflow covers PHP lint, the release-package policy test, identity and migrations, commerce/refunds, simulated payments, meetings, instructor permissions, AI privacy, recognition, backup/operations, JavaScript tests, rich-text sanitization, query plans, security configuration and site/asset smoke tests.
 - The release archive rule filters shipped `assets/vendor/` browser libraries before checking forbidden server-side dependency directories. Regression coverage checks both allowed browser assets and forbidden server dependency paths.
 - These are automated default-branch checks only. They are not a tag-triggered release build, provider staging test, production cPanel drill, manual browser/accessibility review, or proof that historical refs have been cleaned.
+## Product quality and unification assessment
+
+This is a directional source-and-CI review, not a user-study, uptime report or third-party benchmark. Scores measure the current repository evidence, not the ambition of the product.
+
+| Dimension | Current score | Evidence and gap |
+|---|---:|---|
+| Feature breadth | 7.5/10 | Learning, commerce, delivery modes, instructor workflows, AI assistance, recognition and operations are present with dedicated services and tests. |
+| Automated engineering baseline | 7/10 | Broad PHP 8.2/8.3 checks and integration suites pass; live provider, cPanel and full browser journeys remain unverified. |
+| Security and privacy readiness | 5/10 | Good foundations in CSRF, role checks, private storage, webhook validation and upload allowlisting; historical exposed refs, active-secret rotation, report-only CSP and absent malware scanning remain material gaps. |
+| Design-system consistency | 4.5/10 | Shared tokens now exist, but navigation, page shells, typography, component styling and theme support still vary across individual templates. |
+| Accessibility and responsive assurance | 5/10 | Responsive/reduced-motion rules and automated smoke tests exist; manual keyboard, screen-reader, zoom, tablet/foldable and assistive-technology testing remains. |
+| Production readiness | 4/10 | The default-branch CI baseline is green, but historical Git cleanup, provider staging, restore and target-host drills, legal sign-off and manual UX validation are open. |
+
+A Google/Spotify-level product bar is not just a polished UI. It requires a consistent interaction model, shared design language, predictable state and navigation, resilient failure/recovery paths, accessibility, measured performance, observability, release discipline and proven operation at scale. SmartStudyPro is not at that bar yet. The current design-token work is a foundation, not a claim of completed unification.
+
 ## Audit objectives
 
 1. Review maintained PHP source and shipped browser assets for security, error handling, authorization, validation, accessibility and performance.
@@ -34,6 +49,7 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 - **Confirmed historical exposure:** the published `v0.1.0` tag still contains the invoice, legacy `auth.php`, the retired CMS, SQLite database snapshots, booking databases, personal avatar images, uploaded media/archive files and a financial spreadsheet. Its tree was checked directly.
 - **Additional release-tag exposure:** both `v0.1.0` and `v1.0.0` are present as lightweight Git tags and point to the same historical commit `8148ecb8f6450a4161d5b00f98bc862c88b4bdee` from 2026-11-03. That tagged tree contains 1,257 files, including 962 retired CMS files, root `auth.php`, the financial spreadsheet and other historical private artifacts. The owner has removed the published GitHub Release; the live Releases API currently returns no published releases. Both tags remain as Git refs. `VERSION` on `main` remains `0.1.0`. Neither tag is a valid clean v1.0.0 release target.
 - The current GitHub branch listing enumerates 24 refs in total, including `main` (23 non-`main` refs). The prior audit snapshot recorded 25 refs, so the one-ref difference must be reconciled during cleanup. A fresh recursive tree scan of all 23 current non-`main` heads confirms every one contains root `auth.php`, `invoice.html`, eight SQLite/database snapshot files and the financial spreadsheet. Nineteen branch heads contain 4,247 retired `cms/` files each; the other four contain 962 each. None of the non-`main` heads is safe to use or redistribute. Both published-history tags (`v0.1.0` and `v1.0.0`) independently remain affected. Cleaning only `main` is therefore insufficient.
+- The repository has an active ruleset named `Cannot Delete` for all non-default branches. It enforces deletion and non-fast-forward restrictions and has no bypass actor; the connected integration reports `current_user_can_bypass: never`. This is an additional operational blocker to removing the 23 exposed non-main refs. The ruleset must be deliberately changed by an authorized repository owner for the cleanup window, then restored with a safe policy. The integration cannot update or delete this ruleset.
 - Deleting these files from `main` does not erase old tags, branch heads or earlier commits. The owner has authorized coordinated cleanup and has removed the published GitHub Release, but no tag deletion, branch deletion, Git history rewrite or credential rotation has been performed: the connected GitHub interface provides read operations and branch updates, but no branch/tag/release deletion or root-history rewrite operation. A Git CLI/mirror-capable environment is required to execute and verify this destructive cleanup.
 - Treat the historical signing secret as compromised. Before further public distribution, rotate any still-used credential that may have appeared in historical source. Never reuse the legacy signing secret. The coordinated history rewrite is already authorized; execute it from a Git CLI/mirror-capable environment and preserve a private recovery backup.
 
