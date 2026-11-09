@@ -7,6 +7,13 @@
 
 A green CI run is a baseline, not proof that every user journey, provider integration or production hosting configuration has been validated. This document distinguishes automated checks from staging and owner sign-off still required.
 
+## Latest independently verified CI snapshot
+
+- Main commit: `c7cb9f871cbe6bb0f394167f51c12edfe82cd32f`.
+- GitHub Actions run [#42608155021](https://github.com/Enoch7768/SmartStudyProFin/actions/runs/42608155021) completed successfully on 2026-11-09.
+- Both `foundation (8.2)` and `foundation (8.3)` jobs completed successfully. Their steps include PHP lint, private configuration, contact abuse controls, routing/security, migrations and identity, commerce/refunds, demo payments, meeting planner, instructor permissions, AI privacy, recognition, backups/operations, JavaScript checks, CMS sanitization, SQLite query plans, security configuration, site/asset smoke tests and release-package boundary checks.
+- This run validates the default-branch foundation workflow only. It is not a tag-triggered release build, provider staging test, production cPanel drill, or proof that historical refs have been cleaned.
+
 ## Audit objectives
 
 1. Review maintained PHP source and shipped browser assets for security, error handling, authorization, validation, accessibility and performance.
@@ -24,7 +31,7 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 - The current branch no longer contains the retired root `auth.php` implementation, which held a hardcoded legacy signing secret.
 - A standalone `invoice.html` containing a named customer's personal contact and payment details was found in the root of the repository. It has been removed from `main`; `/invoice.html` is now ignored and a release regression test prevents the artifact from returning. An obsolete failed transcript artifact was also removed.
 - **Confirmed historical exposure:** the published `v0.1.0` tag still contains the invoice, legacy `auth.php`, the retired CMS, SQLite database snapshots, booking databases, personal avatar images, uploaded media/archive files and a financial spreadsheet. Its tree was checked directly.
-- The repository has 25 branch refs. All 24 non-`main` branch heads inspected still contain legacy CMS source and historical private artifacts, including the invoice, database snapshots, uploads and legacy authentication endpoint. Only current `main` is clean. Cleaning only `main` is therefore insufficient.
+- The current GitHub branch listing enumerates 24 refs in total, including `main` (23 non-`main` refs). The prior audit snapshot recorded 25 refs, so the one-ref difference must be reconciled during cleanup. Historical branches are not safe to use or redistribute until each live head has been rescanned and exposed history has been rewritten. The published `v0.1.0` tag independently remains affected. Cleaning only `main` is therefore insufficient.
 - Deleting these files from `main` does not erase old tags, branch heads or earlier commits. No release/tag deletion, branch deletion, Git history rewrite or credential rotation has been performed.
 - Treat the historical signing secret as compromised. Before further public distribution, the owner must authorize a coordinated history rewrite and decide how to handle the published `v0.1.0` release/tag. Rotate any still-used credential that may have appeared in historical source. Never reuse the legacy signing secret.
 
@@ -96,7 +103,7 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 
 | Area | Current evidence | Remaining work |
 |---|---|---|
-| Repository inventory and release boundaries | 256-file current tree inventory; retired CMS and private invoice removed from `main`; package exclusions tested; 25 branch refs inspected | All 24 non-main branch heads and published v0.1.0 tag retain sensitive historical artifacts; coordinated history cleanup approval required |
+| Repository inventory and release boundaries | 257-file inventory at `d6474a0`; retired CMS and private invoice removed from `main`; package exclusions tested; latest live listing enumerates 24 branch refs including `main` | Reconcile the one-ref difference from the prior 25-ref snapshot; rescan all 23 current non-main heads; published v0.1.0 remains affected; coordinated history cleanup required |
 | Core configuration, sessions, authentication and URL handling | Source review, security tests, private-secret tests, site smoke | Full browser auth and subdirectory-host validation |
 | Identity, Google OAuth and account lifecycle | OAuth state/nonce/PKCE implementation; account and migration tests | Real Google OAuth staging sign-in, reset email delivery |
 | Native CMS, rich text and media | Sanitization, media-library tests, MIME/path controls | Admin task walkthrough, upload format matrix and manual malicious-file review |
@@ -106,7 +113,7 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 | AI tutor and meeting companion | Retrieval/privacy, quotas, kill switch and bounded provider request tests | Provider terms/privacy review and live-key staging test |
 | Admin experience and permissions | Security and feature tests for sensitive workflows | Page-by-page administrator task and permission walkthrough |
 | Browser assets, accessibility and responsive behaviour | JS suites, CSS inventory, site/asset smoke | Manual keyboard/screen-reader/device tests; optimize large imagery |
-| Retired CMS and historical artifacts | 880-file legacy tree and private invoice removed from current `main`; v0.1.0 and all 24 non-main branch heads checked | Rewrite all exposed refs/history, handle v0.1.0 release/tag and rotate any exposed active credential |
+| Retired CMS and historical artifacts | 880-file legacy tree and private invoice removed from current `main`; v0.1.0 historical tree confirmed affected; latest branch listing shows 23 non-main refs | Rescan every current non-main head, reconcile branch-count drift, rewrite exposed refs/history, handle v0.1.0 release/tag and rotate any exposed active credential |
 | Release, backup, restore and cPanel operations | PHP 8.2/8.3 CI; release matrix parity; package manifest/checksum | Tag-triggered package run, isolated restore drill and target-host deployment drill |
 
 ## Release gates
