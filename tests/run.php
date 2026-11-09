@@ -82,7 +82,7 @@ try {
     }
     $sharedThemeScript = (string) file_get_contents(dirname(__DIR__) . '/assets/js/theme.js');
     $sharedDesignSystem = (string) file_get_contents(dirname(__DIR__) . '/assets/css/main.css');
-    if (!str_contains($sharedDesignSystem, '--ssp-brand:') || !str_contains($sharedDesignSystem, '--ssp-surface:') || !str_contains($sharedDesignSystem, '.empty-state') || !str_contains($sharedDesignSystem, '[data-theme="dark"] :is(.panel')) throw new RuntimeException('The shared design system is missing semantic tokens, state primitives or high-contrast dark surfaces.');
+    if (!str_contains($sharedDesignSystem, '--ssp-brand:') || !str_contains($sharedDesignSystem, '--ssp-surface:') || !str_contains($sharedDesignSystem, '.empty-state') || !str_contains($sharedDesignSystem, '.ssp-feedback--success') || !str_contains($sharedDesignSystem, '.ssp-feedback--error') || !str_contains($sharedDesignSystem, '[aria-busy="true"]') || !str_contains($sharedDesignSystem, '[data-theme="dark"] :is(.panel')) throw new RuntimeException('The shared design system is missing semantic tokens, state primitives or high-contrast dark surfaces.');
     foreach (['instructor.php' => 'assets/css/instructor.css', 'admin/meetings.php' => 'assets/css/main.css'] as $workspacePage => $workspaceStylesheet) {
         $workspaceMarkup = (string) file_get_contents(dirname(__DIR__) . '/' . $workspacePage);
         $workspaceStyles = (string) file_get_contents(dirname(__DIR__) . '/' . $workspaceStylesheet);
