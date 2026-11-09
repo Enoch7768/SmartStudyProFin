@@ -14,6 +14,15 @@ if (!preg_match('/^[0-9]+\\.[0-9]+\\.[0-9]+$/', $version)) {
     throw new RuntimeException('VERSION must contain a semantic MAJOR.MINOR.PATCH value.');
 }
 
+foreach (glob($root . '/database/migrations/*.php') ?: [] as $migration) {
+    if (!is_file($migration) || filesize($migration) < 100) {
+        throw new RuntimeException('A database migration is missing or unexpectedly empty: ' . basename($migration));
+    }
+}
+if (count(glob($root . '/database/migrations/*.php') ?: []) !== 21) {
+    throw new RuntimeException('The release must contain the complete 21-step migration history.');
+}
+
 foreach ([
     'database/migrations/001_identity.php',
     'database/migrations/015_contact_messages.php',
@@ -70,6 +79,10 @@ foreach ([
     }
 }
 
+if (is_dir($root . '/cms')) {
+    throw new RuntimeException('The retired legacy CMS must not remain in the active source tree.');
+}
+
 $bootstrap = (string) file_get_contents($root . '/bootstrap/app.php');
 if (str_contains($bootstrap, 'vendor/autoload.php')) {
     throw new RuntimeException('The production bootstrap must not load a third-party Composer runtime.');
@@ -88,9 +101,6 @@ foreach ($iterator as $entry) {
     }
     if (str_contains('/' . $relative, '/vendor/autoload.php') || str_contains('/' . $relative, '/vendor/composer/installed.php')) {
         throw new RuntimeException('Installed Composer dependencies must not be committed: ' . $relative);
-    }
-    if ($relative === 'cms/lib/vendor') {
-        throw new RuntimeException('The legacy Composer dependency tree must not be committed.');
     }
     if (strtolower(basename($relative)) === 'composer.phar') {
         throw new RuntimeException('The Composer executable must not be committed.');
