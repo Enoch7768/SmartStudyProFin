@@ -105,7 +105,7 @@ if (isset($_GET['saved'])) $notice = 'Product assets saved.';
 $eligible = $role === 'gallery' ? $asset['visibility'] === 'public' && in_array($asset['mime_type'], ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], true) : $asset['visibility'] === 'private';
 if (!$eligible) continue;
 ?>
-<div class="col-md-6 col-xl-4"><label class="border rounded-3 p-3 d-flex gap-2 h-100"><input class="form-check-input mt-1" type="checkbox" name="media_ids[]" value="<?= (int) $asset['id'] ?>" <?= in_array((int) $asset['id'], $selected, true) ? 'checked' : '' ?>><span><strong><?= Security::escape($asset['original_name']) ?></strong><br><small class="text-muted"><?= Security::escape($asset['mime_type']) ?> · <?= number_format((int) $asset['file_size']) ?> bytes</small></span></label></div>
+<div class="col-md-6 col-xl-4"><label class="border rounded-3 p-3 d-flex gap-2 h-100 asset-choice"><input class="form-check-input mt-1" type="checkbox" name="media_ids[]" value="<?= (int) $asset['id'] ?>" <?= in_array((int) $asset['id'], $selected, true) ? 'checked' : '' ?>><span><strong><?= Security::escape($asset['original_name']) ?></strong><br><small class="text-muted"><?= Security::escape($asset['mime_type']) ?> · <?= number_format((int) $asset['file_size']) ?> bytes</small></span></label></div>
 <?php endforeach; ?>
 </div>
 <div class="d-flex flex-wrap gap-2 mt-4"><button class="btn btn-primary">Save selected assets</button><a class="btn btn-outline-secondary" href="cms.php?section=media">Open media library</a></div>
