@@ -12,3 +12,12 @@
 .ssp-admin-operations .admin-kicker{color:var(--ssp-accent)}
 .ssp-admin-operations .admin-message-body{white-space:pre-wrap;overflow-wrap:anywhere}
 @media(max-width:600px){.ssp-admin-operations .panel,.ssp-admin-operations .metric{padding:16px}.ssp-admin-operations .check{align-items:flex-start;flex-wrap:wrap;gap:6px}}
+.ssp-admin-operations .border{border-color:var(--ssp-border)!important}
+.ssp-admin-operations .border.rounded-4,.ssp-admin-operations form.border,.ssp-admin-operations .border.rounded-4.p-3{background:var(--ssp-surface);color:var(--ssp-text)}
+.ssp-admin-operations .form-control,.ssp-admin-operations .form-select{background-color:var(--ssp-surface);color:var(--ssp-text);border-color:var(--ssp-border)}
+.ssp-admin-operations .form-check-input{background-color:var(--ssp-surface);border-color:var(--ssp-muted)}
+.ssp-admin-operations .cms-theme-toggle{position:fixed;top:14px;right:14px;z-index:20}
+.ssp-admin-operations .admin-kicker{font-weight:800;letter-spacing:.08em}
+.ssp-admin-operations .asset-choice{min-width:0;overflow-wrap:anywhere;transition:border-color .18s ease,box-shadow .18s ease}
+.ssp-admin-operations .asset-choice:has(input:checked){border-color:var(--ssp-accent)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--ssp-accent) 18%,transparent)}
+@media(max-width:575.98px){.ssp-admin-operations .cms-theme-toggle{top:8px;right:8px}.ssp-admin-operations main.container{padding-top:4.5rem!important}}
