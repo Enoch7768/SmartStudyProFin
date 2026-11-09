@@ -53,45 +53,4 @@ $navActive = static function (string $section) use ($navRequestPath): bool {
   </div>
 </header>
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const toggleBtn = document.getElementById('theme-toggle');
-    const toggleIcon = document.getElementById('theme-toggle-icon');
-
-    if (!toggleBtn || !toggleIcon) return;
-
-    function updateIcon(isDark) {
-      toggleBtn.setAttribute('aria-pressed', String(isDark));
-      if (isDark) {
-        toggleIcon.classList.remove('bi-moon-fill');
-        toggleIcon.classList.add('bi-sun-fill');
-      } else {
-        toggleIcon.classList.remove('bi-sun-fill');
-        toggleIcon.classList.add('bi-moon-fill');
-      }
-    }
-
-    let savedTheme = null;
-    try { savedTheme = localStorage.getItem('ssp-theme'); } catch (error) {}
-    const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark' || savedTheme === 'dark';
-    updateIcon(isDarkMode);
-
-    toggleBtn.addEventListener('click', () => {
-      const nextTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-      if (nextTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-      else document.documentElement.removeAttribute('data-theme');
-      try { localStorage.setItem('ssp-theme', nextTheme); } catch (error) {}
-      updateIcon(nextTheme === 'dark');
-      const endpoint = toggleBtn.dataset.themeEndpoint;
-      const csrf = toggleBtn.dataset.csrf;
-      if (endpoint && csrf) {
-        fetch(endpoint, {
-          method: 'POST',
-          credentials: 'same-origin',
-          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-          body: JSON.stringify({ theme: nextTheme })
-        }).catch(() => {});
-      }
-    });
-  });
-</script>
+<script src="<?= htmlspecialchars($navRoute('/assets/js/theme.js'), ENT_QUOTES, 'UTF-8') ?>" defer></script>
