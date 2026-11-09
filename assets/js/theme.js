@@ -2,6 +2,7 @@
   "use strict";
   const root = document.documentElement;
   const key = "ssp-theme";
+  let userChangedTheme = false;
   const selector = "#theme-toggle,#study-theme-toggle,#cms-theme-toggle,[data-admin-theme-toggle],[data-theme-toggle]";
   function saved() {
     try { const value = localStorage.getItem(key); return value === "dark" || value === "light" ? value : null; }
@@ -46,7 +47,7 @@
     fetch(endpoint, {credentials:"same-origin",cache:"no-store",headers:{Accept:"application/json"}})
       .then(function (response) { return response.ok ? response.json() : null; })
       .then(function (payload) {
-        if (!payload || !["system", "light", "dark"].includes(payload.theme)) return;
+        if (userChangedTheme || !payload || !["system", "light", "dark"].includes(payload.theme)) return;
         if (payload.theme === "system") {
           try { localStorage.removeItem(key); } catch (error) {}
           apply(system());
@@ -63,6 +64,7 @@
       if (button.dataset.themeBound === "true") return;
       button.dataset.themeBound = "true";
       button.addEventListener("click", function () {
+        userChangedTheme = true;
         const next = current() === "dark" ? "light" : "dark";
         apply(next);
         save(next, button);
