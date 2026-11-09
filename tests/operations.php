@@ -38,6 +38,19 @@ try {
     $backupPdo = new PDO('sqlite:' . $storage . '/backups/' . $created['id'] . '/database.sqlite');
     if ($backupPdo->query('SELECT value FROM sample_records')->fetchColumn() !== 'preserved data') throw new RuntimeException('The database snapshot did not preserve committed records.');
 
+    $restoreStorage = $temporary . '/restored';
+    if (!mkdir($restoreStorage . '/media/2026/10', 0700, true)) throw new RuntimeException('Could not create isolated restore storage.');
+    foreach (['database.sqlite' => $restoreStorage . '/smartstudypro.sqlite', 'app.key' => $restoreStorage . '/app.key', 'installed.lock' => $restoreStorage . '/installed.lock'] as $source => $destination) {
+        if (!copy($storage . '/backups/' . $created['id'] . '/' . $source, $destination)) throw new RuntimeException('The isolated restore could not copy ' . $source . '.');
+        chmod($destination, 0600);
+    }
+    if (!copy($storage . '/backups/' . $created['id'] . '/media/2026/10/lesson.pdf', $restoreStorage . '/media/2026/10/lesson.pdf')) throw new RuntimeException('The isolated restore could not copy private media.');
+    chmod($restoreStorage . '/media/2026/10/lesson.pdf', 0600);
+    $restoredPdo = new PDO('sqlite:' . $restoreStorage . '/smartstudypro.sqlite', null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+    if ($restoredPdo->query('PRAGMA integrity_check')->fetchColumn() !== 'ok' || $restoredPdo->query('SELECT value FROM sample_records')->fetchColumn() !== 'preserved data') throw new RuntimeException('The restored SQLite database failed integrity or data verification.');
+    if (trim((string) file_get_contents($restoreStorage . '/app.key')) !== $key || trim((string) file_get_contents($restoreStorage . '/installed.lock')) === '') throw new RuntimeException('The restored application key or installation lock is invalid.');
+    if (file_get_contents($restoreStorage . '/media/2026/10/lesson.pdf') !== 'private lesson media') throw new RuntimeException('The restored private media did not match the backup.');
+
     $backupMedia = $storage . '/backups/' . $created['id'] . '/media/2026/10/lesson.pdf';
     file_put_contents($backupMedia, 'tampered media');
     $tampered = $service->verify($created['id']);
