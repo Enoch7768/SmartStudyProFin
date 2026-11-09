@@ -132,9 +132,9 @@ $siteUrl = \App\Core\Url::site();
           <button type="submit" name="login" class="btn-ssp-primary w-100 py-2 fs-6">Sign In</button>
         </form>
 
-        <p class="text-center small mb-3"><a href="<?= htmlspecialchars(\App\Core\Url::to('/reset'), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none fw-semibold" style="color: var(--ssp-orange);">Forgot your password?</a></p>
+        <p class="text-center small mb-3"><a href="<?= htmlspecialchars(\App\Core\Url::to('/reset'), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none fw-semibold" class="ssp-auth-link">Forgot your password?</a></p>
         <p class="text-center small text-muted mt-4 mb-0">
-          Don't have an account? <a href="<?= htmlspecialchars(\App\Core\Url::to('/register'), ENT_QUOTES, 'UTF-8') ?>" class="fw-bold text-decoration-none" style="color: var(--ssp-orange);">Create one</a>
+          Don't have an account? <a href="<?= htmlspecialchars(\App\Core\Url::to('/register'), ENT_QUOTES, 'UTF-8') ?>" class="fw-bold text-decoration-none" class="ssp-auth-link">Create one</a>
         </p>
       </div>
 
@@ -152,9 +152,9 @@ $siteUrl = \App\Core\Url::site();
           <p class="small text-light opacity-75 mb-3">Study Made Simple, Success Made Sure.</p>
           
           <div class="small mb-3">
-            <p class="mb-1"><i class="bi bi-geo-alt-fill me-2" style="color: var(--ssp-orange);"></i><?= htmlspecialchars($address) ?></p>
-            <p class="mb-1"><i class="bi bi-telephone-fill me-2" style="color: var(--ssp-orange);"></i><?= htmlspecialchars($phone) ?></p>
-            <p class="mb-1"><i class="bi bi-envelope-fill me-2" style="color: var(--ssp-orange);"></i><?= htmlspecialchars($emailContact) ?></p>
+            <p class="mb-1"><i class="bi bi-geo-alt-fill me-2" class="ssp-auth-link"></i><?= htmlspecialchars($address) ?></p>
+            <p class="mb-1"><i class="bi bi-telephone-fill me-2" class="ssp-auth-link"></i><?= htmlspecialchars($phone) ?></p>
+            <p class="mb-1"><i class="bi bi-envelope-fill me-2" class="ssp-auth-link"></i><?= htmlspecialchars($emailContact) ?></p>
           </div>
 
           <div class="d-flex gap-2">
