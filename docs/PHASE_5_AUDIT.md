@@ -188,3 +188,12 @@ A production release must not be called ready until all of the following are tru
 - The instructor workspace no longer embeds a page-local stylesheet or inline style attribute. Its shared-token-based rules now live in `assets/css/instructor.css`; the page body and full-width field use explicit classes.
 - Source checks against the latest GitHub contents confirm `admin/cms.php` and `instructor.php` contain zero style blocks and zero inline style attributes, and each page links its dedicated stylesheet after the shared responsive stylesheet.
 - These are source-level checks, not PHP lint, browser rendering or functional tests. The latest commit's GitHub combined status currently reports no status checks; CI is not confirmed green. No visual, keyboard, screen-reader or device testing has been performed.
+
+### 2026-11-09 — CI repair and administrator operations unification
+
+- Investigated the failed GitHub Actions jobs from their actual job logs. The first failure was a stale PHP assertion that expected instructor design-token declarations inside `instructor.php` after its CSS had been extracted. The second was a stale Node assertion that expected CMS dark-mode selectors inside `admin/cms.php` after the CMS stylesheet extraction.
+- Updated `tests/run.php` and `tests/cms-theme.test.cjs` to validate the extracted stylesheets instead of requiring page-local CSS. The resulting GitHub Actions run passed on PHP 8.2 and PHP 8.3, including migration, commerce, instructor permissions, AI, recognition, operations, JavaScript, security, page smoke and release-package checks.
+- Added `assets/css/admin-operations.css` and migrated analytics, backups, diagnostics, updates, contact inbox and shipping/fulfilment to the shared operations theme and semantic design tokens. Removed embedded style blocks and inline style attributes from all six pages.
+- Fixed a malformed Bootstrap/main stylesheet link in `admin/messages.php` that had combined two link elements into one invalid HTML attribute.
+- Extended the PHP foundation tests to check that these operations pages load the shared operations stylesheet and that the contact inbox references valid Bootstrap and main CSS assets.
+- The new operations migration and test changes are committed, but their CI run must complete before this follow-up can be called green. Browser-level visual and accessibility validation remains outstanding.
