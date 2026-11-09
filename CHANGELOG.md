@@ -19,7 +19,8 @@ All notable SmartStudyPro changes are recorded here. The current section is unre
 - Updated release validation to run the full regression suite on PHP 8.2 and 8.3 before packaging.
 - Release package checks now verify required migrations, the instructor workspace, excluded private artifacts, package contents and SHA-256 checksum generation.
 - Release archive validation distinguishes shipped browser libraries in `assets/vendor/` from server-side dependency trees, with regression coverage for both allowed and forbidden paths.
-- Introduced shared brand, surface, typography, radius, spacing and elevation tokens; moved shared navigation styling into the global stylesheet, applied it across all 26 navigation-enabled pages and aligned the instructor workspace typography.
+- Introduced shared brand, surface, typography, radius, spacing, elevation and common component tokens; moved shared navigation styling into the global stylesheet and applied it across all navigation-enabled pages.
+- Replaced duplicated public, learner, CMS and commerce theme-toggle scripts with one accessible theme controller. Signed-in theme preferences now load from the account and synchronize across devices, while local preferences remain available when offline.
 - Removed the retired legacy CMS and private invoice/transcript artifacts from the active source tree.
 
 ### Deployment and operations
