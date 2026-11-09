@@ -9,10 +9,10 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 
 ## Latest independently verified CI snapshot
 
-- Main commit: `5e5219fa5394e0df5729255f05f0fdf24c17d7ce`.
-- GitHub Actions run [#42611588880](https://github.com/Enoch7768/SmartStudyProFin/actions/runs/42611588880) completed successfully on 2026-11-09.
-- Both `foundation (8.2)` and `foundation (8.3)` jobs completed successfully. The release-package policy test, path-filter regression cases, PHP lint, identity and migration tests, commerce/refunds, simulated payments, meeting planner, instructor permissions, AI privacy, recognition, backups/operations, JavaScript tests, rich-text sanitization, query-plan checks, security configuration and site/asset smoke tests all passed.
-- The release archive rule now filters the shipped `assets/vendor/` browser libraries before checking for forbidden server dependency directories. This fixes the previous false failure and has a regression test for both allowed and forbidden paths.
+- Main commit: `e3ea8e149a194f74040fb7adb82ec05f70727714`.
+- GitHub Actions run [#42611783221](https://github.com/Enoch7768/SmartStudyProFin/actions/runs/42611783221) completed successfully on 2026-11-09.
+- Both `foundation (8.2)` and `foundation (8.3)` jobs completed successfully. The release-package policy test, exact archive-path regression cases, PHP lint, identity and migration tests, commerce/refunds, simulated payments, meeting planner, instructor permissions, AI privacy, recognition, backups/operations, JavaScript tests, rich-text sanitization, query-plan checks, security configuration and site/asset smoke tests all passed.
+- The release archive rule filters the shipped `assets/vendor/` browser libraries before checking for forbidden server-side dependency directories. Regression coverage checks that browser assets remain allowed and server dependency paths remain excluded.
 - This run validates the default-branch foundation workflow only. It is not a tag-triggered release build, provider staging test, production cPanel drill, or proof that historical refs have been cleaned.
 ## Audit objectives
 
