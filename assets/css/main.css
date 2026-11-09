@@ -44,6 +44,12 @@
 body {
   background-color: var(--ssp-page-bg);
   color: var(--ssp-text);
+  font-family: var(--ssp-font-body);
+  line-height: 1.55;
+}
+
+:where(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--ssp-font-display);
 }
 
 :where(.form-control, .form-select, input, select, textarea) {
