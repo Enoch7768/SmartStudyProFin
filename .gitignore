@@ -19,28 +19,14 @@
 /storage/sessions/
 /storage/backups/
 
-# Private data, legacy runtime state and generated media must never be committed
+# Private data and generated runtime media must never be committed
 /database/*.db
 /database/*.sqlite*
 /db/
-/cms/storage/data/*.sqlite*
-/cms/storage/uploads/*
-!/cms/storage/uploads/.gitkeep
-/cms/storage/tmp/thumbs/*
-/cms/storage/cache/*
-!/cms/storage/cache/.gitkeep
 /uploads/avatars/*
 !/uploads/avatars/.htaccess
 /Income Statement and distribution.xlsx
 
-# Legacy CMS runtime state and generated media
-/cms/storage/data/*
-!/cms/storage/data/.gitkeep
-/cms/storage/cache/*
-!/cms/storage/cache/.gitkeep
-/cms/storage/tmp/*
-!/cms/storage/tmp/.gitkeep
-/cms/storage/tmp/thumbs/*
 
 # Private client billing records must never enter the application repository
 /invoice.html
