@@ -39,3 +39,9 @@ assert.ok(themeController.includes('X-CSRF-Token'));
 assert.ok(themeController.includes('cms-theme-toggle'));
 console.log('PASS CMS sign-in and dashboard use the shared accessible theme controller');
 console.log('PASS CMS theme preference, account sync, storage fallback and favicon settings');
+
+const sharedStates = fs.readFileSync('assets/css/main.css', 'utf8');
+for (const state of ['.ssp-feedback--success', '.ssp-feedback--warning', '.ssp-feedback--error', '.ssp-feedback--info', '.ssp-field-error', '[aria-invalid="true"]', '[aria-busy="true"]', '.ssp-skeleton', 'prefers-reduced-motion: reduce']) {
+  assert.ok(sharedStates.includes(state), 'Missing shared interaction state: ' + state);
+}
+console.log('PASS shared feedback, validation, busy and skeleton states respect theme and reduced motion');
