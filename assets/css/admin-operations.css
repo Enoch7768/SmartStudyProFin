@@ -1,0 +1,14 @@
+.ssp-admin-operations{background:var(--ssp-page-bg);color:var(--ssp-text);font-family:var(--ssp-font-body)}
+.ssp-admin-operations .panel,.ssp-admin-operations .metric{background:var(--ssp-surface);color:var(--ssp-text);border:1px solid var(--ssp-border);border-radius:var(--ssp-radius-lg);padding:21px}
+.ssp-admin-operations .metric strong{font:700 27px var(--ssp-font-display);color:var(--ssp-brand)}
+.ssp-admin-operations .muted{color:var(--ssp-muted);font-size:13px}
+.ssp-admin-operations .table{vertical-align:middle}
+.ssp-admin-operations .btn-main{background:var(--ssp-accent);color:#fff;border:0;border-radius:var(--ssp-radius-sm);padding:10px 16px;font-weight:700}
+.ssp-admin-operations .check{display:flex;justify-content:space-between;gap:16px;padding:13px 0;border-bottom:1px solid var(--ssp-border)}
+.ssp-admin-operations .check:last-child{border:0}
+.ssp-admin-operations .admin-operations-container{width:min(100% - 2rem,1100px);margin-inline:auto}
+.ssp-admin-operations .admin-operations-container--narrow{max-width:850px}
+.ssp-admin-operations .admin-operations-container--wide{max-width:900px}
+.ssp-admin-operations .admin-kicker{color:var(--ssp-accent)}
+.ssp-admin-operations .admin-message-body{white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:600px){.ssp-admin-operations .panel,.ssp-admin-operations .metric{padding:16px}.ssp-admin-operations .check{align-items:flex-start;flex-wrap:wrap;gap:6px}}
