@@ -8,13 +8,13 @@ SmartStudyPro is a proprietary client application. The repository is public for 
 - Do not submit client data, credentials, private configuration, database files, backups or copyrighted material without permission.
 - Do not add dependencies, analytics, external services or build tooling without approval.
 - Preserve the established SmartStudyPro interface, content, responsive behaviour and light/dark themes.
-- Keep PHP 8.1 compatibility and shared-hosting constraints.
+- Keep PHP 8.2 compatibility and shared-hosting constraints.
 - Use prepared statements, server-side validation, CSRF protection and role/ownership checks.
 - Prefer clear names and small methods; avoid unnecessary comments and dependencies.
 
 ## Development checks
 
-Run the PHP lint, unit, SQLite integration, assistant, recognition, operations, content-security, performance and security tests, plus JavaScript syntax and behaviour tests. Changes must pass the PHP 8.1 and 8.3 GitHub Actions matrix.
+Run the PHP lint, unit, SQLite integration, assistant, recognition, operations, content-security, performance and security tests, plus JavaScript syntax and behaviour tests. Changes must pass the PHP 8.2 and 8.3 GitHub Actions matrix.
 
 ## Pull requests
 
