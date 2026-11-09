@@ -374,3 +374,6 @@ body{min-width:0;max-width:100%;overflow-x:clip;background:var(--ssp-page-bg);co
 .ssp-meetings-page .alert{padding:12px;border-radius:var(--ssp-radius-sm)}
 .ssp-meetings-page .field input:focus,.ssp-meetings-page .field select:focus,.ssp-meetings-page .field textarea:focus{outline:3px solid color-mix(in srgb,var(--ssp-accent) 25%,transparent);outline-offset:1px}
 @media(max-width:575.98px){.ssp-meetings-page .panel{padding:16px;border-radius:var(--ssp-radius-md)}}
+
+.ssp-meetings-page .ssp-ai-draft{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ssp-text);background:var(--ssp-surface-muted);border:1px solid var(--ssp-border);border-radius:var(--ssp-radius-md);padding:14px}
+.ssp-meetings-page .ssp-attendance-reason{max-width:260px}
