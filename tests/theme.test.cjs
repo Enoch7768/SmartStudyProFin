@@ -34,6 +34,7 @@ const document = {
   documentElement: root,
   readyState: "complete",
   querySelectorAll() { return [button]; },
+  querySelector() { return button; },
   addEventListener() {}
 };
 const localStorage = {
@@ -48,7 +49,7 @@ const sandbox = {
   document,
   window,
   localStorage,
-  fetch: async (url, options) => { requests.push({ url, options }); return { ok: true }; }
+  fetch: async (url, options = {}) => { requests.push({ url, options }); return { ok: false }; }
 };
 vm.runInNewContext(fs.readFileSync("assets/js/theme.js", "utf8"), sandbox);
 
@@ -64,9 +65,11 @@ assert.equal(root.style.colorScheme, "dark");
 assert.equal(stored.get("ssp-theme"), "dark");
 assert.equal(button.getAttribute("aria-pressed"), "true");
 assert.equal(classes.has("bi-sun-fill"), true);
-assert.equal(requests.length, 1);
+assert.equal(requests.length, 2);
 assert.equal(requests[0].url, "/theme-preference");
-assert.equal(requests[0].options.headers["X-CSRF-Token"], "test-csrf");
-assert.equal(requests[0].options.body, JSON.stringify({ theme: "dark" }));
+assert.equal(requests[0].options.cache, "no-store");
+assert.equal(requests[1].url, "/theme-preference");
+assert.equal(requests[1].options.headers["X-CSRF-Token"], "test-csrf");
+assert.equal(requests[1].options.body, JSON.stringify({ theme: "dark" }));
 
 console.log("PASS shared theme initialization, toggle state and account synchronization");
