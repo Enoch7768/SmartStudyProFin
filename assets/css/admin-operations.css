@@ -27,3 +27,9 @@
 .ssp-admin-operations .ssp-theme-switch{min-height:40px;padding:8px 13px;border:1px solid var(--ssp-border);border-radius:var(--ssp-radius-sm);background:var(--ssp-surface);color:var(--ssp-text);font-weight:650}
 .ssp-admin-operations .ssp-theme-switch:hover{border-color:var(--ssp-accent);color:var(--ssp-accent)}
 @media(max-width:767.98px){.ssp-admin-operations .table{font-size:13px}.ssp-admin-operations .table th,.ssp-admin-operations .table td{white-space:nowrap}}
+.ssp-admin-operations .asset-thumbnail{width:68px;height:68px;flex:0 0 68px;object-fit:cover;border-radius:var(--ssp-radius-sm);background:var(--ssp-surface-muted);border:1px solid var(--ssp-border)}
+.ssp-admin-operations .asset-choice-details{min-width:0;overflow-wrap:anywhere;align-self:center}
+.ssp-admin-operations .asset-file-type{width:68px;height:68px;flex:0 0 68px;display:grid;place-items:center;border-radius:var(--ssp-radius-sm);background:var(--ssp-surface-muted);border:1px solid var(--ssp-border);color:var(--ssp-brand);font-size:11px;font-weight:800;overflow-wrap:anywhere;text-align:center;padding:4px}
+.ssp-admin-operations .asset-empty-state{padding:clamp(20px,4vw,32px);border:1px dashed var(--ssp-border);border-radius:var(--ssp-radius-md);background:var(--ssp-surface-muted);color:var(--ssp-text);text-align:center}
+.ssp-admin-operations .asset-empty-state p{color:var(--ssp-muted)}
+.ssp-admin-operations .asset-empty-state a{color:var(--ssp-brand);font-weight:700}
