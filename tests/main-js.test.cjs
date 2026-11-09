@@ -153,7 +153,10 @@ assert.match(sharedNavigation, /aria-controls="navmenu"/);
 assert.match(sharedNavigation, /aria-expanded="false"/);
 assert.ok(sharedNavigation.includes('data-theme-endpoint='));
 assert.ok(sharedNavigation.includes('data-csrf='));
-assert.ok(sharedNavigation.includes('fetch(endpoint'));
+assert.ok(sharedNavigation.includes('assets/js/theme.js'));
+const sharedTheme = fs.readFileSync('assets/js/theme.js', 'utf8');
+assert.ok(sharedTheme.includes('fetch(endpoint'));
+assert.ok(sharedTheme.includes('X-CSRF-Token'));
 console.log('PASS homepage uses the shared accessible navigation and course entry point');
 
 for (const page of ['index.php', 'about.php', 'contact.php', 'courses.php', 'products.php', 'product-details.php', 'login.php', 'register.php']) {
