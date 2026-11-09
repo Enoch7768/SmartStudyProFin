@@ -101,142 +101,10 @@ $ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/device-responsive.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 
   <link rel="stylesheet" href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/main.css'), ENT_QUOTES, 'UTF-8') ?>">
-<style>
-    :root {
-      --ssp-navy: #0C086B;
-      --ssp-navy-dark: #070443;
-      --ssp-orange: #FF7A00;
-      --ssp-orange-hover: #E06B00;
-      --ssp-bg-main: #FFFFFF;
-      --ssp-bg-soft: #F8FAFC;
-      --ssp-card-bg: #FFFFFF;
-      --ssp-card-border: #E2E8F0;
-      --ssp-text-main: #1E293B;
-      --ssp-text-muted: #64748B;
-      --ssp-input-bg: #FFFFFF;
-      --ssp-input-border: #CBD5E1;
-      --ssp-header-bg: rgba(255, 255, 255, 0.95);
-    }
 
-    [data-theme="dark"] {
-      --ssp-navy: #C7D2FE;
-      --ssp-navy-dark: #0B0F17;
-      --ssp-orange: #FF8A1D;
-      --ssp-orange-hover: #FF9E3B;
-      --ssp-bg-main: #0B0F17;
-      --ssp-bg-soft: #1E293B;
-      --ssp-card-bg: #151C2C;
-      --ssp-card-border: #2E3A52;
-      --ssp-text-main: #F8FAFC;
-      --ssp-text-muted: #94A3B8;
-      --ssp-input-bg: #1E293B;
-      --ssp-input-border: #334155;
-      --ssp-header-bg: rgba(11, 15, 23, 0.95);
-    }
-
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      color: var(--ssp-text-main);
-      background-color: var(--ssp-bg-main);
-    }
-
-    h1, h2, h3, h4, h5, .brand-font {
-      font-family: 'Outfit', sans-serif;
-    }
-
-    .btn-ssp-primary {
-      background-color: var(--ssp-orange);
-      color: #FFFFFF;
-      font-weight: 700;
-      border-radius: 10px;
-      padding: 10px 24px;
-      border: none;
-      box-shadow: 0 4px 14px rgba(255, 122, 0, 0.35);
-      transition: all 0.25s ease;
-    }
-
-    .btn-ssp-primary:hover {
-      background-color: var(--ssp-orange-hover);
-      color: #FFFFFF;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(255, 122, 0, 0.45);
-    }
-
-    .page-title-ssp {
-      background: linear-gradient(135deg, #0C086B 0%, #070443 100%);
-      color: #FFFFFF;
-      padding: 60px 0;
-    }
-
-    .ssp-card-box {
-      border: 1px solid var(--ssp-card-border);
-      border-radius: 16px;
-      background: var(--ssp-card-bg);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    }
-
-    .form-control {
-      background-color: var(--ssp-input-bg);
-      border-color: var(--ssp-input-border);
-      color: var(--ssp-text-main);
-    }
-
-    .form-control:focus {
-      background-color: var(--ssp-input-bg);
-      color: var(--ssp-text-main);
-      border-color: var(--ssp-orange);
-    }
-
-    .form-label {
-      color: var(--ssp-text-main);
-    }
-
-    .price-box {
-      background-color: var(--ssp-bg-soft) !important;
-      border-color: var(--ssp-card-border) !important;
-      color: var(--ssp-text-main);
-    }
-
-    .ssp-footer {
-      background-color: #070443;
-      color: #94A3B8;
-    }
-
-    [data-theme="dark"] .ssp-footer {
-      background-color: #060911;
-    }
-
-    .ssp-footer-brand {
-      color: #FFFFFF;
-      font-size: 1.5rem;
-      font-weight: 800;
-    }
-
-    .ssp-footer-brand span {
-      color: var(--ssp-orange);
-    }
-
-    .social-icon-btn {
-      width: 38px;
-      height: 38px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.08);
-      color: #FFFFFF;
-      transition: all 0.2s ease;
-      text-decoration: none;
-    }
-
-    .social-icon-btn:hover {
-      background: var(--ssp-orange);
-      color: #FFFFFF;
-    }
-  </style>
 </head>
 
-<body>
+<body class="ssp-course-details">
 
   <?php include 'nav.php'; ?>
 
@@ -250,7 +118,7 @@ $ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/
     </div>
 
     <?php if (!empty($course['Offerings'])): ?>
-    <section class="section py-4"><div class="container"><div class="row justify-content-center"><div class="col-lg-10"><div class="p-4 ssp-card-box"><h2 class="h4 fw-bold mb-3" style="color:var(--ssp-navy)">Choose how you want to learn</h2><div class="row g-3">
+    <section class="section py-4"><div class="container"><div class="row justify-content-center"><div class="col-lg-10"><div class="p-4 ssp-card-box"><h2 class="h4 fw-bold mb-3" class="ssp-brand-text">Choose how you want to learn</h2><div class="row g-3">
       <?php foreach ($course['Offerings'] as $offering): ?>
       <div class="col-md-4"><div class="h-100 p-3 rounded border d-flex flex-column"><strong><?= htmlspecialchars(match ($offering['mode']) {'self_paced' => 'Self-paced in-app', 'live_online' => 'Live online', 'in_person' => 'In person', default => 'Course'}) ?></strong><div class="small text-muted mt-1"><?= htmlspecialchars($offering['title']) ?></div><div class="fw-bold mt-2">UGX <?= number_format((int) $offering['price_ugx']) ?></div><?php if ($offering['capacity'] !== null): ?><div class="small text-muted">Capacity: <?= (int) $offering['capacity'] ?></div><?php endif; ?><form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>" class="mt-auto pt-3"><input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="type" value="course"><input type="hidden" name="id" value="<?= $courseId ?>"><input type="hidden" name="offering_id" value="<?= (int)$offering['id'] ?>"><button class="btn-ssp-primary w-100" type="submit"><?= (int)$offering['price_ugx'] === 0 ? 'Join this option' : 'Add option to cart' ?></button></form></div></div>
       <?php endforeach; ?>
@@ -258,23 +126,23 @@ $ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/
     <?php endif; ?>
 
     <?php if (trim(strip_tags((string) ($course['Description'] ?? '') . (string) ($course['Content'] ?? ''))) !== ''): ?>
-    <section class="section py-4"><div class="container"><div class="row justify-content-center"><div class="col-lg-10"><article class="p-4 p-md-5 ssp-card-box"><h2 class="h3 fw-bold mb-3" style="color:var(--ssp-navy)">About this course</h2><?php if (trim((string) ($course['Description'] ?? '')) !== ''): ?><div class="course-description mb-4"><?= $course['Description'] ?></div><?php endif; ?><?php if (trim((string) ($course['Content'] ?? '')) !== ''): ?><h3 class="h5 fw-bold mb-3" style="color:var(--ssp-navy)">Course overview</h3><div class="course-overview"><?= $course['Content'] ?></div><?php endif; ?></article></div></div></div></section>
+    <section class="section py-4"><div class="container"><div class="row justify-content-center"><div class="col-lg-10"><article class="p-4 p-md-5 ssp-card-box"><h2 class="h3 fw-bold mb-3" class="ssp-brand-text">About this course</h2><?php if (trim((string) ($course['Description'] ?? '')) !== ''): ?><div class="course-description mb-4"><?= $course['Description'] ?></div><?php endif; ?><?php if (trim((string) ($course['Content'] ?? '')) !== ''): ?><h3 class="h5 fw-bold mb-3" class="ssp-brand-text">Course overview</h3><div class="course-overview"><?= $course['Content'] ?></div><?php endif; ?></article></div></div></div></section>
     <?php endif; ?>
 
-    <?php if (empty($course['Offerings'])): ?><section class="section pt-4 pb-0"><div class="container"><div class="row justify-content-center"><div class="col-lg-8"><div class="p-4 p-md-5 ssp-card-box"><div class="small text-uppercase fw-bold mb-2" style="color:var(--ssp-orange)">Start learning</div><h2 class="h3 fw-bold mb-2">Join this course</h2><p class="text-muted mb-3">Access the structured lessons, learning resources and knowledge checks in your student dashboard.</p><?php if ((int) $displayPrice === 0): ?><a class="btn-ssp-primary text-decoration-none" href="<?= \App\Core\Url::to('/learn/' . rawurlencode((string) ($course['slug'] ?? ''))) ?>">Start this free course</a><?php else: ?><div class="d-flex flex-wrap align-items-center justify-content-between gap-3"><strong class="fs-4" style="color:var(--ssp-orange)">UGX <?= number_format((int) $displayPrice) ?></strong><form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>"><input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="type" value="course"><input type="hidden" name="id" value="<?= $courseId ?>"><button class="btn-ssp-primary" type="submit">Add course to cart</button></form></div><?php endif; ?></div></div></div></div></section>
+    <?php if (empty($course['Offerings'])): ?><section class="section pt-4 pb-0"><div class="container"><div class="row justify-content-center"><div class="col-lg-8"><div class="p-4 p-md-5 ssp-card-box"><div class="small text-uppercase fw-bold mb-2" class="ssp-accent-text">Start learning</div><h2 class="h3 fw-bold mb-2">Join this course</h2><p class="text-muted mb-3">Access the structured lessons, learning resources and knowledge checks in your student dashboard.</p><?php if ((int) $displayPrice === 0): ?><a class="btn-ssp-primary text-decoration-none" href="<?= \App\Core\Url::to('/learn/' . rawurlencode((string) ($course['slug'] ?? ''))) ?>">Start this free course</a><?php else: ?><div class="d-flex flex-wrap align-items-center justify-content-between gap-3"><strong class="fs-4" class="ssp-accent-text">UGX <?= number_format((int) $displayPrice) ?></strong><form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>"><input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="type" value="course"><input type="hidden" name="id" value="<?= $courseId ?>"><button class="btn-ssp-primary" type="submit">Add course to cart</button></form></div><?php endif; ?></div></div></div></div></section>
 
     <?php endif; ?>
     <section id="starter-section" class="starter-section section py-5">
       <div class="container section-title text-center mb-4" data-aos="fade-up">
-        <h2 class="fw-bold" style="color: var(--ssp-navy);"><?= htmlspecialchars($displayTitle) ?></h2>
-        <p style="color: var(--ssp-text-muted);">Book Your Session</p>
+        <h2 class="fw-bold" class="ssp-brand-text"><?= htmlspecialchars($displayTitle) ?></h2>
+        <p class="ssp-muted-text">Book Your Session</p>
       </div>
 
       <div class="container" data-aos="fade-up">
         <div class="row justify-content-center">
           <div class="col-lg-8">
             <div class="p-4 p-md-5 ssp-card-box">
-              <h3 class="text-center mb-4 fw-bold" style="color: var(--ssp-navy);">Reservation Form</h3>
+              <h3 class="text-center mb-4 fw-bold" class="ssp-brand-text">Reservation Form</h3>
               
               <form action="<?= htmlspecialchars(\App\Core\Url::to('/booking'), ENT_QUOTES, 'UTF-8') ?>" method="post">
                   <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
@@ -306,7 +174,7 @@ $ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/
                   </div>
                   <div class="form-group my-4 text-center">
                       <div class="p-3 price-box rounded-3 border">
-                          <p class="mb-0"><strong>Total Course Fee:</strong> <span class="fw-bold fs-5 ms-2" style="color: var(--ssp-orange);">UGX <?= number_format(floatval($displayPrice ?? 0)) ?></span></p>
+                          <p class="mb-0"><strong>Total Course Fee:</strong> <span class="fw-bold fs-5 ms-2" class="ssp-accent-text">UGX <?= number_format(floatval($displayPrice ?? 0)) ?></span></p>
                       </div>
                   </div>
                   <div class="text-center mt-4">
@@ -332,9 +200,9 @@ $ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/
           <p class="small text-light opacity-75 mb-3">Study Made Simple, Success Made Sure.</p>
           
           <div class="small mb-3">
-            <p class="mb-1"><i class="bi bi-geo-alt-fill me-2" style="color: var(--ssp-orange);"></i><?= htmlspecialchars($address) ?></p>
-            <p class="mb-1"><i class="bi bi-telephone-fill me-2" style="color: var(--ssp-orange);"></i><?= htmlspecialchars($phone) ?></p>
-            <p class="mb-1"><i class="bi bi-envelope-fill me-2" style="color: var(--ssp-orange);"></i><?= htmlspecialchars($email) ?></p>
+            <p class="mb-1"><i class="bi bi-geo-alt-fill me-2" class="ssp-accent-text"></i><?= htmlspecialchars($address) ?></p>
+            <p class="mb-1"><i class="bi bi-telephone-fill me-2" class="ssp-accent-text"></i><?= htmlspecialchars($phone) ?></p>
+            <p class="mb-1"><i class="bi bi-envelope-fill me-2" class="ssp-accent-text"></i><?= htmlspecialchars($email) ?></p>
           </div>
 
           <div class="d-flex gap-2">
