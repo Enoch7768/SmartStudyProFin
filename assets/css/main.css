@@ -313,3 +313,5 @@ body{min-width:0;max-width:100%;overflow-x:clip;background:var(--ssp-page-bg);co
 [data-theme="dark"] .ssp-workspace-section,[data-theme="dark"] .ssp-workspace-nav-link:hover,[data-theme="dark"] .ssp-workspace-nav-link.active{background:var(--ssp-surface-muted);color:var(--ssp-text)}
 [data-theme="dark"] .ssp-study-player .btn-outline{background:var(--ssp-surface);color:var(--ssp-text);border-color:var(--ssp-border)}
 [data-theme="dark"] .ssp-study-player .resource{background:var(--ssp-surface-muted);color:var(--ssp-accent)}
+
+.ssp-workspace-panel.is-narrow{max-width:650px}
