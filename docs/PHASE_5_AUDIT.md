@@ -1,19 +1,20 @@
 # Phase 5 — Whole-project audit and release readiness
 
-**Status:** In progress — release candidate not approved  
+**Status:** Main-branch hardening in progress — release candidate not approved  
 **Audit branch:** `main`  
-**Inventory snapshot:** `d6474a0a22b7cf9d087789ed184ecc8bc6717f5a`  
+**Inventory snapshot:** `c21b41948124aa03dce81e4ded882f9a640c6f9c`  
 **Current source inventory at snapshot:** 257 tracked files: 143 PHP files, 69 shipped asset files, 21 additive SQLite migrations, and 20 test files. The retired `cms/` tree (880 tracked files immediately before cleanup) has been removed from the active source tree.
 
 A green CI run is a baseline, not proof that every user journey, provider integration or production hosting configuration has been validated. This document distinguishes automated checks from staging and owner sign-off still required.
 
 ## Latest independently verified CI snapshot
 
-- Main commit: `e3ea8e149a194f74040fb7adb82ec05f70727714`.
-- GitHub Actions run [#42611783221](https://github.com/Enoch7768/SmartStudyProFin/actions/runs/42611783221) completed successfully on 2026-11-09.
-- Both `foundation (8.2)` and `foundation (8.3)` jobs completed successfully. The release-package policy test, exact archive-path regression cases, PHP lint, identity and migration tests, commerce/refunds, simulated payments, meeting planner, instructor permissions, AI privacy, recognition, backups/operations, JavaScript tests, rich-text sanitization, query-plan checks, security configuration and site/asset smoke tests all passed.
-- The release archive rule filters the shipped `assets/vendor/` browser libraries before checking for forbidden server-side dependency directories. Regression coverage checks that browser assets remain allowed and server dependency paths remain excluded.
-- This run validates the default-branch foundation workflow only. It is not a tag-triggered release build, provider staging test, production cPanel drill, or proof that historical refs have been cleaned.
+- Latest source commit after the shared design-token and instructor stylesheet updates: `4bb2aec7f8d5ac7a01a0d9cb9febaf586d34db42`.
+- The preceding main commit `c21b41948124aa03dce81e4ded882f9a640c6f9c` passed both PHP 8.2 and 8.3 foundation jobs in [run #1237](https://github.com/Enoch7768/SmartStudyProFin/actions/runs/42611934220).
+- Design-token commits `9e86659`, `cd913d0` and `e7d7988` each passed the PHP 8.2/8.3 foundation workflow. The instructor stylesheet commits are being validated by the latest run; do not treat them as green until that run completes.
+- The foundation workflow covers PHP lint, the release-package policy test, identity and migrations, commerce/refunds, simulated payments, meetings, instructor permissions, AI privacy, recognition, backup/operations, JavaScript tests, rich-text sanitization, query plans, security configuration and site/asset smoke tests.
+- The release archive rule filters shipped `assets/vendor/` browser libraries before checking forbidden server-side dependency directories. Regression coverage checks both allowed browser assets and forbidden server dependency paths.
+- These are automated default-branch checks only. They are not a tag-triggered release build, provider staging test, production cPanel drill, manual browser/accessibility review, or proof that historical refs have been cleaned.
 ## Audit objectives
 
 1. Review maintained PHP source and shipped browser assets for security, error handling, authorization, validation, accessibility and performance.
@@ -31,9 +32,9 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 - The current branch no longer contains the retired root `auth.php` implementation, which held a hardcoded legacy signing secret.
 - A standalone `invoice.html` containing a named customer's personal contact and payment details was found in the root of the repository. It has been removed from `main`; `/invoice.html` is now ignored and a release regression test prevents the artifact from returning. An obsolete failed transcript artifact was also removed.
 - **Confirmed historical exposure:** the published `v0.1.0` tag still contains the invoice, legacy `auth.php`, the retired CMS, SQLite database snapshots, booking databases, personal avatar images, uploaded media/archive files and a financial spreadsheet. Its tree was checked directly.
-- **Additional release-tag exposure:** both `v0.1.0` and `v1.0.0` are present as lightweight Git tags and point to the same historical commit `8148ecb8f6450a4161d5b00f98bc862c88b4bdee` from 2026-11-03. That tagged tree contains 1,257 files, including 962 retired CMS files, root `auth.php`, the financial spreadsheet and other historical private artifacts. The GitHub Releases page shows a published `v0.1.0` release; `v1.0.0` currently exists as a tag but has no corresponding published release. `VERSION` on `main` remains `0.1.0`. Neither tag is a valid clean v1.0.0 release target.
+- **Additional release-tag exposure:** both `v0.1.0` and `v1.0.0` are present as lightweight Git tags and point to the same historical commit `8148ecb8f6450a4161d5b00f98bc862c88b4bdee` from 2026-11-03. That tagged tree contains 1,257 files, including 962 retired CMS files, root `auth.php`, the financial spreadsheet and other historical private artifacts. The owner has removed the published GitHub Release; the live Releases API currently returns no published releases. Both tags remain as Git refs. `VERSION` on `main` remains `0.1.0`. Neither tag is a valid clean v1.0.0 release target.
 - The current GitHub branch listing enumerates 24 refs in total, including `main` (23 non-`main` refs). The prior audit snapshot recorded 25 refs, so the one-ref difference must be reconciled during cleanup. A fresh recursive tree scan of all 23 current non-`main` heads confirms every one contains root `auth.php`, `invoice.html`, eight SQLite/database snapshot files and the financial spreadsheet. Nineteen branch heads contain 4,247 retired `cms/` files each; the other four contain 962 each. None of the non-`main` heads is safe to use or redistribute. Both published-history tags (`v0.1.0` and `v1.0.0`) independently remain affected. Cleaning only `main` is therefore insufficient.
-- Deleting these files from `main` does not erase old tags, branch heads or earlier commits. The owner has authorized coordinated cleanup, but no release/tag deletion, branch deletion, Git history rewrite or credential rotation has been performed: the connected GitHub interface provides read operations and branch updates, but no branch/tag/release deletion or root-history rewrite operation. A Git CLI/mirror-capable environment is required to execute and verify this destructive cleanup.
+- Deleting these files from `main` does not erase old tags, branch heads or earlier commits. The owner has authorized coordinated cleanup and has removed the published GitHub Release, but no tag deletion, branch deletion, Git history rewrite or credential rotation has been performed: the connected GitHub interface provides read operations and branch updates, but no branch/tag/release deletion or root-history rewrite operation. A Git CLI/mirror-capable environment is required to execute and verify this destructive cleanup.
 - Treat the historical signing secret as compromised. Before further public distribution, rotate any still-used credential that may have appeared in historical source. Never reuse the legacy signing secret. The coordinated history rewrite is already authorized; execute it from a Git CLI/mirror-capable environment and preserve a private recovery backup.
 
 ### P1 — Release workflow validation parity — remediated
@@ -75,6 +76,13 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 - Its 880 tracked files have now been removed from `main` to reduce attack surface, repository weight and maintenance ambiguity.
 - Both `v0.1.0` and `v1.0.0` point to the same historical tree, which was confirmed to contain 962 legacy CMS files. The historical source remains in Git history and both tags until a coordinated cleanup is completed.
 
+### P2 — Cross-product design consistency — foundational tokens added, full unification incomplete
+
+- A shared brand, surface, typography, spacing, radius, border and elevation token layer is now defined in `assets/css/main.css`; the learner and admin dark-theme styles consume the shared surface/text/border tokens.
+- The instructor workspace now loads the shared base stylesheet, in addition to the device-responsive stylesheet.
+- The app is not yet at Google/Spotify-level design-system consistency. `nav.php` still contains a large inline style block; several page templates define their own body, card, button, typography and spacing rules; portal/admin theme coverage is uneven; and some role-specific screens do not share a single page shell or component library.
+- Remaining work: consolidate shared navigation/page shells and reusable components, migrate page-local CSS to the token system without changing the established brand, verify light/dark parity across public/student/instructor/admin journeys, and complete manual keyboard, screen-reader, zoom, tablet, foldable and mobile checks. Avoid broad CSS replacement until each role journey has visual regression coverage.
+
 ### P2 — Course offering checkout integration — implemented, regression coverage present
 
 - Course offerings are now distinct purchasable order lines with purchase-time mode/title/price snapshots.
@@ -113,8 +121,8 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 | Learning, quizzes, progress and certificates | Migration, recognition, meeting and instructor tests | Full learner/instructor browser journeys and course content QA |
 | AI tutor and meeting companion | Retrieval/privacy, quotas, kill switch and bounded provider request tests | Provider terms/privacy review and live-key staging test |
 | Admin experience and permissions | Security and feature tests for sensitive workflows | Page-by-page administrator task and permission walkthrough |
-| Browser assets, accessibility and responsive behaviour | JS suites, CSS inventory, site/asset smoke | Manual keyboard/screen-reader/device tests; optimize large imagery |
-| Retired CMS and historical artifacts | 880-file legacy tree and private invoice removed from current `main`; v0.1.0 release and both tags confirmed affected; both tags point to the same 1,257-file historical tree; all 23 non-main refs recursively scanned and confirmed exposed | Reconcile branch-count drift; rewrite all 23 non-main refs and both tags; remove the v0.1.0 release; rotate any exposed active credential; verify no sensitive objects remain reachable |
+| Browser assets, accessibility and responsive behaviour | JS suites, CSS inventory, site/asset smoke; shared design-token foundation now exists | Consolidate page shells and local CSS, then manual keyboard/screen-reader/device tests; optimize large imagery |
+| Retired CMS and historical artifacts | 880-file legacy tree and private invoice removed from current `main`; v0.1.0 release and both tags confirmed affected; both tags point to the same 1,257-file historical tree; all 23 non-main refs recursively scanned and confirmed exposed | Reconcile branch-count drift; rewrite all 23 non-main refs and both tags; confirm the v0.1.0 release remains absent; rotate any exposed active credential; verify no sensitive objects remain reachable |
 | Release, backup, restore and cPanel operations | PHP 8.2/8.3 CI; release matrix parity; package manifest/checksum | Tag-triggered package run, isolated restore drill and target-host deployment drill |
 
 ## Release gates
@@ -132,7 +140,7 @@ A production release must not be called ready until all of the following are tru
 - [ ] Google OAuth, email delivery, PayPal and DPO have been verified with real staging credentials and duplicate callback tests.
 - [ ] Owner has reviewed legal documents, privacy disclosures, refund policy, provider terms and data-processing implications.
 - [ ] Manual accessibility and responsive QA is complete.
-- [ ] Execute the already-authorized coordinated rewrite/cleanup of all 23 confirmed-exposed non-main branch refs, the affected v0.1.0 release/tag, stale v1.0.0 tag and exposed Git history; rotate any still-used exposed credential and verify no sensitive objects remain reachable.
+- [ ] Execute the already-authorized coordinated rewrite/cleanup of all 23 confirmed-exposed non-main branch refs, the affected v0.1.0 and v1.0.0 tags and exposed Git history; rotate any still-used exposed credential and verify no sensitive objects remain reachable.
 
 ## Operational constraints to preserve
 
