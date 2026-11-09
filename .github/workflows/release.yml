@@ -105,7 +105,7 @@ jobs:
           grep -Fx 'instructor.php' "smartstudypro-${VERSION}.files.txt"
           grep -Fx 'database/migrations/021_offering_completion_certificates.php' "smartstudypro-${VERSION}.files.txt"
           grep -Fx 'uploads/avatars/.htaccess' "smartstudypro-${VERSION}.files.txt"
-          ! grep -Ev '^assets/vendor/' "smartstudypro-${VERSION}.files.txt" | grep -Eq '(^|/)(cms|db|tests|node_modules|vendor)(/|$)' "smartstudypro-${VERSION}.files.txt"
+          ! grep -Ev '^assets/vendor/' "smartstudypro-${VERSION}.files.txt" | grep -Eq '(^|/)(cms|db|tests|node_modules|vendor)(/|$)'
           ! grep -Eq '(^|/)\.env$|(^|/)config/local\.php$|\.(sqlite|sqlite3|db|sql|bak|log)$' "smartstudypro-${VERSION}.files.txt"
           ! grep -Eq '(^|/)vendor/autoload\.php$|(^|/)node_modules/' "smartstudypro-${VERSION}.files.txt"
           sha256sum "smartstudypro-${VERSION}.zip" > "smartstudypro-${VERSION}.zip.sha256"
