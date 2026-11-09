@@ -79,19 +79,6 @@ $refunds = $service->all();
 </tbody></table></div>
 </section>
 </main>
-<script>
-(function(){
-  const root=document.documentElement;
-  const button=document.querySelector('[data-admin-theme-toggle]');
-  let saved=null;
-  try{saved=localStorage.getItem('ssp-theme')}catch(error){}
-  if(saved==='dark')root.setAttribute('data-theme','dark');
-  else if(saved==='light')root.removeAttribute('data-theme');
-  if(!button)return;
-  const sync=()=>{const dark=root.getAttribute('data-theme')==='dark';button.textContent=dark?'Light mode':'Dark mode';button.setAttribute('aria-pressed',String(dark))};
-  sync();
-  button.addEventListener('click',()=>{const dark=root.getAttribute('data-theme')!=='dark';if(dark)root.setAttribute('data-theme','dark');else root.removeAttribute('data-theme');try{localStorage.setItem('ssp-theme',dark?'dark':'light')}catch(error){}sync();const endpoint=button.dataset.themeEndpoint,csrf=button.dataset.csrf;if(endpoint&&csrf)fetch(endpoint,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRF-Token':csrf},body:JSON.stringify({theme:dark?'dark':'light'})}).catch(()=>{})});
-})();
-</script>
+<script src="../assets/js/theme.js" defer></script>
 </body>
 </html>
