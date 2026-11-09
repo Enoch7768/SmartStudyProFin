@@ -1,6 +1,6 @@
 # Native SmartStudyPro CMS
 
-The native content manager is available at `/admin/cms.php` after the first-run installer has created the administrator account.
+The native content manager is available at `/admin/cms.php` after the operator provisions the first administrator with `php scripts/provision.php`.
 
 ## Requirements
 
@@ -11,7 +11,7 @@ The native content manager is available at `/admin/cms.php` after the first-run 
 - A writable private storage directory outside the public document root
 - A SQLite database file inside that private storage directory
 
-The installer applies the versioned migrations, including the native CMS content schema. The CMS uses the Phase 1 administrator role and `manage_content` permission. It does not create a default login.
+The CLI provisioning command applies the versioned migrations, including the native CMS content schema. The CMS uses the Phase 1 administrator role and `manage_content` permission. It does not create a default login.
 
 ## Content areas
 
@@ -30,4 +30,4 @@ Uploads are stored below the private storage directory, not in a public upload f
 
 ## Runtime boundary
 
-The native SQLite CMS and the native PHP learning engine are the production implementation. Public catalogue pages read from the native CMS, while `learning.php`, `study.php`, and the `App\\Learning` services handle enrolment, lessons, progress, quizzes, and assessments. The legacy `cms/` Cockpit source is excluded from release packages and blocked by the front controller; it is retained in the repository only as historical migration material. The production application does not load Cockpit or its Composer dependency tree. No legacy Cockpit database is required or imported.
+The native SQLite CMS and the native PHP learning engine are the production implementation. Public catalogue pages read from the native CMS, while `learning.php`, `study.php`, and the `App\\Learning` services handle enrolment, lessons, progress, quizzes, and assessments. The retired `cms/` Cockpit source has been removed from the active `main` tree. Historical copies may remain in old commits and tags; the production application does not load Cockpit or its Composer dependency tree. The production application does not load Cockpit or its Composer dependency tree. No legacy Cockpit database is required or imported.
