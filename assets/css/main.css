@@ -261,3 +261,6 @@ body{min-width:0;max-width:100%;overflow-x:clip;background:var(--ssp-page-bg);co
 [data-theme="dark"] .alert-success{background:#123326;border-color:#166534;color:#BBF7D0}[data-theme="dark"] .alert-warning{background:#3A2B13;border-color:#92400E;color:#FDE68A}[data-theme="dark"] .alert-danger{background:#3B1D27;border-color:#8F334B;color:#FECACA}[data-theme="dark"] .alert-info{background:#142B43;border-color:#1D4ED8;color:#BFDBFE}
 @media(max-width:767.98px){:root{--ssp-page-gutter:clamp(12px,4vw,22px)}.container,.container-fluid,.container-xl{padding-inline:var(--ssp-page-gutter)}:where(.panel,.metric,.learning-card,.course-card,.certificate,.achievement){border-radius:var(--ssp-radius-md)}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+.ssp-theme-switch{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));z-index:11020;min-height:42px;padding:9px 14px;border:1px solid var(--ssp-border);border-radius:999px;background:var(--ssp-surface);color:var(--ssp-text);box-shadow:var(--ssp-shadow-md);font:600 12px var(--ssp-font-body);cursor:pointer}
+.ssp-theme-switch:hover{border-color:var(--ssp-accent);color:var(--ssp-accent)}
