@@ -113,6 +113,7 @@ $seoDescription = $page['intro'];
 <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap-icons/bootstrap-icons.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/device-responsive.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/main.css'), ENT_QUOTES, 'UTF-8') ?>">
 <style>
 :root{--ssp-navy:#0C086B;--ssp-navy-dark:#070443;--ssp-orange:#FF7A00;--ssp-orange-hover:#E06B00;--ssp-bg-main:#FFFFFF;--ssp-bg-soft:#F8FAFC;--ssp-card-bg:#FFFFFF;--ssp-card-border:#E2E8F0;--ssp-text-main:#1E293B;--ssp-text-muted:#64748B}
 [data-theme="dark"]{--ssp-navy:#C7D2FE;--ssp-navy-dark:#0B0F17;--ssp-bg-main:#0B0F17;--ssp-bg-soft:#111827;--ssp-card-bg:#151C2C;--ssp-card-border:#2E3A52;--ssp-text-main:#F8FAFC;--ssp-text-muted:#CBD5E1}
