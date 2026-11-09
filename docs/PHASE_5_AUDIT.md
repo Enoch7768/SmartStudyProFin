@@ -206,3 +206,11 @@ A production release must not be called ready until all of the following are tru
 - Expanded PHP and Node regression coverage for the shared product asset manager and admin operations styles. The new CI run is pending; this change is not yet confirmed green.
 - Media preview remains a protected streaming endpoint rather than a visual page, and demo payment settings is a POST-only action endpoint; neither needs a page stylesheet. This pass did not alter their behavior.
 - No browser visual or accessibility validation has been performed.
+
+### 2026-11-09 — Product asset manager usability
+
+- Added an explicit empty state when no eligible public gallery images or supported private delivery files exist, with a direct link back to the media library.
+- The product asset manager now filters its visible choices to the same supported MIME/visibility rules used by its save handler, preventing unsupported private files from being offered as valid choices.
+- Public gallery images now display thumbnails through the existing authenticated `admin/media-preview.php` endpoint. Private delivery assets remain represented by file-type labels and are never exposed through the public gallery preview.
+- Added a selected-card treatment and responsive thumbnail/file-type layouts. Added Node regression checks for the empty state, eligibility filter, protected preview route and shared CSS.
+- CI validation for this latest follow-up is pending.
