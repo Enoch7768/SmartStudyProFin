@@ -50,10 +50,11 @@ $refunds = $service->all();
 <link href="../assets/css/main.css" rel="stylesheet">
 <link href="../assets/css/device-responsive.css" rel="stylesheet">
 <link href="../assets/css/admin-theme.css" rel="stylesheet">
+<link href="../assets/css/admin-operations.css" rel="stylesheet">
 </head>
-<body>
+<body class="ssp-admin-operations">
 <main class="container-fluid py-4">
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4"><div><p class="small text-uppercase fw-bold mb-1" style="color:#FF7A00">Administration</p><h1 class="h2 mb-0">Refund requests</h1></div><div class="d-flex gap-2"><a href="orders.php" class="btn btn-outline-secondary">Back to orders</a><button type="button" class="ssp-theme-switch" data-theme-toggle data-admin-theme-toggle aria-label="Toggle dark mode" data-theme-endpoint="../theme-preference.php" data-csrf="<?= Security::escape(Security::csrfToken()) ?>">Dark mode</button></div></div>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4"><div><p class="small text-uppercase fw-bold mb-1" class="admin-kicker">Administration</p><h1 class="h2 mb-0">Refund requests</h1></div><div class="d-flex gap-2"><a href="orders.php" class="btn btn-outline-secondary">Back to orders</a><button type="button" class="ssp-theme-switch" data-theme-toggle data-admin-theme-toggle aria-label="Toggle dark mode" data-theme-endpoint="../theme-preference.php" data-csrf="<?= Security::escape(Security::csrfToken()) ?>">Dark mode</button></div></div>
 <?php if ($error !== ''): ?><div class="alert alert-danger"><?= Security::escape($error) ?></div><?php endif; ?>
 <?php if (isset($_GET['saved'])): ?><div class="alert alert-success">Refund record updated.</div><?php endif; ?>
 <section class="border rounded-4 p-3 p-md-4 mb-4">
