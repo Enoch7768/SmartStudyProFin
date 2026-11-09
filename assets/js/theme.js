@@ -39,6 +39,25 @@
     fetch(endpoint, {method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","X-CSRF-Token":csrf},body:JSON.stringify({theme:theme})}).catch(function () {});
   }
   apply(saved() || system());
+  function syncFromAccount() {
+    const button = document.querySelector(selector + "[data-theme-endpoint]");
+    const endpoint = button && button.dataset ? button.dataset.themeEndpoint : "";
+    if (!endpoint) return;
+    fetch(endpoint, {credentials:"same-origin",cache:"no-store",headers:{Accept:"application/json"}})
+      .then(function (response) { return response.ok ? response.json() : null; })
+      .then(function (payload) {
+        if (!payload || !["system", "light", "dark"].includes(payload.theme)) return;
+        if (payload.theme === "system") {
+          try { localStorage.removeItem(key); } catch (error) {}
+          apply(system());
+        } else {
+          try { localStorage.setItem(key, payload.theme); } catch (error) {}
+          apply(payload.theme);
+        }
+      })
+      .catch(function () {});
+  }
+
   function initialize() {
     document.querySelectorAll(selector).forEach(function (button) {
       if (button.dataset.themeBound === "true") return;
