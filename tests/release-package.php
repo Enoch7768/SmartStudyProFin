@@ -88,9 +88,26 @@ if (is_dir($root . '/cms')) {
     throw new RuntimeException('The retired legacy CMS must not remain in the active source tree.');
 }
 
-$releaseWorkflowPathPattern = "(^|/)(cms|db|tests|node_modules)(/|$)|^vendor/";
-if (!str_contains($releaseWorkflow, $releaseWorkflowPathPattern)) {
+$releaseWorkflowExclusionFilter = "! grep -Ev '^assets/vendor/'";
+$releaseWorkflowForbiddenPathPattern = "grep -Eq '(^|/)(cms|db|tests|node_modules|vendor)(/|$)'";
+if (!str_contains($releaseWorkflow, $releaseWorkflowExclusionFilter) || !str_contains($releaseWorkflow, $releaseWorkflowForbiddenPathPattern)) {
     throw new RuntimeException('The release archive path check must exclude server dependency trees without rejecting assets/vendor browser libraries.');
+}
+
+$releasePathCases = [
+    'assets/vendor/bootstrap/css/bootstrap.min.css' => false,
+    'vendor/autoload.php' => true,
+    'app/vendor/autoload.php' => true,
+    'tests/run.php' => true,
+    'cms/index.php' => true,
+    'database/migrations/001_identity.php' => false,
+];
+foreach ($releasePathCases as $path => $expectedExcluded) {
+    $excluded = !str_starts_with($path, 'assets/vendor/')
+        && preg_match('~(^|/)(cms|db|tests|node_modules|vendor)(/|$)~', $path) === 1;
+    if ($excluded !== $expectedExcluded) {
+        throw new RuntimeException('The release archive path policy classified an unexpected path: ' . $path);
+    }
 }
 
 $bootstrap = (string) file_get_contents($root . '/bootstrap/app.php');
