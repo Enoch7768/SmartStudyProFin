@@ -75,7 +75,7 @@ if (isset($_GET['saved'])) $notice = 'Product assets saved.';
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Product files and images | SmartStudyPro</title>
-<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/theme.js" defer></script>
 <style>
 body{background:#f5f7fb;color:#172033;transition:background-color .2s ease,color .2s ease}
 .cms-theme-toggle{position:fixed;top:14px;right:14px;z-index:20}
@@ -94,7 +94,7 @@ html[data-theme="dark"] .alert-danger{background:#431f28;border-color:#7f1d1d;co
 <link href="../assets/css/device-responsive.css" rel="stylesheet">
 </head>
 <body>
-<button type="button" id="cms-theme-toggle" class="btn btn-outline-secondary cms-theme-toggle" aria-pressed="false">Dark mode</button>
+<button type="button" id="cms-theme-toggle" class="btn btn-outline-secondary cms-theme-toggle" aria-pressed="false" data-theme-endpoint="../theme-preference.php" data-csrf="<?= Security::escape(Security::csrfToken()) ?>">Dark mode</button>
 <main class="container py-4">
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
 <div><p class="small text-uppercase fw-bold mb-1" style="color:#FF7A00">Commerce management</p><h1 class="h2 mb-0">Product files and images</h1></div>
