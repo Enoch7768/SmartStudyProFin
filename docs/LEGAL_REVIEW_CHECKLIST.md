@@ -41,7 +41,7 @@ The repository's legal documents are implementation drafts. Do not treat publica
 - [ ] Configure email delivery and test password recovery.
 - [ ] Configure Gemini only after reviewing provider terms, privacy settings and data-processing implications.
 - [ ] Test private backups, restore procedures and retention of backup encryption keys.
-- [ ] Run the PHP 8.1 and 8.3 CI matrix and perform browser, accessibility, payment and restore smoke tests on the actual hosting environment.
+- [ ] Run the PHP 8.2 and 8.3 CI matrix and perform browser, accessibility, payment and restore smoke tests on the actual hosting environment.
 - [ ] Verify the final release package contains no secrets, production databases, logs, backups or development-only CMS files.
 
 ## Legal references
