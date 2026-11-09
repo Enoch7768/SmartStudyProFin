@@ -346,3 +346,31 @@ body{min-width:0;max-width:100%;overflow-x:clip;background:var(--ssp-page-bg);co
 .ssp-account-page .is-layered{position:relative;z-index:1}
 .ssp-account-page .ssp-account-heading{color:var(--ssp-text)}
 @media(max-width:575.98px){.ssp-auth-page .ssp-auth-card{border-radius:var(--ssp-radius-md)}.ssp-account-page .account-hero{border-radius:var(--ssp-radius-md)}}
+
+
+.ssp-course-details{color:var(--ssp-text);background:var(--ssp-page-bg)}
+.ssp-course-details .ssp-brand-text{color:var(--ssp-brand)}
+.ssp-course-details .ssp-accent-text{color:var(--ssp-accent)}
+.ssp-course-details .ssp-muted-text{color:var(--ssp-muted)}
+.ssp-course-details .page-title-ssp{background:linear-gradient(135deg,var(--ssp-brand),var(--ssp-brand-900));color:#fff;padding:clamp(36px,6vw,60px) 0}
+.ssp-course-details .ssp-card-box{background:var(--ssp-surface);border:1px solid var(--ssp-border);border-radius:var(--ssp-radius-lg);box-shadow:var(--ssp-shadow-sm)}
+.ssp-course-details .form-control{background:var(--ssp-surface);border-color:var(--ssp-border);color:var(--ssp-text)}
+.ssp-course-details .form-control:focus{border-color:var(--ssp-accent);background:var(--ssp-surface);color:var(--ssp-text)}
+.ssp-course-details .price-box{background:var(--ssp-surface-muted)!important;border-color:var(--ssp-border)!important;color:var(--ssp-text)}
+.ssp-course-details .ssp-footer{background:var(--ssp-brand-900);color:var(--ssp-muted)}
+.ssp-course-details .ssp-footer-brand{color:#fff;font-size:1.5rem;font-weight:800}
+.ssp-course-details .ssp-footer-brand span{color:var(--ssp-accent)}
+.ssp-course-details .social-icon-btn{width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;text-decoration:none;transition:background-color .18s ease}
+.ssp-course-details .social-icon-btn:hover{background:var(--ssp-accent);color:#fff}
+.ssp-meetings-page{background:var(--ssp-page-bg);color:var(--ssp-text);font-family:var(--ssp-font-body)}
+.ssp-meetings-page .wrap{max-width:1180px;margin-inline:auto;padding:clamp(18px,3vw,32px) 18px}
+.ssp-meetings-page .panel{background:var(--ssp-surface);border:1px solid var(--ssp-border);border-radius:var(--ssp-radius-lg);padding:22px;margin:18px 0}
+.ssp-meetings-page .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:12px}
+.ssp-meetings-page .field label{font-size:13px;font-weight:650;margin-bottom:6px}
+.ssp-meetings-page .field input,.ssp-meetings-page .field select,.ssp-meetings-page .field textarea{width:100%;min-width:0;padding:10px;border:1px solid var(--ssp-border);border-radius:var(--ssp-radius-sm);background:var(--ssp-surface);color:var(--ssp-text)}
+.ssp-meetings-page .btn-main{background:var(--ssp-accent);color:#fff;border:1px solid var(--ssp-accent);border-radius:var(--ssp-radius-sm);padding:11px 16px;font-weight:700}
+.ssp-meetings-page .muted{color:var(--ssp-muted);font-size:13px}
+.ssp-meetings-page .session{border-top:1px solid var(--ssp-border);padding:16px 0}
+.ssp-meetings-page .alert{padding:12px;border-radius:var(--ssp-radius-sm)}
+.ssp-meetings-page .field input:focus,.ssp-meetings-page .field select:focus,.ssp-meetings-page .field textarea:focus{outline:3px solid color-mix(in srgb,var(--ssp-accent) 25%,transparent);outline-offset:1px}
+@media(max-width:575.98px){.ssp-meetings-page .panel{padding:16px;border-radius:var(--ssp-radius-md)}}
