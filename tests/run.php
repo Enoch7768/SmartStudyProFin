@@ -81,6 +81,12 @@ try {
         if (!str_contains((string) file_get_contents(dirname(__DIR__) . '/' . $portalPage), 'assets/css/portal-theme.css')) throw new RuntimeException('A student portal page is missing the shared theme stylesheet: ' . $portalPage);
     }
     $sharedThemeScript = (string) file_get_contents(dirname(__DIR__) . '/assets/js/theme.js');
+    $sharedDesignSystem = (string) file_get_contents(dirname(__DIR__) . '/assets/css/main.css');
+    if (!str_contains($sharedDesignSystem, '--ssp-brand:') || !str_contains($sharedDesignSystem, '--ssp-surface:') || !str_contains($sharedDesignSystem, '.empty-state') || !str_contains($sharedDesignSystem, '[data-theme="dark"] :is(.panel')) throw new RuntimeException('The shared design system is missing semantic tokens, state primitives or high-contrast dark surfaces.');
+    foreach (['instructor.php', 'admin/meetings.php'] as $workspacePage) {
+        $workspaceMarkup = (string) file_get_contents(dirname(__DIR__) . '/' . $workspacePage);
+        if (!str_contains($workspaceMarkup, 'assets/css/main.css') || !str_contains($workspaceMarkup, 'var(--ssp-surface)') || !str_contains($workspaceMarkup, 'var(--ssp-border)')) throw new RuntimeException('A role workspace is bypassing shared design tokens: ' . $workspacePage);
+    }
     $themePreferenceEndpoint = (string) file_get_contents(dirname(__DIR__) . '/theme-preference.php');
     if (!str_contains($themePreferenceEndpoint, 'SELECT preferred_theme FROM student_profiles') || !str_contains($themePreferenceEndpoint, "header('Allow: GET, POST')") || !str_contains($sharedThemeScript, 'syncFromAccount()') || !str_contains($sharedThemeScript, 'cache:"no-store"')) throw new RuntimeException('Theme preferences must load from the signed-in account and synchronize across devices.');
     if (!str_contains($studyPage, 'study-theme-toggle') || !str_contains($studyPage, 'assets/js/theme.js') || !str_contains($studyPage, 'theme-preference') || !str_contains($sharedThemeScript, 'ssp-theme') || !str_contains($sharedThemeScript, 'X-CSRF-Token')) throw new RuntimeException('The focused lesson player is missing its persistent shared account-synced theme control.');
