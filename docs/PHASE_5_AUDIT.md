@@ -2,8 +2,8 @@
 
 **Status:** In progress — release candidate not approved  
 **Audit branch:** `main`  
-**Inventory snapshot:** `be866e5faf9dd18e41530f27d50d682c409e9570`  
-**Current source inventory at snapshot:** 256 tracked files: 143 PHP files, 69 shipped asset files, 21 additive SQLite migrations, and 20 test files. The retired `cms/` tree (880 tracked files immediately before cleanup) has been removed from the active source tree.
+**Inventory snapshot:** `d6474a0a22b7cf9d087789ed184ecc8bc6717f5a`  
+**Current source inventory at snapshot:** 257 tracked files: 143 PHP files, 69 shipped asset files, 21 additive SQLite migrations, and 20 test files. The retired `cms/` tree (880 tracked files immediately before cleanup) has been removed from the active source tree.
 
 A green CI run is a baseline, not proof that every user journey, provider integration or production hosting configuration has been validated. This document distinguishes automated checks from staging and owner sign-off still required.
 
