@@ -130,7 +130,7 @@ $siteUrl = \App\Core\Url::site();
           <?php if ($googleConfigured): ?>
           <button type="submit" formaction="google-auth.php" formmethod="post" name="action" value="register" formnovalidate class="btn btn-outline-secondary w-100 rounded-3 py-2 fw-semibold mb-3">Continue with Google</button>
           <?php else: ?>
-          <div class="rounded-3 p-3 mb-3 small" style="background:var(--ssp-bg-soft);border:1px solid var(--ssp-card-border);color:var(--ssp-text-main)" role="status">
+          <div class="rounded-3 p-3 mb-3 small" class="ssp-auth-notice rounded-3 p-3 mb-3" role="status">
             <strong>Google sign-in needs configuration</strong>
             <ul class="mb-0 mt-2 ps-3"><?php foreach ($googleIssues as $issue): ?><li class="mb-1"><?= Security::escape($issue) ?></li><?php endforeach; ?></ul>
           </div>
@@ -139,7 +139,7 @@ $siteUrl = \App\Core\Url::site();
         </form>
 
         <p class="text-center small text-muted mt-4 mb-0">
-          Already have an account? <a href="login.php" class="fw-bold text-decoration-none" style="color: var(--ssp-orange);">Sign in</a>
+          Already have an account? <a href="login.php" class="fw-bold text-decoration-none" class="ssp-auth-link">Sign in</a>
         </p>
       </div>
 
@@ -157,9 +157,9 @@ $siteUrl = \App\Core\Url::site();
           <p class="small text-light opacity-75 mb-3">Study Made Simple, Success Made Sure.</p>
           
           <div class="small mb-3">
-            <p class="mb-1"><i class="bi bi-geo-alt-fill me-2" style="color: var(--ssp-orange);"></i><?= htmlspecialchars($address) ?></p>
-            <p class="mb-1"><i class="bi bi-telephone-fill me-2" style="color: var(--ssp-orange);"></i><?= htmlspecialchars($phone) ?></p>
-            <p class="mb-1"><i class="bi bi-envelope-fill me-2" style="color: var(--ssp-orange);"></i><?= htmlspecialchars($emailContact) ?></p>
+            <p class="mb-1"><i class="bi bi-geo-alt-fill me-2" class="ssp-auth-link"></i><?= htmlspecialchars($address) ?></p>
+            <p class="mb-1"><i class="bi bi-telephone-fill me-2" class="ssp-auth-link"></i><?= htmlspecialchars($phone) ?></p>
+            <p class="mb-1"><i class="bi bi-envelope-fill me-2" class="ssp-auth-link"></i><?= htmlspecialchars($emailContact) ?></p>
           </div>
 
           <div class="d-flex gap-2">
