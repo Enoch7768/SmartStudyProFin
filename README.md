@@ -16,7 +16,7 @@ The application is designed for conventional PHP hosting with SQLite. It uses se
 - UGX commerce for digital and physical products, delivery pricing, independent read/download entitlements, immutable receipts, PayPal and DPO integrations and audited line-level refunds
 - Self-paced, live-online and in-person course offerings with cohort enrolments, session bookings, instructor workspace, attendance and offering certificates
 - Release packaging, safe database migrations, diagnostics and private backups
-- Security controls, accessible navigation and responsive light/dark presentation
+- Security controls, accessible navigation, shared design tokens and account-synced light/dark themes across public, learner, instructor and administrator workspaces
 
 ## Requirements
 
