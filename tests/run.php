@@ -80,17 +80,18 @@ try {
     foreach (['learning.php', 'study.php', 'achievements.php', 'certificates.php', 'notifications.php', 'assistant.php'] as $portalPage) {
         if (!str_contains((string) file_get_contents(dirname(__DIR__) . '/' . $portalPage), 'assets/css/portal-theme.css')) throw new RuntimeException('A student portal page is missing the shared theme stylesheet: ' . $portalPage);
     }
-    if (!str_contains($studyPage, 'study-theme-toggle') || !str_contains($studyPage, 'ssp-theme') || !str_contains($studyPage, 'theme-preference')) throw new RuntimeException('The focused lesson player is missing its persistent account-synced theme control.');
+    $sharedThemeScript = (string) file_get_contents(dirname(__DIR__) . '/assets/js/theme.js');
+    if (!str_contains($studyPage, 'study-theme-toggle') || !str_contains($studyPage, 'assets/js/theme.js') || !str_contains($studyPage, 'theme-preference') || !str_contains($sharedThemeScript, 'ssp-theme') || !str_contains($sharedThemeScript, 'X-CSRF-Token')) throw new RuntimeException('The focused lesson player is missing its persistent shared account-synced theme control.');
     if (!str_contains($studyPage, 'Try again') || !str_contains($studyPage, '$lessonCompleted') || !str_contains($studyPage, 'You can now mark this lesson complete.') || !str_contains($studyPage, 'form.requestSubmit()')) throw new RuntimeException('The learning player must expose quiz retries, a clear completed-lesson state and timed-attempt submission.');
     $adminTheme = (string) file_get_contents(dirname(__DIR__) . '/assets/css/admin-theme.css');
     if (!str_contains($adminTheme, 'html[data-theme="dark"] body') || !str_contains($adminTheme, '.table')) throw new RuntimeException('The admin commerce dark theme is incomplete.');
     foreach (['admin/orders.php', 'admin/refunds.php'] as $adminPage) {
         $adminMarkup = (string) file_get_contents(dirname(__DIR__) . '/' . $adminPage);
-        if (!str_contains($adminMarkup, 'assets/css/admin-theme.css') || !str_contains($adminMarkup, 'data-admin-theme-toggle') || !str_contains($adminMarkup, 'ssp-theme') || !str_contains($adminMarkup, 'theme-preference.php')) throw new RuntimeException('An admin commerce page is missing its shared account-synced theme control: ' . $adminPage);
+        if (!str_contains($adminMarkup, 'assets/css/admin-theme.css') || !str_contains($adminMarkup, 'data-admin-theme-toggle') || !str_contains($adminMarkup, 'assets/js/theme.js') || !str_contains($adminMarkup, 'theme-preference.php') || !str_contains($sharedThemeScript, 'ssp-theme')) throw new RuntimeException('An admin commerce page is missing its shared account-synced theme control: ' . $adminPage);
     }
     $cmsMarkup = (string) file_get_contents(dirname(__DIR__) . '/admin/cms.php');
-    $cmsThemeScript = (string) file_get_contents(dirname(__DIR__) . '/assets/js/cms-theme.js');
-    if (!str_contains($cmsMarkup, 'data-theme-endpoint="../theme-preference.php"') || !str_contains($cmsMarkup, 'data-csrf=') || !str_contains($cmsThemeScript, 'X-CSRF-Token') || !str_contains($cmsThemeScript, 'JSON.stringify({ theme: isDark ? "dark" : "light" })')) throw new RuntimeException('The CMS theme control is not synchronized with the signed-in account.');
+    $cmsThemeScript = (string) file_get_contents(dirname(__DIR__) . '/assets/js/theme.js');
+    if (!str_contains($cmsMarkup, 'data-theme-endpoint="../theme-preference.php"') || !str_contains($cmsMarkup, 'data-csrf=') || !str_contains($cmsMarkup, 'assets/js/theme.js') || !str_contains($cmsThemeScript, 'X-CSRF-Token') || !str_contains($cmsThemeScript, 'JSON.stringify({theme:theme})')) throw new RuntimeException('The CMS theme control is not synchronized with the signed-in account.');
     if (!str_contains($cmsMarkup, 'if(' . '$asset' . "['visibility']!=='public'") || !str_contains($cmsMarkup, 'image/jpeg')) throw new RuntimeException('CMS page hero selectors must only offer public supported image assets.');
     if (!str_contains($cmsMarkup, "if(\$field==='image_media_id')") || !str_contains($cmsMarkup, "visibility']==='public'") || !str_contains($cmsMarkup, "mime_type']==='application/pdf' && \$asset['visibility']==='private'") || !str_contains($cmsMarkup, "mime_type']==='video/mp4' && \$asset['visibility']==='private'")) throw new RuntimeException('CMS content selectors must only offer media that matches its public or private delivery rules.');
     $applicationBootstrap = (string) file_get_contents(dirname(__DIR__) . '/bootstrap/app.php');
