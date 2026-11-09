@@ -214,3 +214,13 @@ A production release must not be called ready until all of the following are tru
 - Public gallery images now display thumbnails through the existing authenticated `admin/media-preview.php` endpoint. Private delivery assets remain represented by file-type labels and are never exposed through the public gallery preview.
 - Added a selected-card treatment and responsive thumbnail/file-type layouts. Added Node regression checks for the empty state, eligibility filter, protected preview route and shared CSS.
 - CI validation for this latest follow-up is pending.
+
+### 2026-11-09 — Shared interaction and feedback states
+
+- Added reusable `ssp-feedback` variants for success, warning, error and informational messages, using the shared semantic color tokens and surface colors.
+- Added consistent invalid-field styling and helper/error text primitives, plus an opt-in busy-button indicator for controls marked with `aria-busy="true"`.
+- Added a lightweight skeleton primitive for content loading states. Reduced-motion preferences disable shimmer/spinner motion rather than forcing animation.
+- Extended the Node design-system checks and PHP foundation assertion so these primitives cannot silently disappear during later stylesheet changes.
+- PHP foundation CI completed successfully on PHP 8.2 and PHP 8.3 for the latest main commit.
+- These are reusable primitives; existing pages must opt into the classes and ARIA states. This pass intentionally did not change form submission behavior or automatically mark every button busy.
+- Browser-level visual, keyboard and screen-reader validation remains outstanding.
