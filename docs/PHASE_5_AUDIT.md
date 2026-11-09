@@ -24,7 +24,7 @@ This is a directional source-and-CI review, not a user-study, uptime report or t
 | Feature breadth | 7.5/10 | Learning, commerce, delivery modes, instructor workflows, AI assistance, recognition and operations are present with dedicated services and tests. |
 | Automated engineering baseline | 7/10 | Broad PHP 8.2/8.3 checks and integration suites pass; live provider, cPanel and full browser journeys remain unverified. |
 | Security and privacy readiness | 5/10 | Good foundations in CSRF, role checks, private storage, webhook validation and upload allowlisting; historical exposed refs, active-secret rotation, report-only CSP and absent malware scanning remain material gaps. |
-| Design-system consistency | 5/10 | Shared tokens now exist, but navigation, page shells, typography, component styling and theme support still vary across individual templates. |
+| Design-system consistency | 6/10 | Shared tokens, centralized navigation and reusable workspace primitives are in place. Learner dashboard, notifications and lesson-player styling have been moved out of inline page styles; public/auth/account and administrator templates still contain page-specific styling and require broader component adoption. |
 | Accessibility and responsive assurance | 5/10 | Responsive/reduced-motion rules and automated smoke tests exist; manual keyboard, screen-reader, zoom, tablet/foldable and assistive-technology testing remains. |
 | Production readiness | 4/10 | The default-branch CI baseline is green, but historical Git cleanup, provider staging, restore and target-host drills, legal sign-off and manual UX validation are open. |
 
@@ -98,8 +98,9 @@ A Google/Spotify-level product bar is not just a polished UI. It requires a cons
 - Navigation styling is centralized in `main.css`; all 26 discovered navigation consumers load the shared stylesheet. The instructor and administrator meeting workspaces now use the shared surface, border, typography and accent tokens rather than independent hard-coded palettes.
 - Duplicated public, learner, CMS and commerce theme-toggle code has been replaced with `assets/js/theme.js`. The same controller handles accessible toggle state and icons, local fallback, system preference, and account synchronization. `theme-preference.php` now supports authenticated GET retrieval as well as CSRF-protected POST updates, so a saved preference follows a signed-in user between devices and workspaces. A late server response cannot override a theme choice made during the current page session.
 - The learner portal and commerce admin retain their focused page layouts while consuming shared dark surface, text, border and form tokens. Admin operations pages now expose the same compact theme control. CMS and focused lesson-player shells remain specialized by design rather than being forced into the public navigation.
-- The app is not yet at Google/Spotify-level design-system consistency. Several page templates still define page-local body, card, button, typography and spacing rules; not every bespoke shell uses the same reusable layout primitives; and empty/loading/error classes are not yet adopted consistently across all journeys.
-- Remaining work: migrate the remaining page-local CSS incrementally, standardize reusable navigation and page-shell patterns where role-specific layouts do not add value, adopt the shared state components across learner and administrator workflows, and verify light/dark parity with manual keyboard, screen-reader, zoom, tablet, foldable and mobile checks. Automated source and CI checks do not replace browser-based visual regression review.
+- The app is not yet at Google/Spotify-level design-system consistency. Public/auth/account pages and several administrator screens still contain page-local styling; role-specific shells need more consistent shared layout primitives; and empty/loading/error components are not yet adopted consistently across all journeys.
+- The 2026-11-09 follow-up moved the learner dashboard and notification page styling into scoped shared rules in assets/css/main.css, removed their inline stylesheet blocks, and migrated the lesson player to reusable workspace header, layout, sidebar, navigation-link, content and panel primitives. The lesson player now loads the shared base stylesheet and consumes the global design tokens for surfaces, borders, typography, spacing and dark mode.
+- Remaining work: migrate account/authentication and remaining public/admin page-local CSS incrementally, adopt shared empty/loading/error components throughout admin and instructor flows, and verify light/dark parity with manual keyboard, screen-reader, zoom, tablet, foldable and mobile checks. Automated source and CI checks do not replace browser-based visual regression review.
 
 ### P2 — Course offering checkout integration — implemented, regression coverage present
 
@@ -169,3 +170,12 @@ A production release must not be called ready until all of the following are tru
 - Refunds must be calculated from eligible order lines, not blindly from the full payment.
 - Uploads stay outside the document root, use generated storage names, allow only configured formats and are never executed or interpreted. ZIPs are attachment-only; archive contents are never extracted or executed.
 - Keep the existing PHP + SQLite runtime and shared-hosting deployment model. Do not add dependencies or redesign the interface as part of audit-only fixes.
+
+
+### 2026-11-09 — Learner and lesson UI unification follow-up
+
+- learning.php no longer contains a page-local stylesheet. Its welcome, metric, course and learning-card surfaces now consume shared design tokens through scoped rules in assets/css/main.css.
+- notifications.php no longer contains a page-local stylesheet. Its page width, notification cards, unread state, actions and empty state use the shared theme tokens and state primitive.
+- study.php no longer contains a page-local stylesheet. Its lesson player uses reusable workspace primitives for the sticky header, responsive two-column layout, course sidebar, lesson navigation, content area and panels. Its specialized lesson controls remain scoped to the study-player context.
+- Static source checks confirm these three pages have no inline style blocks, the lesson player loads main.css, no duplicate class attributes were introduced in study.php, and the updated stylesheet has balanced braces.
+- These are source-level checks only. The GitHub Actions run for the latest commit has not yet reported a result in this audit session. No desktop/mobile/tablet/foldable browser walkthrough, keyboard-only session or screen-reader session has been performed.
