@@ -41,3 +41,6 @@
 /cms/storage/tmp/*
 !/cms/storage/tmp/.gitkeep
 /cms/storage/tmp/thumbs/*
+
+# Private client billing records must never enter the application repository
+/invoice.html
