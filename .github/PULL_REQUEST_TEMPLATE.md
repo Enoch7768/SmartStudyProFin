@@ -4,7 +4,7 @@ Describe the change and why it is needed.
 
 ## Validation
 
-- [ ] PHP 8.1 checks pass
+- [ ] PHP 8.2 checks pass
 - [ ] PHP 8.3 checks pass
 - [ ] Relevant SQLite and feature tests pass
 - [ ] JavaScript checks pass where applicable
