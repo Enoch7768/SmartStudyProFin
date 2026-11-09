@@ -180,3 +180,11 @@ A production release must not be called ready until all of the following are tru
 - study.php no longer contains a page-local stylesheet. Its lesson player uses reusable workspace primitives for the sticky header, responsive two-column layout, course sidebar, lesson navigation, content area and panels. Its specialized lesson controls remain scoped to the study-player context.
 - Static source checks confirm these three pages have no inline style blocks, the lesson player loads main.css, no duplicate class attributes were introduced in study.php, and the updated stylesheet has balanced braces.
 - These are source-level checks only. The GitHub Actions run for the latest commit has not yet reported a result in this audit session. No desktop/mobile/tablet/foldable browser walkthrough, keyboard-only session or screen-reader session has been performed.
+
+### 2026-11-09 — CMS and instructor workspace unification follow-up
+
+- The native CMS sign-in and content-manager views no longer embed their large page-local style blocks. Their styles now live in dedicated `assets/css/admin-cms-login.css` and `assets/css/admin-cms.css` assets, preserving their distinct layouts while keeping CSS out of the PHP template.
+- Removed all four inline style attributes from the CMS template and replaced them with named utility classes in the CMS stylesheet.
+- The instructor workspace no longer embeds a page-local stylesheet or inline style attribute. Its shared-token-based rules now live in `assets/css/instructor.css`; the page body and full-width field use explicit classes.
+- Source checks against the latest GitHub contents confirm `admin/cms.php` and `instructor.php` contain zero style blocks and zero inline style attributes, and each page links its dedicated stylesheet after the shared responsive stylesheet.
+- These are source-level checks, not PHP lint, browser rendering or functional tests. The latest commit's GitHub combined status currently reports no status checks; CI is not confirmed green. No visual, keyboard, screen-reader or device testing has been performed.
