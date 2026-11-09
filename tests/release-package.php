@@ -88,6 +88,11 @@ if (is_dir($root . '/cms')) {
     throw new RuntimeException('The retired legacy CMS must not remain in the active source tree.');
 }
 
+$releaseWorkflowPathPattern = "(^|/)(cms|db|tests|node_modules)(/|$)|^vendor/";
+if (!str_contains($releaseWorkflow, $releaseWorkflowPathPattern)) {
+    throw new RuntimeException('The release archive path check must exclude server dependency trees without rejecting assets/vendor browser libraries.');
+}
+
 $bootstrap = (string) file_get_contents($root . '/bootstrap/app.php');
 if (str_contains($bootstrap, 'vendor/autoload.php')) {
     throw new RuntimeException('The production bootstrap must not load a third-party Composer runtime.');
