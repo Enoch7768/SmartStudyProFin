@@ -4,7 +4,7 @@ The native content manager is available at `/admin/cms.php` after the first-run 
 
 ## Requirements
 
-- PHP 8.1 or newer
+- PHP 8.2 or newer
 - PDO SQLite
 - Fileinfo
 - OpenSSL
