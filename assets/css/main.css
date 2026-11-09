@@ -1,3 +1,61 @@
+:root {
+  color-scheme: light;
+  --ssp-brand-900: #070443;
+  --ssp-brand-800: #0C086B;
+  --ssp-brand: var(--ssp-brand-800);
+  --ssp-accent: #FF7A00;
+  --ssp-orange: var(--ssp-accent);
+  --ssp-navy: var(--ssp-brand);
+  --ssp-page-bg: #F5F6FB;
+  --ssp-surface: #FFFFFF;
+  --ssp-surface-muted: #F8FAFC;
+  --ssp-text: #182033;
+  --ssp-muted: #64748B;
+  --ssp-border: #E2E8F0;
+  --ssp-card-bg: var(--ssp-surface);
+  --ssp-card-border: var(--ssp-border);
+  --ssp-bg-soft: var(--ssp-surface-muted);
+  --ssp-header-bg: rgba(255, 255, 255, 0.98);
+  --ssp-radius-sm: 8px;
+  --ssp-radius-md: 12px;
+  --ssp-radius-lg: 18px;
+  --ssp-shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --ssp-shadow-md: 0 12px 32px rgba(15, 23, 42, 0.10);
+  --ssp-font-body: "Plus Jakarta Sans", system-ui, sans-serif;
+  --ssp-font-display: Outfit, "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --ssp-page-bg: #0B1020;
+  --ssp-surface: #151D2E;
+  --ssp-surface-muted: #202B40;
+  --ssp-text: #EDF2FB;
+  --ssp-muted: #AAB6CA;
+  --ssp-border: #34425C;
+  --ssp-card-bg: var(--ssp-surface);
+  --ssp-card-border: var(--ssp-border);
+  --ssp-bg-soft: #202B40;
+  --ssp-header-bg: rgba(11, 16, 32, 0.98);
+  --ssp-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.18);
+  --ssp-shadow-md: 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+
+body {
+  background-color: var(--ssp-page-bg);
+  color: var(--ssp-text);
+}
+
+:where(.form-control, .form-select, input, select, textarea) {
+  border-color: var(--ssp-border);
+  border-radius: var(--ssp-radius-sm);
+}
+
+:where(.form-control, .form-select, input, select, textarea):focus {
+  border-color: var(--ssp-accent);
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--ssp-accent) 18%, transparent);
+}
+
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
   outline: 3px solid var(--ssp-orange, #FF7A00);
   outline-offset: 3px;
