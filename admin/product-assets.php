@@ -67,6 +67,10 @@ if ($productId > 0) {
     $selected = array_map('intval', $query->fetchAll(PDO::FETCH_COLUMN));
 }
 $assets = $pdo->query('SELECT id, original_name, mime_type, file_size, visibility FROM media_assets ORDER BY id DESC')->fetchAll();
+$downloadMimeTypes = ['application/pdf', 'text/plain', 'text/csv', 'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/rtf', 'text/rtf', 'application/vnd.oasis.opendocument.text'];
+$eligibleAssets = array_values(array_filter($assets, static fn (array $asset): bool => $role === 'gallery'
+    ? $asset['visibility'] === 'public' && in_array($asset['mime_type'], ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], true)
+    : $asset['visibility'] === 'private' && in_array($asset['mime_type'], $downloadMimeTypes, true)));
 if (isset($_GET['saved'])) $notice = 'Product assets saved.';
 ?>
 <!doctype html>
@@ -101,12 +105,13 @@ if (isset($_GET['saved'])) $notice = 'Product assets saved.';
 <input type="hidden" name="asset_role" value="<?= Security::escape($role) ?>">
 <p class="text-muted"><?= $role === 'gallery' ? 'Select public images shown on the product page.' : 'Select private documents, PDFs, text files, spreadsheets, presentations or image files delivered only after verified payment.' ?></p>
 <div class="row g-3">
-<?php foreach ($assets as $asset):
-$eligible = $role === 'gallery' ? $asset['visibility'] === 'public' && in_array($asset['mime_type'], ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], true) : $asset['visibility'] === 'private';
-if (!$eligible) continue;
-?>
-<div class="col-md-6 col-xl-4"><label class="border rounded-3 p-3 d-flex gap-2 h-100 asset-choice"><input class="form-check-input mt-1" type="checkbox" name="media_ids[]" value="<?= (int) $asset['id'] ?>" <?= in_array((int) $asset['id'], $selected, true) ? 'checked' : '' ?>><span><strong><?= Security::escape($asset['original_name']) ?></strong><br><small class="text-muted"><?= Security::escape($asset['mime_type']) ?> · <?= number_format((int) $asset['file_size']) ?> bytes</small></span></label></div>
-<?php endforeach; ?>
+<?php if (!$eligibleAssets): ?>
+<div class="col-12"><div class="asset-empty-state"><strong>No eligible assets yet</strong><p class="mb-2"><?= $role === 'gallery' ? 'Upload a public image in the media library to build this product gallery.' : 'Upload a supported private document or media file to make it available after purchase.' ?></p><a href="cms.php?section=media">Open media library</a></div></div>
+<?php else: foreach ($eligibleAssets as $asset): ?>
+<div class="col-md-6 col-xl-4"><label class="border rounded-3 p-3 d-flex gap-3 h-100 asset-choice"><input class="form-check-input mt-1" type="checkbox" name="media_ids[]" value="<?= (int) $asset['id'] ?>" <?= in_array((int) $asset['id'], $selected, true) ? 'checked' : '' ?>>
+<?php if ($role === 'gallery'): ?><img class="asset-thumbnail" src="media-preview.php?id=<?= (int) $asset['id'] ?>" alt="<?= Security::escape($asset['original_name']) ?>" loading="lazy"><?php else: ?><span class="asset-file-type" aria-hidden="true"><?= Security::escape(strtoupper(pathinfo($asset['original_name'], PATHINFO_EXTENSION) ?: 'FILE')) ?></span><?php endif; ?>
+<span class="asset-choice-details"><strong><?= Security::escape($asset['original_name']) ?></strong><br><small class="text-muted"><?= Security::escape($asset['mime_type']) ?> · <?= number_format((int) $asset['file_size']) ?> bytes</small></span></label></div>
+<?php endforeach; endif; ?>
 </div>
 <div class="d-flex flex-wrap gap-2 mt-4"><button class="btn btn-primary">Save selected assets</button><a class="btn btn-outline-secondary" href="cms.php?section=media">Open media library</a></div>
 </form>
