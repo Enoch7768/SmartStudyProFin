@@ -9,9 +9,9 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 
 ## Latest independently verified CI snapshot
 
-- Latest repository commit at this audit refresh: `114adb0c3e9affeac37b9641c35aaf1963b84707`.
-- GitHub Actions [run #1245](https://github.com/Enoch7768/SmartStudyProFin/actions/runs/42625391559) completed successfully on 2026-11-09. Both `foundation (8.2)` and `foundation (8.3)` passed.
-- The tested commit includes the shared design-token layer, learner/admin dark-theme token alignment, instructor base stylesheet integration, release-history documentation updates and this audit refresh.
+- Latest validated source commit: `207186bc7abe04fdc01e62300470bfbce4f4f369`.
+- GitHub Actions [run #1253](https://github.com/Enoch7768/SmartStudyProFin/actions/runs/42625849160) completed successfully on 2026-11-09. Both `foundation (8.2)` and `foundation (8.3)` passed.
+- The tested commit includes the shared design-token layer, learner/admin dark-theme token alignment, extraction of navigation CSS from `nav.php` into `main.css`, shared stylesheet loading across all 26 discovered navigation consumers, instructor base stylesheet integration and release-history documentation updates.
 - The foundation workflow covers PHP lint, the release-package policy test, identity and migrations, commerce/refunds, simulated payments, meetings, instructor permissions, AI privacy, recognition, backup/operations, JavaScript tests, rich-text sanitization, query plans, security configuration and site/asset smoke tests.
 - The release archive rule filters shipped `assets/vendor/` browser libraries before checking forbidden server-side dependency directories. Regression coverage checks both allowed browser assets and forbidden server dependency paths.
 - These are automated default-branch checks only. They are not a tag-triggered release build, provider staging test, production cPanel drill, manual browser/accessibility review, or proof that historical refs have been cleaned.
@@ -24,7 +24,7 @@ This is a directional source-and-CI review, not a user-study, uptime report or t
 | Feature breadth | 7.5/10 | Learning, commerce, delivery modes, instructor workflows, AI assistance, recognition and operations are present with dedicated services and tests. |
 | Automated engineering baseline | 7/10 | Broad PHP 8.2/8.3 checks and integration suites pass; live provider, cPanel and full browser journeys remain unverified. |
 | Security and privacy readiness | 5/10 | Good foundations in CSRF, role checks, private storage, webhook validation and upload allowlisting; historical exposed refs, active-secret rotation, report-only CSP and absent malware scanning remain material gaps. |
-| Design-system consistency | 4.5/10 | Shared tokens now exist, but navigation, page shells, typography, component styling and theme support still vary across individual templates. |
+| Design-system consistency | 5/10 | Shared tokens now exist, but navigation, page shells, typography, component styling and theme support still vary across individual templates. |
 | Accessibility and responsive assurance | 5/10 | Responsive/reduced-motion rules and automated smoke tests exist; manual keyboard, screen-reader, zoom, tablet/foldable and assistive-technology testing remains. |
 | Production readiness | 4/10 | The default-branch CI baseline is green, but historical Git cleanup, provider staging, restore and target-host drills, legal sign-off and manual UX validation are open. |
 
@@ -94,10 +94,10 @@ A Google/Spotify-level product bar is not just a polished UI. It requires a cons
 
 ### P2 — Cross-product design consistency — foundational tokens added, full unification incomplete
 
-- A shared brand, surface, typography, spacing, radius, border and elevation token layer is now defined in `assets/css/main.css`; the learner and admin dark-theme styles consume the shared surface/text/border tokens.
-- The instructor workspace now loads the shared base stylesheet, in addition to the device-responsive stylesheet.
-- The app is not yet at Google/Spotify-level design-system consistency. `nav.php` still contains a large inline style block; several page templates define their own body, card, button, typography and spacing rules; portal/admin theme coverage is uneven; and some role-specific screens do not share a single page shell or component library.
-- Remaining work: consolidate shared navigation/page shells and reusable components, migrate page-local CSS to the token system without changing the established brand, verify light/dark parity across public/student/instructor/admin journeys, and complete manual keyboard, screen-reader, zoom, tablet, foldable and mobile checks. Avoid broad CSS replacement until each role journey has visual regression coverage.
+- A shared brand, surface, typography, spacing, radius, border and elevation token layer is now defined in `assets/css/main.css`; learner/admin dark-theme styles consume shared surface/text/border tokens. Navigation styling was moved out of the `nav.php` inline block into `main.css`, and all 26 discovered navigation consumers now load the shared stylesheet.
+- The instructor workspace also loads the shared base stylesheet, in addition to the device-responsive stylesheet.
+- The app is not yet at Google/Spotify-level design-system consistency. Several page templates still define their own body, card, button, typography and spacing rules; portal/admin theme coverage is uneven; and some role-specific screens do not share a single page shell or component library.
+- Remaining work: consolidate public/student/instructor/admin page shells and reusable components, migrate remaining page-local CSS to the token system without changing the established brand, verify light/dark parity across public/student/instructor/admin journeys, and complete manual keyboard, screen-reader, zoom, tablet, foldable and mobile checks. Avoid broad CSS replacement until each role journey has visual regression coverage.
 
 ### P2 — Course offering checkout integration — implemented, regression coverage present
 
