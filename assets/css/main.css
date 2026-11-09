@@ -315,3 +315,34 @@ body{min-width:0;max-width:100%;overflow-x:clip;background:var(--ssp-page-bg);co
 [data-theme="dark"] .ssp-study-player .resource{background:var(--ssp-surface-muted);color:var(--ssp-accent)}
 
 .ssp-workspace-panel.is-narrow{max-width:650px}
+
+
+.ssp-auth-page{min-height:100vh;background:var(--ssp-page-bg);color:var(--ssp-text)}
+.ssp-auth-page .ssp-auth-card{width:min(100%,460px);background:var(--ssp-surface);color:var(--ssp-text);border:1px solid var(--ssp-border);border-radius:var(--ssp-radius-lg);box-shadow:var(--ssp-shadow-md)}
+.ssp-auth-page .ssp-auth-card h1,.ssp-auth-page .ssp-auth-card h2,.ssp-auth-page .ssp-auth-card h3{color:var(--ssp-text)}
+.ssp-auth-page .ssp-auth-card .form-control,.ssp-auth-page .ssp-auth-card .form-select{min-height:46px;background:var(--ssp-surface);color:var(--ssp-text);border:1px solid var(--ssp-border);border-radius:var(--ssp-radius-sm)}
+.ssp-auth-page .ssp-auth-card .form-control:focus,.ssp-auth-page .ssp-auth-card .form-select:focus{border-color:var(--ssp-accent);box-shadow:0 0 0 .2rem color-mix(in srgb,var(--ssp-accent) 18%,transparent)}
+.ssp-auth-page .ssp-auth-card .form-check-input{border-color:var(--ssp-border)}
+.ssp-auth-page .ssp-auth-card .form-check-input:checked{background-color:var(--ssp-accent);border-color:var(--ssp-accent)}
+.ssp-auth-page .ssp-form-label{color:var(--ssp-text)}
+.ssp-auth-page .ssp-auth-link{color:var(--ssp-accent);font-weight:700;text-decoration:none}
+.ssp-auth-page .ssp-auth-link:hover{text-decoration:underline}
+.ssp-auth-page .ssp-auth-notice{background:var(--ssp-surface-muted);border:1px solid var(--ssp-border);color:var(--ssp-text);border-radius:var(--ssp-radius-md)}
+.ssp-auth-page .ssp-auth-notice p,.ssp-auth-page .ssp-auth-notice li{color:var(--ssp-muted)}
+.ssp-auth-page .btn-ssp-primary{min-height:46px;border-radius:var(--ssp-radius-sm);background:var(--ssp-accent);color:#fff;box-shadow:none}
+.ssp-auth-page .btn-ssp-primary:hover{background:#E66A00;color:#fff}
+.ssp-account-page{color:var(--ssp-text)}
+.ssp-account-page .account-hero{position:relative;isolation:isolate;overflow:hidden;padding:clamp(22px,4vw,36px);border:1px solid color-mix(in srgb,var(--ssp-brand) 55%,transparent);border-radius:var(--ssp-radius-lg);background:linear-gradient(125deg,var(--ssp-brand-900),var(--ssp-brand));color:#fff}
+.ssp-account-page .account-hero:after{content:"";position:absolute;z-index:-1;width:240px;height:240px;border:1px solid rgba(255,255,255,.15);border-radius:50%;right:-70px;top:-120px;box-shadow:0 0 0 35px rgba(255,255,255,.035),0 0 0 70px rgba(255,255,255,.025)}
+.ssp-account-page .account-card{background:var(--ssp-surface);color:var(--ssp-text);border:1px solid var(--ssp-border);border-radius:var(--ssp-radius-lg);box-shadow:var(--ssp-shadow-sm)}
+.ssp-account-page .account-card .form-control,.ssp-account-page .account-card .form-select{min-height:46px;background:var(--ssp-surface);color:var(--ssp-text);border-color:var(--ssp-border);border-radius:var(--ssp-radius-sm)}
+.ssp-account-page .account-card .form-control:focus,.ssp-account-page .account-card .form-select:focus{border-color:var(--ssp-accent);box-shadow:0 0 0 .2rem color-mix(in srgb,var(--ssp-accent) 18%,transparent)}
+.ssp-account-page .profile-avatar{width:64px;height:64px;display:grid;place-items:center;border-radius:var(--ssp-radius-md);background:rgba(255,255,255,.15);color:#fff;font:700 28px var(--ssp-font-display)}
+.ssp-account-page .eyebrow{font-size:11px;letter-spacing:1.3px;text-transform:uppercase;font-weight:800;color:var(--ssp-accent)}
+.ssp-account-page .account-hero .eyebrow{color:#FFB36B}
+.ssp-account-page .meta{color:var(--ssp-muted);font-size:13px}
+.ssp-account-page .btn-ssp{min-height:44px;padding:11px 18px;background:var(--ssp-accent);border:1px solid var(--ssp-accent);border-radius:var(--ssp-radius-sm);color:#fff;font-weight:700}
+.ssp-account-page .btn-ssp:hover{background:#E66A00;border-color:#E66A00;color:#fff}
+.ssp-account-page .is-layered{position:relative;z-index:1}
+.ssp-account-page .ssp-account-heading{color:var(--ssp-text)}
+@media(max-width:575.98px){.ssp-auth-page .ssp-auth-card{border-radius:var(--ssp-radius-md)}.ssp-account-page .account-hero{border-radius:var(--ssp-radius-md)}}
