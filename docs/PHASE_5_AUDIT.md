@@ -31,7 +31,8 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 - The current branch no longer contains the retired root `auth.php` implementation, which held a hardcoded legacy signing secret.
 - A standalone `invoice.html` containing a named customer's personal contact and payment details was found in the root of the repository. It has been removed from `main`; `/invoice.html` is now ignored and a release regression test prevents the artifact from returning. An obsolete failed transcript artifact was also removed.
 - **Confirmed historical exposure:** the published `v0.1.0` tag still contains the invoice, legacy `auth.php`, the retired CMS, SQLite database snapshots, booking databases, personal avatar images, uploaded media/archive files and a financial spreadsheet. Its tree was checked directly.
-- The current GitHub branch listing enumerates 24 refs in total, including `main` (23 non-`main` refs). The prior audit snapshot recorded 25 refs, so the one-ref difference must be reconciled during cleanup. Historical branches are not safe to use or redistribute until each live head has been rescanned and exposed history has been rewritten. The published `v0.1.0` tag independently remains affected. Cleaning only `main` is therefore insufficient.
+- **Additional release-tag exposure:** both `v0.1.0` and `v1.0.0` are present as lightweight Git tags and point to the same historical commit `8148ecb8f6450a4161d5b00f98bc862c88b4bdee` from 2026-11-03. That tagged tree contains 1,257 files, including 962 retired CMS files, root `auth.php`, the financial spreadsheet and other historical private artifacts. The GitHub Releases page shows a published `v0.1.0` release; `v1.0.0` currently exists as a tag but has no corresponding published release. `VERSION` on `main` remains `0.1.0`. Neither tag is a valid clean v1.0.0 release target.
+- The current GitHub branch listing enumerates 24 refs in total, including `main` (23 non-`main` refs). The prior audit snapshot recorded 25 refs, so the one-ref difference must be reconciled during cleanup. Historical branches are not safe to use or redistribute until each live head has been rescanned and exposed history has been rewritten. Both published-history tags (`v0.1.0` and `v1.0.0`) independently remain affected. Cleaning only `main` is therefore insufficient.
 - Deleting these files from `main` does not erase old tags, branch heads or earlier commits. No release/tag deletion, branch deletion, Git history rewrite or credential rotation has been performed.
 - Treat the historical signing secret as compromised. Before further public distribution, the owner must authorize a coordinated history rewrite and decide how to handle the published `v0.1.0` release/tag. Rotate any still-used credential that may have appeared in historical source. Never reuse the legacy signing secret.
 
@@ -72,7 +73,7 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 
 - The retired CMS was not loaded by the native application, was blocked by the front controller and Apache rules, and was excluded from deployment packages.
 - Its 880 tracked files have now been removed from `main` to reduce attack surface, repository weight and maintenance ambiguity.
-- The published `v0.1.0` tag was confirmed to contain 962 legacy CMS files. The historical source remains in Git history and old tags until a separately approved history-retention decision is made.
+- Both `v0.1.0` and `v1.0.0` point to the same historical tree, which was confirmed to contain 962 legacy CMS files. The historical source remains in Git history and both tags until a coordinated cleanup is completed.
 
 ### P2 — Course offering checkout integration — implemented, regression coverage present
 
@@ -103,7 +104,7 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 
 | Area | Current evidence | Remaining work |
 |---|---|---|
-| Repository inventory and release boundaries | 257-file inventory at `d6474a0`; retired CMS and private invoice removed from `main`; package exclusions tested; latest live listing enumerates 24 branch refs including `main` | Reconcile the one-ref difference from the prior 25-ref snapshot; rescan all 23 current non-main heads; published v0.1.0 remains affected; coordinated history cleanup required |
+| Repository inventory and release boundaries | 257-file inventory at `d6474a0`; retired CMS and private invoice removed from `main`; package exclusions tested; latest live listing enumerates 24 branch refs including `main` | Reconcile the one-ref difference from the prior 25-ref snapshot; rescan all 23 current non-main heads; published v0.1.0 and v1.0.0 tags point to the same affected commit; coordinated history cleanup required |
 | Core configuration, sessions, authentication and URL handling | Source review, security tests, private-secret tests, site smoke | Full browser auth and subdirectory-host validation |
 | Identity, Google OAuth and account lifecycle | OAuth state/nonce/PKCE implementation; account and migration tests | Real Google OAuth staging sign-in, reset email delivery |
 | Native CMS, rich text and media | Sanitization, media-library tests, MIME/path controls | Admin task walkthrough, upload format matrix and manual malicious-file review |
@@ -113,7 +114,7 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 | AI tutor and meeting companion | Retrieval/privacy, quotas, kill switch and bounded provider request tests | Provider terms/privacy review and live-key staging test |
 | Admin experience and permissions | Security and feature tests for sensitive workflows | Page-by-page administrator task and permission walkthrough |
 | Browser assets, accessibility and responsive behaviour | JS suites, CSS inventory, site/asset smoke | Manual keyboard/screen-reader/device tests; optimize large imagery |
-| Retired CMS and historical artifacts | 880-file legacy tree and private invoice removed from current `main`; v0.1.0 historical tree confirmed affected; latest branch listing shows 23 non-main refs | Rescan every current non-main head, reconcile branch-count drift, rewrite exposed refs/history, handle v0.1.0 release/tag and rotate any exposed active credential |
+| Retired CMS and historical artifacts | 880-file legacy tree and private invoice removed from current `main`; v0.1.0 release and v0.1.0/v1.0.0 tags confirmed affected; both tags point to the same 1,257-file historical tree; latest branch listing shows 23 non-main refs | Rescan every current non-main head, reconcile branch-count drift, rewrite exposed refs/history, remove or replace the affected v0.1.0 release/tag and stale v1.0.0 tag after rewrite; rotate any exposed active credential |
 | Release, backup, restore and cPanel operations | PHP 8.2/8.3 CI; release matrix parity; package manifest/checksum | Tag-triggered package run, isolated restore drill and target-host deployment drill |
 
 ## Release gates
@@ -131,7 +132,7 @@ A production release must not be called ready until all of the following are tru
 - [ ] Google OAuth, email delivery, PayPal and DPO have been verified with real staging credentials and duplicate callback tests.
 - [ ] Owner has reviewed legal documents, privacy disclosures, refund policy, provider terms and data-processing implications.
 - [ ] Manual accessibility and responsive QA is complete.
-- [ ] Owner authorizes and completes a coordinated rewrite/cleanup of all 24 non-main branch refs, the v0.1.0 tag/release and exposed Git history; any still-used exposed credential is rotated.
+- [ ] Owner authorizes and completes a coordinated rewrite/cleanup of all 24 non-main branch refs, the affected v0.1.0 release/tag, stale v1.0.0 tag and exposed Git history; any still-used exposed credential is rotated.
 
 ## Operational constraints to preserve
 
