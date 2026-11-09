@@ -2,8 +2,8 @@
 
 **Status:** In progress — release candidate not approved  
 **Audit branch:** `main`  
-**Inventory snapshot:** `149f4a7ad4e976e00e30db8e7d42d498f71360d3`  
-**Current source inventory at snapshot:** 258 tracked files: 143 PHP files, 69 shipped asset files, 21 additive SQLite migrations, and 20 test files. The retired `cms/` tree (880 tracked files immediately before cleanup) has been removed from the active source tree.
+**Inventory snapshot:** `be866e5faf9dd18e41530f27d50d682c409e9570`  
+**Current source inventory at snapshot:** 256 tracked files: 143 PHP files, 69 shipped asset files, 21 additive SQLite migrations, and 20 test files. The retired `cms/` tree (880 tracked files immediately before cleanup) has been removed from the active source tree.
 
 A green CI run is a baseline, not proof that every user journey, provider integration or production hosting configuration has been validated. This document distinguishes automated checks from staging and owner sign-off still required.
 
@@ -22,8 +22,9 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 - The current `main` tree has had legacy runtime/private artifacts removed, and the retired `cms/` source tree has now been removed from active source.
 - The legacy CMS removal deleted 880 tracked files from `main`. The native PHP CMS under `app/Cms` and its current admin screens remain in place.
 - The current branch no longer contains the retired root `auth.php` implementation, which held a hardcoded legacy signing secret.
-- **Important:** deleting files from `main` does not erase old commits or tags. The old CMS source, historical private artifacts and the legacy authentication secret may remain retrievable from repository history and the published `v0.1.0` tag. No Git history rewrite or credential rotation has been performed as part of this audit.
-- Before public launch, the owner must decide whether to rewrite public history (a coordinated, disruptive operation) and rotate any still-used credential that may have appeared in historical source. Never reuse the legacy signing secret.
+- A standalone `invoice.html` containing a named customer's personal contact and payment details was found in the root of the repository. It has been removed from `main`; `/invoice.html` is now ignored and a release regression test prevents the artifact from returning. An obsolete failed transcript artifact was also removed.
+- **Confirmed historical exposure:** the published `v0.1.0` tag still contains the invoice, the legacy `auth.php`, and 962 files from the retired CMS. The tag's tree was checked directly. Deleting these files from `main` does not erase the tagged tree or earlier commits. No release/tag deletion, Git history rewrite or credential rotation has been performed.
+- Treat the historical signing secret as compromised. Before further public distribution, the owner must authorize a coordinated history rewrite and decide how to handle the published `v0.1.0` release/tag. Rotate any still-used credential that may have appeared in historical source. Never reuse the legacy signing secret.
 
 ### P1 — Release workflow validation parity — remediated
 
@@ -62,7 +63,7 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 
 - The retired CMS was not loaded by the native application, was blocked by the front controller and Apache rules, and was excluded from deployment packages.
 - Its 880 tracked files have now been removed from `main` to reduce attack surface, repository weight and maintenance ambiguity.
-- The historical source remains in Git history and old tags until a separately approved history-retention decision is made.
+- The published `v0.1.0` tag was confirmed to contain 962 legacy CMS files. The historical source remains in Git history and old tags until a separately approved history-retention decision is made.
 
 ### P2 — Course offering checkout integration — implemented, regression coverage present
 
@@ -86,14 +87,14 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 ### P2 — Performance and accessibility — partial automated coverage
 
 - Query-plan tests check selected SQLite indexes; browser tests cover important JavaScript behaviour; responsive and reduced-motion styles are present.
-- A source inventory identified several large photographic assets above 2 MB. Their real-world loading impact, responsive variants and compression should be measured on the target site before launch.
+- A source inventory identified six photographic assets above 2 MB (approximately 2.2–4.3 MB each). Their real-world loading impact, responsive variants and compression should be measured on the target site before launch.
 - Automated smoke tests do not replace keyboard-only, screen-reader, zoom/reflow and device-specific visual checks.
 
 ## Audit coverage ledger
 
 | Area | Current evidence | Remaining work |
 |---|---|---|
-| Repository inventory and release boundaries | Current tree inventory; retired CMS removed from `main`; package exclusions tested | Historical Git/tag review and history-retention decision |
+| Repository inventory and release boundaries | 256-file current tree inventory; retired CMS and private invoice removed from `main`; package exclusions tested | Historical Git/tag review and history-retention decision; published v0.1.0 tag contains sensitive legacy material |
 | Core configuration, sessions, authentication and URL handling | Source review, security tests, private-secret tests, site smoke | Full browser auth and subdirectory-host validation |
 | Identity, Google OAuth and account lifecycle | OAuth state/nonce/PKCE implementation; account and migration tests | Real Google OAuth staging sign-in, reset email delivery |
 | Native CMS, rich text and media | Sanitization, media-library tests, MIME/path controls | Admin task walkthrough, upload format matrix and manual malicious-file review |
@@ -103,7 +104,7 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 | AI tutor and meeting companion | Retrieval/privacy, quotas, kill switch and bounded provider request tests | Provider terms/privacy review and live-key staging test |
 | Admin experience and permissions | Security and feature tests for sensitive workflows | Page-by-page administrator task and permission walkthrough |
 | Browser assets, accessibility and responsive behaviour | JS suites, CSS inventory, site/asset smoke | Manual keyboard/screen-reader/device tests; optimize large imagery |
-| Retired CMS and historical artifacts | 880-file legacy tree removed from current `main` | History rewrite/credential rotation decision |
+| Retired CMS and historical artifacts | 880-file legacy tree and private invoice removed from current `main`; v0.1.0 tag checked and confirmed to retain historical artifacts | History rewrite, v0.1.0 release/tag handling and credential rotation decision |
 | Release, backup, restore and cPanel operations | PHP 8.2/8.3 CI; release matrix parity; package manifest/checksum | Tag-triggered package run, isolated restore drill and target-host deployment drill |
 
 ## Release gates
@@ -121,7 +122,7 @@ A production release must not be called ready until all of the following are tru
 - [ ] Google OAuth, email delivery, PayPal and DPO have been verified with real staging credentials and duplicate callback tests.
 - [ ] Owner has reviewed legal documents, privacy disclosures, refund policy, provider terms and data-processing implications.
 - [ ] Manual accessibility and responsive QA is complete.
-- [ ] Historical secret/data exposure has an explicit owner decision; any still-used exposed credential is rotated.
+- [ ] Historical secret/data exposure has an explicit owner decision; the published v0.1.0 tag is handled, Git history is scrubbed if approved, and any still-used exposed credential is rotated.
 
 ## Operational constraints to preserve
 
