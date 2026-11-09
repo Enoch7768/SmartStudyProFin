@@ -24,9 +24,8 @@
       button.setAttribute("title", label);
       const icon = button.querySelector("i");
       if (icon) {
-        icon.classList.toggle("bi-moon-fill", !dark);
-        icon.classList.toggle("bi-sun-fill", dark);
-        icon.classList.toggle("bi-moon-stars", !dark);
+        icon.classList.remove("bi-moon-fill", "bi-moon-stars", "bi-sun-fill");
+        icon.classList.add(dark ? "bi-sun-fill" : (button.id === "study-theme-toggle" ? "bi-moon-stars" : "bi-moon-fill"));
       } else if (button.textContent.trim()) {
         button.textContent = dark ? "Light mode" : "Dark mode";
       }
