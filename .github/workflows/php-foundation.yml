@@ -79,12 +79,13 @@ jobs:
         run: |
           ruby -e "require 'yaml'; YAML.load_file('.github/workflows/release.yml')"
           mkdir -p /tmp/smartstudypro-release-check
-          git archive HEAD | tar --exclude='composer.phar' --exclude='cms' --exclude='db' --exclude='tests' --exclude='.github' --exclude='transcripts' --exclude='uploads/avatars/*' --exclude='database/bookings.db' --exclude='database/bookings.sqlite' --exclude='Income Statement and distribution.xlsx' --exclude='Readme.txt' -x -C /tmp/smartstudypro-release-check
+          git archive HEAD | tar --exclude='composer.phar' --exclude='cms' --exclude='db' --exclude='tests' --exclude='.github' --exclude='transcripts' --exclude='uploads/avatars/*' --exclude='database/*.sqlite' --exclude='database/*.sqlite3' --exclude='database/*.db' --exclude='database/*.sql' --exclude='*.bak' --exclude='*.log' --exclude='config/local.php' --exclude='storage/*' --exclude='Income Statement and distribution.xlsx' --exclude='Readme.txt' -x -C /tmp/smartstudypro-release-check
           git archive HEAD uploads/avatars/.htaccess | tar -x -C /tmp/smartstudypro-release-check
           mkdir -p /tmp/smartstudypro-release-check/uploads/avatars
           touch /tmp/smartstudypro-release-check/uploads/avatars/.gitkeep
           test -f /tmp/smartstudypro-release-check/VERSION
           test -f /tmp/smartstudypro-release-check/favicon.php
+          test -f /tmp/smartstudypro-release-check/instructor.php
           test -f /tmp/smartstudypro-release-check/assets/vendor/bootstrap/css/bootstrap.min.css
           test -f /tmp/smartstudypro-release-check/assets/vendor/bootstrap/js/bootstrap.bundle.min.js
           test -f /tmp/smartstudypro-release-check/assets/css/device-responsive.css
@@ -92,18 +93,11 @@ jobs:
           test ! -e /tmp/smartstudypro-release-check/vendor
           test ! -e /tmp/smartstudypro-release-check/node_modules
           test ! -e /tmp/smartstudypro-release-check/install
-          test -f /tmp/smartstudypro-release-check/database/migrations/008_notifications_recognition_analytics.php
-          test -f /tmp/smartstudypro-release-check/database/migrations/009_production_indexes.php
-          test -f /tmp/smartstudypro-release-check/database/migrations/010_legal_acceptance.php
-          test -f /tmp/smartstudypro-release-check/database/migrations/011_demo_payments.php
-          test -f /tmp/smartstudypro-release-check/database/migrations/012_commerce_delivery_refunds.php
-          test -f /tmp/smartstudypro-release-check/database/migrations/013_meeting_planner.php
-          test -f /tmp/smartstudypro-release-check/database/migrations/014_meeting_reminders.php
-          test -f /tmp/smartstudypro-release-check/PRIVACY_POLICY.md
-          test -f /tmp/smartstudypro-release-check/EULA.md
           test ! -e /tmp/smartstudypro-release-check/cms
           test ! -e /tmp/smartstudypro-release-check/db
           test ! -e /tmp/smartstudypro-release-check/database/bookings.db
           test ! -e /tmp/smartstudypro-release-check/tests
           test -f /tmp/smartstudypro-release-check/uploads/avatars/.gitkeep
           test -f /tmp/smartstudypro-release-check/uploads/avatars/.htaccess
+          for migration in 001_identity 002_cms_content 003_student_identity 004_learning_engine 005_lesson_resources_quiz_settings 006_commerce_payments 007_ai_learning_assistant 008_notifications_recognition_analytics 009_production_indexes 010_legal_acceptance 011_demo_payments 012_commerce_delivery_refunds 013_meeting_planner 014_meeting_reminders 015_contact_messages 016_refund_item_allocations 017_physical_shipping_fulfillment 018_digital_read_download_entitlements 019_course_offering_purchases 020_physical_stock_reservations 021_offering_completion_certificates; do test -f "/tmp/smartstudypro-release-check/database/migrations/$migration.php"; done
+          ! find /tmp/smartstudypro-release-check -type f | grep -E '(^|/)\.env$|(^|/)config/local\.php$|\.(sqlite|sqlite3|db|sql|bak|log)$'
