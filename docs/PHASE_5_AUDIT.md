@@ -9,11 +9,11 @@ A green CI run is a baseline, not proof that every user journey, provider integr
 
 ## Latest independently verified CI snapshot
 
-- Main commit: `c7cb9f871cbe6bb0f394167f51c12edfe82cd32f`.
-- GitHub Actions run [#42608155021](https://github.com/Enoch7768/SmartStudyProFin/actions/runs/42608155021) completed successfully on 2026-11-09.
-- Both `foundation (8.2)` and `foundation (8.3)` jobs completed successfully. Their steps include PHP lint, private configuration, contact abuse controls, routing/security, migrations and identity, commerce/refunds, demo payments, meeting planner, instructor permissions, AI privacy, recognition, backups/operations, JavaScript checks, CMS sanitization, SQLite query plans, security configuration, site/asset smoke tests and release-package boundary checks.
+- Main commit: `5e5219fa5394e0df5729255f05f0fdf24c17d7ce`.
+- GitHub Actions run [#42611588880](https://github.com/Enoch7768/SmartStudyProFin/actions/runs/42611588880) completed successfully on 2026-11-09.
+- Both `foundation (8.2)` and `foundation (8.3)` jobs completed successfully. The release-package policy test, path-filter regression cases, PHP lint, identity and migration tests, commerce/refunds, simulated payments, meeting planner, instructor permissions, AI privacy, recognition, backups/operations, JavaScript tests, rich-text sanitization, query-plan checks, security configuration and site/asset smoke tests all passed.
+- The release archive rule now filters the shipped `assets/vendor/` browser libraries before checking for forbidden server dependency directories. This fixes the previous false failure and has a regression test for both allowed and forbidden paths.
 - This run validates the default-branch foundation workflow only. It is not a tag-triggered release build, provider staging test, production cPanel drill, or proof that historical refs have been cleaned.
-
 ## Audit objectives
 
 1. Review maintained PHP source and shipped browser assets for security, error handling, authorization, validation, accessibility and performance.
