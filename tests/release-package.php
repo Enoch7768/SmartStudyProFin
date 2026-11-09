@@ -49,6 +49,10 @@ foreach (['APP_ENV=production', 'APP_DEBUG=false', 'DEMO_PAYMENTS_ALLOWED=false'
     }
 }
 
+if (is_file($root . '/invoice.html') || is_file($root . '/transcripts/Lesson.txt')) {
+    throw new RuntimeException('Private invoice or obsolete transcript artifacts must not remain in the release source.');
+}
+
 if (is_file($root . '/auth.php')) {
     throw new RuntimeException('The retired legacy authentication endpoint must not be shipped.');
 }
