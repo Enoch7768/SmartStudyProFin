@@ -94,6 +94,13 @@ if (!str_contains($releaseWorkflow, $releaseWorkflowExclusionFilter) || !str_con
     throw new RuntimeException('The release archive path check must exclude server dependency trees without rejecting assets/vendor browser libraries.');
 }
 
+$releaseWorkflowPathCheck = <<<'CHECK'
+! grep -Ev '^assets/vendor/' "smartstudypro-${VERSION}.files.txt" | grep -Eq '(^|/)(cms|db|tests|node_modules|vendor)(/|$)'
+CHECK;
+if (!str_contains($releaseWorkflow, $releaseWorkflowPathCheck)) {
+    throw new RuntimeException('The release archive path check must filter shipped browser libraries before checking forbidden dependency directories.');
+}
+
 $releasePathCases = [
     'assets/vendor/bootstrap/css/bootstrap.min.css' => false,
     'vendor/autoload.php' => true,
