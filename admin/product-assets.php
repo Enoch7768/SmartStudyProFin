@@ -75,7 +75,7 @@ if (isset($_GET['saved'])) $notice = 'Product assets saved.';
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Product files and images | SmartStudyPro</title>
-<script src="../assets/js/cms-theme.js"></script>
+<script src="../assets/js/theme.js"></script>
 <style>
 body{background:#f5f7fb;color:#172033;transition:background-color .2s ease,color .2s ease}
 .cms-theme-toggle{position:fixed;top:14px;right:14px;z-index:20}
