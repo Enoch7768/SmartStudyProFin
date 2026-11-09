@@ -132,7 +132,7 @@ A production release must not be called ready until all of the following are tru
 - [ ] Google OAuth, email delivery, PayPal and DPO have been verified with real staging credentials and duplicate callback tests.
 - [ ] Owner has reviewed legal documents, privacy disclosures, refund policy, provider terms and data-processing implications.
 - [ ] Manual accessibility and responsive QA is complete.
-- [ ] Owner authorizes and completes a coordinated rewrite/cleanup of all 24 non-main branch refs, the affected v0.1.0 release/tag, stale v1.0.0 tag and exposed Git history; any still-used exposed credential is rotated.
+- [ ] Execute the already-authorized coordinated rewrite/cleanup of all 23 confirmed-exposed non-main branch refs, the affected v0.1.0 release/tag, stale v1.0.0 tag and exposed Git history; rotate any still-used exposed credential and verify no sensitive objects remain reachable.
 
 ## Operational constraints to preserve
 
