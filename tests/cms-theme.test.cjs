@@ -25,6 +25,12 @@ assert.ok(adminOperationsStyles.includes('var(--ssp-surface)'));
 assert.ok(adminOperationsStyles.includes('.asset-choice:has(input:checked)'));
 assert.ok(productAssetPage.includes('Private files delivered after purchase'));
 assert.ok(productAssetPage.includes('Public product gallery images'));
+assert.ok(productAssetPage.includes('$eligibleAssets = array_values(array_filter'));
+assert.ok(productAssetPage.includes('media-preview.php?id='));
+assert.ok(productAssetPage.includes('No eligible assets yet'));
+assert.ok(productAssetPage.includes('supported private document or media file'));
+assert.ok(adminOperationsStyles.includes('.asset-thumbnail'));
+assert.ok(adminOperationsStyles.includes('.asset-empty-state'));
 assert.ok(cmsPage.includes("Url::to('/favicon.ico')"));
 
 const themeController = fs.readFileSync('assets/js/theme.js', 'utf8');
