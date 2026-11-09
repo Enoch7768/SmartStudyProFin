@@ -80,6 +80,8 @@ try {
     foreach (['learning.php', 'study.php', 'achievements.php', 'certificates.php', 'notifications.php', 'assistant.php'] as $portalPage) {
         if (!str_contains((string) file_get_contents(dirname(__DIR__) . '/' . $portalPage), 'assets/css/portal-theme.css')) throw new RuntimeException('A student portal page is missing the shared theme stylesheet: ' . $portalPage);
     }
+    $themePreferenceEndpoint = (string) file_get_contents(dirname(__DIR__) . '/theme-preference.php');
+    if (!str_contains($themePreferenceEndpoint, 'SELECT preferred_theme FROM student_profiles') || !str_contains($themePreferenceEndpoint, "header('Allow: GET, POST')") || !str_contains($sharedThemeScript, 'syncFromAccount()') || !str_contains($sharedThemeScript, 'cache:"no-store"')) throw new RuntimeException('Theme preferences must load from the signed-in account and synchronize across devices.');
     $sharedThemeScript = (string) file_get_contents(dirname(__DIR__) . '/assets/js/theme.js');
     if (!str_contains($studyPage, 'study-theme-toggle') || !str_contains($studyPage, 'assets/js/theme.js') || !str_contains($studyPage, 'theme-preference') || !str_contains($sharedThemeScript, 'ssp-theme') || !str_contains($sharedThemeScript, 'X-CSRF-Token')) throw new RuntimeException('The focused lesson player is missing its persistent shared account-synced theme control.');
     if (!str_contains($studyPage, 'Try again') || !str_contains($studyPage, '$lessonCompleted') || !str_contains($studyPage, 'You can now mark this lesson complete.') || !str_contains($studyPage, 'form.requestSubmit()')) throw new RuntimeException('The learning player must expose quiz retries, a clear completed-lesson state and timed-attempt submission.');
