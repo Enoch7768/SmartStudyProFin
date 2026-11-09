@@ -40,7 +40,7 @@
   }
   apply(saved() || system());
   function syncFromAccount() {
-    const button = document.querySelector(selector + "[data-theme-endpoint]");
+    const button = document.querySelector("[data-theme-endpoint]");
     const endpoint = button && button.dataset ? button.dataset.themeEndpoint : "";
     if (!endpoint) return;
     fetch(endpoint, {credentials:"same-origin",cache:"no-store",headers:{Accept:"application/json"}})
