@@ -21,3 +21,9 @@
 .ssp-admin-operations .asset-choice{min-width:0;overflow-wrap:anywhere;transition:border-color .18s ease,box-shadow .18s ease}
 .ssp-admin-operations .asset-choice:has(input:checked){border-color:var(--ssp-accent)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--ssp-accent) 18%,transparent)}
 @media(max-width:575.98px){.ssp-admin-operations .cms-theme-toggle{top:8px;right:8px}.ssp-admin-operations main.container{padding-top:4.5rem!important}}
+.ssp-admin-operations .table{--bs-table-color:var(--ssp-text);--bs-table-bg:var(--ssp-surface);--bs-table-border-color:var(--ssp-border);--bs-table-striped-bg:var(--ssp-surface-muted);--bs-table-hover-bg:var(--ssp-surface-muted);color:var(--ssp-text)}
+.ssp-admin-operations .table-responsive.border.rounded-4,.ssp-admin-operations section.border.rounded-4{background:var(--ssp-surface);border-color:var(--ssp-border)!important}
+.ssp-admin-operations .alert{border-radius:var(--ssp-radius-md)}
+.ssp-admin-operations .ssp-theme-switch{min-height:40px;padding:8px 13px;border:1px solid var(--ssp-border);border-radius:var(--ssp-radius-sm);background:var(--ssp-surface);color:var(--ssp-text);font-weight:650}
+.ssp-admin-operations .ssp-theme-switch:hover{border-color:var(--ssp-accent);color:var(--ssp-accent)}
+@media(max-width:767.98px){.ssp-admin-operations .table{font-size:13px}.ssp-admin-operations .table th,.ssp-admin-operations .table td{white-space:nowrap}}
