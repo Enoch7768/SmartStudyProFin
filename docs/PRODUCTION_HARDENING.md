@@ -37,4 +37,4 @@ Migration 009 adds indexes for the most common published catalogue, course outli
 9. Test keyboard-only navigation, zoom/reflow, reduced motion, screen-reader labels and mobile layouts on the actual hosting environment.
 10. Review server/PHP logs and disk space after deployment.
 
-Automated CI validates PHP 8.1 and 8.3, SQLite migrations and query plans, security-related behavior, backup integrity, rich-text sanitization and frontend JavaScript initialization. It cannot replace live provider transactions, hosting-specific HTTPS checks or manual browser/screen-reader testing.
+Automated CI validates PHP 8.2 and 8.3, SQLite migrations and query plans, security-related behavior, backup integrity, rich-text sanitization and frontend JavaScript initialization. It cannot replace live provider transactions, hosting-specific HTTPS checks or manual browser/screen-reader testing.
