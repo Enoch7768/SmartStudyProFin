@@ -2,13 +2,13 @@
 
 ## Security controls
 
-- The application bootstrap applies content-type sniffing, clickjacking, referrer, permissions and cross-origin opener protections to application responses. HSTS is sent only when PHP sees a direct HTTPS request.
+- The application bootstrap applies content-type sniffing, clickjacking, referrer, permissions and cross-origin opener protections to application responses. HSTS and Secure session cookies are enabled when PHP sees a direct HTTPS request or the canonical `APP_URL` is configured with HTTPS, including supported reverse-proxy deployments.
 - Session cookies are HTTP-only, SameSite=Lax and Secure on HTTPS. Login rotates the session ID and CSRF token. Stale sessions are destroyed when the account is no longer active or its authentication version changes.
 - Login uses a dummy password hash for unknown email addresses to reduce account-enumeration timing differences.
 - CMS rich text is sanitized on write and again before public rendering. The allowlist removes scripts, embedded objects, inline event handlers, unsafe URL schemes and unsafe attributes while preserving supported semantic formatting. Hosts without the PHP DOM extension degrade to escaped plain text.
 - PayPal approval links are restricted to the official live or sandbox host. DPO API and checkout URLs are restricted to approved HTTPS hosts. Provider redirects are not followed, XML parsing disables network access, responses are size-limited and PayPal order creation uses an idempotency request ID.
 - Private lesson streams reject malformed and multi-range requests and support GET/HEAD only. Public media and purchased downloads also reject other HTTP methods.
-- Apache rules deny access to application internals, private storage, the legacy CMS, docs, hidden files, database files, dumps and archives. Avatar uploads cannot execute PHP-family files.
+- Apache rules deny access to application internals, private storage, retired CMS paths, docs, hidden files, database files, dumps and archives. The retired CMS source is no longer present in the active source tree. Avatar uploads cannot execute PHP-family files.
 - The exposed legacy Cockpit diagnostic endpoint and unused Cockpit bootstrap were removed.
 
 ## Performance
