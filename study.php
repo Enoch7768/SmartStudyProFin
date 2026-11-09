@@ -145,20 +145,6 @@ if(timer){const start=Number(timer.dataset.start),limit=Number(timer.dataset.lim
 const player=document.querySelector('video.video');
 if(player){player.addEventListener('loadedmetadata',()=>{const resume=Number(player.dataset.resume||0);if(resume>0&&resume<player.duration)player.currentTime=resume;},{once:true});let last=-1;player.addEventListener('timeupdate',()=>{const second=Math.floor(player.currentTime);if(second>0&&second%10===0&&second!==last){last=second;const data=new FormData();data.append('_csrf','<?= Security::escape(Security::csrfToken()) ?>');data.append('action','position');data.append('course_id','<?= $courseId ?>');data.append('lesson_id','<?= $lessonId ?>');data.append('position',String(second));fetch(location.href,{method:'POST',body:data,credentials:'same-origin'}).catch(()=>{});}});}
 </script>
-<script>
-(function(){
-  const root=document.documentElement;
-  const button=document.getElementById('study-theme-toggle');
-  let saved=null;
-  try{saved=localStorage.getItem('ssp-theme')}catch(error){}
-  if(saved==='dark')root.setAttribute('data-theme','dark');
-  else if(saved==='light')root.removeAttribute('data-theme');
-  if(!button)return;
-  const icon=button.querySelector('i');
-  const sync=()=>{const dark=root.getAttribute('data-theme')==='dark';button.setAttribute('aria-pressed',String(dark));icon.className=dark?'bi bi-sun':'bi bi-moon-stars'};
-  sync();
-  button.addEventListener('click',()=>{const dark=root.getAttribute('data-theme')!=='dark';if(dark)root.setAttribute('data-theme','dark');else root.removeAttribute('data-theme');try{localStorage.setItem('ssp-theme',dark?'dark':'light')}catch(error){}sync();const endpoint=button.dataset.themeEndpoint,csrf=button.dataset.csrf;if(endpoint&&csrf)fetch(endpoint,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRF-Token':csrf},body:JSON.stringify({theme:dark?'dark':'light'})}).catch(()=>{})});
-})();
-</script>
+<script src="<?= htmlspecialchars(Url::to('/assets/js/theme.js'), ENT_QUOTES, 'UTF-8') ?>" defer></script>
 </body>
 </html>
