@@ -6,11 +6,71 @@ on:
       - 'v*'
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  package:
+  validate:
+    name: Release validation (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_sqlite, sqlite3, fileinfo, openssl, curl, zip, gd, mbstring, simplexml
+          coverage: none
+      - name: Lint all maintained PHP source and tests
+        run: find . -path './.git' -prune -o -path './cms' -prune -o -path './assets' -prune -o -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Validate deployment package and dependency policy
+        run: php tests/release-package.php
+      - name: Test private configuration secrets
+        run: php tests/config-secrets.php
+      - name: Test contact inbox and abuse controls
+        run: php tests/contact.php
+      - name: Test security and routing
+        run: php tests/unit.php
+      - name: Test SQLite migrations, identity and CMS
+        run: php tests/run.php
+      - name: Test commerce delivery and refund ledger
+        run: php tests/commerce-phase5.php
+      - name: Test simulated payment mode
+        run: php tests/demo-payments.php
+      - name: Test course delivery modes and meeting planner
+        run: php tests/meetings.php
+      - name: Test instructor workspace permissions
+        run: php tests/instructor-workspace.php
+      - name: Test AI assistant retrieval and privacy
+        run: php tests/assistant.php
+      - name: Test notifications, achievements and certificates
+        run: php tests/recognition.php
+      - name: Test backups and release operations
+        run: php tests/operations.php
+      - name: Test CMS rich-text sanitization
+        run: php tests/content-security.php
+      - name: Validate production SQLite query plans
+        run: php tests/performance.php
+      - name: Test production security configuration
+        run: php tests/security.php
+      - name: Smoke-test every application page and local asset
+        run: php tests/site-smoke.php
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate browser JavaScript
+        run: node --check assets/js/main.js && node tests/main-js.test.cjs && node --check assets/js/cms-theme.js && node tests/cms-theme.test.cjs && node --check assets/js/media-library.js && node tests/media-library.test.cjs
+      - name: Validate release workflow syntax
+        run: ruby -e "require 'yaml'; YAML.load_file('.github/workflows/release.yml')"
+
+  package:
+    name: Build verified deployment package
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,28 +84,14 @@ jobs:
         run: |
           VERSION="$(tr -d '[:space:]' < VERSION)"
           TAG="${GITHUB_REF_NAME#v}"
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
           test "$VERSION" = "$TAG"
-      - name: Run release validation
-        run: |
-          find app admin bootstrap database scripts tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l
-          php tests/release-package.php
-          php tests/config-secrets.php
-          php tests/contact.php
-          php tests/unit.php
-          php tests/run.php
-          php tests/assistant.php
-          php tests/recognition.php
-          php tests/operations.php
-          php tests/content-security.php
-          php tests/performance.php
-          php tests/security.php
-          php tests/site-smoke.php
-          node --check assets/js/main.js
-          node tests/main-js.test.cjs
+      - name: Recheck package policy
+        run: php tests/release-package.php
       - name: Build clean deployment package
         run: |
           mkdir -p dist/package
-          git archive "$GITHUB_SHA" | tar --exclude='composer.phar' --exclude='cms' --exclude='db' --exclude='tests' --exclude='.github' --exclude='transcripts' --exclude='uploads/avatars/*' --exclude='database/bookings.db' --exclude='database/bookings.sqlite' --exclude='Income Statement and distribution.xlsx' --exclude='Readme.txt' -x -C dist/package
+          git archive "$GITHUB_SHA" | tar --exclude='composer.phar' --exclude='cms' --exclude='db' --exclude='tests' --exclude='.github' --exclude='transcripts' --exclude='uploads/avatars/*' --exclude='database/*.sqlite' --exclude='database/*.sqlite3' --exclude='database/*.db' --exclude='database/*.sql' --exclude='*.bak' --exclude='*.log' --exclude='config/local.php' --exclude='storage/*' --exclude='Income Statement and distribution.xlsx' --exclude='Readme.txt' -x -C dist/package
           git archive "$GITHUB_SHA" uploads/avatars/.htaccess | tar -x -C dist/package
           mkdir -p dist/package/uploads/avatars
           touch dist/package/uploads/avatars/.gitkeep
@@ -56,7 +102,12 @@ jobs:
           unzip -Z1 "smartstudypro-${VERSION}.zip" > "smartstudypro-${VERSION}.files.txt"
           grep -Fx 'assets/vendor/bootstrap/css/bootstrap.min.css' "smartstudypro-${VERSION}.files.txt"
           grep -Fx 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' "smartstudypro-${VERSION}.files.txt"
-          ! grep -Eq '(^|/)vendor/autoload.php$|(^|/)node_modules/' "smartstudypro-${VERSION}.files.txt"
+          grep -Fx 'instructor.php' "smartstudypro-${VERSION}.files.txt"
+          grep -Fx 'database/migrations/021_offering_completion_certificates.php' "smartstudypro-${VERSION}.files.txt"
+          grep -Fx 'uploads/avatars/.htaccess' "smartstudypro-${VERSION}.files.txt"
+          ! grep -Eq '(^|/)(cms|db|tests|node_modules|vendor)(/|$)' "smartstudypro-${VERSION}.files.txt"
+          ! grep -Eq '(^|/)\.env$|(^|/)config/local\.php$|\.(sqlite|sqlite3|db|sql|bak|log)$' "smartstudypro-${VERSION}.files.txt"
+          ! grep -Eq '(^|/)vendor/autoload\.php$|(^|/)node_modules/' "smartstudypro-${VERSION}.files.txt"
           sha256sum "smartstudypro-${VERSION}.zip" > "smartstudypro-${VERSION}.zip.sha256"
       - uses: softprops/action-gh-release@v2
         with:
@@ -64,3 +115,4 @@ jobs:
           files: |
             dist/smartstudypro-${GITHUB_REF_NAME}.zip
             dist/smartstudypro-${GITHUB_REF_NAME}.zip.sha256
+            dist/smartstudypro-${GITHUB_REF_NAME}.files.txt
