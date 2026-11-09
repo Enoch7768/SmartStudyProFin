@@ -95,7 +95,11 @@ try {
     if (!str_contains($adminTheme, 'html[data-theme="dark"] body') || !str_contains($adminTheme, '.table')) throw new RuntimeException('The admin commerce dark theme is incomplete.');
     foreach (['admin/orders.php', 'admin/refunds.php'] as $adminPage) {
         $adminMarkup = (string) file_get_contents(dirname(__DIR__) . '/' . $adminPage);
-        if (!str_contains($adminMarkup, 'assets/css/admin-theme.css') || !str_contains($adminMarkup, 'data-admin-theme-toggle') || !str_contains($adminMarkup, 'assets/js/theme.js') || !str_contains($adminMarkup, 'theme-preference.php') || !str_contains($sharedThemeScript, 'ssp-theme')) throw new RuntimeException('An admin commerce page is missing its shared account-synced theme control: ' . $adminPage);
+        if (!str_contains($adminMarkup, 'assets/css/admin-theme.css') || !str_contains($adminMarkup, 'data-admin-theme-toggle') || !str_contains($adminMarkup, 'data-theme-toggle') || !str_contains($adminMarkup, 'ssp-theme-switch') || !str_contains($adminMarkup, 'assets/js/theme.js') || !str_contains($adminMarkup, 'theme-preference.php') || !str_contains($sharedThemeScript, 'ssp-theme')) throw new RuntimeException('An admin commerce page is missing its shared account-synced theme control: ' . $adminPage);
+    }
+    foreach (['admin/analytics.php', 'admin/backups.php', 'admin/diagnostics.php', 'admin/messages.php', 'admin/shipping.php', 'admin/updates.php', 'admin/product-assets.php'] as $operationsPage) {
+        $operationsMarkup = (string) file_get_contents(dirname(__DIR__) . '/' . $operationsPage);
+        if (!str_contains($operationsMarkup, 'assets/js/theme.js') || !str_contains($operationsMarkup, 'data-theme-toggle') || !str_contains($operationsMarkup, 'theme-preference.php')) throw new RuntimeException('An administrator operations page is missing the shared account theme control: ' . $operationsPage);
     }
     $cmsMarkup = (string) file_get_contents(dirname(__DIR__) . '/admin/cms.php');
     $cmsThemeScript = (string) file_get_contents(dirname(__DIR__) . '/assets/js/theme.js');
