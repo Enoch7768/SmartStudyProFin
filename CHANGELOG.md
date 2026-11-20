@@ -5,7 +5,7 @@ All notable SmartStudyPro changes are recorded here. The current section is unre
 ## Unreleased
 
 ### User experience and design
-- Rebuilt the public homepage around the SmartStudyPro editorial EdTech direction: an image-led hero, learning-story introduction, distinct learning-format pathways, live course previews and a data-backed digital/physical product shelf. The page reuses published CMS course and product records, preserves existing routes, applies responsive and dark-mode styling, and respects reduced-motion preferences. CMS hero copy is escaped before rendering. The implementation follows the research and guardrails in `Enoch7768/smartbase/docs/DESIGN_DIRECTION.md`; it does not claim browser-verified accessibility or visual completion.
+- Rebuilt the public homepage around the SmartStudyPro editorial EdTech direction: an image-led hero, learning-story introduction, distinct learning-format pathways, live course previews and a data-backed digital/physical product shelf. The page reuses published CMS course and product records, preserves existing routes, distinguishes physical products from digital read/view and download prices, applies responsive and dark-mode styling, and respects reduced-motion preferences. CMS hero copy is escaped before rendering. The implementation follows the research and guardrails in `Enoch7768/smartbase/docs/DESIGN_DIRECTION.md`; it does not claim browser-verified accessibility or visual completion.
 
 ### Added
 - Course offerings for self-paced, live-online and in-person delivery, with offering-specific prices and enrolments.
