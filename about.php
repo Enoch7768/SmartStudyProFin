@@ -257,6 +257,7 @@ $siteUrl = \App\Core\Url::site();
     }
   </script>
 <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/device-responsive.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
+  <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/public-pages.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 </head>
 
 <body class="about-page">
