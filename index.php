@@ -161,6 +161,7 @@ $pdo = \App\Core\Database::connect();
 $content = new \App\Cms\PublicContent($pdo);
 $home = $content->home();
 $courses = $content->courses();
+$products = $content->products();
 $contact = $content->contact();
 
 $phone = $contact['phone'];
@@ -213,364 +214,11 @@ $siteUrl = \App\Core\Url::site();
 
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/favicon.php'), ENT_QUOTES, 'UTF-8') ?>" rel="icon">
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/Smart_Study_Logo_Fin-removebg-preview.png'), ENT_QUOTES, 'UTF-8') ?>" rel="apple-touch-icon">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/css/bootstrap.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap-icons/bootstrap-icons.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
-  <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/aos/aos.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/main.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
-
-  <style>
-    :root {
-      --ssp-navy: #0C086B;
-      --ssp-navy-dark: #050338;
-      --ssp-orange: #E66A00;
-      --ssp-orange-hover: #C65B00;
-      --ssp-bg-soft: #F1F5F9;
-      --ssp-text-main: #0F172A;
-      --ssp-text-muted: #334155;
-      --ssp-bg-page: #FFFFFF;
-      --ssp-header-bg: rgba(255, 255, 255, 0.98);
-      --ssp-card-bg: #FFFFFF;
-      --ssp-card-border: #CBD5E1;
-      --ssp-badge-bg: #E0E7FF;
-      --ssp-badge-text: #0C086B;
-    }
-
-    /* Enhanced Dark Mode Theme Variables (High Contrast) */
-    [data-theme="dark"] {
-      --ssp-navy: #C7D2FE;
-      --ssp-navy-dark: #03021D;
-      --ssp-orange: #FF8A1A;
-      --ssp-orange-hover: #FF9B3B;
-      --ssp-bg-soft: #0F172A;
-      --ssp-text-main: #F8FAFC;
-      --ssp-text-muted: #E2E8F0;
-      --ssp-bg-page: #0B0F17;
-      --ssp-header-bg: rgba(11, 15, 23, 0.98);
-      --ssp-card-bg: #111827;
-      --ssp-card-border: #475569;
-      --ssp-badge-bg: #1E1B4B;
-      --ssp-badge-text: #E0E7FF;
-    }
-
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      color: var(--ssp-text-main);
-      background-color: var(--ssp-bg-page);
-      overflow-x: hidden;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-
-    h1, h2, h3, h4, h5, .brand-font {
-      font-family: 'Outfit', sans-serif;
-    }
-
-    .text-muted {
-      color: var(--ssp-text-muted) !important;
-    }
-
-    .ssp-header {
-      background: var(--ssp-header-bg);
-      backdrop-filter: blur(12px);
-      border-bottom: 2px solid rgba(12, 8, 107, 0.12);
-      transition: all 0.3s ease;
-    }
-
-    /* Base Navigation Styling */
-    .navmenu ul {
-      list-style: none !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-
-    .navmenu ul li {
-      list-style: none !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-
-    .navmenu ul li a {
-      color: var(--ssp-navy);
-      font-weight: 700;
-      font-size: 0.95rem;
-      text-decoration: none !important;
-      display: inline-block;
-      white-space: nowrap;
-      transition: color 0.2s ease;
-    }
-
-    .navmenu ul li a:hover,
-    .navmenu ul li a.active {
-      color: var(--ssp-orange) !important;
-      font-weight: 800;
-    }
-
-    /* Desktop Navigation (XL screens and above) */
-    @media (min-width: 1200px) {
-      .navmenu ul {
-        display: flex !important;
-        align-items: center !important;
-        gap: 24px;
-      }
-    }
-
-    /* Keyframes for Mobile Menu Open Animation */
-    @keyframes mobileNavSlideDown {
-      0% {
-        opacity: 0;
-        transform: translateY(-18px) scale(0.97);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    /* Mobile / Tablet Navigation Drawer with Opening Animation */
-    @media (max-width: 1199.98px) {
-      .navmenu ul {
-        display: none;
-        position: fixed;
-        top: 70px;
-        right: 15px;
-        left: 15px;
-        padding: 24px !important;
-        background: var(--ssp-card-bg);
-        border-radius: 16px;
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
-        border: 1px solid var(--ssp-card-border);
-        z-index: 9999;
-      }
-
-      .mobile-nav-active .navmenu ul {
-        display: flex !important;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
-        animation: mobileNavSlideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      }
-
-      .mobile-nav-toggle {
-        cursor: pointer;
-        color: var(--ssp-navy);
-        transition: transform 0.25s ease, color 0.25s ease;
-      }
-
-      .mobile-nav-active .mobile-nav-toggle {
-        transform: rotate(90deg);
-        color: var(--ssp-orange);
-      }
-    }
-
-    .header-icon-link {
-      color: var(--ssp-navy);
-      padding: 6px 10px;
-      border-radius: 8px;
-      transition: background-color 0.2s ease, color 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-    }
-
-    .header-icon-link:hover {
-      color: var(--ssp-orange);
-      background-color: var(--ssp-bg-soft);
-    }
-
-    .btn-ssp-primary {
-      background-color: var(--ssp-orange);
-      color: #FFFFFF;
-      font-weight: 700;
-      border-radius: 10px;
-      padding: 10px 24px;
-      border: none;
-      box-shadow: 0 4px 14px rgba(230, 106, 0, 0.35);
-      transition: all 0.25s ease;
-      display: inline-block;
-      text-align: center;
-    }
-
-    .btn-ssp-primary:hover {
-      background-color: var(--ssp-orange-hover);
-      color: #FFFFFF;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(230, 106, 0, 0.45);
-    }
-
-    .btn-ssp-navy {
-      background-color: #0C086B;
-      color: #FFFFFF;
-      font-weight: 700;
-      border-radius: 10px;
-      padding: 10px 24px;
-      border: none;
-      transition: all 0.25s ease;
-      display: inline-block;
-      text-align: center;
-    }
-
-    [data-theme="dark"] .btn-ssp-navy {
-      background-color: #3730A3;
-      color: #FFFFFF;
-    }
-
-    .btn-ssp-navy:hover {
-      background-color: var(--ssp-navy-dark);
-      color: #FFFFFF;
-      transform: translateY(-2px);
-    }
-
-    .ssp-hero {
-      position: relative;
-      padding: 140px 0 100px;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-    }
-
-    .ssp-hero::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(7, 4, 67, 0.95) 0%, rgba(3, 2, 29, 0.92) 100%);
-      z-index: 1;
-    }
-
-    .ssp-hero .container {
-      position: relative;
-      z-index: 2;
-    }
-
-    .hero-tagline {
-      display: inline-block;
-      color: #FFB066;
-      font-weight: 800;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      font-size: 0.875rem;
-      background: rgba(255, 122, 0, 0.2);
-      padding: 6px 16px;
-      border-radius: 30px;
-      border: 1px solid rgba(255, 122, 0, 0.5);
-      max-width: 100%;
-      word-wrap: break-word;
-    }
-
-    .pixel-decor {
-      display: inline-flex;
-      gap: 4px;
-      margin-bottom: 12px;
-    }
-
-    .pixel-decor span {
-      width: 8px;
-      height: 8px;
-      border-radius: 2px;
-    }
-
-    .pixel-decor .px-1 { background-color: var(--ssp-orange); }
-    .pixel-decor .px-2 { background-color: #60A5FA; }
-    .pixel-decor .px-3 { background-color: #FFFFFF; }
-
-    .ssp-course-card {
-      border: 1.5px solid var(--ssp-card-border);
-      border-radius: 16px;
-      overflow: hidden;
-      background: var(--ssp-card-bg);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .ssp-course-card:hover {
-      transform: translateY(-8px);
-      border-color: var(--ssp-orange);
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-    }
-
-    .ssp-card-badge {
-      background: var(--ssp-badge-bg);
-      color: var(--ssp-badge-text);
-      font-size: 0.75rem;
-      font-weight: 800;
-      padding: 4px 12px;
-      border-radius: 20px;
-      text-transform: uppercase;
-    }
-
-    .ssp-price-tag {
-      color: var(--ssp-orange);
-      font-weight: 800;
-      font-size: 1.15rem;
-    }
-
-    .ssp-footer {
-      background-color: var(--ssp-navy-dark);
-      color: #CBD5E1;
-    }
-
-    .ssp-footer-brand {
-      color: #FFFFFF;
-      font-size: 1.5rem;
-      font-weight: 800;
-    }
-
-    .ssp-footer-brand span {
-      color: var(--ssp-orange);
-    }
-
-    .social-icon-btn {
-      width: 38px;
-      height: 38px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.12);
-      color: #FFFFFF;
-      transition: all 0.2s ease;
-      text-decoration: none;
-    }
-
-    .social-icon-btn:hover {
-      background: var(--ssp-orange);
-      color: #FFFFFF;
-    }
-
-    /* Media Queries for Fine-Tuned Responsiveness */
-    @media (max-width: 991.98px) {
-      .ssp-hero {
-        padding: 100px 0 70px;
-      }
-      .display-4 {
-        font-size: calc(1.475rem + 2.7vw);
-      }
-    }
-
-    @media (max-width: 575.98px) {
-      .ssp-hero {
-        padding: 80px 0 50px;
-      }
-      .display-4 {
-        font-size: 1.85rem;
-      }
-      .hero-tagline {
-        font-size: 0.75rem;
-        padding: 5px 12px;
-      }
-      .btn-ssp-primary, 
-      .ssp-hero .btn-outline-light {
-        width: 100%;
-      }
-    }
-  </style>
-  <script>
+  <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/homepage.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet"><script>
     (function () {
       try {
         const savedTheme = window.localStorage.getItem('ssp-theme');
@@ -588,150 +236,137 @@ $siteUrl = \App\Core\Url::site();
 
   <?php include __DIR__ . '/nav.php'; ?>
 
-  <main id="main-content" class="main">
-
-    <?php 
-      $hImgData = $home['Hero-Image'] ?? $home['Image'] ?? null;
-      $heroImg = !empty($hImgData['url']) 
-                 ? $hImgData['url'] 
-                 : 'assets/img/IMG-20241120-WA0018.jpg';
+  <main id="main-content" class="main ssp-home">
+    <?php
+      $heroMedia = $home['Hero-Image'] ?? null;
+      $heroImage = !empty($heroMedia['url']) ? \App\Core\Url::to((string) $heroMedia['url']) : \App\Core\Url::to('/assets/img/IMG-20241120-WA0018.jpg');
+      $courseModeLabels = ['self_paced' => 'Self-paced', 'live_online' => 'Live online', 'in_person' => 'In person'];
     ?>
-    <section id="hero" class="ssp-hero" style="background-image: url('<?= $heroImg ?>');">
-      <div class="container">
-        <div class="row align-items-center">
-          <div class="col-lg-8 text-center text-lg-start">
-            
-            <div class="pixel-decor" data-aos="fade-down">
-              <span class="px-1"></span>
-              <span class="px-2"></span>
-              <span class="px-3"></span>
-            </div>
-
-            <div class="mb-3" data-aos="fade-up">
-              <span class="hero-tagline">Study Made Simple, Success Made Sure</span>
-            </div>
-
-            <h1 class="display-4 fw-bold text-white mb-3" data-aos="fade-up" data-aos-delay="100">
-              <?= $home['Hero-Title'] ?? $home['Title'] ?? 'Learning Today,<br class="d-none d-sm-inline">Leading Tomorrow' ?>
-            </h1>
-
-            <p class="lead text-white opacity-100 mb-4 fw-normal" data-aos="fade-up" data-aos-delay="200">
-              <?= $home['Hero-Subtitle'] ?? $home['Description'] ?? 'Empowering students with innovative learning solutions, professional tutoring, and academic excellence in Uganda.' ?>
-            </p>
-
-            <div class="d-flex flex-column flex-sm-row flex-wrap gap-3 justify-content-center justify-content-lg-start" data-aos="fade-up" data-aos-delay="300">
-              <a href="<?= htmlspecialchars(\App\Core\Url::to('/courses'), ENT_QUOTES, 'UTF-8') ?>" class="btn-ssp-primary text-decoration-none">Start Learning Today</a>
-              <a href="<?= htmlspecialchars(\App\Core\Url::to('/about'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-light rounded-3 px-4 py-2 fw-bold text-decoration-none">Discover SmartStudyPro</a>
-            </div>
-
+    <section class="home-hero" aria-labelledby="home-title">
+      <div class="home-hero-inner">
+        <div class="home-hero-copy">
+          <p class="home-eyebrow">A smarter way to learn in Uganda</p>
+          <h1 id="home-title"><?= $home['Hero-Title'] ?? $home['Title'] ?? 'Learn with purpose.<br>Build what comes next.' ?></h1>
+          <p class="home-hero-description"><?= $home['Hero-Subtitle'] ?? 'Flexible courses, expert guidance and practical resources to help you move forward with confidence.' ?></p>
+          <div class="home-hero-actions">
+            <a class="home-button home-button-primary" href="<?= htmlspecialchars(\App\Core\Url::to('/courses'), ENT_QUOTES, 'UTF-8') ?>">Explore courses <span aria-hidden="true">↗</span></a>
+            <a class="home-text-link" href="<?= htmlspecialchars(\App\Core\Url::to('/about'), ENT_QUOTES, 'UTF-8') ?>">Discover our approach <span aria-hidden="true">→</span></a>
           </div>
+          <div class="home-hero-note"><span class="home-note-mark" aria-hidden="true">✳</span><span>Learn at your pace, in your place, with support when you need it.</span></div>
+        </div>
+        <div class="home-hero-visual">
+          <div class="home-hero-image">
+            <img src="<?= htmlspecialchars($heroImage, ENT_QUOTES, 'UTF-8') ?>" alt="Learning at SmartStudyPro" fetchpriority="high">
+          </div>
+          <div class="home-image-caption"><span>01 / YOUR NEXT CHAPTER</span><strong>Make learning<br>work for you.</strong></div>
+          <div class="home-image-stamp" aria-hidden="true"><span>SMART</span><strong>+</strong><span>STUDY</span></div>
+        </div>
+      </div>
+      <div class="home-hero-index" aria-hidden="true"><span>SMARTSTUDYPRO</span><span>STUDY MADE SIMPLE · SUCCESS MADE SURE</span></div>
+    </section>
+
+    <section class="home-intro home-section" aria-labelledby="intro-title">
+      <div class="home-container home-intro-grid">
+        <div class="home-intro-media">
+          <img src="<?= htmlspecialchars(\App\Core\Url::to('/assets/img/20240102_164438.jpg'), ENT_QUOTES, 'UTF-8') ?>" alt="Students learning together at SmartStudyPro" loading="lazy">
+          <span class="home-image-label">Learning that moves with you</span>
+        </div>
+        <div class="home-intro-copy">
+          <p class="home-eyebrow">More than a course library</p>
+          <h2 id="intro-title">A learning journey shaped around <em>real life.</em></h2>
+          <p>Build knowledge, develop practical skills and get the guidance you need through one connected learning experience.</p>
+          <ul class="home-check-list">
+            <li><span aria-hidden="true">↗</span><div><strong>Learn with structure</strong><small>Clear courses, useful resources and a path you can follow.</small></div></li>
+            <li><span aria-hidden="true">↗</span><div><strong>Get support when it matters</strong><small>Connect with learning support and live sessions where available.</small></div></li>
+            <li><span aria-hidden="true">↗</span><div><strong>Keep your progress together</strong><small>Return to your learning, bookings and resources from one account.</small></div></li>
+          </ul>
+          <a class="home-inline-link" href="<?= htmlspecialchars(\App\Core\Url::to('/about'), ENT_QUOTES, 'UTF-8') ?>">Our story and approach <span aria-hidden="true">→</span></a>
         </div>
       </div>
     </section>
 
-    <section id="about" class="about section py-4 py-md-5">
-      <div class="container" data-aos="fade-up">
-        <div class="row gy-4 align-items-center">
-          <div class="col-lg-6 order-1 order-lg-2">
-            <div class="position-relative">
-              <img src="<?= htmlspecialchars(\App\Core\Url::to('/assets/img/20240102_164438.jpg'), ENT_QUOTES, 'UTF-8') ?>" class="img-fluid rounded-4 shadow-lg w-100" alt="SmartStudyPro Learning Environment">
-            </div>
-          </div>
-
-          <div class="col-lg-6 order-2 order-lg-1">
-            <span class="text-uppercase fw-bold text-primary fs-7 tracking-wider">About SmartStudyPro</span>
-            <h2 class="fw-bold mt-1 mb-3" style="color: var(--ssp-navy);">Empowering Education Through Smart & Flexible Learning</h2>
-            <p class="text-muted fs-6">
-              SmartStudyPro is a complete online educational platform engineered to simplify learning, resource access, and academic booking across Uganda.
-            </p>
-
-            <div class="my-4">
-              <div class="d-flex gap-3 mb-3">
-                <div class="fs-4 flex-shrink-0"><i class="bi bi-patch-check-fill" style="color: var(--ssp-orange);"></i></div>
-                <div>
-                  <h6 class="fw-bold mb-1" style="color: var(--ssp-navy);">Distraction-Free Platform</h6>
-                  <p class="text-muted small mb-0">Clean, intuitive layout structured specifically to keep students focused on academic success.</p>
-                </div>
-              </div>
-
-              <div class="d-flex gap-3 mb-3">
-                <div class="fs-4 flex-shrink-0"><i class="bi bi-patch-check-fill" style="color: var(--ssp-orange);"></i></div>
-                <div>
-                  <h6 class="fw-bold mb-1" style="color: var(--ssp-navy);">Unified Learning Ecosystem</h6>
-                  <p class="text-muted small mb-0">Seamless access to course content, holiday guidance packages, and specialized ICT lessons.</p>
-                </div>
-              </div>
-
-              <div class="d-flex gap-3">
-                <div class="fs-4 flex-shrink-0"><i class="bi bi-patch-check-fill" style="color: var(--ssp-orange);"></i></div>
-                <div>
-                  <h6 class="fw-bold mb-1" style="color: var(--ssp-navy);">Reliable & Secured Infrastructure</h6>
-                  <p class="text-muted small mb-0">Built on modern, fast web standards to ensure student data safety and fast dynamic loading.</p>
-                </div>
-              </div>
-            </div>
-
-            <a href="<?= htmlspecialchars(\App\Core\Url::to('/about'), ENT_QUOTES, 'UTF-8') ?>" class="btn-ssp-navy text-decoration-none d-inline-block">Read More About Us <i class="bi bi-arrow-right ms-1"></i></a>
-          </div>
+    <section class="home-pathways home-section" aria-labelledby="pathways-title">
+      <div class="home-container">
+        <div class="home-section-heading home-heading-split">
+          <div><p class="home-eyebrow">Find your learning rhythm</p><h2 id="pathways-title">Choose how you<br><em>want to grow.</em></h2></div>
+          <p>Different goals need different ways to learn. Explore the format that fits your schedule, your subject and the way you work best.</p>
+        </div>
+        <div class="home-pathway-list">
+          <a class="home-pathway" href="<?= htmlspecialchars(\App\Core\Url::to('/courses'), ENT_QUOTES, 'UTF-8') ?>">
+            <span class="home-pathway-no">01</span><span class="home-pathway-icon" aria-hidden="true">◷</span><span class="home-pathway-copy"><strong>Self-paced learning</strong><small>Study lessons and resources on your own schedule.</small></span><span class="home-pathway-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="home-pathway" href="<?= htmlspecialchars(\App\Core\Url::to('/courses'), ENT_QUOTES, 'UTF-8') ?>">
+            <span class="home-pathway-no">02</span><span class="home-pathway-icon" aria-hidden="true">◎</span><span class="home-pathway-copy"><strong>Live online sessions</strong><small>Learn with an instructor through scheduled online classes.</small></span><span class="home-pathway-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="home-pathway" href="<?= htmlspecialchars(\App\Core\Url::to('/courses'), ENT_QUOTES, 'UTF-8') ?>">
+            <span class="home-pathway-no">03</span><span class="home-pathway-icon" aria-hidden="true">⌖</span><span class="home-pathway-copy"><strong>In-person learning</strong><small>Explore practical, face-to-face learning opportunities.</small></span><span class="home-pathway-arrow" aria-hidden="true">↗</span>
+          </a>
         </div>
       </div>
     </section>
 
-    <section id="courses" class="courses section py-4 py-md-5" style="background-color: var(--ssp-bg-soft);">
-      <div class="container text-center mb-4 mb-md-5" data-aos="fade-up">
-        <span class="badge px-3 py-2 mb-2" style="background-color: var(--ssp-badge-bg); color: var(--ssp-badge-text);">Featured Content</span>
-        <h2 class="fw-bold" style="color: var(--ssp-navy);">Explore Popular Courses</h2>
-        <p class="text-muted fs-6">Explore structured learning programs designed to boost academic growth.</p>
-      </div>
-
-      <div class="container">
-        <div class="row g-4">
-          <?php if (!empty($courses)): ?>
-            <?php foreach(array_slice($courses, 0, 3) as $course): ?>
-              <div class="col-12 col-md-6 col-lg-4 d-flex align-items-stretch" data-aos="zoom-in">
-                <div class="ssp-course-card w-100 d-flex flex-column">
-                  <?php 
-                    $cImgData = $course['Image'] ?? $course['image'] ?? null;
-                    $cImg = !empty($cImgData['url']) 
-                            ? $cImgData['url'] 
-                            : 'assets/img/course-1.jpg'; 
-                  ?>
-                  <div class="position-relative">
-                    <img src="<?= $cImg ?>" class="img-fluid w-100" style="height: 210px; object-fit: cover;" alt="<?= htmlspecialchars($course['Title'] ?? 'Course') ?>">
-                  </div>
-
-                  <div class="p-3 p-sm-4 d-flex flex-column flex-grow-1">
-                    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
-                      <span class="ssp-card-badge"><?= htmlspecialchars($course['Category'] ?? 'General') ?></span>
-                      <span class="ssp-price-tag">UGX <?= number_format(floatval($course['Price'] ?? 0)) ?></span>
-                    </div>
-
-                    <h3 class="h5 fw-bold mb-2">
-                      <a href="<?= htmlspecialchars(\App\Core\Url::to('/courses/' . rawurlencode((string) ($course['slug'] ?? $course['_id']))), ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none" style="color: var(--ssp-navy);">
-                        <?= htmlspecialchars($course['Title'] ?? 'Untitled Course') ?>
-                      </a>
-                    </h3>
-
-                    <p class="text-muted small mb-4 flex-grow-1">
-                      <?= htmlspecialchars(substr(strip_tags($course['Description'] ?? $course['description'] ?? ''), 0, 110)) ?>...
-                    </p>
-
-                    <a href="<?= htmlspecialchars(\App\Core\Url::to('/courses/' . rawurlencode((string) ($course['slug'] ?? $course['_id']))), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-primary w-100 mt-auto rounded-3 fw-bold text-decoration-none" style="color: var(--ssp-navy); border-color: var(--ssp-navy);">
-                      View Details
-                    </a>
-                  </div>
+    <section id="courses" class="home-courses home-section" aria-labelledby="courses-title">
+      <div class="home-container">
+        <div class="home-section-heading home-heading-split">
+          <div><p class="home-eyebrow">Explore the catalogue</p><h2 id="courses-title">Find a course<br><em>worth your time.</em></h2></div>
+          <div class="home-heading-aside"><p>Browse learning programmes and find the next skill, subject or qualification to work towards.</p><a class="home-inline-link" href="<?= htmlspecialchars(\App\Core\Url::to('/courses'), ENT_QUOTES, 'UTF-8') ?>">View all courses <span aria-hidden="true">→</span></a></div>
+        </div>
+        <?php if ($courses): ?>
+          <div class="home-course-grid">
+            <?php foreach (array_slice($courses, 0, 3) as $course): ?>
+              <?php
+                $courseImage = $course['Image']['url'] ?? '/assets/img/course-1.jpg';
+                $courseUrl = \App\Core\Url::to('/courses/' . rawurlencode((string) ($course['slug'] ?? $course['_id'])));
+                $modes = array_values(array_unique(array_map(static fn (array $offering): string => $courseModeLabels[$offering['mode']] ?? '', $course['Offerings'] ?? [])));
+                $modes = array_values(array_filter($modes));
+              ?>
+              <article class="home-course">
+                <a class="home-course-image" href="<?= htmlspecialchars($courseUrl, ENT_QUOTES, 'UTF-8') ?>"><img src="<?= htmlspecialchars(\App\Core\Url::to((string) $courseImage), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars((string) ($course['Title'] ?? 'Course'), ENT_QUOTES, 'UTF-8') ?>" loading="lazy"><span class="home-course-category"><?= htmlspecialchars((string) ($course['Category'] ?? 'Course'), ENT_QUOTES, 'UTF-8') ?></span></a>
+                <div class="home-course-content">
+                  <div class="home-course-meta"><span><?= $modes ? htmlspecialchars(implode(' · ', $modes), ENT_QUOTES, 'UTF-8') : 'Explore programme' ?></span><strong>UGX <?= number_format((int) ($course['Price'] ?? 0)) ?></strong></div>
+                  <h3><a href="<?= htmlspecialchars($courseUrl, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars((string) ($course['Title'] ?? 'Untitled course'), ENT_QUOTES, 'UTF-8') ?></a></h3>
+                  <p><?= htmlspecialchars(mb_strimwidth(trim(strip_tags((string) ($course['Description'] ?? ''))), 0, 132, '…'), ENT_QUOTES, 'UTF-8') ?></p>
+                  <a class="home-course-link" href="<?= htmlspecialchars($courseUrl, ENT_QUOTES, 'UTF-8') ?>">Explore course <span aria-hidden="true">↗</span></a>
                 </div>
-              </div>
+              </article>
             <?php endforeach; ?>
-          <?php else: ?>
-            <div class="text-center text-muted py-5">
-              <p>No courses currently featured. Please check back shortly!</p>
-            </div>
-          <?php endif; ?>
-        </div>
+          </div>
+        <?php else: ?>
+          <div class="home-empty"><strong>New learning opportunities are on the way.</strong><p>Visit the course catalogue to see the latest programmes.</p><a class="home-inline-link" href="<?= htmlspecialchars(\App\Core\Url::to('/courses'), ENT_QUOTES, 'UTF-8') ?>">Browse courses <span aria-hidden="true">→</span></a></div>
+        <?php endif; ?>
       </div>
     </section>
 
+    <section class="home-store home-section" aria-labelledby="store-title">
+      <div class="home-container">
+        <div class="home-store-heading">
+          <div><p class="home-eyebrow">The learning store</p><h2 id="store-title">Tools and resources<br><em>for the work ahead.</em></h2></div>
+          <p>Explore digital learning materials and physical products selected to support your study and everyday progress.</p>
+          <a class="home-button home-button-outline" href="<?= htmlspecialchars(\App\Core\Url::to('/products'), ENT_QUOTES, 'UTF-8') ?>">Explore the store <span aria-hidden="true">↗</span></a>
+        </div>
+        <?php if ($products): ?>
+          <div class="home-product-rail">
+            <?php foreach (array_slice($products, 0, 4) as $product): ?>
+              <?php
+                $productImage = $product['Image']['url'] ?? '/assets/img/course-2.jpg';
+                $productUrl = \App\Core\Url::to('/products/' . rawurlencode((string) ($product['slug'] ?? $product['_id'])));
+                $productType = strtolower((string) ($product['ProductType'] ?? 'digital'));
+              ?>
+              <article class="home-product">
+                <a class="home-product-image" href="<?= htmlspecialchars($productUrl, ENT_QUOTES, 'UTF-8') ?>"><img src="<?= htmlspecialchars(\App\Core\Url::to((string) $productImage), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars((string) ($product['Title'] ?? 'Product'), ENT_QUOTES, 'UTF-8') ?>" loading="lazy"><span><?= htmlspecialchars((string) ($product['ProductType'] ?? 'Resource'), ENT_QUOTES, 'UTF-8') ?></span></a>
+                <div class="home-product-content"><h3><a href="<?= htmlspecialchars($productUrl, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars((string) ($product['Title'] ?? 'Learning resource'), ENT_QUOTES, 'UTF-8') ?></a></h3><p><?= htmlspecialchars(mb_strimwidth(trim(strip_tags((string) ($product['Description'] ?? ''))), 0, 104, '…'), ENT_QUOTES, 'UTF-8') ?></p><div class="home-product-bottom"><strong>UGX <?= number_format((int) ($product['Price'] ?? 0)) ?></strong><a href="<?= htmlspecialchars($productUrl, ENT_QUOTES, 'UTF-8') ?>" aria-label="View <?= htmlspecialchars((string) ($product['Title'] ?? 'product'), ENT_QUOTES, 'UTF-8') ?>">View <span aria-hidden="true">↗</span></a></div></div>
+              </article>
+            <?php endforeach; ?>
+          </div>
+        <?php else: ?>
+          <div class="home-store-empty">The store is being refreshed. Browse the catalogue for available resources.</div>
+        <?php endif; ?>
+      </div>
+    </section>
+
+    <section class="home-closing">
+      <div class="home-container home-closing-inner"><div><p class="home-eyebrow">Your next step starts here</p><h2>Ready to make<br><em>progress?</em></h2></div><div><p>Find a course, discover a resource or get in touch with the SmartStudyPro team.</p><div class="home-closing-actions"><a class="home-button home-button-primary" href="<?= htmlspecialchars(\App\Core\Url::to('/courses'), ENT_QUOTES, 'UTF-8') ?>">Start exploring <span aria-hidden="true">↗</span></a><a class="home-text-link" href="<?= htmlspecialchars(\App\Core\Url::to('/contact'), ENT_QUOTES, 'UTF-8') ?>">Talk to us <span aria-hidden="true">→</span></a></div></div></div>
+    </section>
   </main>
 
   <footer id="footer" class="ssp-footer pt-5 pb-3">
@@ -800,8 +435,7 @@ $siteUrl = \App\Core\Url::site();
   <div id="preloader"></div>
 
   <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/js/bootstrap.bundle.min.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
-  <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/aos/aos.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
-  <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/js/main.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+  <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/js/main.js'), ENT_QUOTES, 'UTF-8') ?>" defer></script>
 
 
 
