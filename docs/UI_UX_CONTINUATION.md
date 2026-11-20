@@ -11,7 +11,7 @@ Shared tokens and controls should be consistent, but public marketing, course di
 ## Completed in this pass
 
 - Rebuilt the SmartStudyProFin public homepage with an editorial split hero using the published CMS hero image, a learning-story introduction, distinct self-paced/live-online/in-person pathways, published course previews and a published product shelf.
-- Course previews show the available published offering modes rather than inventing delivery options.
+- Course previews show the available published offering modes and the lowest published offering price rather than inventing delivery options.
 - Product previews distinguish physical products from online/digital products and show separate read/view and download prices for digital items.
 - Reused existing clean routes and CMS services; no mock product/course records or fabricated metrics were added.
 - Escaped CMS hero title and subtitle before rendering.
