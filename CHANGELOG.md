@@ -5,6 +5,7 @@ All notable SmartStudyPro changes are recorded here. The current section is unre
 ## Unreleased
 
 ### User experience and design
+- Added live course-catalogue search and a delivery-format filter sourced from each published course's actual offerings. The result count and no-match state update as filters change, and a clear-filters action restores the full catalogue without a page reload.
 - Added a dedicated editorial public-page stylesheet for About and Contact, with stronger page-title hierarchy, responsive imagery, clearer contact information panels, more legible form controls and dark-theme refinements. Existing CMS content, contact submission handling and routes remain unchanged.
 - Rebuilt the shared public header with a compact primary navigation, route-aware active states, signed-in versus signed-out account actions, a session-backed cart quantity, and responsive mobile navigation. Preserved existing clean URLs, account/session checks and theme-preference endpoint.
 - Refined mobile navigation interactions with keyboard focus handling, Escape-to-close, outside-click dismissal, breakpoint reset and reduced-motion-aware transitions.
