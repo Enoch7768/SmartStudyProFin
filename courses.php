@@ -224,6 +224,7 @@ $siteUrl = \App\Core\Url::site();
     }
   </style>
 <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/device-responsive.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
+  <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/public-pages.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 </head>
 
 <body class="courses-page">
@@ -240,10 +241,28 @@ $siteUrl = \App\Core\Url::site();
 
     <section id="courses" class="courses section py-5">
       <div class="container">
-        <div class="row gy-4">
+        <?php
+          $availableCourseModes = [];
+          foreach ($courses as $courseRecord) {
+              foreach ($courseRecord['Offerings'] ?? [] as $courseOffering) {
+                  $mode = (string) ($courseOffering['mode'] ?? '');
+                  if (in_array($mode, ['self_paced', 'live_online', 'in_person'], true)) $availableCourseModes[$mode] = match ($mode) {'self_paced' => 'Self-paced', 'live_online' => 'Live online', 'in_person' => 'In person'};
+              }
+          }
+        ?>
+        <div class="ssp-catalogue-tools">
+          <label class="ssp-catalogue-search"><i class="bi bi-search" aria-hidden="true"></i><span class="visually-hidden">Search courses</span><input id="course-search" type="search" placeholder="Search courses, topics or skills" autocomplete="off"></label>
+          <label class="ssp-catalogue-filter"><span class="visually-hidden">Filter by learning format</span><select id="course-mode"><option value="">All learning formats</option><?php foreach ($availableCourseModes as $mode => $label): ?><option value="<?= htmlspecialchars($mode, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></option><?php endforeach; ?></select></label>
+          <p class="ssp-catalogue-count" id="course-count" role="status" aria-live="polite"><?= count($courses) ?> <?= count($courses) === 1 ? 'course' : 'courses' ?></p>
+        </div>
+        <div class="row gy-4" id="course-grid">
           <?php if (!empty($courses)): ?>
             <?php foreach($courses as $course): ?>
-              <div class="col-lg-4 col-md-6 d-flex align-items-stretch" data-aos="zoom-in">
+              <?php
+                $courseSearchText = strtolower(implode(' ', [(string) ($course['Title'] ?? ''), (string) ($course['Category'] ?? ''), strip_tags((string) ($course['Description'] ?? $course['description'] ?? ''))]));
+                $courseModeValues = array_values(array_unique(array_filter(array_map(static fn ($offering) => (string) ($offering['mode'] ?? ''), $course['Offerings'] ?? []))));
+              ?>
+              <div class="col-lg-4 col-md-6 d-flex align-items-stretch ssp-course-result" data-course-search="<?= htmlspecialchars($courseSearchText, ENT_QUOTES, 'UTF-8') ?>" data-course-modes="<?= htmlspecialchars(implode(',', $courseModeValues), ENT_QUOTES, 'UTF-8') ?>" data-aos="zoom-in">
                 <div class="course-item w-100">
                   <?php 
                     $cImgData = $course['Image'] ?? $course['image'] ?? null;
@@ -279,6 +298,7 @@ $siteUrl = \App\Core\Url::site();
                 </div>
               </div>
             <?php endforeach; ?>
+            <div class="col-12 ssp-catalogue-empty" id="course-empty" hidden><div class="ssp-catalogue-empty-inner"><i class="bi bi-search" aria-hidden="true"></i><h2 class="h4">No matching courses</h2><p>Try another search or clear the learning-format filter.</p><button type="button" class="btn-ssp-primary" id="course-clear">Clear filters</button></div></div>
           <?php else: ?>
             <div class="col-12 text-center py-5">
               <p class="text-muted fs-5">No courses found. Please check back later.</p>
@@ -348,6 +368,7 @@ $siteUrl = \App\Core\Url::site();
 
   <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/js/bootstrap.bundle.min.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
   <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/aos/aos.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+  <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/js/catalogue.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
   <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/js/main.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 
 </body>
