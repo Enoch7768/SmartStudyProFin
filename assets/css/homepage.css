@@ -115,6 +115,9 @@
 [data-theme="dark"] .home-pathway-icon{border-color:#46516a;color:#ff9b4d}
 [data-theme="dark"] .home-course{background:var(--ssp-surface)}
 [data-theme="dark"] .home-course h3 a,[data-theme="dark"] .home-product h3 a{color:#f8fafc}
+[data-theme="dark"] .home-note-mark,[data-theme="dark"] .home-pathway-arrow{color:#ffb16d}
+[data-theme="dark"] .home-note-mark{border-color:#46516a}
+[data-theme="dark"] .home-course-meta strong{color:#ffb16d}
 [data-theme="dark"] .home-course-meta{color:#aab6ca}[data-theme="dark"] .home-course-link,[data-theme="dark"] .home-heading-aside .home-inline-link{color:#ffb16d}
 [data-theme="dark"] .home-course-content>p{color:#aab6ca}
 [data-theme="dark"] .home-product{background:#151e30}
