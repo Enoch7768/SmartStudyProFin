@@ -319,13 +319,16 @@ $siteUrl = \App\Core\Url::site();
               <?php
                 $courseImage = $course['Image']['url'] ?? '/assets/img/course-1.jpg';
                 $courseUrl = \App\Core\Url::to('/courses/' . rawurlencode((string) ($course['slug'] ?? $course['_id'])));
-                $modes = array_values(array_unique(array_map(static fn (array $offering): string => $courseModeLabels[$offering['mode']] ?? '', $course['Offerings'] ?? [])));
+                $courseOfferings = $course['Offerings'] ?? [];
+                $offeringPrices = array_map(static fn (array $offering): int => (int) ($offering['price_ugx'] ?? 0), $courseOfferings);
+                $coursePrice = $offeringPrices ? min($offeringPrices) : (int) ($course['Price'] ?? 0);
+                $modes = array_values(array_unique(array_map(static fn (array $offering): string => $courseModeLabels[$offering['mode']] ?? '', $courseOfferings)));
                 $modes = array_values(array_filter($modes));
               ?>
               <article class="home-course">
                 <a class="home-course-image" href="<?= htmlspecialchars($courseUrl, ENT_QUOTES, 'UTF-8') ?>"><img src="<?= htmlspecialchars(\App\Core\Url::to((string) $courseImage), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars((string) ($course['Title'] ?? 'Course'), ENT_QUOTES, 'UTF-8') ?>" loading="lazy"><span class="home-course-category"><?= htmlspecialchars((string) ($course['Category'] ?? 'Course'), ENT_QUOTES, 'UTF-8') ?></span></a>
                 <div class="home-course-content">
-                  <div class="home-course-meta"><span><?= $modes ? htmlspecialchars(implode(' · ', $modes), ENT_QUOTES, 'UTF-8') : 'Explore programme' ?></span><strong>UGX <?= number_format((int) ($course['Price'] ?? 0)) ?></strong></div>
+                  <div class="home-course-meta"><span><?= $modes ? htmlspecialchars(implode(' · ', $modes), ENT_QUOTES, 'UTF-8') : 'Explore programme' ?></span><strong><?= $courseOfferings ? 'From ' : '' ?>UGX <?= number_format($coursePrice) ?></strong></div>
                   <h3><a href="<?= htmlspecialchars($courseUrl, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars((string) ($course['Title'] ?? 'Untitled course'), ENT_QUOTES, 'UTF-8') ?></a></h3>
                   <p><?= htmlspecialchars(substr(trim(strip_tags((string) ($course['Description'] ?? ''))), 0, 132), ENT_QUOTES, 'UTF-8') ?></p>
                   <a class="home-course-link" href="<?= htmlspecialchars($courseUrl, ENT_QUOTES, 'UTF-8') ?>">Explore course <span aria-hidden="true">↗</span></a>
