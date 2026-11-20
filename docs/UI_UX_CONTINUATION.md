@@ -10,6 +10,9 @@ Shared tokens and controls should be consistent, but public marketing, course di
 
 ## Completed in this pass
 
+- Rebuilt the shared public header around a smaller primary navigation, a contextual account/sign-in action, a live cart quantity from the existing session cart and the existing theme preference service.
+- Added responsive mobile navigation with keyboard focus handling, Escape close, outside-click dismissal, viewport breakpoint reset and touch-sized controls. Existing routes and role checks remain in place.
+
 - Rebuilt the SmartStudyProFin public homepage with an editorial split hero using the published CMS hero image, a learning-story introduction, distinct self-paced/live-online/in-person pathways, published course previews and a published product shelf.
 - Course previews show the available published offering modes and the lowest published offering price rather than inventing delivery options.
 - Product previews distinguish physical products from online/digital products and show separate read/view and download prices for digital items.
@@ -27,7 +30,7 @@ Shared tokens and controls should be consistent, but public marketing, course di
 
 ## Next implementation sequence
 
-1. Audit and redesign the shared public header/navigation and footer, including compact/mobile navigation, clear active states, useful account/cart access and removal of placeholder links.
+1. Redesign and unify the public footer; remove placeholder social destinations and use only verified contact/social details.
 2. Redesign About, Contact and Booking pages with editorial storytelling and task-first forms.
 3. Redesign the course catalogue with search, filters, sorting, result counts and removable active filters while preserving query behavior.
 4. Redesign course details around outcomes, instructor information, curriculum, published offering modes, schedules and a clear enrol action.
