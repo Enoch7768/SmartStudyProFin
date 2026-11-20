@@ -1,0 +1,33 @@
+.about-page .ssp-page-title,.contact-page .ssp-page-title{position:relative;isolation:isolate;overflow:hidden;padding:clamp(58px,8vw,104px) 0;background:var(--ssp-brand-900);text-align:left!important}
+.about-page .ssp-page-title:after,.contact-page .ssp-page-title:after{position:absolute;z-index:-1;top:-160px;right:-100px;width:520px;height:520px;border:1px solid rgba(255,255,255,.13);border-radius:50%;box-shadow:0 0 0 38px rgba(255,255,255,.035),0 0 0 78px rgba(255,255,255,.025);content:""}
+.about-page .ssp-page-title .container,.contact-page .ssp-page-title .container{position:relative;z-index:1;max-width:1180px}
+.about-page .ssp-page-title h1,.contact-page .ssp-page-title h1{max-width:820px;margin:14px auto 12px;font-size:clamp(2.4rem,5.4vw,4.6rem);font-weight:750;letter-spacing:-.055em;line-height:1.02;text-wrap:balance}
+.about-page .ssp-page-title p,.contact-page .ssp-page-title p{max-width:620px;margin-inline:auto;font-size:clamp(1rem,1.5vw,1.16rem);line-height:1.75}
+.about-page .ssp-page-title .breadcrumb,.contact-page .ssp-page-title .breadcrumb{font-size:.8rem}
+.about-page .ssp-page-title .breadcrumb a,.contact-page .ssp-page-title .breadcrumb a{color:#FFD3A6;text-decoration:none}
+.about-page #about-us{padding-block:clamp(56px,8vw,100px)!important;background:var(--ssp-page-bg)}
+.about-page #about-us .container{max-width:1180px}
+.about-page #about-us .row{--bs-gutter-x:clamp(28px,5vw,72px)}
+.about-page #about-us img{width:100%;aspect-ratio:5/4;object-fit:cover;border-radius:8px!important;box-shadow:22px 22px 0 color-mix(in srgb,var(--ssp-accent) 18%,var(--ssp-page-bg))!important}
+.about-page #about-us h2{max-width:600px;font-size:clamp(2rem,3.7vw,3.35rem);letter-spacing:-.045em;line-height:1.08}
+.about-page #about-us .text-muted{font-size:1rem;line-height:1.85}
+.about-page #about-us h6{font-size:1rem}
+.about-page #about-us .btn-ssp-primary{min-height:48px;padding:13px 22px;border-radius:4px}
+.contact-page #contact{padding-block:clamp(44px,7vw,88px)!important;background:var(--ssp-page-bg)!important}
+.contact-page #contact>.container{max-width:1180px}
+.contact-page #contact .row.gy-4.mb-5{align-items:stretch;--bs-gutter-x:clamp(18px,3vw,34px)}
+.contact-page #contact .info-card{min-height:104px;padding:20px 18px;border:1px solid var(--ssp-border);border-radius:10px;background:var(--ssp-surface);box-shadow:var(--ssp-shadow-sm)}
+.contact-page #contact .info-icon{display:grid;width:48px;height:48px;place-items:center;border-radius:50%;background:color-mix(in srgb,var(--ssp-accent) 13%,var(--ssp-surface));color:var(--ssp-accent);font-size:1.1rem}
+.contact-page #contact .info-card h6{color:var(--ssp-text)!important}
+.contact-page #contact .info-card p{color:var(--ssp-muted)!important}
+.contact-page .contact-form-container{height:100%;padding:clamp(22px,3.5vw,38px);border:1px solid var(--ssp-border);border-radius:12px;background:var(--ssp-surface);box-shadow:var(--ssp-shadow-sm)}
+.contact-page .contact-form-container h4{color:var(--ssp-text)!important;font-size:1.55rem;letter-spacing:-.03em}
+.contact-page .php-email-form .form-control{min-height:48px;padding:12px 14px;border:1px solid var(--ssp-border);border-radius:7px;background:var(--ssp-page-bg);color:var(--ssp-text)}
+.contact-page .php-email-form textarea.form-control{min-height:150px;resize:vertical}
+.contact-page .php-email-form .form-control::placeholder{color:var(--ssp-muted);opacity:.85}
+.contact-page .php-email-form .btn-ssp-primary{min-height:48px;border-radius:7px;font-weight:750}
+.contact-page #contact iframe{min-height:300px;filter:saturate(.82)}
+[data-theme="dark"] .about-page #about-us img{box-shadow:22px 22px 0 color-mix(in srgb,var(--ssp-accent) 20%,var(--ssp-page-bg))!important}
+[data-theme="dark"] .contact-page #contact iframe{filter:grayscale(.18) invert(.88) hue-rotate(180deg)}
+@media(max-width:767.98px){.about-page .ssp-page-title,.contact-page .ssp-page-title{text-align:center!important;padding-block:54px}.about-page #about-us img{box-shadow:12px 12px 0 color-mix(in srgb,var(--ssp-accent) 18%,var(--ssp-page-bg))!important}.about-page #about-us .row{--bs-gutter-x:24px}.contact-page .contact-form-container{padding:20px}.contact-page #contact iframe{min-height:240px}}
+@media(prefers-reduced-motion:reduce){.about-page #about-us img{transition:none}}
