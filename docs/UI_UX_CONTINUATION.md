@@ -10,6 +10,8 @@ Shared tokens and controls should be consistent, but public marketing, course di
 
 ## Completed in this pass
 
+- Added a dedicated responsive visual treatment for About and Contact, strengthening the editorial page-title area, story image, contact information, message form and dark-theme states without changing their CMS data or form-processing flow.
+
 - Rebuilt the shared public header around a smaller primary navigation, a contextual account/sign-in action, a live cart quantity from the existing session cart and the existing theme preference service.
 - Added responsive mobile navigation with keyboard focus handling, Escape close, outside-click dismissal, viewport breakpoint reset and touch-sized controls. Existing routes and role checks remain in place.
 
@@ -31,7 +33,7 @@ Shared tokens and controls should be consistent, but public marketing, course di
 ## Next implementation sequence
 
 1. Redesign and unify the public footer; remove placeholder social destinations and use only verified contact/social details.
-2. Redesign About, Contact and Booking pages with editorial storytelling and task-first forms.
+2. Refine the Booking page with a clear, task-first experience while preserving its current request and cart behavior.
 3. Redesign the course catalogue with search, filters, sorting, result counts and removable active filters while preserving query behavior.
 4. Redesign course details around outcomes, instructor information, curriculum, published offering modes, schedules and a clear enrol action.
 5. Redesign the product catalogue and product details around digital versus physical decisions, previews, read/download pricing, stock and fulfilment information.
