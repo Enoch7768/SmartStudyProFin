@@ -429,3 +429,57 @@ body{min-width:0;max-width:100%;overflow-x:clip;background:var(--ssp-page-bg);co
   .ssp-button[aria-busy="true"]::after, button[aria-busy="true"]::after, .btn[aria-busy="true"]::after { animation: none; border-inline-end-color: currentColor; }
 }
 
+
+
+.ssp-header{position:sticky;top:0;z-index:10000;width:100%;background:var(--ssp-header-bg);border-bottom:1px solid var(--ssp-border);box-shadow:0 5px 24px rgba(12,8,107,.045);backdrop-filter:saturate(150%) blur(14px)}
+.ssp-header-inner{width:min(100% - 40px,1480px);min-height:82px;margin-inline:auto;display:flex;align-items:center;justify-content:space-between;gap:clamp(14px,2vw,30px)}
+.ssp-brand{display:inline-flex;align-items:center;flex:0 0 auto;min-width:0}
+.ssp-brand img{display:block;width:clamp(138px,12vw,174px);height:auto;max-height:52px;object-fit:contain}
+.ssp-header .navmenu{min-width:0;margin-inline:auto}
+.ssp-header .navmenu ul{display:flex;align-items:center;justify-content:center;gap:clamp(12px,1.55vw,25px);margin:0;padding:0;list-style:none}
+.ssp-header .navmenu li{margin:0;padding:0;list-style:none}
+.ssp-header .navmenu a{position:relative;display:inline-flex;align-items:center;min-height:44px;padding:5px 0;color:var(--ssp-text);font-size:clamp(.78rem,.9vw,.91rem);font-weight:650;letter-spacing:-.015em;text-decoration:none;white-space:nowrap;transition:color .18s ease}
+.ssp-header .navmenu a::after{position:absolute;right:0;bottom:2px;left:0;height:2px;background:var(--ssp-accent);content:"";transform:scaleX(0);transform-origin:left;transition:transform .18s ease}
+.ssp-header .navmenu a:hover,.ssp-header .navmenu a.active{color:var(--ssp-brand)}
+.ssp-header .navmenu a:hover::after,.ssp-header .navmenu a.active::after{transform:scaleX(1)}
+.ssp-header-actions{display:flex;align-items:center;justify-content:flex-end;gap:clamp(5px,.8vw,12px);flex:0 0 auto}
+.ssp-header .ssp-header-action{position:relative;display:inline-grid;place-items:center;width:40px;height:40px;padding:0;border:1px solid transparent;border-radius:50%;background:transparent;color:var(--ssp-text);font-size:1.08rem;text-decoration:none;transition:background-color .18s ease,border-color .18s ease,color .18s ease}
+.ssp-header .ssp-header-action:hover{border-color:var(--ssp-border);background:var(--ssp-surface-muted);color:var(--ssp-accent)}
+.ssp-cart-count{position:absolute;top:-3px;right:-4px;display:grid;min-width:18px;height:18px;place-items:center;padding:0 4px;border:2px solid var(--ssp-surface);border-radius:20px;background:var(--ssp-accent);color:#fff;font-size:10px;font-weight:800;line-height:1}
+.ssp-account-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 13px;border:1px solid var(--ssp-border);border-radius:999px;color:var(--ssp-text);font-size:.84rem;font-weight:700;text-decoration:none;white-space:nowrap;transition:border-color .18s ease,color .18s ease,background .18s ease}
+.ssp-account-link:hover{border-color:var(--ssp-accent);background:var(--ssp-surface-muted);color:var(--ssp-brand)}
+.ssp-header-cta{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:0 17px;border:1px solid var(--ssp-brand);border-radius:999px;background:var(--ssp-brand);color:#fff;font-size:.84rem;font-weight:750;text-decoration:none;white-space:nowrap;transition:background-color .18s ease,border-color .18s ease,transform .18s ease}
+.ssp-header-cta:hover{transform:translateY(-1px);border-color:var(--ssp-accent);background:var(--ssp-accent);color:#fff}
+.ssp-header .mobile-nav-toggle{display:none;place-items:center;width:42px;height:42px;border:1px solid var(--ssp-border);border-radius:50%;background:var(--ssp-surface);color:var(--ssp-text);font-size:1.45rem}
+.ssp-mobile-contact{display:none}
+[data-theme="dark"] .ssp-header{background:var(--ssp-header-bg);border-bottom-color:var(--ssp-border)}
+[data-theme="dark"] .ssp-header .navmenu a:hover,[data-theme="dark"] .ssp-header .navmenu a.active{color:var(--ssp-accent)}
+[data-theme="dark"] .ssp-header-cta{border-color:var(--ssp-accent);background:var(--ssp-accent);color:#17120D}
+[data-theme="dark"] .ssp-account-link:hover{color:var(--ssp-accent)}
+@media(max-width:1199.98px){
+ .ssp-header-inner{min-height:74px;width:min(100% - 32px,1480px);gap:12px}
+ .ssp-header .navmenu{margin:0}
+ .ssp-header .navmenu ul{display:none;position:absolute;top:calc(100% + 1px);right:16px;left:16px;z-index:10002;max-height:calc(100dvh - 92px);overflow:auto;padding:14px;background:var(--ssp-surface);border:1px solid var(--ssp-border);border-radius:16px;box-shadow:0 20px 55px rgba(7,4,67,.18);align-items:stretch;flex-direction:column;gap:3px}
+ body.mobile-nav-active .ssp-header .navmenu ul{display:flex}
+ .ssp-header .navmenu li{width:100%}
+ .ssp-header .navmenu a{display:flex;width:100%;min-height:46px;padding:10px 13px;border-radius:9px;font-size:.95rem}
+ .ssp-header .navmenu a::after{display:none}
+ .ssp-header .navmenu a:hover,.ssp-header .navmenu a.active{background:var(--ssp-surface-muted);color:var(--ssp-brand)}
+ .ssp-header .mobile-nav-toggle{display:grid}
+ .ssp-mobile-contact{display:list-item}
+ .ssp-header-cta{min-height:42px;padding-inline:14px}
+}
+@media(max-width:700px){
+ .ssp-header-inner{width:calc(100% - 24px);min-height:68px;gap:8px}
+ .ssp-brand img{width:clamp(118px,34vw,148px);max-height:44px}
+ .ssp-header-actions{gap:3px}
+ .ssp-header .ssp-header-action{width:36px;height:38px;font-size:1rem}
+ .ssp-account-link{width:38px;height:38px;min-height:38px;padding:0;border-radius:50%;font-size:1rem}
+ .ssp-account-link span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+ .ssp-header-cta{display:none}
+ .ssp-desktop-utility{display:none!important}
+ .ssp-header .navmenu ul{right:12px;left:12px}
+}
+@media(max-width:390px){.ssp-header .ssp-header-action:first-child{display:none}.ssp-brand img{width:112px}.ssp-header-inner{width:calc(100% - 18px)}}
+@media(min-width:1200px) and (max-width:1350px){.ssp-header-inner{width:calc(100% - 28px);gap:12px}.ssp-header .navmenu ul{gap:12px}.ssp-header-cta{padding-inline:12px}.ssp-account-link{padding-inline:10px}}
+@media(prefers-reduced-motion:reduce){.ssp-header .navmenu a,.ssp-header .navmenu a::after,.ssp-header-cta,.ssp-header-action,.ssp-account-link{transition:none}.ssp-header-cta:hover{transform:none}}
