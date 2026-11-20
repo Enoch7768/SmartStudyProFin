@@ -241,13 +241,15 @@ $siteUrl = \App\Core\Url::site();
       $heroMedia = $home['Hero-Image'] ?? null;
       $heroImage = !empty($heroMedia['url']) ? \App\Core\Url::to((string) $heroMedia['url']) : \App\Core\Url::to('/assets/img/IMG-20241120-WA0018.jpg');
       $courseModeLabels = ['self_paced' => 'Self-paced', 'live_online' => 'Live online', 'in_person' => 'In person'];
+      $heroTitle = (string) ($home['Hero-Title'] ?? $home['Title'] ?? "Learn with purpose.\nBuild what comes next.");
+      $heroSubtitle = (string) ($home['Hero-Subtitle'] ?? 'Flexible courses, expert guidance and practical resources to help you move forward with confidence.');
     ?>
     <section class="home-hero" aria-labelledby="home-title">
       <div class="home-hero-inner">
         <div class="home-hero-copy">
           <p class="home-eyebrow">A smarter way to learn in Uganda</p>
-          <h1 id="home-title"><?= $home['Hero-Title'] ?? $home['Title'] ?? 'Learn with purpose.<br>Build what comes next.' ?></h1>
-          <p class="home-hero-description"><?= $home['Hero-Subtitle'] ?? 'Flexible courses, expert guidance and practical resources to help you move forward with confidence.' ?></p>
+          <h1 id="home-title"><?= nl2br(htmlspecialchars($heroTitle, ENT_QUOTES, 'UTF-8')) ?></h1>
+          <p class="home-hero-description"><?= htmlspecialchars($heroSubtitle, ENT_QUOTES, 'UTF-8') ?></p>
           <div class="home-hero-actions">
             <a class="home-button home-button-primary" href="<?= htmlspecialchars(\App\Core\Url::to('/courses'), ENT_QUOTES, 'UTF-8') ?>">Explore courses <span aria-hidden="true">↗</span></a>
             <a class="home-text-link" href="<?= htmlspecialchars(\App\Core\Url::to('/about'), ENT_QUOTES, 'UTF-8') ?>">Discover our approach <span aria-hidden="true">→</span></a>
@@ -325,7 +327,7 @@ $siteUrl = \App\Core\Url::site();
                 <div class="home-course-content">
                   <div class="home-course-meta"><span><?= $modes ? htmlspecialchars(implode(' · ', $modes), ENT_QUOTES, 'UTF-8') : 'Explore programme' ?></span><strong>UGX <?= number_format((int) ($course['Price'] ?? 0)) ?></strong></div>
                   <h3><a href="<?= htmlspecialchars($courseUrl, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars((string) ($course['Title'] ?? 'Untitled course'), ENT_QUOTES, 'UTF-8') ?></a></h3>
-                  <p><?= htmlspecialchars(mb_strimwidth(trim(strip_tags((string) ($course['Description'] ?? ''))), 0, 132, '…'), ENT_QUOTES, 'UTF-8') ?></p>
+                  <p><?= htmlspecialchars(substr(trim(strip_tags((string) ($course['Description'] ?? ''))), 0, 132), ENT_QUOTES, 'UTF-8') ?></p>
                   <a class="home-course-link" href="<?= htmlspecialchars($courseUrl, ENT_QUOTES, 'UTF-8') ?>">Explore course <span aria-hidden="true">↗</span></a>
                 </div>
               </article>
@@ -354,7 +356,7 @@ $siteUrl = \App\Core\Url::site();
               ?>
               <article class="home-product">
                 <a class="home-product-image" href="<?= htmlspecialchars($productUrl, ENT_QUOTES, 'UTF-8') ?>"><img src="<?= htmlspecialchars(\App\Core\Url::to((string) $productImage), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars((string) ($product['Title'] ?? 'Product'), ENT_QUOTES, 'UTF-8') ?>" loading="lazy"><span><?= htmlspecialchars((string) ($product['ProductType'] ?? 'Resource'), ENT_QUOTES, 'UTF-8') ?></span></a>
-                <div class="home-product-content"><h3><a href="<?= htmlspecialchars($productUrl, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars((string) ($product['Title'] ?? 'Learning resource'), ENT_QUOTES, 'UTF-8') ?></a></h3><p><?= htmlspecialchars(mb_strimwidth(trim(strip_tags((string) ($product['Description'] ?? ''))), 0, 104, '…'), ENT_QUOTES, 'UTF-8') ?></p><div class="home-product-bottom"><strong>UGX <?= number_format((int) ($product['Price'] ?? 0)) ?></strong><a href="<?= htmlspecialchars($productUrl, ENT_QUOTES, 'UTF-8') ?>" aria-label="View <?= htmlspecialchars((string) ($product['Title'] ?? 'product'), ENT_QUOTES, 'UTF-8') ?>">View <span aria-hidden="true">↗</span></a></div></div>
+                <div class="home-product-content"><h3><a href="<?= htmlspecialchars($productUrl, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars((string) ($product['Title'] ?? 'Learning resource'), ENT_QUOTES, 'UTF-8') ?></a></h3><p><?= htmlspecialchars(substr(trim(strip_tags((string) ($product['Description'] ?? ''))), 0, 104), ENT_QUOTES, 'UTF-8') ?></p><div class="home-product-bottom"><strong>UGX <?= number_format((int) ($product['Price'] ?? 0)) ?></strong><a href="<?= htmlspecialchars($productUrl, ENT_QUOTES, 'UTF-8') ?>" aria-label="View <?= htmlspecialchars((string) ($product['Title'] ?? 'product'), ENT_QUOTES, 'UTF-8') ?>">View <span aria-hidden="true">↗</span></a></div></div>
               </article>
             <?php endforeach; ?>
           </div>
