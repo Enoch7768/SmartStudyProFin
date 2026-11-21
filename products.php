@@ -54,7 +54,6 @@ $siteUrl = \App\Core\Url::site();
   
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/css/bootstrap.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap-icons/bootstrap-icons.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
-  <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/aos/aos.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/main.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 
   <style>
@@ -281,7 +280,7 @@ $siteUrl = \App\Core\Url::site();
   <main id="main-content" class="main">
 
     <div class="page-title-ssp text-center">
-      <div class="container" data-aos="fade-up">
+      <div class="container">
         <h1 class="fw-bold mb-2">Products & Learning Resources</h1>
         <p class="mb-0 opacity-75">Quality Educational Materials, Guides, and Kits for Effective Learning</p>
       </div>
@@ -331,7 +330,7 @@ $siteUrl = \App\Core\Url::site();
                     <?php if ($productIsDigital): ?>
                       <div class="ssp-product-prices"><div><span>Read online</span><strong>UGX <?= number_format((int) ($product['ReadPrice'] ?? $product['Price'] ?? 0)) ?></strong></div><div><span>Download</span><strong>UGX <?= number_format((int) ($product['DownloadPrice'] ?? $product['Price'] ?? 0)) ?></strong></div></div>
                     <?php else: ?>
-                      <div class="ssp-product-physical-price"><span>Purchase price</span><strong>UGX <?= number_format((int) ($product['Price'] ?? 0)) ?></strong></div>
+                      <div class="ssp-product-physical-price"><span><?= empty($product['StockAvailable']) ? 'Out of stock' : 'Purchase price' ?></span><strong>UGX <?= number_format((int) ($product['Price'] ?? 0)) ?></strong></div>
                     <?php endif; ?>
                     <a href="<?= htmlspecialchars($productPath, ENT_QUOTES, 'UTF-8') ?>" class="ssp-product-link">Explore product <span aria-hidden="true">↗</span></a>
                   </div>
@@ -406,7 +405,6 @@ $siteUrl = \App\Core\Url::site();
   <div id="preloader"></div>
 
   <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/js/bootstrap.bundle.min.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
-  <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/aos/aos.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
   <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/js/catalogue.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
   <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/js/main.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 
