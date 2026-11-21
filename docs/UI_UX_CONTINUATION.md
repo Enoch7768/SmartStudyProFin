@@ -10,6 +10,10 @@ Shared tokens and controls should be consistent, but public marketing, course di
 
 ## Completed in this pass
 
+- Rebuilt the published product catalogue as a commerce discovery experience with live text search, product-type and category filters, result counts, empty state, clear-filters behavior, distinct digital and physical labels, separate digital read/download pricing and physical stock state.
+- Redesigned product detail pages with a responsive image gallery, readable resource content, included-file details, a purchase summary and separate secure cart actions for read, download and physical purchase. Existing product lookup, canonical URL redirects, CSRF protection, stock checks and checkout/cart flows remain intact.
+- Removed legacy product-detail inline CSS that forced navigation into desktop layout, and removed unused remote Google Fonts and AOS dependencies from the two commerce pages.
+
 - Added client-side course catalogue search across each course's published title, category and description, plus a delivery-format filter populated only from published offering modes already present in the catalogue data. Visible result counts, an empty state and a clear-filters action update without changing the existing course detail routes.
 
 - Added a dedicated responsive visual treatment for About and Contact, strengthening the editorial page-title area, story image, contact information, message form and dark-theme states without changing their CMS data or form-processing flow.
@@ -38,8 +42,7 @@ Shared tokens and controls should be consistent, but public marketing, course di
 2. Refine the Booking page with a clear, task-first experience while preserving its current request and cart behavior.
 3. Refine the course catalogue with category/sort controls and richer course cards while preserving query behavior.
 4. Redesign course details around outcomes, instructor information, curriculum, published offering modes, schedules and a clear enrol action.
-5. Redesign the product catalogue and product details around digital versus physical decisions, previews, read/download pricing, stock and fulfilment information.
-6. Refine cart, checkout, payment states and order tracking.
+5. Refine the cart, checkout, payment states and order tracking around the distinct digital entitlements and physical fulfilment details.
 7. Refine login, registration, recovery, learner dashboard, lesson player and study workspace.
 8. Refine administrator and page-builder experiences using their own information density and interaction patterns.
 9. Run PHP lint and the full project test suite locally, then inspect screenshots at compact, medium, expanded and wide widths; verify keyboard, reduced-motion, light/dark and WCAG 2.2 AA states.
