@@ -23,6 +23,8 @@ $readPrice = (int) ($product['ReadPrice'] ?? $displayPrice);
 $downloadPrice = (int) ($product['DownloadPrice'] ?? $displayPrice);
 $displayDesc = $product['Description'] ?? 'No description available.';
 $productType = $product['ProductType'] ?? 'Online';
+$isDigitalProduct = strtolower((string) $productType) === 'online';
+$productInStock = !empty($product['StockAvailable']);
 $category = $product['Category'] ?? 'General';
 
 $phone = $contact['phone'];
@@ -289,9 +291,10 @@ $fullImgUrl = str_starts_with($imgUrl, 'http') ? $imgUrl : $siteUrl . '/' . ltri
     }
   </style>
 <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/device-responsive.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
+  <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/public-pages.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 </head>
 
-<body>
+<body class="product-detail-page">
 
   <?php include 'nav.php'; ?>
 
@@ -304,53 +307,64 @@ $fullImgUrl = str_starts_with($imgUrl, 'http') ? $imgUrl : $siteUrl . '/' . ltri
       </div>
     </div>
 
-    <section class="section py-5">
-      <div class="container" data-aos="fade-up">
-        <div class="row gy-4">
-          
-          <div class="col-lg-8">
-            <?php if ($gallery): ?><div class="row g-3 mb-4"><?php foreach ($gallery as $image): ?><div class="<?= count($gallery) === 1 ? 'col-12' : 'col-sm-6' ?>"><img src="<?= htmlspecialchars($image['url'], ENT_QUOTES, 'UTF-8') ?>" class="img-fluid rounded-4 shadow-sm w-100" style="max-height: 420px; object-fit: cover;" alt="<?= htmlspecialchars($image['alt'] ?: $displayTitle, ENT_QUOTES, 'UTF-8') ?>"></div><?php endforeach; ?></div><?php else: ?><img src="<?= htmlspecialchars($imgUrl, ENT_QUOTES, 'UTF-8') ?>" class="img-fluid rounded-4 shadow-sm mb-4 w-100" style="max-height: 420px; object-fit: cover;" alt="<?= htmlspecialchars($displayTitle, ENT_QUOTES, 'UTF-8') ?>"><?php endif; ?>
-            <h3 class="fw-bold mb-3" style="color: var(--ssp-navy);">About this Resource</h3>
-            <div class="content text-muted lh-lg">
-                <?= $displayDesc ?>
+    <section class="ssp-product-detail section py-5">
+      <div class="container">
+        <?php if ($product): ?>
+          <div class="ssp-product-detail-layout">
+            <div class="ssp-product-detail-main">
+              <div class="ssp-product-gallery">
+                <?php if ($gallery): ?>
+                  <?php foreach ($gallery as $image): ?>
+                    <figure><img src="<?= htmlspecialchars($image['url'], ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($image['alt'] ?: $displayTitle, ENT_QUOTES, 'UTF-8') ?>" loading="lazy"></figure>
+                  <?php endforeach; ?>
+                <?php else: ?>
+                  <figure><img src="<?= htmlspecialchars($imgUrl, ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($displayTitle, ENT_QUOTES, 'UTF-8') ?>"></figure>
+                <?php endif; ?>
+              </div>
+              <div class="ssp-product-story">
+                <span class="ssp-eyebrow"><?= $isDigitalProduct ? 'Digital learning resource' : 'Physical learning material' ?></span>
+                <h2>About this <?= $isDigitalProduct ? 'resource' : 'product' ?></h2>
+                <div class="ssp-product-rich-content"><?= $displayDesc ?></div>
+                <?php if ($includedFiles): ?>
+                  <section class="ssp-included-files">
+                    <h3>What’s included</h3>
+                    <ul><?php foreach ($includedFiles as $file): ?><li><i class="bi bi-file-earmark-check" aria-hidden="true"></i><span><?= htmlspecialchars($file['name'], ENT_QUOTES, 'UTF-8') ?></span><small><?= number_format((int) $file['size'] / 1024, 1) ?> KB</small></li><?php endforeach; ?></ul>
+                    <p>Secure access becomes available in your order history after payment is verified.</p>
+                  </section>
+                <?php endif; ?>
+              </div>
             </div>
-            <?php if ($includedFiles): ?><section class="mt-4"><h3 class="h5 fw-bold mb-3" style="color:var(--ssp-navy);">Included files</h3><ul class="list-group list-group-flush rounded-3"><?php foreach ($includedFiles as $file): ?><li class="list-group-item d-flex justify-content-between gap-3"><span><i class="bi bi-file-earmark-text me-2"></i><?= htmlspecialchars($file['name'], ENT_QUOTES, 'UTF-8') ?></span><small class="text-muted text-nowrap"><?= number_format((int) $file['size'] / 1024, 1) ?> KB</small></li><?php endforeach; ?></ul><p class="small text-muted mt-2 mb-0">Secure access becomes available in your order history after payment is verified.</p></section><?php endif; ?>
+            <aside class="ssp-product-purchase">
+              <div class="ssp-purchase-panel">
+                <div class="ssp-purchase-topline"><span><?= $isDigitalProduct ? 'Instant digital access' : 'Physical product' ?></span><span class="ssp-product-category"><?= htmlspecialchars($category, ENT_QUOTES, 'UTF-8') ?></span></div>
+                <h2><?= htmlspecialchars($displayTitle, ENT_QUOTES, 'UTF-8') ?></h2>
+                <p class="ssp-purchase-description"><?= htmlspecialchars(substr(trim(strip_tags((string) $displayDesc)), 0, 180), ENT_QUOTES, 'UTF-8') ?></p>
+                <div class="ssp-purchase-facts"><span><i class="bi bi-tag" aria-hidden="true"></i><?= htmlspecialchars($category, ENT_QUOTES, 'UTF-8') ?></span><span><i class="bi bi-<?= $isDigitalProduct ? 'cloud-arrow-down' : 'box-seam' ?>" aria-hidden="true"></i><?= $isDigitalProduct ? 'Digital delivery' : ($productInStock ? 'In stock' : 'Out of stock') ?></span></div>
+                <?php if ($isDigitalProduct): ?>
+                  <div class="ssp-access-choice">
+                    <div><span class="ssp-access-label">Read or view online</span><strong>UGX <?= number_format($readPrice) ?></strong><p>Open supported content in your browser. Original-file downloads are not included.</p></div>
+                    <form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>"><input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="type" value="product"><input type="hidden" name="id" value="<?= $productId ?>"><input type="hidden" name="entitlement" value="read"><button type="submit" class="ssp-purchase-button">Add read access <span aria-hidden="true">→</span></button></form>
+                  </div>
+                  <div class="ssp-access-choice ssp-access-choice-download">
+                    <div><span class="ssp-access-label">Download original files</span><strong>UGX <?= number_format($downloadPrice) ?></strong><p>Save the approved original files to your device. Browser reading is not included.</p></div>
+                    <form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>"><input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="type" value="product"><input type="hidden" name="id" value="<?= $productId ?>"><input type="hidden" name="entitlement" value="download"><button type="submit" class="ssp-purchase-button">Add download access <span aria-hidden="true">→</span></button></form>
+                  </div>
+                <?php else: ?>
+                  <div class="ssp-physical-price"><span>Purchase price</span><strong>UGX <?= number_format((int) $displayPrice) ?></strong></div>
+                  <?php if (!$productInStock): ?>
+                    <p class="ssp-stock-message"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> Currently out of stock. Please check back later.</p>
+                  <?php else: ?>
+                    <form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>"><input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="type" value="product"><input type="hidden" name="id" value="<?= $productId ?>"><button type="submit" class="ssp-purchase-button ssp-purchase-button-primary">Add to cart <span aria-hidden="true">→</span></button></form>
+                    <p class="ssp-delivery-note"><i class="bi bi-truck" aria-hidden="true"></i> Delivery options and charges are shown during checkout.</p>
+                  <?php endif; ?>
+                <?php endif; ?>
+                <a class="ssp-back-to-store" href="<?= htmlspecialchars(\App\Core\Url::to('/products'), ENT_QUOTES, 'UTF-8') ?>">← Back to all products</a>
+              </div>
+            </aside>
           </div>
-
-          <div class="col-lg-4">
-            <div class="p-4 ssp-card-box">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="m-0 fw-bold" style="color: var(--ssp-navy);"><?= strtolower($productType) === 'online' ? 'Choose your access' : 'Price' ?></h4>
-                <?php if (strtolower($productType) !== 'online'): ?><span class="h3 m-0 fw-bold" style="color: var(--ssp-orange);">UGX <?= number_format(floatval($displayPrice ?? 0)) ?></span><?php else: ?><span class="small text-muted">Two independent purchase options</span><?php endif; ?>
-              </div>
-              <p class="small" style="color: var(--ssp-text-muted);"><i class="bi bi-info-circle me-1"></i> Type: <strong><?= htmlspecialchars($productType) ?></strong></p>
-              <hr class="my-3" style="border-color: var(--ssp-card-border);">
-              
-              <?php if (strtolower($productType) === 'online'): ?>
-              <div class="border rounded-3 p-3 mb-3">
-                <div class="d-flex justify-content-between gap-2"><strong>Read / view online</strong><strong style="color:var(--ssp-orange)">UGX <?= number_format($readPrice) ?></strong></div>
-                <p class="small text-muted mb-2">Read supported content in your browser. Original-file download is not included.</p>
-                <form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>"><input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="type" value="product"><input type="hidden" name="id" value="<?= $productId ?>"><input type="hidden" name="entitlement" value="read"><button type="submit" class="btn-ssp-primary w-100 py-2">Add read access</button></form>
-              </div>
-              <div class="border rounded-3 p-3">
-                <div class="d-flex justify-content-between gap-2"><strong>Download original files</strong><strong style="color:var(--ssp-orange)">UGX <?= number_format($downloadPrice) ?></strong></div>
-                <p class="small text-muted mb-2">Download approved original files to your device. Browser reading is not included.</p>
-                <form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>"><input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="type" value="product"><input type="hidden" name="id" value="<?= $productId ?>"><input type="hidden" name="entitlement" value="download"><button type="submit" class="btn-ssp-primary w-100 py-2">Add download access</button></form>
-              </div>
-              <?php else: ?>
-              <?php if (empty($product['StockAvailable'])): ?><div class="alert alert-secondary mb-0">Currently out of stock. Please check back later.</div><?php else: ?>
-              <form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>">
-                <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
-                <input type="hidden" name="type" value="product">
-                <input type="hidden" name="id" value="<?= $productId ?>">
-                <button type="submit" class="btn-ssp-primary w-100 py-2 mt-2">Add to cart · delivery at checkout</button>
-              </form>
-              <?php endif; ?>
-              <?php endif; ?>
-            </div>
-          </div>
-
-        </div>
+        <?php else: ?>
+          <div class="ssp-product-not-found"><i class="bi bi-search" aria-hidden="true"></i><h2>We couldn’t find that product.</h2><p>It may have been unpublished or the link may have changed.</p><a href="<?= htmlspecialchars(\App\Core\Url::to('/products'), ENT_QUOTES, 'UTF-8') ?>">Browse the store</a></div>
+        <?php endif; ?>
       </div>
     </section>
 
