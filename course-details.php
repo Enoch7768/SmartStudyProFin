@@ -30,6 +30,8 @@ $seoDescription = $course['SEO-Description'] ?? strip_tags($course['Description'
 $siteUrl = \App\Core\Url::site();
 
 $cImgData = $course['Image'] ?? null;
+$courseImage = (string) ($cImgData['url'] ?? 'assets/img/course-1.jpg');
+$courseCategory = (string) ($course['Category'] ?? 'Learning programme');
 $ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/') : $siteUrl . '/assets/img/course-1.jpg';
 ?>
 
@@ -91,102 +93,100 @@ $ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/favicon.php'), ENT_QUOTES, 'UTF-8') ?>" rel="icon">
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/Smart_Study_Logo_Fin-removebg-preview.png'), ENT_QUOTES, 'UTF-8') ?>" rel="apple-touch-icon">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/css/bootstrap.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap-icons/bootstrap-icons.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
-  <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/aos/aos.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
   <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/device-responsive.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 
   <link rel="stylesheet" href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/main.css'), ENT_QUOTES, 'UTF-8') ?>">
 
+  <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/public-pages.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 </head>
 
-<body class="ssp-course-details">
+<body class="ssp-course-details course-detail-page">
 
   <?php include 'nav.php'; ?>
 
-  <main id="main-content" class="main">
-
-    <div class="page-title-ssp text-center">
-      <div class="container" data-aos="fade-up">
-        <h1 class="fw-bold mb-2"><?= htmlspecialchars($displayTitle) ?></h1>
-        <p class="mb-0 opacity-75"><?= htmlspecialchars($displaySubtitle) ?></p>
-      </div>
-    </div>
-
-    <?php if (!empty($course['Offerings'])): ?>
-    <section class="section py-4"><div class="container"><div class="row justify-content-center"><div class="col-lg-10"><div class="p-4 ssp-card-box"><h2 class="h4 fw-bold mb-3" class="ssp-brand-text">Choose how you want to learn</h2><div class="row g-3">
-      <?php foreach ($course['Offerings'] as $offering): ?>
-      <div class="col-md-4"><div class="h-100 p-3 rounded border d-flex flex-column"><strong><?= htmlspecialchars(match ($offering['mode']) {'self_paced' => 'Self-paced in-app', 'live_online' => 'Live online', 'in_person' => 'In person', default => 'Course'}) ?></strong><div class="small text-muted mt-1"><?= htmlspecialchars($offering['title']) ?></div><div class="fw-bold mt-2">UGX <?= number_format((int) $offering['price_ugx']) ?></div><?php if ($offering['capacity'] !== null): ?><div class="small text-muted">Capacity: <?= (int) $offering['capacity'] ?></div><?php endif; ?><form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>" class="mt-auto pt-3"><input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="type" value="course"><input type="hidden" name="id" value="<?= $courseId ?>"><input type="hidden" name="offering_id" value="<?= (int)$offering['id'] ?>"><button class="btn-ssp-primary w-100" type="submit"><?= (int)$offering['price_ugx'] === 0 ? 'Join this option' : 'Add option to cart' ?></button></form></div></div>
-      <?php endforeach; ?>
-    </div></div></div></div></section>
-    <?php endif; ?>
-
-    <?php if (trim(strip_tags((string) ($course['Description'] ?? '') . (string) ($course['Content'] ?? ''))) !== ''): ?>
-    <section class="section py-4"><div class="container"><div class="row justify-content-center"><div class="col-lg-10"><article class="p-4 p-md-5 ssp-card-box"><h2 class="h3 fw-bold mb-3" class="ssp-brand-text">About this course</h2><?php if (trim((string) ($course['Description'] ?? '')) !== ''): ?><div class="course-description mb-4"><?= $course['Description'] ?></div><?php endif; ?><?php if (trim((string) ($course['Content'] ?? '')) !== ''): ?><h3 class="h5 fw-bold mb-3" class="ssp-brand-text">Course overview</h3><div class="course-overview"><?= $course['Content'] ?></div><?php endif; ?></article></div></div></div></section>
-    <?php endif; ?>
-
-    <?php if (empty($course['Offerings'])): ?><section class="section pt-4 pb-0"><div class="container"><div class="row justify-content-center"><div class="col-lg-8"><div class="p-4 p-md-5 ssp-card-box"><div class="small text-uppercase fw-bold mb-2" class="ssp-accent-text">Start learning</div><h2 class="h3 fw-bold mb-2">Join this course</h2><p class="text-muted mb-3">Access the structured lessons, learning resources and knowledge checks in your student dashboard.</p><?php if ((int) $displayPrice === 0): ?><a class="btn-ssp-primary text-decoration-none" href="<?= \App\Core\Url::to('/learn/' . rawurlencode((string) ($course['slug'] ?? ''))) ?>">Start this free course</a><?php else: ?><div class="d-flex flex-wrap align-items-center justify-content-between gap-3"><strong class="fs-4" class="ssp-accent-text">UGX <?= number_format((int) $displayPrice) ?></strong><form method="post" action="<?= \App\Core\Url::to('/cart/add') ?>"><input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="type" value="course"><input type="hidden" name="id" value="<?= $courseId ?>"><button class="btn-ssp-primary" type="submit">Add course to cart</button></form></div><?php endif; ?></div></div></div></div></section>
-
-    <?php endif; ?>
-    <section id="starter-section" class="starter-section section py-5">
-      <div class="container section-title text-center mb-4" data-aos="fade-up">
-        <h2 class="fw-bold" class="ssp-brand-text"><?= htmlspecialchars($displayTitle) ?></h2>
-        <p class="ssp-muted-text">Book Your Session</p>
-      </div>
-
-      <div class="container" data-aos="fade-up">
-        <div class="row justify-content-center">
-          <div class="col-lg-8">
-            <div class="p-4 p-md-5 ssp-card-box">
-              <h3 class="text-center mb-4 fw-bold" class="ssp-brand-text">Reservation Form</h3>
-              
-              <form action="<?= htmlspecialchars(\App\Core\Url::to('/booking'), ENT_QUOTES, 'UTF-8') ?>" method="post">
-                  <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
-                  <input type="hidden" name="course_id" value="<?= htmlspecialchars((string) $courseId, ENT_QUOTES, 'UTF-8') ?>">
-                  <input type="hidden" name="price" value="<?= htmlspecialchars((string) $displayPrice, ENT_QUOTES, 'UTF-8') ?>">
-                  <input type="hidden" name="service" value="<?= htmlspecialchars($displayTitle) ?>">
-                  
-                  <div class="row">
-                      <div class="col-md-6 form-group mb-3">
-                          <label for="name" class="form-label small fw-semibold">Full Name</label>
-                          <input type="text" name="name" class="form-control rounded-3" id="name" placeholder="John Doe" required>
-                      </div>
-                      <div class="col-md-6 form-group mb-3">
-                          <label for="email" class="form-label small fw-semibold">Email Address</label>
-                          <input type="email" name="email" class="form-control rounded-3" id="email" placeholder="example@mail.com" required>
-                      </div>
-                  </div>
-                  <div class="form-group mb-3">
-                      <label for="phone" class="form-label small fw-semibold">Phone Number</label>
-                      <input type="text" name="phone" class="form-control rounded-3" id="phone" placeholder="+256..." required>
-                  </div>
-                  <div class="form-group mb-3">
-                      <label for="date" class="form-label small fw-semibold">Preferred Starting Date</label>
-                      <input type="date" name="date" class="form-control rounded-3" id="date" required>
-                  </div>
-                  <div class="form-group mb-3">
-                      <label for="message" class="form-label small fw-semibold">Additional Notes</label>
-                      <textarea name="message" class="form-control rounded-3" id="message" rows="4" placeholder="Tell us about your learning goals..."></textarea>
-                  </div>
-                  <div class="form-group my-4 text-center">
-                      <div class="p-3 price-box rounded-3 border">
-                          <p class="mb-0"><strong>Total Course Fee:</strong> <span class="fw-bold fs-5 ms-2" class="ssp-accent-text">UGX <?= number_format(floatval($displayPrice ?? 0)) ?></span></p>
-                      </div>
-                  </div>
-                  <div class="text-center mt-4">
-                      <button type="submit" class="btn-ssp-primary w-100 py-3">Confirm Booking</button>
-                  </div>
-              </form>
+  <main id="main-content" class="main ssp-course-detail-page">
+    <?php if ($course): ?>
+      <section class="ssp-course-hero">
+        <div class="container">
+          <div class="ssp-course-hero-copy">
+            <a href="<?= htmlspecialchars(\App\Core\Url::to('/courses'), ENT_QUOTES, 'UTF-8') ?>" class="ssp-course-back">← All courses</a>
+            <span class="ssp-eyebrow"><?= htmlspecialchars($courseCategory, ENT_QUOTES, 'UTF-8') ?></span>
+            <h1><?= htmlspecialchars($displayTitle, ENT_QUOTES, 'UTF-8') ?></h1>
+            <p><?= htmlspecialchars($displaySubtitle, ENT_QUOTES, 'UTF-8') ?></p>
+            <div class="ssp-course-hero-actions">
+              <a href="#course-options" class="ssp-course-primary-link"><?= $course['Offerings'] ? 'Choose your learning format' : ((int) $displayPrice === 0 ? 'Start learning' : 'Enrol in this course') ?> <span aria-hidden="true">↓</span></a>
+              <span class="ssp-course-format-count"><?= count($course['Offerings']) ?> published <?= count($course['Offerings']) === 1 ? 'option' : 'options' ?></span>
             </div>
           </div>
+          <figure class="ssp-course-hero-image"><img src="<?= htmlspecialchars($courseImage, ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($displayTitle, ENT_QUOTES, 'UTF-8') ?>"></figure>
         </div>
-      </div>
-    </section>
+      </section>
 
+      <?php if ($course['Offerings']): ?>
+        <section id="course-options" class="ssp-course-options section">
+          <div class="container">
+            <div class="ssp-section-heading"><span class="ssp-eyebrow">Choose your pathway</span><h2>One goal. A learning format that fits.</h2><p>Compare the published ways to take this course and choose the option that works best for you.</p></div>
+            <div class="ssp-offering-grid">
+              <?php foreach ($course['Offerings'] as $offering): ?>
+                <?php
+                  $offeringMode = (string) ($offering['mode'] ?? '');
+                  $offeringLabel = match ($offeringMode) {'self_paced' => 'Self-paced learning', 'live_online' => 'Live online classes', 'in_person' => 'In-person learning', default => 'Course option'};
+                  $offeringIcon = match ($offeringMode) {'self_paced' => 'bi-laptop', 'live_online' => 'bi-camera-video', 'in_person' => 'bi-people', default => 'bi-book'};
+                  $offeringDescription = trim((string) ($offering['description'] ?? ''));
+                  if ($offeringDescription === '') $offeringDescription = match ($offeringMode) {'self_paced' => 'Work through the course lessons on your own schedule.', 'live_online' => 'Learn through live online sessions with an instructor.', 'in_person' => 'Take part in face-to-face learning sessions.', default => 'Choose this published course option.'};
+                ?>
+                <article class="ssp-offering-card">
+                  <div class="ssp-offering-icon"><i class="bi <?= $offeringIcon ?>" aria-hidden="true"></i></div>
+                  <span class="ssp-offering-kicker"><?= htmlspecialchars($offeringLabel, ENT_QUOTES, 'UTF-8') ?></span>
+                  <h3><?= htmlspecialchars((string) $offering['title'], ENT_QUOTES, 'UTF-8') ?></h3>
+                  <p><?= htmlspecialchars($offeringDescription, ENT_QUOTES, 'UTF-8') ?></p>
+                  <div class="ssp-offering-price"><span>Course fee</span><strong><?= (int) $offering['price_ugx'] === 0 ? 'Free' : 'UGX ' . number_format((int) $offering['price_ugx']) ?></strong></div>
+                  <form method="post" action="<?= htmlspecialchars(\App\Core\Url::to('/cart/add'), ENT_QUOTES, 'UTF-8') ?>">
+                    <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
+                    <input type="hidden" name="type" value="course">
+                    <input type="hidden" name="id" value="<?= $courseId ?>">
+                    <input type="hidden" name="offering_id" value="<?= (int) $offering['id'] ?>">
+                    <button type="submit" class="ssp-course-enrol-button"><?= (int) $offering['price_ugx'] === 0 ? 'Choose this option' : 'Add to cart' ?> <span aria-hidden="true">→</span></button>
+                  </form>
+                </article>
+              <?php endforeach; ?>
+            </div>
+          </div>
+        </section>
+      <?php else: ?>
+        <section id="course-options" class="ssp-course-options section">
+          <div class="container"><div class="ssp-course-single-offer">
+            <div><span class="ssp-eyebrow">Start learning</span><h2>Ready to take the next step?</h2><p>Explore the structured lessons and learning resources for this course.</p></div>
+            <div class="ssp-single-offer-action">
+              <?php if ((int) $displayPrice === 0): ?>
+                <strong>Free course</strong><a href="<?= htmlspecialchars(\App\Core\Url::to('/learn/' . rawurlencode((string) ($course['slug'] ?? ''))), ENT_QUOTES, 'UTF-8') ?>" class="ssp-course-enrol-button">Start this course <span aria-hidden="true">→</span></a>
+              <?php else: ?>
+                <strong>UGX <?= number_format((int) $displayPrice) ?></strong><form method="post" action="<?= htmlspecialchars(\App\Core\Url::to('/cart/add'), ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Security::csrfToken(), ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="type" value="course"><input type="hidden" name="id" value="<?= $courseId ?>"><button class="ssp-course-enrol-button" type="submit">Add course to cart <span aria-hidden="true">→</span></button></form>
+              <?php endif; ?>
+            </div>
+          </div></div>
+        </section>
+      <?php endif; ?>
+
+      <?php if (trim(strip_tags((string) ($course['Description'] ?? '') . (string) ($course['Content'] ?? ''))) !== ''): ?>
+        <section class="ssp-course-about section">
+          <div class="container">
+            <div class="ssp-course-about-inner">
+              <div class="ssp-course-about-heading"><span class="ssp-eyebrow">Inside the course</span><h2>Build knowledge you can put to work.</h2></div>
+              <div class="ssp-course-about-content">
+                <?php if (trim((string) ($course['Description'] ?? '')) !== ''): ?><div class="course-description"><?= $course['Description'] ?></div><?php endif; ?>
+                <?php if (trim((string) ($course['Content'] ?? '')) !== ''): ?><div class="course-overview"><?= $course['Content'] ?></div><?php endif; ?>
+              </div>
+            </div>
+          </div>
+        </section>
+      <?php endif; ?>
+    <?php else: ?>
+      <section class="ssp-course-not-found"><div class="container"><span class="ssp-eyebrow">Course unavailable</span><h1>We couldn’t find this course.</h1><p>It may have been unpublished or the link may have changed.</p><a href="<?= htmlspecialchars(\App\Core\Url::to('/courses'), ENT_QUOTES, 'UTF-8') ?>">Browse all courses</a></div></section>
+    <?php endif; ?>
   </main>
 
   <footer id="footer" class="ssp-footer pt-5 pb-3">
@@ -247,7 +247,6 @@ $ogImage = isset($cImgData['url']) ? $siteUrl . '/' . ltrim($cImgData['url'], '/
   <div id="preloader"></div>
 
   <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/js/bootstrap.bundle.min.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
-  <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/aos/aos.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
   <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/js/main.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 
 </body>
