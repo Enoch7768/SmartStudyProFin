@@ -10,6 +10,9 @@ Shared tokens and controls should be consistent, but public marketing, course di
 
 ## Completed in this pass
 
+- Redesigned course details with a distinctive hero, actual course imagery, category context, and clear published learning options for self-paced, live-online and in-person delivery. Each option uses its real published title, description and price and keeps the existing secure cart action.
+- Replaced the misleading legacy reservation form that posted to the cart handler with a focused course-enrolment flow. The course description and CMS overview remain sanitized and are presented in a more readable editorial layout.
+
 - Refined cart, checkout, payment selection, order history and receipt layouts with a consistent commerce design. Improved item and entitlement labels, totals, physical-delivery form hierarchy, provider choices, order status visibility, and receipt print treatment.
 - Preserved server-side price revalidation, physical-only shipping, delivery method validation, CSRF checks, one-time checkout tokens, PayPal/DPO routes, explicitly gated demo payments, user-scoped order history and entitlement-specific read/download access.
 - Ensured the shared responsive header interaction script is present on each commerce account page.
