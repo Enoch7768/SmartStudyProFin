@@ -327,7 +327,7 @@ $siteUrl = \App\Core\Url::site();
                   <div class="ssp-product-card-body">
                     <div class="ssp-product-meta"><span class="ssp-product-kind"><?= $productIsDigital ? 'Digital resource' : 'Physical product' ?></span><span class="ssp-product-category"><?= htmlspecialchars($productCategory, ENT_QUOTES, 'UTF-8') ?></span></div>
                     <h3><a href="<?= htmlspecialchars($productPath, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($productTitle, ENT_QUOTES, 'UTF-8') ?></a></h3>
-                    <p class="ssp-product-description"><?= htmlspecialchars(mb_strimwidth($productDescription, 0, 142, '…'), ENT_QUOTES, 'UTF-8') ?></p>
+                    <p class="ssp-product-description"><?= htmlspecialchars(substr($productDescription, 0, 142), ENT_QUOTES, 'UTF-8') ?></p>
                     <?php if ($productIsDigital): ?>
                       <div class="ssp-product-prices"><div><span>Read online</span><strong>UGX <?= number_format((int) ($product['ReadPrice'] ?? $product['Price'] ?? 0)) ?></strong></div><div><span>Download</span><strong>UGX <?= number_format((int) ($product['DownloadPrice'] ?? $product['Price'] ?? 0)) ?></strong></div></div>
                     <?php else: ?>
