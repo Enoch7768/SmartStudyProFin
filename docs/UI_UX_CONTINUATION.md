@@ -10,6 +10,10 @@ Shared tokens and controls should be consistent, but public marketing, course di
 
 ## Completed in this pass
 
+- Refined cart, checkout, payment selection, order history and receipt layouts with a consistent commerce design. Improved item and entitlement labels, totals, physical-delivery form hierarchy, provider choices, order status visibility, and receipt print treatment.
+- Preserved server-side price revalidation, physical-only shipping, delivery method validation, CSRF checks, one-time checkout tokens, PayPal/DPO routes, explicitly gated demo payments, user-scoped order history and entitlement-specific read/download access.
+- Ensured the shared responsive header interaction script is present on each commerce account page.
+
 - Rebuilt the published product catalogue as a commerce discovery experience with live text search, product-type and category filters, result counts, empty state, clear-filters behavior, distinct digital and physical labels, separate digital read/download pricing and physical stock state.
 - Redesigned product detail pages with a responsive image gallery, readable resource content, included-file details, a purchase summary and separate secure cart actions for read, download and physical purchase. Existing product lookup, canonical URL redirects, CSRF protection, stock checks and checkout/cart flows remain intact.
 - Removed legacy product-detail inline CSS that forced navigation into desktop layout, and removed unused remote Google Fonts and AOS dependencies from the two commerce pages.
@@ -42,7 +46,8 @@ Shared tokens and controls should be consistent, but public marketing, course di
 2. Refine the Booking page with a clear, task-first experience while preserving its current request and cart behavior.
 3. Refine the course catalogue with category/sort controls and richer course cards while preserving query behavior.
 4. Redesign course details around outcomes, instructor information, curriculum, published offering modes, schedules and a clear enrol action.
-5. Refine the cart, checkout, payment states and order tracking around the distinct digital entitlements and physical fulfilment details.
+5. Redesign course details around outcomes, instructor information, curriculum, published offering modes, schedules and a clear enrol action.
+6. Refine the learner dashboard and lesson experience, then return for full browser-level QA of public and commerce flows.
 7. Refine login, registration, recovery, learner dashboard, lesson player and study workspace.
 8. Refine administrator and page-builder experiences using their own information density and interaction patterns.
 9. Run PHP lint and the full project test suite locally, then inspect screenshots at compact, medium, expanded and wide widths; verify keyboard, reduced-motion, light/dark and WCAG 2.2 AA states.
