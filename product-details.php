@@ -94,7 +94,7 @@ $fullImgUrl = str_starts_with($imgUrl, 'http') ? $imgUrl : $siteUrl . '/' . ltri
       "url": "<?= $siteUrl ?>/products/<?= rawurlencode((string) ($product['slug'] ?? '')) ?>",
       "priceCurrency": "UGX",
       "price": "<?= $displayPrice ?>",
-      "availability": "https://schema.org/InStock"
+      "availability": "<?= $isDigitalProduct || $productInStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' ?>"
     }
   }
   </script>
