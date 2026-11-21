@@ -5,6 +5,7 @@ All notable SmartStudyPro changes are recorded here. The current section is unre
 ## Unreleased
 
 ### User experience and design
+- Rebuilt course details around an image-led editorial introduction, published learning-format options, offering-specific prices and a clearer course overview. Preserved canonical URLs, published offering data and CSRF-protected cart actions; removed a legacy reservation form that posted to the cart handler and implied a booking workflow it did not implement.
 - Refined the cart, checkout, payment selection, order history and receipt screens with a shared commerce visual system. Improved item hierarchy, totals, delivery forms, provider actions, order tables and print presentation while preserving server-side pricing, shipping calculations, CSRF checks, one-time checkout tokens, provider integrations and payment-state verification.
 - Ensured commerce account pages load the shared responsive navigation interactions and styles, including the receipt view.
 - Rebuilt the product catalogue around the distinction between digital learning resources and physical products. Added live search, type and category filters, visible result counts, a no-match state, separate read/download prices for digital items, physical purchase pricing and published stock status. Product records remain sourced from the published CMS catalogue.
