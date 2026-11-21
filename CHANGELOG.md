@@ -5,6 +5,8 @@ All notable SmartStudyPro changes are recorded here. The current section is unre
 ## Unreleased
 
 ### User experience and design
+- Rebuilt the product catalogue around the distinction between digital learning resources and physical products. Added live search, type and category filters, visible result counts, a no-match state, separate read/download prices for digital items, physical purchase pricing and published stock status. Product records remain sourced from the published CMS catalogue.
+- Redesigned product details with a responsive editorial gallery and description, included-file information, a clear purchase panel, distinct read/download entitlements for digital items, physical stock-aware purchasing and existing CSRF-protected cart actions. Removed legacy inline navigation styles that overrode the shared responsive menu, plus unused remote font and AOS dependencies.
 - Added live course-catalogue search and a delivery-format filter sourced from each published course's actual offerings. The result count and no-match state update as filters change, and a clear-filters action restores the full catalogue without a page reload.
 - Added a dedicated editorial public-page stylesheet for About and Contact, with stronger page-title hierarchy, responsive imagery, clearer contact information panels, more legible form controls and dark-theme refinements. Existing CMS content, contact submission handling and routes remain unchanged.
 - Rebuilt the shared public header with a compact primary navigation, route-aware active states, signed-in versus signed-out account actions, a session-backed cart quantity, and responsive mobile navigation. Preserved existing clean URLs, account/session checks and theme-preference endpoint.
