@@ -145,3 +145,76 @@
 @media(max-width:991.98px){.ssp-product-detail-layout{grid-template-columns:minmax(0,1fr) minmax(270px,.8fr);gap:22px}.ssp-purchase-panel{padding:20px}}
 @media(max-width:767.98px){.product-detail-page .page-title-ssp{padding-block:42px}.ssp-product-detail-layout{grid-template-columns:1fr}.ssp-product-purchase{position:static;grid-row:1}.ssp-product-story{padding-top:18px}.ssp-product-gallery{gap:9px}.ssp-product-gallery img{aspect-ratio:4/3}.ssp-purchase-panel{padding:21px}}
 @media(prefers-reduced-motion:reduce){.ssp-purchase-button{transition:none}}
+
+.ssp-commerce-cart,.ssp-commerce-checkout,.ssp-commerce-payment,.ssp-commerce-orders,.ssp-commerce-receipt{min-height:60vh;padding-block:clamp(34px,5vw,68px)!important;background:var(--ssp-page-bg)}
+.ssp-commerce-page-heading{gap:18px;margin-bottom:28px!important}
+.ssp-commerce-page-heading>div>p,.ssp-commerce-checkout>div>p:first-child{color:var(--ssp-accent)!important;font-size:.72rem;letter-spacing:.13em}
+.ssp-commerce-page-heading h1,.ssp-commerce-checkout h1,.ssp-orders-title{color:var(--ssp-text);font-size:clamp(1.8rem,3.3vw,2.55rem);font-weight:800;letter-spacing:-.045em}
+.ssp-commerce-page-heading>a{border-color:var(--ssp-border);border-radius:6px;color:var(--ssp-text);font-size:.85rem;font-weight:700}
+.ssp-commerce-page-heading>a:hover{border-color:var(--ssp-accent);color:var(--ssp-accent)}
+.ssp-cart-lines,.ssp-cart-summary,.ssp-cart-empty,.ssp-checkout-panel,.ssp-payment-panel,.ssp-orders-empty,.ssp-receipt-card{border:1px solid var(--ssp-border)!important;border-radius:10px!important;background:var(--ssp-surface);box-shadow:var(--ssp-shadow-sm)!important}
+.ssp-cart-line{align-items:center;border-color:var(--ssp-border)!important;background:var(--ssp-surface);gap:18px}
+.ssp-cart-line>div:first-child{min-width:0}
+.ssp-cart-line .badge{padding:6px 9px;border:1px solid var(--ssp-border);border-radius:4px;background:var(--ssp-surface-muted)!important;color:var(--ssp-muted)!important;font-size:.7rem;font-weight:750}
+.ssp-cart-line h2{color:var(--ssp-text);font-size:1.05rem;font-weight:750;line-height:1.35}
+.ssp-cart-line p{color:var(--ssp-muted)!important;font-size:.82rem}
+.ssp-cart-line-total{flex:0 0 auto}
+.ssp-cart-line-total>strong{color:var(--ssp-text);font-size:.98rem;font-variant-numeric:tabular-nums}
+.ssp-cart-line-total form button{border-radius:5px;font-size:.75rem}
+.ssp-cart-summary{position:sticky;top:104px;padding:25px!important}
+.ssp-cart-summary h2{color:var(--ssp-text);font-size:1.15rem;font-weight:800}
+.ssp-cart-summary .d-flex strong{color:var(--ssp-text);font-variant-numeric:tabular-nums}
+.ssp-cart-summary p{color:var(--ssp-muted)!important;font-size:.78rem;line-height:1.6}
+.ssp-cart-summary>a,.ssp-cart-empty>a,.ssp-checkout-panel button[type="submit"]{min-height:48px;border:1px solid var(--ssp-brand);border-radius:6px;background:var(--ssp-brand);color:#fff;font-weight:800}
+.ssp-cart-summary>a:hover,.ssp-cart-empty>a:hover,.ssp-checkout-panel button[type="submit"]:hover{border-color:var(--ssp-accent);background:var(--ssp-accent);color:#fff}
+.ssp-cart-empty{max-width:680px;margin:35px auto;padding:clamp(30px,5vw,58px)!important}
+.ssp-cart-empty h2{color:var(--ssp-text);font-weight:800}
+.ssp-cart-empty p{color:var(--ssp-muted)}
+.ssp-cart-empty>i{color:var(--ssp-accent)!important}
+.ssp-checkout-panel{max-width:900px!important;padding:clamp(22px,4vw,48px)!important}
+.ssp-checkout-panel h1{margin-bottom:24px!important}
+.ssp-checkout-panel form>.list-group{border-top:1px solid var(--ssp-border);border-bottom:1px solid var(--ssp-border)}
+.ssp-checkout-panel .list-group-item{display:flex;align-items:flex-start;gap:16px;border-color:var(--ssp-border);background:transparent;color:var(--ssp-text);line-height:1.5}
+.ssp-checkout-panel .list-group-item strong{flex:0 0 auto;color:var(--ssp-text);font-variant-numeric:tabular-nums}
+.ssp-checkout-panel .fs-5{color:var(--ssp-text)}
+.ssp-shipping-panel{padding:clamp(18px,3vw,26px)!important;border-color:var(--ssp-border)!important;border-radius:8px!important;background:var(--ssp-surface-muted)}
+.ssp-shipping-panel h2{color:var(--ssp-text);font-weight:800}
+.ssp-shipping-panel>p{color:var(--ssp-muted)!important;line-height:1.6}
+.ssp-checkout-panel .form-label{margin-bottom:7px;color:var(--ssp-text);font-size:.82rem;font-weight:750}
+.ssp-checkout-panel .form-control,.ssp-checkout-panel .form-select{min-height:46px;border-color:var(--ssp-border);border-radius:6px;background-color:var(--ssp-surface);color:var(--ssp-text);box-shadow:none}
+.ssp-checkout-panel textarea.form-control{min-height:96px}
+.ssp-checkout-panel .form-control:focus,.ssp-checkout-panel .form-select:focus{border-color:var(--ssp-accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--ssp-accent) 16%,transparent)}
+.ssp-checkout-panel form>p{color:var(--ssp-muted)!important;line-height:1.6}
+.ssp-checkout-panel button[type="submit"]{font-size:.92rem}
+.ssp-payment-panel{max-width:680px!important;padding:clamp(24px,4vw,46px)!important}
+.ssp-payment-panel h1{color:var(--ssp-text);font-size:clamp(1.8rem,3.5vw,2.5rem);font-weight:800;letter-spacing:-.04em}
+.ssp-payment-panel>p{color:var(--ssp-muted)!important}
+.ssp-provider-button{display:flex;align-items:center;justify-content:center;min-height:54px;border-radius:6px!important;font-size:.92rem!important;font-weight:800!important}
+.ssp-provider-paypal{border-color:#173A70!important;color:#173A70!important}
+.ssp-provider-paypal:hover{background:#173A70!important;color:#fff!important}
+.ssp-provider-dpo{border-color:var(--ssp-brand)!important;background:var(--ssp-brand)!important}
+.ssp-provider-dpo:hover{border-color:var(--ssp-accent)!important;background:var(--ssp-accent)!important}
+.ssp-demo-payment{border-color:#E7B84C!important;border-radius:8px!important;background:#FFF8E5!important;color:#533D12}
+.ssp-demo-payment h2{color:#533D12}
+.ssp-demo-payment p{color:#725B2D}
+.ssp-commerce-orders .alert{border-radius:7px}
+.ssp-orders-empty{max-width:660px;margin:28px auto;padding:clamp(28px,5vw,54px)!important;text-align:center}
+.ssp-orders-empty h2{color:var(--ssp-text);font-weight:800}
+.ssp-orders-empty p{color:var(--ssp-muted)}
+.ssp-orders-table{overflow-x:auto;border-color:var(--ssp-border)!important;border-radius:9px!important;background:var(--ssp-surface)}
+.ssp-orders-table table{min-width:900px;color:var(--ssp-text)}
+.ssp-orders-table thead th{padding:15px 12px;border-bottom:1px solid var(--ssp-border);background:var(--ssp-surface-muted);color:var(--ssp-muted);font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}
+.ssp-orders-table tbody td{padding:15px 12px;border-color:var(--ssp-border);background:var(--ssp-surface);color:var(--ssp-text);font-size:.82rem;vertical-align:middle}
+.ssp-orders-table tbody tr:hover td{background:var(--ssp-surface-muted)}
+.ssp-orders-table a{color:var(--ssp-brand);font-weight:750;text-decoration:none}
+.ssp-orders-table a:hover{color:var(--ssp-accent)}
+.ssp-orders-table .btn{border-radius:5px;background:var(--ssp-brand);font-size:.75rem;font-weight:750}
+.ssp-commerce-receipt .ssp-receipt-card{max-width:860px!important;padding:clamp(22px,4vw,48px)!important}
+.ssp-receipt-card h1{color:var(--ssp-text);font-weight:800;letter-spacing:-.04em}
+.ssp-receipt-card strong,.ssp-receipt-card td,.ssp-receipt-card th{color:var(--ssp-text)}
+.ssp-receipt-card .text-muted{color:var(--ssp-muted)!important}
+.ssp-receipt-card table{border-color:var(--ssp-border)}
+.ssp-receipt-card td,.ssp-receipt-card th{border-color:var(--ssp-border)}
+@media(max-width:767.98px){.ssp-commerce-page-heading{align-items:flex-start!important;flex-direction:column}.ssp-commerce-page-heading>a{align-self:flex-start}.ssp-cart-line{align-items:flex-start}.ssp-cart-line-total>strong{font-size:.88rem}.ssp-cart-summary{position:static}.ssp-checkout-panel .list-group-item{flex-direction:column;gap:5px}.ssp-payment-panel{padding:22px!important}.ssp-commerce-receipt>.d-flex{align-items:flex-start!important;flex-direction:column;gap:10px}.ssp-receipt-card{overflow-wrap:anywhere}}
+@media(prefers-reduced-motion:reduce){.ssp-commerce-cart a,.ssp-commerce-checkout button,.ssp-commerce-payment button,.ssp-commerce-orders a{transition:none}}
+@media print{.commerce-receipt-page .ssp-header,.commerce-receipt-page .ssp-commerce-receipt>.d-flex button,.commerce-receipt-page .scroll-top{display:none!important}.ssp-receipt-card{border:0!important;box-shadow:none!important}}
