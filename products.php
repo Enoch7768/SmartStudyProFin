@@ -271,6 +271,7 @@ $siteUrl = \App\Core\Url::site();
     }
   </style>
 <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/device-responsive.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
+  <link href="<?= htmlspecialchars(\App\Core\Url::to('/assets/css/public-pages.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 </head>
 
 <body class="products-page">
@@ -286,57 +287,62 @@ $siteUrl = \App\Core\Url::site();
       </div>
     </div>
 
-    <section id="products" class="products section py-5" style="background-color: var(--ssp-bg-main);">
+    <section id="products" class="products section py-5">
       <div class="container">
-        <div class="row g-4">
-          <?php if (!empty($products)): ?>
-            <?php foreach($products as $product): ?>
-              <div class="col-lg-4 col-md-6 d-flex align-items-stretch" data-aos="zoom-in">
-                <div class="ssp-course-card w-100 d-flex flex-column">
-                  <?php 
-                    $pImgData = $product['Image'] ?? $product['image'] ?? null;
-                    $pImg = !empty($pImgData['url']) 
-                            ? $pImgData['url'] 
-                            : 'assets/img/course-1.jpg'; 
-                  ?>
-                  <div class="position-relative">
-                    <img src="<?= $pImg ?>" class="img-fluid w-100" style="height: 210px; object-fit: cover;" alt="<?= htmlspecialchars($product['Title'] ?? $product['title'] ?? 'Product') ?>">
-                  </div>
-
-                  <div class="p-4 d-flex flex-column flex-grow-1">
-                    <!-- Fixed Header Container with Gap & Flex Bounds -->
-                    <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
-                      <span class="ssp-card-badge" title="<?= htmlspecialchars($product['Category'] ?? $product['category'] ?? 'Resource') ?>">
-                        <?= htmlspecialchars($product['Category'] ?? $product['category'] ?? 'Resource') ?>
-                      </span>
-                      <span class="ssp-price-tag">
-                        UGX <?= number_format(floatval($product['Price'] ?? $product['price'] ?? 0)) ?>
-                      </span>
-                    </div>
-
-                    <h3 class="h5 fw-bold mb-2">
-                      <a href="<?= \App\Core\Url::to('/products/' . rawurlencode((string) ($product['slug'] ?? $product['_id']))) ?>" class="text-decoration-none product-title-link">
-                        <?= htmlspecialchars($product['Title'] ?? $product['title'] ?? 'Untitled Product') ?>
-                      </a>
-                    </h3>
-
-                    <p class="text-muted small mb-4 flex-grow-1">
-                      <?= htmlspecialchars(substr(strip_tags($product['Description'] ?? $product['description'] ?? ''), 0, 110)) ?>...
-                    </p>
-
-                    <a href="<?= \App\Core\Url::to('/products/' . rawurlencode((string) ($product['slug'] ?? $product['_id']))) ?>" class="btn btn-outline-custom w-100 mt-auto rounded-3 text-decoration-none">
-                      View Details
-                    </a>
+        <?php
+          $productTypes = [];
+          $productCategories = [];
+          foreach ($products as $productRecord) {
+              $isDigital = strtolower((string) ($productRecord['ProductType'] ?? '')) === 'online';
+              $productTypes[$isDigital ? 'online' : 'physical'] = $isDigital ? 'Digital resources' : 'Physical products';
+              $categoryName = trim((string) ($productRecord['Category'] ?? ''));
+              if ($categoryName !== '') $productCategories[$categoryName] = $categoryName;
+          }
+        ?>
+        <div class="ssp-commerce-intro">
+          <div><span class="ssp-eyebrow">The learning store</span><h2>Resources that move learning forward.</h2><p>Choose digital resources to read online or download, or find physical materials for hands-on learning.</p></div>
+          <div class="ssp-commerce-note"><i class="bi bi-shield-check" aria-hidden="true"></i><span>Clear access options and pricing before you buy.</span></div>
+        </div>
+        <?php if ($products): ?>
+          <div class="ssp-catalogue-tools ssp-product-tools">
+            <label class="ssp-catalogue-search"><i class="bi bi-search" aria-hidden="true"></i><span class="visually-hidden">Search products</span><input id="product-search" type="search" placeholder="Search resources, subjects or materials" autocomplete="off"></label>
+            <label class="ssp-catalogue-filter"><span class="visually-hidden">Filter by product type</span><select id="product-type"><option value="">All products</option><?php foreach ($productTypes as $type => $label): ?><option value="<?= htmlspecialchars($type, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></option><?php endforeach; ?></select></label>
+            <label class="ssp-catalogue-filter"><span class="visually-hidden">Filter by category</span><select id="product-category"><option value="">All categories</option><?php foreach ($productCategories as $categoryName): ?><option value="<?= htmlspecialchars(strtolower($categoryName), ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($categoryName, ENT_QUOTES, 'UTF-8') ?></option><?php endforeach; ?></select></label>
+            <p class="ssp-catalogue-count" id="product-count" role="status" aria-live="polite"><?= count($products) ?> <?= count($products) === 1 ? 'item' : 'items' ?></p>
+          </div>
+          <div class="row g-4" id="product-grid">
+            <?php foreach ($products as $product): ?>
+              <?php
+                $productTitle = (string) ($product['Title'] ?? 'Untitled Product');
+                $productDescription = trim(strip_tags((string) ($product['Description'] ?? '')));
+                $productCategory = (string) ($product['Category'] ?? 'Resource');
+                $productIsDigital = strtolower((string) ($product['ProductType'] ?? '')) === 'online';
+                $productImage = (string) ($product['Image']['url'] ?? 'assets/img/course-1.jpg');
+                $productPath = \App\Core\Url::to('/products/' . rawurlencode((string) ($product['slug'] ?? $product['_id'])));
+                $productSearch = strtolower($productTitle . ' ' . $productCategory . ' ' . $productDescription);
+              ?>
+              <article class="col-lg-4 col-md-6 d-flex align-items-stretch ssp-product-result" data-product-search="<?= htmlspecialchars($productSearch, ENT_QUOTES, 'UTF-8') ?>" data-product-type="<?= $productIsDigital ? 'online' : 'physical' ?>" data-product-category="<?= htmlspecialchars(strtolower($productCategory), ENT_QUOTES, 'UTF-8') ?>">
+                <div class="ssp-product-card w-100">
+                  <a class="ssp-product-image" href="<?= htmlspecialchars($productPath, ENT_QUOTES, 'UTF-8') ?>" tabindex="-1" aria-hidden="true"><img src="<?= htmlspecialchars($productImage, ENT_QUOTES, 'UTF-8') ?>" alt="" loading="lazy"></a>
+                  <div class="ssp-product-card-body">
+                    <div class="ssp-product-meta"><span class="ssp-product-kind"><?= $productIsDigital ? 'Digital resource' : 'Physical product' ?></span><span class="ssp-product-category"><?= htmlspecialchars($productCategory, ENT_QUOTES, 'UTF-8') ?></span></div>
+                    <h3><a href="<?= htmlspecialchars($productPath, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($productTitle, ENT_QUOTES, 'UTF-8') ?></a></h3>
+                    <p class="ssp-product-description"><?= htmlspecialchars(mb_strimwidth($productDescription, 0, 142, '…'), ENT_QUOTES, 'UTF-8') ?></p>
+                    <?php if ($productIsDigital): ?>
+                      <div class="ssp-product-prices"><div><span>Read online</span><strong>UGX <?= number_format((int) ($product['ReadPrice'] ?? $product['Price'] ?? 0)) ?></strong></div><div><span>Download</span><strong>UGX <?= number_format((int) ($product['DownloadPrice'] ?? $product['Price'] ?? 0)) ?></strong></div></div>
+                    <?php else: ?>
+                      <div class="ssp-product-physical-price"><span>Purchase price</span><strong>UGX <?= number_format((int) ($product['Price'] ?? 0)) ?></strong></div>
+                    <?php endif; ?>
+                    <a href="<?= htmlspecialchars($productPath, ENT_QUOTES, 'UTF-8') ?>" class="ssp-product-link">Explore product <span aria-hidden="true">↗</span></a>
                   </div>
                 </div>
-              </div>
+              </article>
             <?php endforeach; ?>
-          <?php else: ?>
-            <div class="text-center text-muted py-5">
-              <p>No products currently available. Please check back shortly!</p>
-            </div>
-          <?php endif; ?>
-        </div>
+            <div class="col-12 ssp-catalogue-empty" id="product-empty" hidden><div class="ssp-catalogue-empty-inner"><i class="bi bi-search" aria-hidden="true"></i><h2 class="h4">No matching products</h2><p>Try another search or remove a filter.</p><button type="button" class="btn-ssp-primary" id="product-clear">Clear filters</button></div></div>
+          </div>
+        <?php else: ?>
+          <div class="ssp-product-empty"><i class="bi bi-bag" aria-hidden="true"></i><h2>No products just yet</h2><p>New learning resources will appear here when they are published.</p><a href="<?= htmlspecialchars(\App\Core\Url::to('/courses'), ENT_QUOTES, 'UTF-8') ?>">Explore courses</a></div>
+        <?php endif; ?>
       </div>
     </section>
 
@@ -401,6 +407,7 @@ $siteUrl = \App\Core\Url::site();
 
   <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/bootstrap/js/bootstrap.bundle.min.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
   <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/vendor/aos/aos.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+  <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/js/catalogue.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
   <script src="<?= htmlspecialchars(\App\Core\Url::to('/assets/js/main.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 
 </body>
